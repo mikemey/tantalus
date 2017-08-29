@@ -1,0 +1,14 @@
+{
+  "ignore": [
+    ".git",
+    "node_modules/**",
+    "**/bower_components/**"
+  ],
+  "verbose": true,
+  "execMap": {
+    "js": "node"
+  },
+  "legacyWatch": true,
+  "watch": [ "*" ],
+  "ext": "js json jsx xls xlsx html"
+}

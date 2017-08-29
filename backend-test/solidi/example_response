@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+  <head>
+<!--    <meta charset="UTF-8">-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Custom styles for this template -->
+    <link href="css/carousel.css" rel="stylesheet">
+    <link href="css/misc.css" rel="stylesheet">    
+    
+    
+<title>Solidi P2P - Next Generation Foreign Exchange</title>
+	
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="js/jquery-1.10.1.js"></script>
+<script src="js/jquery-migrate-1.2.1.js"></script>
+
+<script src="js/jquery.validate.js"></script>
+<script src="js/additional-methods.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<link rel="stylesheet" href="css/bootstrap.css">
+<script src="js/bootstrap.js"></script>
+
+<script src="js/bootstrap-datepicker.js"></script>
+<link rel="stylesheet" href="css/bootstrap-datepicker3.css">
+
+<!-- Fontawesome -->
+<link rel="stylesheet" href="css/font-awesome.min.css">
+
+<!-- Big.js -->
+<script src='./js/big.js'></script>
+
+
+<!-- Custom styles for this template -->
+<link href="css/carousel.css" rel="stylesheet">    
+<link href="css/misc.css" rel="stylesheet">    
+
+<div id="bootstrapCssTest" class="hide"></div>
+<div id="bootstrapCssTest2" class="show"></div>
+
+<!-- Favicons -->  <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+<link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="msapplication-TileImage" content="/mstile-144x144.png">
+<meta name="theme-color" content="#ffffff">
+
+  <script type="text/javascript">
+  	// This function doesn't seem to work on IE.
+	function cssLoaded(href) {
+		var cssFound = false;
+		for(var i = 0; i < document.styleSheets.length; i++) {
+			var sheet = document.styleSheets[i];
+			if(sheet['href'] != null && sheet['href'].indexOf(href) >= 0 && sheet['cssRules'].length > 0) {
+				cssFound = true;
+			}
+		};
+		if(!cssFound) {
+			addCSS(href);
+		}
+		return cssFound;
+	}
+	
+	function addCSS(href) {
+		local_bootstrap = document.createElement('link');
+		local_bootstrap.setAttribute("rel", "stylesheet");
+		local_bootstrap.setAttribute("type", "text/css");
+		local_bootstrap.setAttribute("href", href);
+		document.getElementsByTagName("head")[0].appendChild(local_bootstrap);
+	}
+
+	// Check JS
+	if (typeof jQuery == 'undefined') {
+		document.write(unescape("%3Cscript src='/js/jquery-1.10.1.js'        type='text/javascript'%3E%3C/script%3E"));
+		document.write(unescape("%3Cscript src='/js/jquery-migrate-1.2.1.js' type='text/javascript'%3E%3C/script%3E"));
+		document.write(unescape("%3Cscript src='/js/jquery.validate.js'      type='text/javascript'%3E%3C/script%3E"));
+		document.write(unescape("%3Cscript src='/js/additional-methods.js'   type='text/javascript'%3E%3C/script%3E"));
+	}
+
+	// euw....
+	var element3 = document.querySelector('#bootstrapCssTest');
+	var result = element3.currentStyle ? element3.currentStyle["display"] : window.getComputedStyle ? window.getComputedStyle(element3, null).getPropertyValue("display") : null;
+	if (result=="block") {
+		addCSS('css/bootstrap.css');
+	}
+	
+</script>
+  </head>
+
+  <body>
+
+
+<div id="header">
+
+<!--- Navigation bar -->
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<div class="container">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="index.php" style="padding-top: 0px; padding-bottom: 0px;"><img src="img/solidus-logo-50.png"></a>
+		</div>
+		<div class="navbar-collapse collapse">
+			<ul class="nav navbar-nav">
+				<li class=""><a href="index?tab=buy"><span class="glyphicon glyphicon-thumbs-up"></span>&nbsp;Buy</a></li>
+				<li class="active"><a href="index?tab=sell"><span class="glyphicon glyphicon-thumbs-down"></span>&nbsp;Sell</a></li>
+				<li class=""><a href="txnhist"><span class="glyphicon glyphicon-th-list"></span>&nbsp;Transactions</a></li>
+				<li class=""><a href="transfer"><span class="glyphicon glyphicon-send"></span>&nbsp;Transfer</a></li>
+				<li class=""><a href="settings"><span class="glyphicon glyphicon-cog"></span>&nbsp;Settings</a></li>
+			</ul>
+
+			<div class="navbar-form navbar-right col-sm-8" role="form">
+				<p class="navbar-text" style="margin:7px 10px;">Balance = 0.00000000 BTC</a></p>
+				<p class="navbar-text" style="margin:7px 10px;"><a href="#" class="navbar-link">Michael Mayer</a></p>
+				<a class="btn btn-success" href="signout" role="button">Sign out</a>
+			</div>
+		</div><!-- /.navbar-collapse -->
+	</div>
+</div>
+<script>
+$(function() {
+	// Setup drop down menu
+	$('.dropdown-toggle').dropdown();
+	// Fix input element click problem
+	$('.dropdown input, .dropdown label').click(function(e) {
+		e.stopPropagation();
+	});
+});
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-47724708-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+</div> <!-- header -->
+
+    <!-- Carousel
+    ================================================== -->
+    <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="false" data-pause="hover">
+      <!-- Indicators -->
+      <ol class="carousel-indicators">
+        <li data-target="#myCarousel" data-slide-to="0" ></li>
+        <li data-target="#myCarousel" data-slide-to="1" class="active"></li>
+        <li data-target="#myCarousel" data-slide-to="2"></li>
+      </ol>
+      <div class="carousel-inner">
+        <div class="item ">
+         <!--<img data-src="holder.js/900x500/auto/#777:#7a7a7a/text:First slide" alt="First slide">-->
+          <div class="container">
+            <form id="buyform" class="carousel-caption" action="instantbuy.php" method="post" accept-charset="UTF-8">
+              <input type="hidden" id="buybtcrate"                             style="visibility:hidden;" value="3625.9489498645">
+
+
+              <input type="hidden" id="buybtcqty_hid" name="buybtcqty_hid"     style="visibility:hidden;" value="0.0">
+              <input type="hidden" id="buycuramt_hid" name="buycuramt_hid"     style="visibility:hidden;" value="3625.0489498645">
+              <input type="hidden" id="buyBtcOrCur_hid" name="buyBtcOrCur_hid" style="visibility:hidden;" value="btc">
+              <h1>Buy Bitcoins Instantly</h1>
+              <div class="col-sm-12">
+                  <h5 id="buyAvg">The price is currently £3,625.05 / Bitcoin</h5>
+                  <a href="limits.php" class="" data-toggle="tooltip" data-trigger="hover" title="Limits? Click to find out more!"
+                      >Limit today is 0.0103. Max limit is 0.0125 BTC &nbsp;<span class="glyphicon glyphicon-question-sign"></span></a>
+              </div>
+              <div class="col-sm-12">
+                <div class="form-horizontal col-sm-8 col-sm-offset-2" role="form">
+                  <div class="form-inline form-group">
+                    <label for="buybtcqty" class="col-sm-4 control-label">Qty:</label>
+                    <div class="col-sm-4">
+                      <input type="text" class="form-control" id="buybtcqty" name="buybtcqty" value="0.0103"
+                             />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="buycuramt" class="col-sm-4 control-label">Amount:</label>
+                    <div class="col-sm-4">
+                      <input type="text" class="form-control" id="buycuramt" name="buycuramt"
+                            value="£ 3,625.05"
+                            />
+                    </div>                
+                  </div>
+                </div>
+              </div>
+              <br>
+              <p>Be connected instantly with a trusted Bitcoin seller.</p>
+              <p><input class="btn btn-lg btn-primary" id="confirmBuyBtn" role="button" type="submit" value="Buy now" />
+                 <a class="btn btn-lg btn-primary" href="howitworks" role="button">Learn more</a></p>
+            </form>
+          </div>
+        </div>
+        <div class="item active">
+          <!--<img data-src="holder.js/900x500/auto/#666:#6a6a6a/text:Second slide" alt="Second slide">-->
+          <div class="container">
+            <form id="sellform" class="carousel-caption" action="instantsell.php" method="post" accept-charset="UTF-8">
+              <input type="hidden" id="sellbtcrate"                              style="visibility:hidden;" value="3448.1663330097">
+              <input type="hidden" id="sellbtcqty_hid" name="sellbtcqty_hid"     style="visibility:hidden;" value="0.0">
+              <input type="hidden" id="sellcuramt_hid" name="sellcuramt_hid"     style="visibility:hidden;" value="3448.1663330097">
+              <input type="hidden" id="sellBtcOrCur_hid" name="sellBtcOrCur_hid" style="visibility:hidden;" value="btc">
+              <h1>Sell Bitcoins Instantly</h1>
+              <div class="col-sm-12">
+                  <h5 id="sellAvg">The price is currently £3,448.17  / Bitcoin</h5>
+                  <a href="limits.php" class="" data-toggle="tooltip" data-trigger="hover" title="Limits? Click to find out more!"
+                      >Limit today is 0.0103. Max limit is 0.0125 BTC &nbsp;<span class="glyphicon glyphicon-question-sign"></span></a>
+              </div>
+              <div class="col-sm-12">
+                <div class="form-horizontal col-sm-8 col-sm-offset-2" role="form">
+                  <div class="form-inline form-group">
+                    <label for="sellbtcqty" class="col-sm-4 control-label">Qty:</label>
+                    <div class="col-sm-4">
+                      <input type="text" class="form-control" id="sellbtcqty" name="sellbtcqty" value="0.0103"
+                             />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="sellcuramt" class="col-sm-4 control-label">Amount:</label>
+                    <div class="col-sm-4">
+                      <input type="text" class="form-control" id="sellcuramt" name="sellcuramt"
+                            value="£ 3,448.17"
+                            />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <br>
+              <p>Be connected instantly with a trusted Bitcoin buyer.</p>
+              <p><input class="btn btn-lg btn-primary" id="confirmSellBtn" role="button" type="submit" value="Sell now" />
+                 <a class="btn btn-lg btn-primary" href="howitworks" role="button">Learn more</a></p>
+            </form>
+          </div>
+        </div>
+        <div class="item">
+          <!--<img data-src="holder.js/900x500/auto/#555:#5a5a5a/text:Third slide" alt="Third slide">-->
+          <div class="container">
+            <div class="carousel-caption">
+              <h1>Trade bitcoins!</h1>
+              <p>Sign up now for an advanced person to person trading experience.</p>
+              <p><a class="btn btn-lg btn-primary" href="advanced?type=trade" role="button">Register</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a class="left carousel-control" href="#myCarousel" data-slide="prev"><span class="glyphicon glyphicon-chevron-left"></span></a>
+      <a class="right carousel-control" href="#myCarousel" data-slide="next"><span class="glyphicon glyphicon-chevron-right"></span></a>
+    </div><!-- /.carousel -->    
+
+
+	<div id="footer" class="footer">
+    	<div class="navbar navbar-inverse form-horizontal footer-bar">
+    	<div class=" col-sm-8 col-sm-offset-2">
+    		<ul class="container col-sm-3 col-sm-offset-1 footer-list">
+    			<li class="footer-head">About</li>
+    			<li><a href="/about"><i class="glyphicon glyphicon-info-sign"></i>&nbsp;Who are we?</a></li>
+    			<li><a href="/faq"><i class="glyphicon glyphicon-question-sign"></i>&nbsp;FAQ's</a></li>
+    			<li><a href="/contactus"><i class="glyphicon glyphicon-envelope"></i>&nbsp;Contact Us</a></li>
+    		</ul>
+<!--    		<ul class="container col-sm-3 col-sm-offset-1 footer-list">
+    			<li class="footer-head">Help</li>
+    			<li><a href="/terms"><i class="fa fa-gavel fa-fw"></i>&nbsp;What is Bitcoin?</a></li>
+    			<li><a href="/privacy"><i class="fa fa-search fa-fw"></i>&nbsp;FAQ's</a></li>
+    			<li><a href="/tradingterms"><i class="fa fa-bar-chart fa-fw"></i>&nbsp;Developer Docs</a></li>
+    		</ul>-->
+    		<ul class="container col-sm-3 col-sm-offset-1 footer-list">
+    			<li class="footer-head">Legal</li>
+    			<li><a href="/terms#terms"><i class="fa fa-gavel fa-fw"></i>&nbsp;Terms & Condtions</a></li>
+    			<li><a href="/terms#privacy"><i class="fa fa-search fa-fw"></i>&nbsp;Privacy Policy</a></li>
+    			<li><a href="/terms#trading"><i class="fa fa-bar-chart fa-fw"></i>&nbsp;Trading T&C's</a></li>
+    		</ul>
+    		<ul class="container col-sm-3 col-sm-offset-1 footer-list">
+    			<li class="footer-head">Social</li>
+    			<li><a href="//solidifx.wordpress.com"><i class="fa fa-comments fa-fw"></i>&nbsp;Blog</a></li>
+    			<li><a href="https://twitter.com/solidifx"><i class="fa fa-twitter fa-fw"></i>&nbsp;Twitter</a></li>
+    			<li><a href="https://www.facebook.com/solidifx"><i class="fa fa-facebook fa-fw"></i>&nbsp;Facebook</a></li>
+    		</ul>
+    	</div>
+    	<div class="container col-sm-8 col-sm-offset-2 text-center company-info">
+    		<h6>Solidi Ltd is a company registered in England and Wales with company number 09411526.</h6>
+    	</div>
+    	</div>
+    </div> <!-- footer -->
+
+
+    <!-- misc JS functions -->
+    <script>
+    	var ws;
+    </script>
+    <script src="js/misc.js"></script>
+    <script src="//www.solidi.co/socket.io/socket.io.js"></script>
+    <!--<script src="js/websocket.js"></script>-->
+    <script src="js/logger.js"></script>
+    <script src="js/coinco-api.js"></script>
+    <script>
+      var BuyFormValidator;
+      $(document).ready(function() {
+      	console.log("Ready");
+      
+        $('a[data-toggle="tooltip"]').tooltip({
+            animated: 'fade',
+            placement: 'right',
+        })
+      
+        // Calculate the correct price when the site loads.
+        //recalculateSell();
+        $.validator.addMethod("mincur", function(value, element, params) {
+            var minCur = params[0] || 1;
+//            console.log("Value="+value+" minCur"+minCur);
+            var cur = value;
+            if(value.indexOf("£")!=-1) {
+            	cur = value.split("£")[1];
+            }
+//            console.log("Value="+cur);
+            cur = parseFloat(cur);
+//            console.log("Value="+cur+" = "+(cur >= minCur));
+            return cur >= minCur;
+        });        
+        
+        jQuery.validator.setDefaults({
+          debug: true,
+          success: "valid"
+        });
+//        console.log("Loading2");        
+                
+        BuyFormValidator = $("#buyform").validate({
+        	onfocusout: true,
+        	submitHandler: function(form) { form.submit(); },
+        	rules: {
+        		buybtcqty: {
+        			required: true,
+        			max: 0.0103        			
+        		},
+        		buycuramt: {
+        			required: true,
+        			mincur: [2]
+        		}	
+        	},
+        	messages: {
+        		buybtcqty: "Maximum 0.0103 BTC",
+        		buycuramt: "Minumum £2.00"
+        	}
+        });
+        SellFormValidator = $("#sellform").validate({
+        	onfocusout: true,
+        	submitHandler: function(form) { form.submit(); },
+        	rules: {
+        		sellbtcqty: {
+        			required: true,
+        			max: 0.0103        			
+        		},
+        		sellcuramt: {
+        			required: true,
+        			mincur: [2]
+        		}	
+        	},
+        	messages: {
+        		sellbtcqty: "Maximum 0.0103 BTC",
+        		sellcuramt: "Minumum £2.00"
+        	}
+        });
+
+		var logger = new Logger();
+		ws = new CoincoAPI('www.solidi.co',443, logger);
+		window.ws = ws;
+		
+		buy_limit = Big("0.0103");
+		
+		if ("michael.mayer99@gmail.com"!="") {
+			ws.login("michael.mayer99@gmail.com",
+			         "EOCJYFdCsb7ttXYECaKQ", function(err, msg) {
+				buy_btc_update(true);
+				sell_btc_update(true);
+			});
+		} else {
+			buy_btc_update(true);
+			sell_btc_update(true);
+		}
+      });
+      
+    </script>    
+  </body>
+  
+ 
+</html>

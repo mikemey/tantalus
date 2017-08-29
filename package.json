@@ -1,0 +1,60 @@
+{
+  "name": "tantalus",
+  "version": "1.0.0",
+  "description": "grab prices",
+  "engines": {
+    "node": "8"
+  },
+  "main": "backend/index.js",
+  "scripts": {
+    "lint": "standard",
+    "prestart": "npm install",
+    "start": "node backend/index.js",
+    "test": "npm run lint -s && npm run unit-test -s",
+    "preunit-test": "npm install",
+    "unit-test": "mocha 'backend-test/**/**.spec.js' --timeout 10000",
+    "watch": "nodemon -x 'npm run unit-test -s'"
+  },
+  "repository": {},
+  "author": "mikemey",
+  "license": "BSD",
+  "bugs": {},
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "cheerio": "^1.0.0-rc.2",
+    "express": "^4.13.3",
+    "request": "^2.81.0",
+    "request-promise": "^4.2.1"
+  },
+  "standard": {
+    "globals": [
+      "after",
+      "afterEach",
+      "angular",
+      "before",
+      "beforeEach",
+      "context",
+      "describe",
+      "expect",
+      "it",
+      "xdescribe",
+      "xit"
+    ],
+    "ignore": [
+      "bower_components"
+    ]
+  },
+  "devDependencies": {
+    "chai": "^4.0.2",
+    "gulp-env": "^0.4.0",
+    "gulp-mocha": "^4.3.1",
+    "gulp-nodemon": "^2.2.1",
+    "gulp-shell": "^0.6.3",
+    "mocha": "^2.4.5",
+    "nock": "^9.0.14",
+    "nodemon": "^1.9.2",
+    "sinon": "^3.2.1",
+    "standard": "^7.0.1",
+    "supertest": "^3.0.0"
+  }
+}

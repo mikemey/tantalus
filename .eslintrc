@@ -1,0 +1,10 @@
+{
+  "extends": "standard",
+  "env": {
+    "es6": true,
+    "node": true,
+    "mongo": true,
+    "mocha": true,
+    "browser": true
+  }
+}
