@@ -9,7 +9,7 @@ const helpers = require('./helpers')
 const solidiResponse = fs.readFileSync('backend-test/solidi/example_response.html', 'utf8')
 const lakebtcResponse = fs.readFileSync('backend-test/lakebtc/ticker.json', 'utf8')
 
-describe('Prices', () => {
+describe('GET /prices endpoint', () => {
   let app, server
 
   const getPriceData = () => request(app).get('/prices')
@@ -36,7 +36,7 @@ describe('Prices', () => {
   afterEach(() => nock.cleanAll())
 
   describe('SOLIDI page', () => {
-    it('response with 200 and solidi prices.', () => getPriceData()
+    it('response with 200 and solidi prices', () => getPriceData()
       .expect(200)
       .then(({ body }) => {
         const duration = body.solidi.duration
@@ -52,7 +52,7 @@ describe('Prices', () => {
   })
 
   describe('LakeBTC page', () => {
-    it('response with 200 and lake btc prices.', () => getPriceData()
+    it('response with 200 and lakebtc prices', () => getPriceData()
       .expect(200)
       .then(({ body }) => {
         const duration = body.lakebtc.duration
