@@ -6,8 +6,8 @@ const fs = require('fs')
 
 const helpers = require('./helpers')
 
-const solidiResponse = fs.readFileSync('backend-test/solidi/example_response.html', 'utf8')
-const lakebtcResponse = fs.readFileSync('backend-test/lakebtc/ticker.json', 'utf8')
+const solidiResponse = fs.readFileSync('backend-test/example_responses/solidi.html', 'utf8')
+const lakebtcResponse = fs.readFileSync('backend-test/example_responses/lakebtc.json', 'utf8')
 
 describe('GET /prices endpoint', () => {
   let app, server
