@@ -1,7 +1,7 @@
 /* global describe before beforeEach it */
 const request = require('supertest')
 const nock = require('nock')
-const { expect } = require('chai')
+require('chai').should()
 const fs = require('fs')
 
 const helpers = require('./helpers')
@@ -40,8 +40,8 @@ describe('GET /prices endpoint', () => {
       .expect(200)
       .then(({ body }) => {
         const duration = body.solidi.duration
-        expect(duration).to.be.within(1, 100)
-        expect(body).to.deep.include({
+        duration.should.be.within(1, 100)
+        body.should.deep.include({
           solidi: {
             buy: '3626',
             sell: '3448',
@@ -56,8 +56,8 @@ describe('GET /prices endpoint', () => {
       .expect(200)
       .then(({ body }) => {
         const duration = body.lakebtc.duration
-        expect(duration).to.be.within(1, 100)
-        expect(body).to.deep.include({
+        duration.should.be.within(1, 100)
+        body.should.deep.include({
           lakebtc: {
             buy: '2700',
             sell: '2690',
