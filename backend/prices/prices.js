@@ -1,6 +1,7 @@
 const express = require('express')
 
 const solidi = require('./solidi')
+const lakebtc = require('./lakebtc')
 
 const createPriceRouter = log => {
   const router = express.Router()
@@ -16,7 +17,7 @@ const createPriceRouter = log => {
   router.get('/', (req, res) => {
     log.info('received prices request')
 
-    return Promise.all([solidi.getPrices()])
+    return Promise.all([solidi.getPrices(), lakebtc.getPrices()])
       .then(prices => res.status(200).json(jsonPrices(prices)))
   })
 
