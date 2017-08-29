@@ -8,7 +8,7 @@ const getPrices = () => {
     .then($ => {
       const buy = fmt.rate($('#buybtcrate').val())
       const sell = fmt.rate($('#sellbtcrate').val())
-      const duration = Date.now() - start
+      const duration = fmt.duration(start)
       return { name: 'solidi', buy, sell, duration }
     })
 }

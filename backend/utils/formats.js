@@ -1,3 +1,5 @@
+const duration = start => Date.now() - start
+
 const rate = input => {
   const num = Number(input)
   if (isNaN(num)) {
@@ -7,5 +9,6 @@ const rate = input => {
 }
 
 module.exports = {
-  rate
+  rate,
+  duration
 }
