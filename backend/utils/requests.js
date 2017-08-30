@@ -33,11 +33,11 @@ const retryRequest = request => {
     })
 }
 
-const get = url => retryRequest(() => rp(transformOpts(url)))
+const getHtml = url => retryRequest(() => rp(transformOpts(url)))
 
 const getJson = url => retryRequest(() => rp(jsonOpts(url)))
 
 module.exports = {
-  get,
+  getHtml,
   getJson
 }

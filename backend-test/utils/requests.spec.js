@@ -17,7 +17,7 @@ describe('requests module', () => {
     it('use first response when 200 response', () => {
       nockIndex()
         .reply(200, workingResponse)
-      return requests.get(indexUrl)
+      return requests.getHtml(indexUrl)
         .then($ => $.text().should.equal(content))
     })
 
@@ -26,7 +26,7 @@ describe('requests module', () => {
         .reply(429, 'retry get later')
         .get('/index')
         .reply(200, workingResponse)
-      return requests.get(indexUrl)
+      return requests.getHtml(indexUrl)
         .then($ => $.text().should.equal(content))
     })
   })
