@@ -14,7 +14,6 @@ const errorHandler = extension =>
       ? `${err.options.method} ${err.options.uri}`
       : ''
     const message = `response error ${extension}: ${err.message} [${request}]`
-    console.log(message)
     throw new RequestError(message)
   }
 
