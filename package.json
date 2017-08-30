@@ -7,6 +7,7 @@
   },
   "main": "backend/index.js",
   "scripts": {
+    "postinstall": "bower install",
     "lint": "standard",
     "prestart": "npm install",
     "start": "node backend/index.js",
