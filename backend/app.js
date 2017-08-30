@@ -1,7 +1,11 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const morgan = require('morgan')
 
 const createPriceRouter = require('./prices/prices')
+
+const requestLogger = () =>
+  morgan(':date[iso] [:remote-addr] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent')
 
 const addDefaultRoute = (app, log) => {
   app.all('*', (req, res) => {
@@ -16,9 +20,9 @@ const createServer = log => {
 
     app.use(bodyParser.json())
     app.use(bodyParser.urlencoded({ extended: true }))
+    app.use(requestLogger())
 
     app.use('/prices', createPriceRouter(log))
-
     addDefaultRoute(app, log)
 
     const server = app.listen(8000, () => {
