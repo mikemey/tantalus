@@ -7,3 +7,4 @@ package-lock.json
 
 .idea
 *.iml
+tantalus.config.json

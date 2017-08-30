@@ -312,8 +312,6 @@ $(function() {
     <script>
       var BuyFormValidator;
       $(document).ready(function() {
-      	console.log("Ready");
-      
         $('a[data-toggle="tooltip"]').tooltip({
             animated: 'fade',
             placement: 'right',
@@ -323,14 +321,11 @@ $(function() {
         //recalculateSell();
         $.validator.addMethod("mincur", function(value, element, params) {
             var minCur = params[0] || 1;
-//            console.log("Value="+value+" minCur"+minCur);
             var cur = value;
             if(value.indexOf("£")!=-1) {
             	cur = value.split("£")[1];
             }
-//            console.log("Value="+cur);
             cur = parseFloat(cur);
-//            console.log("Value="+cur+" = "+(cur >= minCur));
             return cur >= minCur;
         });        
         
@@ -338,8 +333,7 @@ $(function() {
           debug: true,
           success: "valid"
         });
-//        console.log("Loading2");        
-                
+
         BuyFormValidator = $("#buyform").validate({
         	onfocusout: true,
         	submitHandler: function(form) { form.submit(); },

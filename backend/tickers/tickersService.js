@@ -1,5 +1,6 @@
 const requests = require('../utils/requests')
 const fmt = require('../utils/formats')
+const createTickersRepo = require('./tickersRepo')
 
 const tickers = {
   solidi: { url: 'https://www.solidi.co/index', name: 'solidi' },
@@ -19,7 +20,7 @@ const tickerErrorHandler = ticker => err => {
   return { name: ticker.name, buy: null, sell: null }
 }
 
-const getSolidiPrices = () => requests
+const getSolidiTicker = () => requests
   .getHtml(tickers.solidi.url)
   .then($ => transformAskBid(tickers.solidi.name, {
     ask: fmt.rate($('#buybtcrate').val()),
@@ -27,17 +28,17 @@ const getSolidiPrices = () => requests
   }))
   .catch(tickerErrorHandler(tickers.solidi))
 
-const getLakebtcPrices = () => requests
+const getLakebtcTicker = () => requests
   .getJson(tickers.lakebtc.url)
   .then(({ btcgbp }) => transformAskBid(tickers.lakebtc.name, btcgbp))
   .catch(tickerErrorHandler(tickers.lakebtc))
 
-const getCoinfloorPrices = () => requests
+const getCoinfloorTicker = () => requests
   .getJson(tickers.coinfloor.url)
   .then(responseJson => transformAskBid(tickers.coinfloor.name, responseJson))
   .catch(tickerErrorHandler(tickers.coinfloor))
 
-const getCoindeskPrices = () => requests
+const getCoindeskTicker = () => requests
   .getJson(tickers.coindesk.url)
   .then(responseJson => {
     const rate = responseJson.bpi.GBP.rate_float
@@ -53,11 +54,25 @@ const addDuration = execPromise => {
 
 const withDuration = execPromises => execPromises.map(addDuration)
 
-module.exports = {
-  getPrices: () => Promise.all(withDuration([
-    getSolidiPrices,
-    getLakebtcPrices,
-    getCoinfloorPrices,
-    getCoindeskPrices
-  ]))
+const TickerService = () => {
+  const tickersRepo = createTickersRepo()
+
+  const storeTickers = () => Promise.all(withDuration([
+    getSolidiTicker,
+    getLakebtcTicker,
+    getCoinfloorTicker,
+    getCoindeskTicker
+  ])).then(tickers => {
+    const created = new Date()
+    return { created, tickers }
+  }).then(tickersRepo.storeTickersData)
+
+  const getLatest = () => tickersRepo.getLatest()
+
+  return {
+    storeTickers,
+    getLatest
+  }
 }
+
+module.exports = TickerService

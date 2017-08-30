@@ -1,14 +1,15 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
+const mongodb = require('./utils/mongoConnection')
 
-const createPriceRouter = require('./prices/prices')
+const createTickersRouter = require('./tickers/tickers')
 
 const requestLogger = () =>
   morgan(':date[iso] [:remote-addr] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent')
 
-const createServer = log => {
-  return new Promise((resolve, reject) => {
+const createServer = (config, log) => mongodb.init(config, log)
+  .then(() => new Promise((resolve, reject) => {
     const app = express()
 
     app.use(bodyParser.json())
@@ -26,12 +27,11 @@ const createServer = log => {
       log.info('server error: ' + err)
       return reject(err)
     })
-  })
-}
+  }))
 
 const createApiRouter = log => {
   const router = express.Router()
-  router.use('/prices', createPriceRouter(log))
+  router.use('/tickers', createTickersRouter(log))
 
   return router
 }
