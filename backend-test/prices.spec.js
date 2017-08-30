@@ -9,6 +9,7 @@ const helpers = require('./helpers')
 const solidiResponse = fs.readFileSync('backend-test/example_responses/solidi.html', 'utf8')
 const lakebtcResponse = fs.readFileSync('backend-test/example_responses/lakebtc.json', 'utf8')
 const coinfloorResponse = fs.readFileSync('backend-test/example_responses/coinfloor.json', 'utf8')
+const coindeskResponse = fs.readFileSync('backend-test/example_responses/coindesk.json', 'utf8')
 
 describe('GET /prices endpoint', () => {
   let app, server
@@ -36,6 +37,10 @@ describe('GET /prices endpoint', () => {
       .get('/bist/XBT/GBP/ticker/')
       .delay(coinfloorDelayMs)
       .reply(200, coinfloorResponse)
+
+    nock('https://api.coindesk.com')
+      .get('/site/headerdata.json?currency=BTC')
+      .reply(200, coindeskResponse)
 
     done()
   })
@@ -76,5 +81,15 @@ describe('GET /prices endpoint', () => {
         buy: '3554',
         sell: '3545'
       }, coinfloorDelayMs)))
+  })
+
+  describe('Coindesk api', () => {
+    it('response with 200 and coindesk prices', () => getPriceData()
+      .expect(200)
+      .then(({ body }) => expectTicker(body[3], {
+        ticker: 'coindesk',
+        buy: '3578',
+        sell: '3578'
+      })))
   })
 })
