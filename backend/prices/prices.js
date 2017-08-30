@@ -9,11 +9,9 @@ const createPriceRouter = log => {
     return { ticker: name, buy, sell, duration }
   })
 
-  router.get('/', (req, res) => {
-    log.info('received prices request')
-    return pricesService.getPrices()
-      .then(prices => res.status(200).json(jsonPrices(prices)))
-  })
+  router.get('/', (req, res) => pricesService.getPrices()
+    .then(prices => res.status(200).json(jsonPrices(prices)))
+  )
 
   return router
 }
