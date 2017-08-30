@@ -1,7 +1,7 @@
 {
   "name": "tantalus",
   "version": "1.0.0",
-  "description": "grab prices",
+  "description": "tantalus",
   "engines": {
     "node": "8"
   },
@@ -17,9 +17,9 @@
     "prewatch": "npm install",
     "watch": "nodemon -x 'npm run backend-test -s'"
   },
-  "repository": {},
+  "repository": { "type": "git", "url": "https://github.com/mikemey/tantalus.git" },
   "author": "mikemey",
-  "license": "BSD",
+  "license": "MIT",
   "bugs": {},
   "dependencies": {
     "body-parser": "^1.17.2",

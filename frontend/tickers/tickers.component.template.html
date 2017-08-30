@@ -1,0 +1,12 @@
+<div class="col-sm-2 ticker-box">
+  <div class="row text-center ticker-date">
+    <span>{{ model.created | date: 'dd/MM HH:mm' }}</span>
+  </div>
+  <div class="row" ng-repeat="ticker in model.tickers">
+    <div class="ticker-name text-center">
+      <strong>{{ ticker.name | uppercase }}</strong>
+    </div>
+    <div class="col-sm-6 text-center ticker-sell">{{ ticker.sell | number: 2 }}</div>
+    <div class="col-sm-6 text-center ticker-buy">{{ ticker.buy | number: 2 }}</div>
+  </div>
+</div>

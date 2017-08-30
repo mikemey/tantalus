@@ -1,3 +1,31 @@
 body {
   padding: 30px;
 }
+
+.ticker-box {
+  margin-right: 0;
+  margin-left: 0;
+  background-color: #f6f6f6;
+  border-color: #ddd;
+  border-width: 1px;
+  border-radius: 5px 5px 0 0;
+  -webkit-box-shadow: 0 0 2px gold;
+  box-shadow: 0 0 2px gold;
+  border-style: solid;
+}
+
+.ticker-name {
+  background: #eee;
+}
+
+.ticker-sell {
+  background: #aeffaa;
+}
+
+.ticker-buy {
+  background: #ff7e7e;
+}
+
+.ticker-date {
+  margin: 4px;
+}

@@ -4,13 +4,27 @@
 <head>
   <meta charset="utf-8">
   <title>Tantalus</title>
+
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
   <link rel="stylesheet" href="app.css">
+
+  <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
+  <script type="text/javascript" src="bower_components/angular-cookies/angular-cookies.min.js"></script>
+  <script type="text/javascript" src="bower_components/angular-route/angular-route.min.js"></script>
+  <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="bower_components/moment/min/moment.min.js"></script>
+
+  <script type="text/javascript" src="app.module.js"></script>
+  <script type="text/javascript" src="app.config.js"></script>
+
+  <script type="text/javascript" src="tickers/tickers.component.js"></script>
 </head>
 
 <body>
   <div class="container-fluid">
     <div ng-view class="view-frame">
-      <h4 id="title">Loading page...</h4>
+      <h4>Loading page...</h4>
     </div>
   </div>
 </body>
