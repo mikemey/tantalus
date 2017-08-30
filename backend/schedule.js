@@ -1,10 +1,12 @@
 const schedule = require('node-schedule')
 
-const createTickerScheduleService = require('./schedule/tickerScheduleService')
+const mongoConnection = require('./utils/mongoConnection')
+const config = require('./config').config
+const log = console
 
-const Scheduler = () => {
-  const tickersService = createTickerScheduleService()
-  schedule.scheduleJob('*/1 * * * *', tickersService.storeTickers)
-}
-
-module.exports = Scheduler
+mongoConnection.init(config, log)
+  .then(() => {
+    log.info('setting up scheduler...')
+    const tickerScheduleService = require('./schedule/tickerScheduleService')(log)
+    schedule.scheduleJob('*/10 * * * * *', tickerScheduleService.storeTickers)
+  })

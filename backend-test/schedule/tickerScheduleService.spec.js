@@ -20,7 +20,7 @@ const tickerUrls = {
 }
 
 describe('tickers schedule service', () => {
-  const tickerScheduleService = createTickerScheduleService()
+  const tickerScheduleService = createTickerScheduleService(console)
 
   const nockget = tickerUrl => nock(tickerUrl.host).get(tickerUrl.path)
 

@@ -1,14 +1,14 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
-const mongodb = require('./utils/mongoConnection')
+const mongoConnection = require('./utils/mongoConnection')
 
 const createTickersRouter = require('./tickers/tickers')
 
 const requestLogger = () =>
   morgan(':date[iso] [:remote-addr] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent')
 
-const createServer = (config, log) => mongodb.init(config, log)
+const createServer = (config, log) => mongoConnection.init(config, log)
   .then(() => new Promise((resolve, reject) => {
     const app = express()
 

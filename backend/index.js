@@ -1,8 +1,5 @@
-const fs = require('fs')
-
 const createServer = require('./app')
-
-const config = JSON.parse(fs.readFileSync('tantalus.config.json', 'utf8'))
+const config = require('./config').config
 const log = console
 
 process.on('SIGINT', () => {
@@ -10,9 +7,9 @@ process.on('SIGINT', () => {
   process.exit(1)
 })
 
-console.log('--- server config')
-console.log(JSON.stringify(config, null, ' '))
-console.log('--- server config')
+log.info('--- server config')
+log.info(JSON.stringify(config, null, ' '))
+log.info('--- server config')
 createServer(config, log)
   .then(() => {
     log.info('Service is up')

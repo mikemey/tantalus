@@ -54,7 +54,12 @@ const addDuration = execPromise => {
 
 const withDuration = execPromises => execPromises.map(addDuration)
 
-const TickerScheduleService = () => {
+const count = tickers => tickers.reduce((sum, ticker) => {
+  if (ticker.buy) sum += 1
+  return sum
+}, 0)
+
+const TickerScheduleService = log => {
   const tickersRepo = createTickersRepo()
 
   const storeTickers = () => Promise.all(withDuration([
@@ -64,6 +69,7 @@ const TickerScheduleService = () => {
     getCoindeskTicker
   ])).then(tickers => {
     const created = new Date()
+    log.info(created.toISOString() + ' - updated ticker: ' + count(tickers))
     return { created, tickers }
   }).then(tickersRepo.storeTickersData)
 
