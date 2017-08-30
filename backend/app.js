@@ -6,7 +6,7 @@ const createPriceRouter = require('./prices/prices')
 const addDefaultRoute = (app, log) => {
   app.all('*', (req, res) => {
     log.info(`invalid request: ${req.path}`)
-    res.sendStatus(404)
+    res.redirect('/prices')
   })
 }
 
