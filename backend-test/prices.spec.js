@@ -21,7 +21,7 @@ const priceUrls = {
 describe('GET /prices endpoint', () => {
   let app, server
 
-  const getPriceData = () => request(app).get('/prices')
+  const getPriceData = () => request(app).get('/api/prices')
   const coinfloorDelayMs = 50
 
   before(() => helpers.startTestServer((_app, _server) => {

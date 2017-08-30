@@ -7,13 +7,6 @@ const createPriceRouter = require('./prices/prices')
 const requestLogger = () =>
   morgan(':date[iso] [:remote-addr] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent')
 
-const addDefaultRoute = (app, log) => {
-  app.all('*', (req, res) => {
-    log.info(`invalid request: ${req.path}`)
-    res.redirect('/prices')
-  })
-}
-
 const createServer = log => {
   return new Promise((resolve, reject) => {
     const app = express()
@@ -22,8 +15,8 @@ const createServer = log => {
     app.use(bodyParser.urlencoded({ extended: true }))
     app.use(requestLogger())
 
-    app.use('/prices', createPriceRouter(log))
-    addDefaultRoute(app, log)
+    app.use('/tantalus', express.static('frontend/'))
+    app.use('/api', createApiRouter(log))
 
     const server = app.listen(8000, () => {
       log.info(`Started on port ${server.address().port}`)
@@ -34,6 +27,13 @@ const createServer = log => {
       return reject(err)
     })
   })
+}
+
+const createApiRouter = log => {
+  const router = express.Router()
+  router.use('/prices', createPriceRouter(log))
+
+  return router
 }
 
 module.exports = createServer

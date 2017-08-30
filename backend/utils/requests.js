@@ -2,7 +2,7 @@ const rp = require('request-promise')
 const cheerio = require('cheerio')
 
 class RequestError {
-  constructor(message) {
+  constructor (message) {
     this.name = this.constructor.name
     this.message = message
   }
