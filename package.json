@@ -10,11 +10,12 @@
     "lint": "standard",
     "prestart": "npm install",
     "start": "node backend/index.js",
+    "schedule": "node backend/schedule.js",
     "pretest": "npm install",
-    "test": "npm run lint -s && npm run unit-test -s",
-    "unit-test": "mocha 'backend-test/**/**.spec.js'",
+    "test": "npm run lint -s && npm run backend-test -s",
+    "backend-test": "mocha 'backend-test/**/**.spec.js'",
     "prewatch": "npm install",
-    "watch": "nodemon -x 'npm run unit-test -s'"
+    "watch": "nodemon -x 'npm run backend-test -s'"
   },
   "repository": {},
   "author": "mikemey",

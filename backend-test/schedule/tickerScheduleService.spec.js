@@ -5,7 +5,7 @@ const fs = require('fs')
 const moment = require('moment')
 
 const helpers = require('../helpers')
-const createTickerService = require('../../backend/tickers/tickersService')
+const createTickerScheduleService = require('../../backend/schedule/tickerScheduleService')
 
 const solidiResponse = fs.readFileSync('backend-test/example_responses/solidi.html', 'utf8')
 const lakebtcResponse = fs.readFileSync('backend-test/example_responses/lakebtc.json', 'utf8')
@@ -19,8 +19,8 @@ const tickerUrls = {
   coindesk: { host: 'https://api.coindesk.com', path: '/site/headerdata.json?currency=BTC' }
 }
 
-describe('tickers service', () => {
-  const tickersService = createTickerService()
+describe('tickers schedule service', () => {
+  const tickerScheduleService = createTickerScheduleService()
 
   const nockget = tickerUrl => nock(tickerUrl.host).get(tickerUrl.path)
 
@@ -57,7 +57,7 @@ describe('tickers service', () => {
       { name: 'coindesk', buy: 3577.58, sell: 3577.58 }
     ]
 
-    it('stores all tickers', () => tickersService.storeTickers()
+    it('stores all tickers', () => tickerScheduleService.storeTickers()
       .then(() => helpers.getTickers())
       .then(docs => {
         docs.length.should.equal(1)
@@ -83,7 +83,7 @@ describe('tickers service', () => {
       emptyTicker('coindesk')
     ]
 
-    it('stores unset tickers', () => tickersService.storeTickers()
+    it('stores unset tickers', () => tickerScheduleService.storeTickers()
       .then(() => helpers.getTickers())
       .then(docs => {
         docs.length.should.equal(1)

@@ -1,9 +1,9 @@
 const schedule = require('node-schedule')
 
-const createTickersService = require('../tickers/tickersService')
+const createTickerScheduleService = require('./schedule/tickerScheduleService')
 
 const Scheduler = () => {
-  const tickersService = createTickersService()
+  const tickersService = createTickerScheduleService()
   schedule.scheduleJob('*/1 * * * *', tickersService.storeTickers)
 }
 
