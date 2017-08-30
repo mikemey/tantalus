@@ -1,7 +1,8 @@
 const rp = require('request-promise')
 const cheerio = require('cheerio')
 
-const errorHandler = err => console.log(err)
+const errorHandler = extension =>
+  err => console.log(`RESPONSE${extension} error: ` + err.message)
 
 const transform = body => cheerio.load(body)
 const methodOpt = verb => {
@@ -20,9 +21,21 @@ const jsonOpts = (url, method = methodOpt('GET')) => Object.assign(
   { json: true }
 )
 
-const get = url => rp(transformOpts(url)).catch(errorHandler)
+const pauseMs = ms => new Promise((resolve, reject) => setTimeout(resolve, ms))
 
-const getJson = url => rp(jsonOpts(url)).catch(errorHandler)
+const retryRequest = request => {
+  return request()
+    .catch(err => {
+      errorHandler('_0')(err)
+      return pauseMs(100)
+        .then(request)
+        .catch(errorHandler('_1'))
+    })
+}
+
+const get = url => retryRequest(() => rp(transformOpts(url)))
+
+const getJson = url => retryRequest(() => rp(jsonOpts(url)))
 
 module.exports = {
   get,
