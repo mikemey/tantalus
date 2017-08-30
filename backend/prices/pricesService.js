@@ -1,51 +1,40 @@
 const requests = require('../utils/requests')
 const fmt = require('../utils/formats')
 
-const getSolidiPrices = () => {
-  const start = Date.now()
-  return requests
-    .getHtml('https://www.solidi.co/index')
-    .then($ => {
-      const buy = fmt.rate($('#buybtcrate').val())
-      const sell = fmt.rate($('#sellbtcrate').val())
-      const duration = fmt.duration(start)
-      return { name: 'solidi', buy, sell, duration }
-    })
+const getSolidiPrices = () => requests
+  .getHtml('https://www.solidi.co/index')
+  .then($ => {
+    const buy = fmt.rate($('#buybtcrate').val())
+    const sell = fmt.rate($('#sellbtcrate').val())
+    return { name: 'solidi', buy, sell }
+  })
+
+const readAskBid = (name, json) => {
+  const buy = fmt.rate(json.ask)
+  const sell = fmt.rate(json.bid)
+  return { name, buy, sell }
 }
 
-const getLakebtcPrices = () => {
+const getLakebtcPrices = () => requests
+  .getJson('https://api.LakeBTC.com/api_v2/ticker')
+  .then(({ btcgbp }) => readAskBid('lakebtc', btcgbp))
+
+const getCoinfloorPrices = () => requests
+  .getJson('https://webapi.coinfloor.co.uk:8090/bist/XBT/GBP/ticker/')
+  .then(responseJson => readAskBid('coinfloor', responseJson))
+
+const addDuration = execPromise => {
   const start = Date.now()
-  return requests
-    .getJson('https://api.LakeBTC.com/api_v2/ticker')
-    .then(({ btcgbp }) => {
-      const buy = fmt.rate(btcgbp.ask)
-      const sell = fmt.rate(btcgbp.bid)
-      const duration = fmt.duration(start)
-      return { name: 'lakebtc', buy, sell, duration }
-    })
+  return execPromise()
+    .then(result => Object.assign(result, { duration: fmt.duration(start) }))
 }
 
-const getCoinfloorPrices = () => {
-  const start = Date.now()
-  return requests
-    .getJson('https://webapi.coinfloor.co.uk:8090/bist/XBT/GBP/ticker/')
-    .then(responseJson => {
-      const buy = fmt.rate(responseJson.ask)
-      const sell = fmt.rate(responseJson.bid)
-      const duration = fmt.duration(start)
-      return { name: 'coinfloor', buy, sell, duration }
-    })
-}
-
-const addDuration = execFn => {
-  const start = Date.now()
-  return execFn().then(result => Object.assign(result, fmt.duration(start)))
-}
+const withDuration = execPromises => execPromises.map(addDuration)
 
 module.exports = {
-  getPrices: () => Promise.all([
-    addDuration(getSolidiPrices),
-    addDuration(getLakebtcPrices),
-    addDuration(getCoinfloorPrices)
-  ])
+  getPrices: () => Promise.all(withDuration([
+    getSolidiPrices,
+    getLakebtcPrices,
+    getCoinfloorPrices
+  ]))
 }

@@ -12,8 +12,8 @@
     "start": "node backend/index.js",
     "pretest": "npm install",
     "test": "npm run lint -s && npm run unit-test -s",
-    "preunit-test": "npm install",
     "unit-test": "mocha 'backend-test/**/**.spec.js'",
+    "prewatch": "npm install",
     "watch": "nodemon -x 'npm run unit-test -s'"
   },
   "repository": {},
