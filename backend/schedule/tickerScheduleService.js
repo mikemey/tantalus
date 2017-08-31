@@ -13,8 +13,8 @@ const NOT_AVAIL = 'N/A'
 
 const transformAskBid = (name, json) => Object.assign(
   { name },
-  json.ask ? { buy: fmt.rate(json.ask) } : undefined,
-  json.bid ? { sell: fmt.rate(json.bid) } : undefined
+  json.ask !== undefined ? { buy: fmt.rate(json.ask) } : undefined,
+  json.bid !== undefined ? { sell: fmt.rate(json.bid) } : undefined
 )
 
 const tickerErrorHandler = ticker => err => {
@@ -22,11 +22,16 @@ const tickerErrorHandler = ticker => err => {
   return { name: ticker.name, buy: NOT_AVAIL, sell: NOT_AVAIL }
 }
 
+const solidiTransform = element => {
+  const result = element.val()
+  return result > 0 ? result : NOT_AVAIL
+}
+
 const getSolidiTicker = () => requests
   .getHtml(tickers.solidi.url)
   .then($ => transformAskBid(tickers.solidi.name, {
-    ask: fmt.rate($('#buybtcrate').val()),
-    bid: fmt.rate($('#sellbtcrate').val())
+    ask: solidiTransform($('#buybtcrate')),
+    bid: solidiTransform($('#sellbtcrate'))
   }))
   .catch(tickerErrorHandler(tickers.solidi))
 

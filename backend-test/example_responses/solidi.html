@@ -171,24 +171,22 @@ $(function() {
          <!--<img data-src="holder.js/900x500/auto/#777:#7a7a7a/text:First slide" alt="First slide">-->
           <div class="container">
             <form id="buyform" class="carousel-caption" action="instantbuy.php" method="post" accept-charset="UTF-8">
-              <input type="hidden" id="buybtcrate"                             style="visibility:hidden;" value="3625.9489498645">
-
-
+              <input type="hidden" id="buybtcrate"                             style="visibility:hidden;" value="3755.4933499938">
               <input type="hidden" id="buybtcqty_hid" name="buybtcqty_hid"     style="visibility:hidden;" value="0.0">
-              <input type="hidden" id="buycuramt_hid" name="buycuramt_hid"     style="visibility:hidden;" value="3625.0489498645">
+              <input type="hidden" id="buycuramt_hid" name="buycuramt_hid"     style="visibility:hidden;" value="3755.4933499938">
               <input type="hidden" id="buyBtcOrCur_hid" name="buyBtcOrCur_hid" style="visibility:hidden;" value="btc">
               <h1>Buy Bitcoins Instantly</h1>
               <div class="col-sm-12">
-                  <h5 id="buyAvg">The price is currently £3,625.05 / Bitcoin</h5>
+                  <h5 id="buyAvg">The price is currently £3,755.49 / Bitcoin</h5>
                   <a href="limits.php" class="" data-toggle="tooltip" data-trigger="hover" title="Limits? Click to find out more!"
-                      >Limit today is 0.0103. Max limit is 0.0125 BTC &nbsp;<span class="glyphicon glyphicon-question-sign"></span></a>
+                      >Limit today is 0.0125. Max limit is 0.0125 BTC &nbsp;<span class="glyphicon glyphicon-question-sign"></span></a>
               </div>
               <div class="col-sm-12">
                 <div class="form-horizontal col-sm-8 col-sm-offset-2" role="form">
                   <div class="form-inline form-group">
                     <label for="buybtcqty" class="col-sm-4 control-label">Qty:</label>
                     <div class="col-sm-4">
-                      <input type="text" class="form-control" id="buybtcqty" name="buybtcqty" value="0.0103"
+                      <input type="text" class="form-control" id="buybtcqty" name="buybtcqty" value="0.0125"
                              />
                     </div>
                   </div>
@@ -196,7 +194,7 @@ $(function() {
                     <label for="buycuramt" class="col-sm-4 control-label">Amount:</label>
                     <div class="col-sm-4">
                       <input type="text" class="form-control" id="buycuramt" name="buycuramt"
-                            value="£ 3,625.05"
+                            value="£ 3,755.49"
                             />
                     </div>                
                   </div>
@@ -213,38 +211,36 @@ $(function() {
           <!--<img data-src="holder.js/900x500/auto/#666:#6a6a6a/text:Second slide" alt="Second slide">-->
           <div class="container">
             <form id="sellform" class="carousel-caption" action="instantsell.php" method="post" accept-charset="UTF-8">
-              <input type="hidden" id="sellbtcrate"                              style="visibility:hidden;" value="3448.1663330097">
+              <input type="hidden" id="sellbtcrate"                              style="visibility:hidden;" value="0">
               <input type="hidden" id="sellbtcqty_hid" name="sellbtcqty_hid"     style="visibility:hidden;" value="0.0">
-              <input type="hidden" id="sellcuramt_hid" name="sellcuramt_hid"     style="visibility:hidden;" value="3448.1663330097">
+              <input type="hidden" id="sellcuramt_hid" name="sellcuramt_hid"     style="visibility:hidden;" value="0">
               <input type="hidden" id="sellBtcOrCur_hid" name="sellBtcOrCur_hid" style="visibility:hidden;" value="btc">
               <h1>Sell Bitcoins Instantly</h1>
               <div class="col-sm-12">
-                  <h5 id="sellAvg">The price is currently £3,448.17  / Bitcoin</h5>
-                  <a href="limits.php" class="" data-toggle="tooltip" data-trigger="hover" title="Limits? Click to find out more!"
-                      >Limit today is 0.0103. Max limit is 0.0125 BTC &nbsp;<span class="glyphicon glyphicon-question-sign"></span></a>
+                  <h5>We've run out of buyers! Want to buy coins? Become a buyer!</h5>
               </div>
               <div class="col-sm-12">
                 <div class="form-horizontal col-sm-8 col-sm-offset-2" role="form">
                   <div class="form-inline form-group">
                     <label for="sellbtcqty" class="col-sm-4 control-label">Qty:</label>
                     <div class="col-sm-4">
-                      <input type="text" class="form-control" id="sellbtcqty" name="sellbtcqty" value="0.0103"
-                             />
+                      <input type="text" class="form-control" id="sellbtcqty" name="sellbtcqty" value="0.0125"
+                             disabled='disabled'/>
                     </div>
                   </div>
                   <div class="form-group">
                     <label for="sellcuramt" class="col-sm-4 control-label">Amount:</label>
                     <div class="col-sm-4">
                       <input type="text" class="form-control" id="sellcuramt" name="sellcuramt"
-                            value="£ 3,448.17"
-                            />
+                            value="£ 0.00"
+                            disabled='disabled'/>
                     </div>
                   </div>
                 </div>
               </div>
               <br>
               <p>Be connected instantly with a trusted Bitcoin buyer.</p>
-              <p><input class="btn btn-lg btn-primary" id="confirmSellBtn" role="button" type="submit" value="Sell now" />
+              <p><input class="btn btn-lg btn-primary" id="confirmSellBtn" role="button" type="submit" value="Sell now" disabled='disabled'/>
                  <a class="btn btn-lg btn-primary" href="howitworks" role="button">Learn more</a></p>
             </form>
           </div>
@@ -312,6 +308,8 @@ $(function() {
     <script>
       var BuyFormValidator;
       $(document).ready(function() {
+      	console.log("Ready");
+      
         $('a[data-toggle="tooltip"]').tooltip({
             animated: 'fade',
             placement: 'right',
@@ -321,11 +319,14 @@ $(function() {
         //recalculateSell();
         $.validator.addMethod("mincur", function(value, element, params) {
             var minCur = params[0] || 1;
+//            console.log("Value="+value+" minCur"+minCur);
             var cur = value;
             if(value.indexOf("£")!=-1) {
             	cur = value.split("£")[1];
             }
+//            console.log("Value="+cur);
             cur = parseFloat(cur);
+//            console.log("Value="+cur+" = "+(cur >= minCur));
             return cur >= minCur;
         });        
         
@@ -333,14 +334,15 @@ $(function() {
           debug: true,
           success: "valid"
         });
-
+//        console.log("Loading2");        
+                
         BuyFormValidator = $("#buyform").validate({
         	onfocusout: true,
         	submitHandler: function(form) { form.submit(); },
         	rules: {
         		buybtcqty: {
         			required: true,
-        			max: 0.0103        			
+        			max: 0.0125        			
         		},
         		buycuramt: {
         			required: true,
@@ -348,7 +350,7 @@ $(function() {
         		}	
         	},
         	messages: {
-        		buybtcqty: "Maximum 0.0103 BTC",
+        		buybtcqty: "Maximum 0.0125 BTC",
         		buycuramt: "Minumum £2.00"
         	}
         });
@@ -358,7 +360,7 @@ $(function() {
         	rules: {
         		sellbtcqty: {
         			required: true,
-        			max: 0.0103        			
+        			max: 0.0125        			
         		},
         		sellcuramt: {
         			required: true,
@@ -366,7 +368,7 @@ $(function() {
         		}	
         	},
         	messages: {
-        		sellbtcqty: "Maximum 0.0103 BTC",
+        		sellbtcqty: "Maximum 0.0125 BTC",
         		sellcuramt: "Minumum £2.00"
         	}
         });
@@ -375,7 +377,7 @@ $(function() {
 		ws = new CoincoAPI('www.solidi.co',443, logger);
 		window.ws = ws;
 		
-		buy_limit = Big("0.0103");
+		buy_limit = Big("0.0125");
 		
 		if ("michael.mayer99@gmail.com"!="") {
 			ws.login("michael.mayer99@gmail.com",

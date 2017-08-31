@@ -51,7 +51,7 @@ describe('tickers schedule service', () => {
     })
 
     const expectedData = [
-      { name: 'solidi', buy: 3625.95, sell: 3448.17 },
+      { name: 'solidi', buy: 3755.49, sell: 'N/A' },
       { name: 'lakebtc', buy: 2699.87, sell: 2689.96 },
       { name: 'coinfloor', buy: 3553.9, sell: 3545 },
       { name: 'coindesk', buy: 3577.58 }
