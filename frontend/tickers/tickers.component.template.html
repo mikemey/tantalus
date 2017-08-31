@@ -6,7 +6,14 @@
     <div class="ticker-name text-center">
       <strong>{{ ticker.name | uppercase }}</strong>
     </div>
-    <span class="col-xs-6 text-center ticker-buy">{{ ticker.buy | number: 2 }}</span>
-    <div class="col-xs-6 text-center ticker-sell">{{ ticker.sell | number: 2 }}</div>
+    <div class="ticker-prices">
+      <span ng-if="ticker.sell === undefined" class="col-xs-12 text-center ticker-green">
+        {{ ticker.buy | price }}
+      </span>
+      <div ng-if="ticker.sell !== undefined">
+        <span class="col-xs-6 text-center ticker-red">{{ ticker.buy | price }}</span>
+        <span class="col-xs-6 text-center ticker-green">{{ ticker.sell | price }}</span>
+      </div>
+    </div>
   </div>
 </div>

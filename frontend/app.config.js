@@ -1,5 +1,10 @@
 /* global angular */
 
+const transformPrice = $filter => input => {
+  if (input === 'N/A') return input
+  return $filter('number')(input, 2)
+}
+
 angular.module('tantalus')
   .config(['$routeProvider', $routeProvider => {
     $routeProvider
@@ -8,3 +13,4 @@ angular.module('tantalus')
       })
       .otherwise('/')
   }])
+  .filter('price', transformPrice)

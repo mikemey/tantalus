@@ -17,16 +17,23 @@ body {
 
 .ticker-name {
   background: #eee;
+  padding-top: 5px;
+  border-top: 1px solid #bbb;
 }
 
-.ticker-sell {
-  background: #aeffaa;
+.ticker-prices span {
+  font-size: 0.9em;
+  padding: 2px 0;
 }
 
-.ticker-buy {
-  background: #ff7e7e;
+.ticker-green {
+  background: rgba(24, 255, 24, 0.5);
+}
+
+.ticker-red {
+  background: rgba(255, 0, 0, 0.45);
 }
 
 .ticker-date {
-  margin: 4px;
+  margin: 2px;
 }
