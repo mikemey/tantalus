@@ -20,10 +20,10 @@ describe('GET /api/tickers endpoint', () => {
   }, {
     created: dataUnsetDat,
     tickers: [
-      { name: 'solidi', buy: null, sell: null, duration: 23 },
-      { name: 'lakebtc', buy: null, sell: null, duration: 42 },
-      { name: 'coinfloor', buy: null, sell: null, duration: 51 },
-      { name: 'coindesk', buy: null, duration: 32 }
+      { name: 'solidi', buy: 'N/A', sell: 'N/A', duration: 23 },
+      { name: 'lakebtc', buy: 'N/A', sell: 'N/A', duration: 42 },
+      { name: 'coinfloor', buy: 'N/A', sell: 'N/A', duration: 51 },
+      { name: 'coindesk', buy: 'N/A', duration: 32 }
     ]
   }]
 

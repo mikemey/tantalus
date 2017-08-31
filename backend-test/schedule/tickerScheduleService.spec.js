@@ -50,7 +50,7 @@ describe('tickers schedule service', () => {
       done()
     })
 
-    const testData = [
+    const expectedData = [
       { name: 'solidi', buy: 3625.95, sell: 3448.17 },
       { name: 'lakebtc', buy: 2699.87, sell: 2689.96 },
       { name: 'coinfloor', buy: 3553.9, sell: 3545 },
@@ -63,7 +63,7 @@ describe('tickers schedule service', () => {
         docs.length.should.equal(1)
         const doc = docs[0]
         expectValidDate(doc.created)
-        expectTickers(doc.tickers, testData)
+        expectTickers(doc.tickers, expectedData)
       }))
   })
 
@@ -75,8 +75,8 @@ describe('tickers schedule service', () => {
       done()
     })
 
-    const emptyTicker = name => { return { name, buy: null, sell: null } }
-    const testData = [
+    const emptyTicker = name => { return { name, buy: 'N/A', sell: 'N/A' } }
+    const expectedData = [
       emptyTicker('solidi'),
       emptyTicker('lakebtc'),
       emptyTicker('coinfloor'),
@@ -89,7 +89,7 @@ describe('tickers schedule service', () => {
         docs.length.should.equal(1)
         const doc = docs[0]
         expectValidDate(doc.created)
-        expectTickers(doc.tickers, testData)
+        expectTickers(doc.tickers, expectedData)
       }))
   })
 })

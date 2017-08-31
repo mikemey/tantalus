@@ -9,6 +9,8 @@ const tickers = {
   coindesk: { url: 'https://api.coindesk.com/site/headerdata.json?currency=BTC', name: 'coindesk' }
 }
 
+const NOT_AVAIL = 'N/A'
+
 const transformAskBid = (name, json) => Object.assign(
   { name },
   json.ask ? { buy: fmt.rate(json.ask) } : undefined,
@@ -17,7 +19,7 @@ const transformAskBid = (name, json) => Object.assign(
 
 const tickerErrorHandler = ticker => err => {
   console.info(err.message)
-  return { name: ticker.name, buy: null, sell: null }
+  return { name: ticker.name, buy: NOT_AVAIL, sell: NOT_AVAIL }
 }
 
 const getSolidiTicker = () => requests
