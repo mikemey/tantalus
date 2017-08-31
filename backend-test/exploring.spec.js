@@ -43,8 +43,9 @@ xdescribe('exploring', () => {
       const cost = Math.floor((buyBtcBits * price) / btcbits)
       const diff = available - cost
 
+      // console.log('{ price: %s, buy: %d, cost: %s, diff: %s },',
       console.log('price: £ %s \t== buy: %d \t== cost: %s \t== diff: £ %s',
-        price / cents, buyBtcBits, (cost / cents).toFixed(2), (diff / cents).toFixed(2))
+        price / cents, (buyBtcBits / btcbits), (cost / cents).toFixed(2), (diff / cents).toFixed(2))
     }
     prices.forEach(checkPrice)
   })

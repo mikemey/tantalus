@@ -37,3 +37,17 @@ body {
 .ticker-date {
   margin: 2px;
 }
+
+.table-small {
+  width: auto !important;
+}
+
+.table-small > thead > tr > th,
+.table-small > tbody > tr > td {
+  font-size: 0.9em;
+  padding: 3px 5px;
+}
+
+.clearfloor-sell {
+  width: 120px;
+}
