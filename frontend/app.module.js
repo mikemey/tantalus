@@ -6,7 +6,7 @@ const transformPrice = () => input => {
 }
 
 const appRouter = $routeProvider => $routeProvider
-  .when('/', { templateUrl: 'start.template.html' })
+  .when('/', { templateUrl: 'dashboard.template.html' })
   .otherwise('/')
 
 angular
