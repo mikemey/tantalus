@@ -29,7 +29,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr class="text-center" ng-class="result.diff < 0.05 ? 'success': ''" ng-repeat="result in results">
+        <tr class="text-center" ng-class="result.diff <= 0.03 ? 'success': ''" ng-repeat="result in results">
           <td>{{ result.rate }}</td>
           <td>{{ result.buy }}</td>
           <td>{{ result.cost }}</td>
