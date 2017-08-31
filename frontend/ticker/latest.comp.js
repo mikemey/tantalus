@@ -2,10 +2,10 @@
 
 const ticker = 'TickerController'
 
-angular.module('tantalus.tickers')
+angular.module('tantalus.ticker')
   .component('latestTicker', {
     controller: ticker,
-    templateUrl: 'tickers/latest.comp.html'
+    templateUrl: 'ticker/latest.comp.html'
   })
   .controller(ticker, ['$scope', '$http', '$interval', ($scope, $http, $interval) => {
     $scope.model = { created: '', tickers: [] }

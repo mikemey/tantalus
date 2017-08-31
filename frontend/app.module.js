@@ -13,7 +13,8 @@ angular
   .module('tantalus', [
     'ngCookies',
     'ngRoute',
-    'tantalus.tickers'
+    'tantalus.navbar',
+    'tantalus.ticker'
   ])
   .config(['$routeProvider', appRouter])
   .filter('price', transformPrice)

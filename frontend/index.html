@@ -17,16 +17,19 @@
 
   <script type="text/javascript" src="app.module.js"></script>
 
-  <script type="text/javascript" src="tickers/tickers.module.js"></script>
-  <script type="text/javascript" src="tickers/latest.comp.js"></script>
+  <script type="text/javascript" src="ticker/ticker.module.js"></script>
+  <script type="text/javascript" src="ticker/latest.comp.js"></script>
+
+  <script type="text/javascript" src="navbar/navbar.module.js"></script>
 </head>
 
 <body>
-  <div class="container-fluid">
-    <div ng-view class="view-frame">
-      <h4>Loading page...</h4>
-    </div>
+<div class="container-fluid">
+  <navbar></navbar>
+  <div ng-view class="view-frame">
+    <h4>Loading page...</h4>
   </div>
+</div>
 </body>
 
 </html>
