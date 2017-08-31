@@ -12,9 +12,7 @@ module.exports = config => {
       'bower_components/moment/moment.js',
       '**/*.html',
       '**/*.module.js',
-      '*!(.module|.spec).js',
-      '!(bower_components)/**/*!(.module|.spec).js',
-      '**/*.spec.js'
+      '!(bower_components)/**/*!(.module|.spec).js'
     ],
 
     singleRun: true,

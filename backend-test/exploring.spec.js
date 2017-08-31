@@ -2,7 +2,7 @@
 const requests = require('../backend/utils/requests')
 require('chai').should()
 
-describe('exploring', () => {
+xdescribe('exploring', () => {
   describe('lakebtc', () => {
     it('orders', () => requests
       .getJson('https://api.LakeBTC.com/api_v2/bcorderbook?symbol=btcgbp')
@@ -23,7 +23,7 @@ describe('exploring', () => {
       }))
   })
 
-  it.only('coinfloor selling price finder', () => {
+  it('coinfloor selling price finder', () => {
     const sell = 2551.81
     const targetRate = 3605
     const variant = 10
@@ -37,7 +37,6 @@ describe('exploring', () => {
     const start = targetRate - variant
     const prices = Array.from({ length: variant * 2 + 1 }, (_, i) => (start + i) * cents)
 
-    // prices.reduce((allDiffs price => )
     const checkPrice = price => {
       const exactBtc = available / price
       const buyBtcBits = Math.floor(exactBtc * btcbits)
