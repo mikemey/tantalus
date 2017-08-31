@@ -9,11 +9,11 @@ const tickers = {
   coindesk: { url: 'https://api.coindesk.com/site/headerdata.json?currency=BTC', name: 'coindesk' }
 }
 
-const transformAskBid = (name, json) => {
-  const buy = fmt.rate(json.ask)
-  const sell = fmt.rate(json.bid)
-  return { name, buy, sell }
-}
+const transformAskBid = (name, json) => Object.assign(
+  { name },
+  json.ask ? { buy: fmt.rate(json.ask) } : undefined,
+  json.bid ? { sell: fmt.rate(json.bid) } : undefined
+)
 
 const tickerErrorHandler = ticker => err => {
   console.info(err.message)
@@ -42,7 +42,7 @@ const getCoindeskTicker = () => requests
   .getJson(tickers.coindesk.url)
   .then(responseJson => {
     const rate = responseJson.bpi.GBP.rate_float
-    return transformAskBid(tickers.coindesk.name, { ask: rate, bid: rate })
+    return transformAskBid(tickers.coindesk.name, { ask: rate })
   })
   .catch(tickerErrorHandler(tickers.coindesk))
 
