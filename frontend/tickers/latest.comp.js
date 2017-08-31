@@ -4,9 +4,9 @@ const ticker = 'TickerController'
 
 angular
   .module('tantalus.tickers', [])
-  .component('taTicker', {
+  .component('latestTicker', {
     controller: ticker,
-    templateUrl: 'tickers/tickers.component.template.html'
+    templateUrl: 'tickers/latest.comp.html'
   })
   .controller(ticker, ['$scope', '$http', '$interval', ($scope, $http, $interval) => {
     $scope.model = { created: '', tickers: [] }
