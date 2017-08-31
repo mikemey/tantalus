@@ -16,8 +16,8 @@
     "test": "npm run lint -s && npm run backend-test -s && npm run frontend-test -s",
     "backend-test": "mocha 'backend-test/**/**.spec.js'",
     "frontend-test": "karma start karma.conf.js",
-    "prewatch": "npm install",
-    "watch": "nodemon -x 'npm run frontend-test -s'"
+    "be-watch": "nodemon -x 'npm run backend-test -s'",
+    "fe-watch": "nodemon -x 'npm run frontend-test -s'"
   },
   "repository": {
     "type": "git",
