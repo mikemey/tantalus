@@ -14,7 +14,8 @@ angular
     'ngCookies',
     'ngRoute',
     'tantalus.navbar',
-    'tantalus.ticker'
+    'tantalus.ticker',
+    'tantalus.coinfloor'
   ])
   .config(['$routeProvider', appRouter])
   .filter('price', transformPrice)

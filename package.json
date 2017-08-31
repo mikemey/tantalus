@@ -13,12 +13,16 @@
     "start": "node backend/index.js",
     "schedule": "node backend/schedule.js",
     "pretest": "npm install",
-    "test": "npm run lint -s && npm run backend-test -s",
+    "test": "npm run lint -s && npm run backend-test -s && npm run frontend-test -s",
     "backend-test": "mocha 'backend-test/**/**.spec.js'",
+    "frontend-test": "karma start karma.conf.js",
     "prewatch": "npm install",
-    "watch": "nodemon -x 'npm run backend-test -s'"
+    "watch": "nodemon -x 'npm run frontend-test -s'"
   },
-  "repository": { "type": "git", "url": "https://github.com/mikemey/tantalus.git" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mikemey/tantalus.git"
+  },
   "author": "mikemey",
   "license": "MIT",
   "bugs": {},
@@ -53,14 +57,14 @@
   },
   "devDependencies": {
     "chai": "^4.0.2",
-    "gulp-env": "^0.4.0",
-    "gulp-mocha": "^4.3.1",
-    "gulp-nodemon": "^2.2.1",
-    "gulp-shell": "^0.6.3",
+    "karma": "^1.7.1",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-mocha": "^1.3.0",
+    "karma-ng-html2js-preprocessor": "^1.0.0",
     "mocha": "^2.4.5",
     "nock": "^9.0.14",
     "nodemon": "^1.9.2",
-    "sinon": "^3.2.1",
     "standard": "^7.0.1",
     "supertest": "^3.0.0"
   }
