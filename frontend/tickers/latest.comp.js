@@ -2,8 +2,7 @@
 
 const ticker = 'TickerController'
 
-angular
-  .module('tantalus.tickers', [])
+angular.module('tantalus.tickers')
   .component('latestTicker', {
     controller: ticker,
     templateUrl: 'tickers/latest.comp.html'
