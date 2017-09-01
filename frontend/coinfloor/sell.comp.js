@@ -8,14 +8,20 @@ angular
     controller: sellController,
     templateUrl: 'coinfloor/sell.comp.html'
   })
-  .controller(sellController, ['$scope', function ($scope) {
+  .controller(sellController, ['$scope', 'tickerService', function ($scope, tickerService) {
     $scope.inputs = {
-      sell: 2551.81,
-      targetRate: 3600,
+      sell: 2000,
+      targetRate: 0,
       variant: 100,
-      distance: 0.01
+      distance: 0.03
     }
     $scope.results = []
+
+    $scope.updateTargetRate = () => tickerService.getLatestTicker().then(latestTicker => {
+      const coinfloorTicker = latestTicker.tickers.find(ticker => ticker.name === 'coinfloor')
+      $scope.inputs.targetRate = coinfloorTicker.sell
+    })
+
     $scope.$watch('inputs', (newInputs, _) => {
       if (!newInputs.sell || !newInputs.targetRate || !newInputs.variant) return
 
@@ -40,4 +46,6 @@ angular
         }
       }).filter(result => result.diff <= newInputs.distance)
     }, true)
+
+    return $scope.updateTargetRate()
   }])

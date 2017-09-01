@@ -9,6 +9,7 @@
       <div class="form-group">
         <label for="rate">Target rate</label>
         <input ng-model="inputs.targetRate" class="form-control" id="rate" type="number" step="1" min="0" placeholder="Target rate">
+        <button type="button" class="btn btn-primary btn-xs" ng-click="updateTargetRate()">use current ask</button>
       </div>
       <div class="form-group">
         <label for="variant">Variant</label>

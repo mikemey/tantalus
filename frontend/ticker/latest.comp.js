@@ -7,21 +7,13 @@ angular.module('tantalus.ticker')
     controller: ticker,
     templateUrl: 'ticker/latest.comp.html'
   })
-  .controller(ticker, ['$scope', '$http', '$interval', ($scope, $http, $interval) => {
+  .controller(ticker, ['$scope', 'tickerService', function ($scope, tickerService) {
     $scope.model = { created: '', tickers: [] }
 
-    const updateTicker = () => {
-      $http.get('/api/tickers/latest')
-        .then(response => {
-          $scope.model.created = response.data.created
-          $scope.model.tickers = response.data.tickers
-        })
-        .catch(error => {
-          $scope.model.error = error
-        })
+    const setTicker = latestTicker => {
+      $scope.model = latestTicker
     }
 
-    updateTicker()
-    const stop = $interval(updateTicker, 20000)
-    $scope.$on('$destroy', () => $interval.cancel(stop))
+    tickerService.getLatestTicker().then(setTicker)
+    tickerService.watchTicker($scope, setTicker)
   }])
