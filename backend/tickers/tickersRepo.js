@@ -1,6 +1,6 @@
 const mongo = require('../utils/mongoConnection')
 
-const TickerService = () => {
+const TickerRepo = () => {
   const tickerCollection = () => mongo.db.collection('tickers')
 
   const storeTickersData = tickersData => tickerCollection().insertOne(tickersData)
@@ -19,4 +19,4 @@ const TickerService = () => {
   }
 }
 
-module.exports = TickerService
+module.exports = TickerRepo
