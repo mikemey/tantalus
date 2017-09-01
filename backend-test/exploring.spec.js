@@ -30,9 +30,9 @@ xdescribe('exploring', () => {
         created: new Date().toISOString(),
         tickers: [
           { name: 'solidi', buy: 3675.14, sell: 'N/A', duration: 601 },
-          { name: 'lakebtc', buy: 3631.49, duration: 194 },
-          { name: 'coinfloor', buy: 3565, sell: 3548, duration: 194 },
-          { name: 'coindesk', buy: 3583.71, sell: 999.71, duration: 238 }
+          { name: 'lakebtc', buy: 3815.68, duration: 194 },
+          { name: 'coinfloor', buy: 3755, sell: 3753, duration: 194 },
+          { name: 'coindesk', buy: 3757.99, sell: 999.71, duration: 238 }
         ]
       }]
       return helpers.dropDatabase()
@@ -42,9 +42,9 @@ xdescribe('exploring', () => {
     it('CHECK', () => {
       const expectedTicker = [
         { name: 'solidi', bid: 3675.14, ask: 'N/A' },
-        { name: 'lakebtc', bid: 'N/A', ask: 3631.49 },
-        { name: 'coinfloor', bid: 3548, ask: 3565 },
-        { name: 'coindesk', ask: 3583.71 }
+        { name: 'lakebtc', bid: 'N/A', ask: 3815.68 },
+        { name: 'coinfloor', bid: 3753, ask: 3755 },
+        { name: 'coindesk', ask: 3757.99 }
       ]
       return helpers.getTickers().then(tickers => {
         tickers.should.have.length(1)

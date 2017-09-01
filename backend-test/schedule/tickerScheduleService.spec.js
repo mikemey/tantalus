@@ -42,8 +42,8 @@ describe('Tickers schedule service', () => {
 
     const expectedData = [
       { name: 'solidi', bid: 3755.49, ask: 'N/A' },
-      { name: 'lakebtc', bid: 2689.96, ask: 2699.87 },
-      { name: 'coinfloor', bid: 3545.00, ask: 3553.90 },
+      { name: 'lakebtc', bid: 3809.08, ask: 3815.75 },
+      { name: 'coinfloor', bid: 3751.00, ask: 3759.00 },
       { name: 'coindesk', ask: 3577.58 }
     ]
 
