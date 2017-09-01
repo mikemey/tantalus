@@ -16,7 +16,7 @@
       </div>
       <div class="form-group">
         <label for="distance">Distance</label>
-        <input ng-model="inputs.distance" class="form-control" id="distance" type="number" step="0.01" min="0" placeholder="distance">
+        <input ng-model="inputs.distance" class="form-control" id="distance" type="number" step="0.001" min="0" placeholder="distance">
       </div>
     </form>
     <table class="table table-striped table-hover table-small col-sm-2">
@@ -29,8 +29,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr class="text-center" ng-class="result.diff <= 0.03 ? 'success': ''" ng-repeat="result in results">
-          <td>{{ result.rate }}</td>
+        <tr class="text-center" ng-class="result.diff <= 0.01 ? 'success': ''" ng-repeat="result in results">
+          <td>{{ result.rate | number: 2 }}</td>
           <td>{{ result.buy }}</td>
           <td>{{ result.cost }}</td>
           <td>{{ result.diff }}</td>

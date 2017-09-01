@@ -12,8 +12,8 @@ angular
     $scope.inputs = {
       sell: 2551.81,
       targetRate: 3600,
-      variant: 30,
-      distance: 0.08
+      variant: 100,
+      distance: 0.01
     }
     $scope.results = []
     $scope.$watch('inputs', (newInputs, _) => {
@@ -29,14 +29,14 @@ angular
       $scope.results = rates.map(rate => {
         const exactBtc = available / rate
         const buyBtcBits = Math.floor(exactBtc * btcbits)
-        const cost = Math.floor((buyBtcBits * rate) / btcbits)
+        const cost = (buyBtcBits * rate) / btcbits
         const diff = available - cost
 
         return {
           rate: (rate / cents).toFixed(0),
           buy: (buyBtcBits / btcbits).toFixed(4),
-          cost: (cost / cents).toFixed(2),
-          diff: (diff / cents).toFixed(2)
+          cost: (cost / cents).toFixed(3),
+          diff: (diff / cents).toFixed(3)
         }
       }).filter(result => result.diff <= newInputs.distance)
     }, true)
