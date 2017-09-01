@@ -3,6 +3,7 @@
 db.tickers.find().forEach(rec => {
   const safe = input => input !== undefined ? input : 'N/A'
   const newticker = rec.tickers.map(tick => {
+    if (tick.ask) return tick
     switch (tick.name) {
       case 'solidi':
         return {

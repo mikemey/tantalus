@@ -27,7 +27,7 @@ xdescribe('exploring', () => {
   describe('migrating data', () => {
     xit('insert', () => {
       const tickerData = [{
-        created: new Date().toISOString(),
+        created: new Date(),
         tickers: [
           { name: 'solidi', buy: 3675.14, sell: 'N/A', duration: 601 },
           { name: 'lakebtc', buy: 3815.68, duration: 194 },
