@@ -7,12 +7,12 @@
       <strong>{{ ticker.name | uppercase }}</strong>
     </div>
     <div class="ticker-prices">
-      <span ng-if="ticker.sell === undefined" class="col-xs-12 text-center ticker-green">
-        {{ ticker.buy | price }}
+      <span ng-if="ticker.bid === undefined" class="col-xs-12 text-center ticker-green">
+        {{ ticker.ask| price }}
       </span>
-      <div ng-if="ticker.sell !== undefined">
-        <span class="col-xs-6 text-center ticker-red">{{ ticker.sell | price }}</span>
-        <span class="col-xs-6 text-center ticker-green">{{ ticker.buy | price }}</span>
+      <div ng-if="ticker.bid !== undefined">
+        <span class="col-xs-6 text-center ticker-red">{{ ticker.bid | price }}</span>
+        <span class="col-xs-6 text-center ticker-green">{{ ticker.ask | price }}</span>
       </div>
     </div>
   </div>

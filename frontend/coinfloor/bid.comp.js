@@ -1,16 +1,16 @@
 /* global angular */
 
-const sellController = 'CoinfloorSellController'
+const bidControllerName = 'CoinfloorBidController'
 
 angular
   .module('tantalus.coinfloor')
-  .component('coinfloorSell', {
-    controller: sellController,
-    templateUrl: 'coinfloor/sell.comp.html'
+  .component('coinfloorBid', {
+    controller: bidControllerName,
+    templateUrl: 'coinfloor/bid.comp.html'
   })
-  .controller(sellController, ['$scope', 'tickerService', function ($scope, tickerService) {
+  .controller(bidControllerName, ['$scope', 'tickerService', function ($scope, tickerService) {
     $scope.inputs = {
-      sell: 2000,
+      volume: 2000,
       targetRate: 0,
       variant: 100,
       distance: 0.03
@@ -19,15 +19,17 @@ angular
 
     $scope.updateTargetRate = () => tickerService.getLatestTicker().then(latestTicker => {
       const coinfloorTicker = latestTicker.tickers.find(ticker => ticker.name === 'coinfloor')
-      $scope.inputs.targetRate = coinfloorTicker.sell
+      if (!isNaN(parseFloat(coinfloorTicker.bid))) {
+        $scope.inputs.targetRate = coinfloorTicker.bid
+      }
     })
 
     $scope.$watch('inputs', (newInputs, _) => {
-      if (!newInputs.sell || !newInputs.targetRate || !newInputs.variant) return
+      if (!newInputs.volume || !newInputs.targetRate || !newInputs.variant) return
 
       const cents = 100
       const btcbits = 10000
-      const available = newInputs.sell * cents
+      const available = newInputs.volume * cents
 
       const start = newInputs.targetRate - newInputs.variant
       const rates = Array.from({ length: newInputs.variant * 2 + 1 }, (_, i) => (start + i) * cents)

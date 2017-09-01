@@ -1,10 +1,9 @@
 /* global inject */
 
-describe('coinfloor sell component', () => {
+describe('coinfloor bid component', () => {
   let $rootScope, $controller
 
-  beforeEach(module('tantalus'))
-  beforeEach(module('testTemplates'))
+  beforeEach(module('tantalus.coinfloor'))
 
   beforeEach(inject((_$controller_, _$rootScope_, _$compile_) => {
     $controller = _$controller_
@@ -35,8 +34,8 @@ describe('coinfloor sell component', () => {
     { rate: '3615', buy: '0.7058', cost: '2551.467', diff: '0.343' }
   ]
 
-  const mockTicker = ask => {
-    return { tickers: [{ name: 'coinfloor', sell: ask }] }
+  const mockTicker = bid => {
+    return { tickers: [{ name: 'coinfloor', bid }] }
   }
 
   const controllerScope = (latestTicker = mockTicker(1)) => {
@@ -44,13 +43,13 @@ describe('coinfloor sell component', () => {
     const tickerService = {
       getLatestTicker: () => Promise.resolve(latestTicker)
     }
-    const ctrl = $controller('CoinfloorSellController', { $scope, tickerService })
+    const ctrl = $controller('CoinfloorBidController', { $scope, tickerService })
     return { $scope, ctrl }
   }
 
   it('calculate new rates', () => {
     const { $scope } = controllerScope()
-    $scope.inputs = { sell: 2551.81, targetRate: 3605, variant: 10, distance: 0.4 }
+    $scope.inputs = { volume: 2551.81, targetRate: 3605, variant: 10, distance: 0.4 }
     $scope.$digest()
 
     $scope.results.should.have.length(expectedResult.length)
@@ -59,16 +58,16 @@ describe('coinfloor sell component', () => {
 
   it('filters rates', () => {
     const { $scope } = controllerScope()
-    $scope.inputs = { sell: 2551.81, targetRate: 3605, variant: 10, distance: 0.15 }
+    $scope.inputs = { volume: 2551.81, targetRate: 3605, variant: 10, distance: 0.15 }
     $scope.$digest()
 
     $scope.results.should.deep.equal(expectedResult.slice(0, 7))
   })
 
   it('sets target rate from coinfloor ticker', () => {
-    const coinfloorAsk = 3232
-    const { $scope, ctrl } = controllerScope(mockTicker(coinfloorAsk))
+    const coinfloorBid = 3232
+    const { $scope, ctrl } = controllerScope(mockTicker(coinfloorBid))
 
-    return ctrl.then(() => $scope.inputs.targetRate.should.equal(coinfloorAsk))
+    return ctrl.then(() => $scope.inputs.targetRate.should.equal(coinfloorBid))
   })
 })

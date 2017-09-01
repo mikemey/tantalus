@@ -13,13 +13,13 @@ const NOT_AVAIL = 'N/A'
 
 const transformAskBid = (name, json) => Object.assign(
   { name },
-  json.ask !== undefined ? { buy: fmt.rate(json.ask) } : undefined,
-  json.bid !== undefined ? { sell: fmt.rate(json.bid) } : undefined
+  json.bid !== undefined ? { bid: fmt.rate(json.bid) } : undefined,
+  json.ask !== undefined ? { ask: fmt.rate(json.ask) } : undefined
 )
 
 const tickerErrorHandler = ticker => err => {
   console.info(err.message)
-  return { name: ticker.name, buy: NOT_AVAIL, sell: NOT_AVAIL }
+  return { name: ticker.name, bid: NOT_AVAIL, ask: NOT_AVAIL }
 }
 
 const solidiTransform = element => {
@@ -30,8 +30,8 @@ const solidiTransform = element => {
 const getSolidiTicker = () => requests
   .getHtml(tickers.solidi.url)
   .then($ => transformAskBid(tickers.solidi.name, {
-    ask: solidiTransform($('#buybtcrate')),
-    bid: solidiTransform($('#sellbtcrate'))
+    bid: solidiTransform($('#buybtcrate')),
+    ask: solidiTransform($('#sellbtcrate'))
   }))
   .catch(tickerErrorHandler(tickers.solidi))
 
@@ -53,30 +53,21 @@ const getCoindeskTicker = () => requests
   })
   .catch(tickerErrorHandler(tickers.coindesk))
 
-const addDuration = execPromise => {
-  const start = Date.now()
-  return execPromise()
-    .then(result => Object.assign(result, { duration: fmt.duration(start) }))
-}
-
-const withDuration = execPromises => execPromises.map(addDuration)
-
-const count = tickers => tickers.reduce((sum, ticker) => {
-  if (ticker.buy) sum += 1
-  return sum
-}, 0)
+const countData = tickers => tickers.filter(
+  ticker => ticker.bid !== NOT_AVAIL || ticker.ask !== NOT_AVAIL
+).length
 
 const TickerScheduleService = log => {
   const tickersRepo = createTickersRepo()
 
-  const storeTickers = () => Promise.all(withDuration([
-    getSolidiTicker,
-    getLakebtcTicker,
-    getCoinfloorTicker,
-    getCoindeskTicker
-  ])).then(tickers => {
+  const storeTickers = () => Promise.all([
+    getSolidiTicker(),
+    getLakebtcTicker(),
+    getCoinfloorTicker(),
+    getCoindeskTicker()
+  ]).then(tickers => {
     const created = new Date()
-    log.info(created.toISOString() + ' - updated ticker: ' + count(tickers))
+    log.info(created.toISOString() + ' - updated ticker: ' + countData(tickers))
     return { created, tickers }
   }).then(tickersRepo.storeTickersData)
 

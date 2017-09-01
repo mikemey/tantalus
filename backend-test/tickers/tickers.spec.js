@@ -12,18 +12,18 @@ describe('GET /api/tickers endpoint', () => {
   const tickerData = (dataSetDate, dataUnsetDat) => [{
     created: dataSetDate,
     tickers: [
-      { name: 'solidi', buy: 3625.95, sell: 3448.17, duration: 23 },
-      { name: 'lakebtc', buy: 2699.87, sell: 2689.96, duration: 42 },
-      { name: 'coinfloor', buy: 3553.9, sell: 3545, duration: 51 },
-      { name: 'coindesk', buy: 3577.58, duration: 32 }
+      { name: 'solidi', bid: 3625.95, ask: 3448.17 },
+      { name: 'lakebtc', bid: 2699.87, ask: 2689.96 },
+      { name: 'coinfloor', bid: 3553.9, ask: 3545 },
+      { name: 'coindesk', ask: 3577.58 }
     ]
   }, {
     created: dataUnsetDat,
     tickers: [
-      { name: 'solidi', buy: 'N/A', sell: 'N/A', duration: 23 },
-      { name: 'lakebtc', buy: 'N/A', sell: 'N/A', duration: 42 },
-      { name: 'coinfloor', buy: 'N/A', sell: 'N/A', duration: 51 },
-      { name: 'coindesk', buy: 'N/A', duration: 32 }
+      { name: 'solidi', bid: 'N/A', ask: 'N/A' },
+      { name: 'lakebtc', bid: 'N/A', ask: 'N/A' },
+      { name: 'coinfloor', bid: 'N/A', ask: 'N/A' },
+      { name: 'coindesk', ask: 'N/A' }
     ]
   }]
 

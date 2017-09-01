@@ -19,24 +19,14 @@ const tickerUrls = {
   coindesk: { host: 'https://api.coindesk.com', path: '/site/headerdata.json?currency=BTC' }
 }
 
-describe('tickers schedule service', () => {
+describe('Tickers schedule service', () => {
   const tickerScheduleService = createTickerScheduleService(console)
 
   const nockget = tickerUrl => nock(tickerUrl.host).get(tickerUrl.path)
 
   beforeEach(() => helpers.dropDatabase())
 
-  const expectTickers = (tickers, expectedData) => {
-    const fullTickerExpectation = expectedData.map((ticker, ix) => {
-      const duration = tickers[ix].duration
-      duration.should.be.a('number')
-      return Object.assign(ticker, { duration })
-    })
-    tickers.should.deep.equal(fullTickerExpectation)
-  }
-
   const expectValidDate = date => {
-    date.should.be.ok
     moment.utc(date).isValid().should.equal(true)
   }
 
@@ -51,10 +41,10 @@ describe('tickers schedule service', () => {
     })
 
     const expectedData = [
-      { name: 'solidi', buy: 3755.49, sell: 'N/A' },
-      { name: 'lakebtc', buy: 2699.87, sell: 2689.96 },
-      { name: 'coinfloor', buy: 3553.9, sell: 3545 },
-      { name: 'coindesk', buy: 3577.58 }
+      { name: 'solidi', bid: 3755.49, ask: 'N/A' },
+      { name: 'lakebtc', bid: 2689.96, ask: 2699.87 },
+      { name: 'coinfloor', bid: 3545.00, ask: 3553.90 },
+      { name: 'coindesk', ask: 3577.58 }
     ]
 
     it('stores all tickers', () => tickerScheduleService.storeTickers()
@@ -63,7 +53,7 @@ describe('tickers schedule service', () => {
         docs.length.should.equal(1)
         const doc = docs[0]
         expectValidDate(doc.created)
-        expectTickers(doc.tickers, expectedData)
+        doc.tickers.should.deep.equal(expectedData)
       }))
   })
 
@@ -75,7 +65,7 @@ describe('tickers schedule service', () => {
       done()
     })
 
-    const emptyTicker = name => { return { name, buy: 'N/A', sell: 'N/A' } }
+    const emptyTicker = name => { return { name, bid: 'N/A', ask: 'N/A' } }
     const expectedData = [
       emptyTicker('solidi'),
       emptyTicker('lakebtc'),
@@ -89,7 +79,7 @@ describe('tickers schedule service', () => {
         docs.length.should.equal(1)
         const doc = docs[0]
         expectValidDate(doc.created)
-        expectTickers(doc.tickers, expectedData)
+        doc.tickers.should.deep.equal(expectedData)
       }))
   })
 })
