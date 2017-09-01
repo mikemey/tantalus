@@ -1,8 +1,9 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
-const mongoConnection = require('./utils/mongoConnection')
 
+const pjson = require('../package.json')
+const mongoConnection = require('./utils/mongoConnection')
 const createTickersRouter = require('./tickers/tickers')
 
 const requestLogger = () =>
@@ -32,6 +33,9 @@ const createServer = (config, log) => mongoConnection.init(config, log)
 const createApiRouter = log => {
   const router = express.Router()
   router.use('/tickers', createTickersRouter(log))
+
+  const version = `v${pjson.version}`
+  router.get('/version', (req, res) => res.status(200).send(version))
 
   return router
 }

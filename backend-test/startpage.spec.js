@@ -8,7 +8,7 @@ const helpers = require('./helpers')
 describe('Start page', () => {
   let app, server
 
-  const get = path => request(app).get(path)
+  const getHtml = path => request(app).get(path)
     .then(({ text }) => cheerio.load(text))
 
   before(() => helpers.startTestServer((_app, _server) => {
@@ -18,11 +18,15 @@ describe('Start page', () => {
 
   after(done => helpers.close(server, done))
 
-  it('serves index.html on /tantalus', () => get('/tantalus/')
+  it('serves index.html on /tantalus', () => getHtml('/tantalus/')
     .then($ => $('title').text().should.equal('Tantalus'))
   )
 
-  it('serves index.html on /tantalus/index.html', () => get('/tantalus/index.html')
+  it('serves index.html on /tantalus/index.html', () => getHtml('/tantalus/index.html')
     .then($ => $('title').text().should.equal('Tantalus'))
+  )
+
+  it('response with version number', () => request(app).get('/api/version')
+    .expect(200, 'v1.1.0')
   )
 })
