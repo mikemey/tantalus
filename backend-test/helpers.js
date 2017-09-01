@@ -49,5 +49,6 @@ module.exports = {
   close,
   dropDatabase,
   getTickers,
-  insertTickers
+  insertTickers,
+  tickerCollection
 }
