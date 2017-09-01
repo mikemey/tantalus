@@ -11,8 +11,8 @@
         {{ ticker.buy | price }}
       </span>
       <div ng-if="ticker.sell !== undefined">
-        <span class="col-xs-6 text-center ticker-green">{{ ticker.sell | price }}</span>
-        <span class="col-xs-6 text-center ticker-red">{{ ticker.buy | price }}</span>
+        <span class="col-xs-6 text-center ticker-red">{{ ticker.sell | price }}</span>
+        <span class="col-xs-6 text-center ticker-green">{{ ticker.buy | price }}</span>
       </div>
     </div>
   </div>
