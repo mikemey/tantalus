@@ -1,3 +1,23 @@
 <div>
-  <canvas id="tickerChart"></canvas>
+  <div>
+    <canvas id="tickerChart"></canvas>
+  </div>
+
+  <div class="btn-group btn-group-justified">
+    <div class="btn-group" role="group">
+      <a class="btn btn-default toggle-group" role="button" ng-click="updateTicker('1d')">1 day</a>
+    </div>
+    <div class="btn-group" role="group">
+      <a class="btn btn-default toggle-group" role="button" ng-click="updateTicker('1w')">1 week</a>
+    </div>
+    <div class="btn-group" role="group">
+      <a class="btn btn-default toggle-group" role="button" ng-click="updateTicker('1m')">1 month</a>
+    </div>
+    <div class="btn-group" role="group">
+      <a class="btn btn-default toggle-group" role="button" ng-click="updateTicker('3m')">3 months</a>
+    </div>
+    <div class="btn-group" role="group">
+      <a class="btn btn-default toggle-group" role="button" ng-click="updateTicker('1y')">1 year</a>
+    </div>
+  </div>
 </div>

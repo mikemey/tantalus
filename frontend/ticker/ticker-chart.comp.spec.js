@@ -66,6 +66,6 @@ describe('ticker chart component', () => {
     const $scope = createChartComponent()
 
     $httpBackend.flush()
-    $scope.data.datasets.should.deep.equal(expectedDatasets)
+    $scope.model.data.datasets.should.deep.equal(expectedDatasets)
   })
 })

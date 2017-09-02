@@ -56,4 +56,12 @@ canvas {
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
+  user-select: none;
+}
+
+a.toggle-group.disabled {
+  color: #000;
+  font-weight: bold;
+  background-color: #aaa;
+  border-color: #eee;
 }

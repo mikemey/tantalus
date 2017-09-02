@@ -1,4 +1,4 @@
-/* global angular Chart */
+/* global angular Chart $ */
 
 const chartCtrlName = 'ChartController'
 
@@ -20,7 +20,16 @@ angular.module('tantalus.ticker')
     }
     const colorNames = Object.keys(chartColors)
 
-    $scope.options = {
+    const updateActiveButton = period => {
+      angular.forEach($('a.toggle-group'), el => {
+        const button = angular.element(el)
+        return button.attr('ng-click').includes(period)
+          ? button.addClass('disabled')
+          : button.removeClass('disabled')
+      })
+    }
+
+    const options = {
       legend: { display: true, position: 'top' },
       scales: {
         xAxes: [{ type: 'time', time: { tooltipFormat: 'll HH:mm' } }],
@@ -28,26 +37,36 @@ angular.module('tantalus.ticker')
       }
     }
 
-    $scope.data = { labels: [], datasets: [] }
-    $scope.tickerChart = new Chart('tickerChart', {
-      type: 'line', data: $scope.data, options: $scope.options
+    const data = { labels: [], datasets: [] }
+    const tickerChart = new Chart('tickerChart', {
+      type: 'line', data, options
     })
 
-    $scope.updateTicker = period => tickerService.getGraphData(period)
-      .then(graphData => {
-        const fullGraphData = graphData.map((graph, ix) => {
-          const colorName = colorNames[ix % colorNames.length]
-          const borderColor = chartColors[colorName]
-          const backgroundColor = colorHelper(chartColors[colorName]).alpha(0.5).rgbString()
-          return Object.assign(graph, {
-            borderColor,
-            backgroundColor,
-            fill: false
+    $scope.model = {
+      tickerChart,
+      data
+    }
+
+    $scope.updateTicker = period => {
+      tickerService.getGraphData(period)
+        .then(graphData => {
+          const fullGraphData = graphData.map((graph, ix) => {
+            const colorName = colorNames[ix % colorNames.length]
+            const borderColor = chartColors[colorName]
+            const backgroundColor = colorHelper(chartColors[colorName]).alpha(0.5).rgbString()
+            return Object.assign(graph, {
+              borderColor,
+              backgroundColor,
+              fill: false
+            })
           })
+          $scope.model.data.datasets = fullGraphData
+          if ($scope.model.tickerChart.ctx) {
+            updateActiveButton(period)
+            $scope.model.tickerChart.update(600)
+          }
         })
-        $scope.data.datasets = fullGraphData
-        if ($scope.tickerChart.ctx) $scope.tickerChart.update(500)
-      })
+    }
 
     return $scope.updateTicker('1w')
   }])
