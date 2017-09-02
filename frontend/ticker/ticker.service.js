@@ -41,26 +41,11 @@ angular.module('tantalus.ticker')
       watcherScope.$on('$destroy', decreaseWatcher)
     }
 
-    const getGraphData = () => Promise.resolve([{
-      label: 'solidi ask',
-      data: [
-        { x: '2017-08-10T00:26:00.256Z', y: 3856.08 },
-        { x: '2017-08-02T00:26:00.256Z', y: 3454.12 }
-      ]
-    }, {
-      label: 'lakebtc bid',
-      data: [
-        { x: '2017-08-05T00:26:00.256Z', y: 3856.08 },
-        { x: '2017-08-02T00:26:00.256Z', y: 3490 }
-      ]
-    }])
-
-    // real implementation:
-    // const getGraphData = () => $http.get('/api/tickers/graph')
-    //   .then(response => response.data)
-    //   .catch(error => {
-    //     console.log('error fetching graph data [%s] %s', error.status, error.statusText)
-    //   })
+    const getGraphData = period => $http.get('/api/tickers/graph?period=' + period)
+      .then(response => response.data)
+      .catch(error => {
+        console.log('error fetching graph data [%s] %s', error.status, error.statusText)
+      })
 
     $scope.$on('$destroy', stopUpdate)
     return {

@@ -49,6 +49,8 @@ describe('ticker chart component', () => {
     ]
   }]
 
+  const defaultPeriod = '1w'
+
   const createChartComponent = () => {
     const $scope = $rootScope.$new()
 
@@ -60,7 +62,7 @@ describe('ticker chart component', () => {
   }
 
   it('transforms ticker data', () => {
-    $httpBackend.expectGET('/api/tickers/graph').respond(200, backendData)
+    $httpBackend.expectGET('/api/tickers/graph?period=' + defaultPeriod).respond(200, backendData)
     const $scope = createChartComponent()
 
     $httpBackend.flush()

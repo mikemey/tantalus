@@ -19,6 +19,7 @@ angular.module('tantalus.ticker')
       grey: 'rgb(201, 203, 207)'
     }
     const colorNames = Object.keys(chartColors)
+    const defaultPeriod = '1w'
 
     $scope.options = {
       scales: {
@@ -32,7 +33,7 @@ angular.module('tantalus.ticker')
       type: 'line', data: $scope.data, options: $scope.options
     })
 
-    tickerService.getGraphData().then(graphData => {
+    tickerService.getGraphData(defaultPeriod).then(graphData => {
       const fullGraphData = graphData.map((graph, ix) => {
         const colorName = colorNames[ix % colorNames.length]
         const borderColor = chartColors[colorName]
