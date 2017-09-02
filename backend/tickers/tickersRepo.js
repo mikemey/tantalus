@@ -10,12 +10,18 @@ const TickerRepo = () => {
     })
 
   const getLatest = () => tickerCollection().find()
-    .sort({ 'created': -1 }).limit(1).toArray()
+    .sort({ created: -1 }).limit(1).toArray()
     .then(docs => docs[0])
+
+  const getTickers = since => tickerCollection()
+    .find({ created: { $gte: since } }, { _id: false, created: true, tickers: true })
+    .sort({ created: -1 })
+    .toArray()
 
   return {
     storeTickersData,
-    getLatest
+    getLatest,
+    getTickers
   }
 }
 

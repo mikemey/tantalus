@@ -53,4 +53,24 @@ xdescribe('exploring', () => {
       })
     })
   })
+
+  it('mongo queries', () => {
+    const db = {}
+    const ISODate = {}
+
+    // -------------------
+    db.tickers.find(
+      { created: { $gte: new ISODate('2017-08-02T05:26:00Z') } },
+      { _id: false, created: true, tickers: true }
+    ).sort({ created: -1 })
+    // -------------------
+    db.tickers.aggregate([{
+      $sort: { created: -1 }
+    }, {
+      $group: {
+        _id: { $dayOfYear: '$created' },
+        closing: { $first: '$tickers' }
+      }
+    }])
+  })
 })
