@@ -47,37 +47,37 @@ describe('TickerService', () => {
   const expectedResult = [{
     label: 'solidi bid',
     data: [
-      { x: '2017-08-05T00:26:00.256Z', y: 3675.14 },
-      { x: '2017-08-04T08:26:00.256Z', y: 3904.59 },
-      { x: '2017-08-03T00:26:00.256Z', y: 3915.58 },
-      { x: '2017-08-02T10:26:00.256Z', y: 3906.82 }
+      { x: dbDate('2017-08-05T00:26:00.256Z'), y: 3675.14 },
+      { x: dbDate('2017-08-04T08:26:00.256Z'), y: 3904.59 },
+      { x: dbDate('2017-08-03T00:26:00.256Z'), y: 3915.58 },
+      { x: dbDate('2017-08-02T10:26:00.256Z'), y: 3906.82 }
     ]
   }, {
     label: 'solidi ask',
     data: [
-      { x: '2017-08-05T00:26:00.256Z', y: 3454.12 }
+      { x: dbDate('2017-08-05T00:26:00.256Z'), y: 3454.12 }
     ]
   }, {
     label: 'lakebtc bid',
     data: [
-      { x: '2017-08-05T00:26:00.256Z', y: 3490 },
-      { x: '2017-08-03T00:26:00.256Z', y: 3857.84 },
-      { x: '2017-08-02T10:26:00.256Z', y: 3856.08 }
+      { x: dbDate('2017-08-05T00:26:00.256Z'), y: 3490 },
+      { x: dbDate('2017-08-03T00:26:00.256Z'), y: 3857.84 },
+      { x: dbDate('2017-08-02T10:26:00.256Z'), y: 3856.08 }
     ]
   }, {
     label: 'lakebtc ask',
     data: [
-      { x: '2017-08-05T00:26:00.256Z', y: 3567 },
-      { x: '2017-08-03T00:26:00.256Z', y: 3865.78 },
-      { x: '2017-08-02T10:26:00.256Z', y: 3879.06 }
+      { x: dbDate('2017-08-05T00:26:00.256Z'), y: 3567 },
+      { x: dbDate('2017-08-03T00:26:00.256Z'), y: 3865.78 },
+      { x: dbDate('2017-08-02T10:26:00.256Z'), y: 3879.06 }
     ]
   }, {
     label: 'coindesk',
     data: [
-      { x: '2017-08-05T00:26:00.256Z', y: 3584.93 },
-      { x: '2017-08-04T08:26:00.256Z', y: 3814.19 },
-      { x: '2017-08-03T00:26:00.256Z', y: 3802.64 },
-      { x: '2017-08-02T10:26:00.256Z', y: 3821.79 }
+      { x: dbDate('2017-08-05T00:26:00.256Z'), y: 3584.93 },
+      { x: dbDate('2017-08-04T08:26:00.256Z'), y: 3814.19 },
+      { x: dbDate('2017-08-03T00:26:00.256Z'), y: 3802.64 },
+      { x: dbDate('2017-08-02T10:26:00.256Z'), y: 3821.79 }
     ]
   }]
 
@@ -117,8 +117,8 @@ describe('TickerService', () => {
         result.forEach(chart => {
           const chartData = chart.data
           chartData.should.have.length(tickerService.LIMIT_RESULTS)
-          chartData[0].x.should.equal(newestDate)
-          chartData[chartData.length - 1].x.should.equal(oldestDate)
+          chartData[0].x.toJSON().should.equal(newestDate)
+          chartData[chartData.length - 1].x.toJSON().should.equal(oldestDate)
         })
       })
   })

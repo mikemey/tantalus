@@ -36,19 +36,24 @@ const setGraphDataFromTick = (datasets, created) => tick => {
   if (tick.ask) addChartPoint(datasets, created, tick.name, tick.ask, ' ask')
 }
 
+const sampleTickers = charts => {
+  const skip = (charts.length - 1) / (LIMIT_RESULTS - 1)
+  return skip < 1
+    ? _ => true
+    : (_, ix) => (ix % skip) < 1
+}
+
 const TickerService = () => {
   const tickersRepo = createTickersRepo()
 
   const getGraphData = since => {
     return tickersRepo.getTickers(since)
       .then(allChartTickers => {
-        const skip = (allChartTickers.length - 1) / (LIMIT_RESULTS - 1)
         const datasets = []
-
         allChartTickers
-          .filter((t, ix) => (ix % skip) < 1)
+          .filter(sampleTickers(allChartTickers))
           .forEach(ticker =>
-            ticker.tickers.forEach(setGraphDataFromTick(datasets, ticker.created.toJSON()))
+            ticker.tickers.forEach(setGraphDataFromTick(datasets, ticker.created))
           )
         return datasets
       })
