@@ -92,21 +92,21 @@ describe('TickerService', () => {
     const length = 2000
     const cutoffIx = 1300
 
-    const datePast = daysPast => moment.utc().subtract(daysPast, 'd').toDate()
+    const randomInt = (min = 3000, max = 5000) => Math.floor(Math.random() * (max - min)) + min
     const createTicker = created => {
       return {
         created,
         tickers: [
-          { name: 'solidi', bid: 999999, ask: 999999 },
-          { name: 'lakebtc', bid: 999999, ask: 999999 },
-          { name: 'coindesk', ask: 999999 }]
+          { name: 'solidi', bid: randomInt(), ask: randomInt() },
+          { name: 'lakebtc', bid: randomInt(), ask: randomInt() },
+          { name: 'coindesk', ask: randomInt() }]
       }
     }
 
+    const datePast = daysPast => moment.utc().subtract(daysPast, 'd').toDate()
     const testData = Array.from({ length }, (_, i) => createTicker(datePast(length - i)))
 
     const cutoffDate = moment.utc().subtract(cutoffIx, 'd').subtract(1, 'h').toDate()
-
     const oldestDate = moment.utc(testData[length - cutoffIx].created).toJSON()
     const newestDate = moment.utc(testData[length - 1].created).toJSON()
 
