@@ -1,6 +1,7 @@
 const createTickersRepo = require('./tickersRepo')
 
 const NOT_AVAIL = 'N/A'
+const LIMIT_RESULTS = 100
 
 const chartPoint = (x, y) => { return { x, y } }
 
@@ -26,7 +27,7 @@ const addChartPoint = (datasets, created, name, dbValue, nameSuffix) => {
   }
 }
 
-const setGraphDataFromTick = (datasets, created, tick) => {
+const setGraphDataFromTick = (datasets, created) => tick => {
   if (tick.name === 'coindesk') {
     addChartPoint(datasets, created, tick.name, tick.ask, '')
     return
@@ -38,19 +39,26 @@ const setGraphDataFromTick = (datasets, created, tick) => {
 const TickerService = () => {
   const tickersRepo = createTickersRepo()
 
-  const getGraphData = since => tickersRepo.getTickers(since)
-    .then(tickers => {
-      const datasets = []
-      tickers.forEach(ticker => ticker.tickers.forEach(tick => {
-        setGraphDataFromTick(datasets, ticker.created.toJSON(), tick)
-      }))
-      return datasets
-    })
+  const getGraphData = since => {
+    return tickersRepo.getTickers(since)
+      .then(allChartTickers => {
+        const skip = (allChartTickers.length - 1) / (LIMIT_RESULTS - 1)
+        const datasets = []
+
+        allChartTickers
+          .filter((t, ix) => (ix % skip) < 1)
+          .forEach(ticker =>
+            ticker.tickers.forEach(setGraphDataFromTick(datasets, ticker.created.toJSON()))
+          )
+        return datasets
+      })
+  }
 
   const getLatest = () => tickersRepo.getLatest()
   return {
     getLatest,
-    getGraphData
+    getGraphData,
+    LIMIT_RESULTS
   }
 }
 

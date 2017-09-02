@@ -82,20 +82,44 @@ describe('TickerService', () => {
   }]
 
   it('should return graph data', () => {
-    const testDataSince = dbDate('2017-08-02T05:26:00Z')
+    const testSince = dbDate('2017-08-02T05:26:00Z')
     return helpers.insertTickers(testData)
-      .then(() => tickerService.getGraphData(testDataSince))
+      .then(() => tickerService.getGraphData(testSince))
       .then(result => result.should.deep.equal(expectedResult))
   })
 
-  xit('should return at most 100 data points', () => {
-    const testDataSince = dbDate('2017-08-02T05:26:00Z')
+  it('should return at most 100 data points', () => {
+    const length = 2000
+    const cutoffIx = 1300
+
+    const datePast = daysPast => moment.utc().subtract(daysPast, 'd').toDate()
+    const createTicker = created => {
+      return {
+        created,
+        tickers: [
+          { name: 'solidi', bid: 999999, ask: 999999 },
+          { name: 'lakebtc', bid: 999999, ask: 999999 },
+          { name: 'coindesk', ask: 999999 }]
+      }
+    }
+
+    const testData = Array.from({ length }, (_, i) => createTicker(datePast(length - i)))
+
+    const cutoffDate = moment.utc().subtract(cutoffIx, 'd').subtract(1, 'h').toDate()
+
+    const oldestDate = moment.utc(testData[length - cutoffIx].created).toJSON()
+    const newestDate = moment.utc(testData[length - 1].created).toJSON()
+
     return helpers.insertTickers(testData)
-      .then(() => tickerService.getGraphData(testDataSince))
-      // .then(result => result.should.deep.equal(expectedResult))
+      .then(() => tickerService.getGraphData(cutoffDate))
       .then(result => {
-        console.log(JSON.stringify(result, null, ' '))
-        result.should.deep.equal(expectedResult)
+        result.should.have.length(5)
+        result.forEach(chart => {
+          const chartData = chart.data
+          chartData.should.have.length(tickerService.LIMIT_RESULTS)
+          chartData[0].x.should.equal(newestDate)
+          chartData[chartData.length - 1].x.should.equal(oldestDate)
+        })
       })
   })
 })
