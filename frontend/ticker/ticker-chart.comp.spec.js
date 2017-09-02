@@ -32,16 +32,16 @@ describe('ticker chart component', () => {
 
   const expectedDatasets = [{
     label: 'solidi ask',
-    backgroundColor: 'rgba(255, 99, 132, 0.5)',
-    borderColor: 'rgb(255, 99, 132)',
+    backgroundColor: 'rgba(39, 101, 223, 0.5)',
+    borderColor: 'rgb(39, 101, 223)',
     fill: false,
     data: [
       { x: '2017-08-02T00:26:00.256Z', y: 3454.12 }
     ]
   }, {
     label: 'lakebtc bid',
-    backgroundColor: 'rgba(75, 192, 192, 0.5)',
-    borderColor: 'rgb(75, 192, 192)',
+    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+    borderColor: 'rgb(54, 162, 235)',
     fill: false,
     data: [
       { x: '2017-08-05T00:26:00.256Z', y: 3856.08 },
