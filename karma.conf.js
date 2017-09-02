@@ -9,6 +9,8 @@ module.exports = config => {
       'bower_components/angular-mocks/angular-mocks.js',
       'bower_components/angular-route/angular-route.js',
       'bower_components/jquery/dist/jquery.js',
+      'bower_components/chart.js/dist/Chart.js',
+      'bower_components/angular-chart.js/dist/angular-chart.js',
       'bower_components/moment/moment.js',
       '**/*.html',
       '**/*.module.js',
