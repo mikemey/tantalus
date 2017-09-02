@@ -5,7 +5,7 @@ describe('coinfloor bid component', () => {
 
   beforeEach(module('tantalus.coinfloor'))
 
-  beforeEach(inject((_$controller_, _$rootScope_, _$compile_) => {
+  beforeEach(inject((_$controller_, _$rootScope_) => {
     $controller = _$controller_
     $rootScope = _$rootScope_
   }))
