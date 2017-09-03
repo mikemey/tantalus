@@ -19,7 +19,7 @@ angular
 
     $scope.updateTargetRate = () => tickerService.getLatestTicker().then(latestTicker => {
       const coinfloorTicker = latestTicker.tickers.find(ticker => ticker.name === 'coinfloor')
-      if (!isNaN(parseFloat(coinfloorTicker.bid))) {
+      if (coinfloorTicker && !isNaN(parseFloat(coinfloorTicker.bid))) {
         $scope.inputs.targetRate = coinfloorTicker.bid
       }
     })
