@@ -44,17 +44,29 @@ angular.module('tantalus.ticker')
 
     $scope.model = {
       tickerChart,
-      data
+      data,
+      chartFilled: false
+    }
+
+    const updateDatasetFillings = () => $scope.model.data.datasets.forEach((dataset, ix) => {
+      dataset.fill = $scope.model.chartFilled && (ix % 2 > 0) ? (ix - 1) : false
+    })
+
+    $scope.toggleFilling = (updateChart = true) => {
+      $scope.model.chartFilled = !$scope.model.chartFilled
+      updateDatasetFillings()
+      if (updateChart) $scope.model.tickerChart.update(0)
     }
 
     $scope.updateTicker = period => {
       tickerService.getGraphData(period)
         .then(graphData => {
-          const fullGraphData = graphData.map((graph, ix) => {
+          const fullGraphData = graphData.map((dataset, ix) => {
             const colorName = colorNames[ix % colorNames.length]
             const borderColor = chartColors[colorName]
             const backgroundColor = colorHelper(chartColors[colorName]).alpha(0.5).rgbString()
-            return Object.assign(graph, {
+
+            return Object.assign(dataset, {
               borderColor,
               backgroundColor,
               fill: false
@@ -62,6 +74,7 @@ angular.module('tantalus.ticker')
           })
           $scope.model.data.datasets = fullGraphData
           if ($scope.model.tickerChart.ctx) {
+            updateDatasetFillings()
             updateActiveButton(period)
             $scope.model.tickerChart.update(600)
           }

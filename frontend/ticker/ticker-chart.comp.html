@@ -5,19 +5,26 @@
 
   <div class="btn-group btn-group-justified">
     <div class="btn-group" role="group">
-      <a class="btn btn-default toggle-group" role="button" ng-click="updateTicker('1d')">1 day</a>
+      <a ng-click="updateTicker('1d')" class="btn btn-default toggle-group">1 day</a>
     </div>
     <div class="btn-group" role="group">
-      <a class="btn btn-default toggle-group" role="button" ng-click="updateTicker('1w')">1 week</a>
+      <a ng-click="updateTicker('1w')" class="btn btn-default toggle-group">1 week</a>
     </div>
     <div class="btn-group" role="group">
-      <a class="btn btn-default toggle-group" role="button" ng-click="updateTicker('1m')">1 month</a>
+      <a ng-click="updateTicker('1m')" class="btn btn-default toggle-group">1 month</a>
     </div>
     <div class="btn-group" role="group">
-      <a class="btn btn-default toggle-group" role="button" ng-click="updateTicker('3m')">3 months</a>
+      <a ng-click="updateTicker('3m')" class="btn btn-default toggle-group">3 months</a>
     </div>
     <div class="btn-group" role="group">
-      <a class="btn btn-default toggle-group" role="button" ng-click="updateTicker('1y')">1 year</a>
+      <a ng-click="updateTicker('1y')" class="btn btn-default toggle-group">1 year</a>
+    </div>
+    <div class="btn-group" role="group">
+    </div>
+    <div class="btn-group" role="group">
+      <a ng-class="{ toggled: model.chartFilled }" ng-click="toggleFilling()" class="btn btn-default">
+        Toggle diff
+      </a>
     </div>
   </div>
 </div>

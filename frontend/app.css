@@ -59,9 +59,9 @@ canvas {
   user-select: none;
 }
 
-a.toggle-group.disabled {
-  color: #000;
-  font-weight: bold;
-  background-color: #aaa;
-  border-color: #eee;
+a.toggle-group.disabled, a.toggled {
+  color: #333;
+  background-color: #dadada;
+  border-color: #acacac;
+  opacity: 1;
 }
