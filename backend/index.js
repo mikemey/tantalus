@@ -3,11 +3,11 @@ const config = require('./config').config
 const log = console
 
 const msgTransform = msg => `\x1b[1m${msg}\x1b[0m`
-const serverLog = (msg, prefix = '==') =>
-  log.info('%s===== %s=======', prefix, msgTransform(`SERVER ${msg.padEnd(5)} `))
+const serverLog = msg =>
+  log.info('===== %s=======', msgTransform(`SERVER ${msg.padEnd(5)} `))
 
 process.on('SIGINT', () => {
-  serverLog('STOP', '')
+  serverLog('STOP')
   process.exit(1)
 })
 
