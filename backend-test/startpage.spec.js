@@ -26,7 +26,10 @@ describe('Start page', () => {
     .then($ => $('title').text().should.equal('Tantalus'))
   )
 
-  it('response with version number', () => request(app).get('/api/version')
-    .expect(200, 'v1.2.0')
+  it('response with version number', () => {
+    const expectedVersion = 'v' + require('../package.json').version
+    return request(app).get('/api/version')
+      .expect(200, expectedVersion)
+  }
   )
 })
