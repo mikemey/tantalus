@@ -17,8 +17,8 @@ const transformAskBid = (name, json) => Object.assign(
   json.ask !== undefined ? { ask: fmt.rate(json.ask) } : undefined
 )
 
-const tickerErrorHandler = ticker => err => {
-  console.info(err.message)
+const tickerErrorHandler = (ticker, log) => err => {
+  log.error(err.message)
   return { name: ticker.name, bid: NOT_AVAIL, ask: NOT_AVAIL }
 }
 
@@ -27,31 +27,31 @@ const solidiTransform = element => {
   return result > 0 ? result : NOT_AVAIL
 }
 
-const getSolidiTicker = () => requests
+const getSolidiTicker = log => requests
   .getHtml(tickers.solidi.url)
   .then($ => transformAskBid(tickers.solidi.name, {
     bid: solidiTransform($('#buybtcrate')),
     ask: solidiTransform($('#sellbtcrate'))
   }))
-  .catch(tickerErrorHandler(tickers.solidi))
+  .catch(tickerErrorHandler(tickers.solidi, log))
 
-const getLakebtcTicker = () => requests
+const getLakebtcTicker = log => requests
   .getJson(tickers.lakebtc.url)
   .then(({ btcgbp }) => transformAskBid(tickers.lakebtc.name, btcgbp))
-  .catch(tickerErrorHandler(tickers.lakebtc))
+  .catch(tickerErrorHandler(tickers.lakebtc, log))
 
-const getCoinfloorTicker = () => requests
+const getCoinfloorTicker = log => requests
   .getJson(tickers.coinfloor.url)
   .then(responseJson => transformAskBid(tickers.coinfloor.name, responseJson))
-  .catch(tickerErrorHandler(tickers.coinfloor))
+  .catch(tickerErrorHandler(tickers.coinfloor, log))
 
-const getCoindeskTicker = () => requests
+const getCoindeskTicker = log => requests
   .getJson(tickers.coindesk.url)
   .then(responseJson => {
     const rate = responseJson.bpi.GBP.rate_float
     return transformAskBid(tickers.coindesk.name, { ask: rate })
   })
-  .catch(tickerErrorHandler(tickers.coindesk))
+  .catch(tickerErrorHandler(tickers.coindesk, log))
 
 const countData = tickers => tickers.filter(
   ticker => ticker.bid !== NOT_AVAIL || ticker.ask !== NOT_AVAIL
@@ -61,10 +61,10 @@ const TickerScheduleService = log => {
   const tickersRepo = createTickersRepo()
 
   const storeTickers = () => Promise.all([
-    getSolidiTicker(),
-    getLakebtcTicker(),
-    getCoinfloorTicker(),
-    getCoindeskTicker()
+    getSolidiTicker(log),
+    getLakebtcTicker(log),
+    getCoinfloorTicker(log),
+    getCoindeskTicker(log)
   ]).then(tickers => {
     const created = new Date()
     log.info(created.toISOString() + ' - updated ticker: ' + countData(tickers))
