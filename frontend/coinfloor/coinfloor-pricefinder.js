@@ -1,14 +1,14 @@
 /* global angular */
 
-const bidControllerName = 'CoinfloorBidController'
+const priceFinderControllerName = 'PriceFinderController'
 
 angular
   .module('tantalus.coinfloor')
-  .component('coinfloorBid', {
-    controller: bidControllerName,
-    templateUrl: 'coinfloor/bid.comp.html'
+  .component('coinfloorPricefinder', {
+    controller: priceFinderControllerName,
+    templateUrl: 'coinfloor/coinfloor-pricefinder.html'
   })
-  .controller(bidControllerName, ['$scope', 'tickerService', function ($scope, tickerService) {
+  .controller(priceFinderControllerName, ['$scope', 'tickerService', function ($scope, tickerService) {
     $scope.inputs = {
       volume: 2000,
       targetRate: 0,

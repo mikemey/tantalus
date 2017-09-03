@@ -1,6 +1,6 @@
 /* global inject */
 
-describe('coinfloor bid component', () => {
+describe('coinfloor pricefinder component', () => {
   let $rootScope, $controller
 
   beforeEach(module('tantalus.coinfloor'))
@@ -43,7 +43,7 @@ describe('coinfloor bid component', () => {
     const tickerService = {
       getLatestTicker: () => Promise.resolve(latestTicker)
     }
-    const ctrl = $controller('CoinfloorBidController', { $scope, tickerService })
+    const ctrl = $controller('PriceFinderController', { $scope, tickerService })
     return { $scope, ctrl }
   }
 
