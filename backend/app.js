@@ -6,8 +6,10 @@ const pjson = require('../package.json')
 const mongoConnection = require('./utils/mongoConnection')
 const createTickersRouter = require('./tickers/tickers')
 
-const requestLogger = () =>
-  morgan(':date[iso] [:remote-addr] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent')
+const requestLogger = () => {
+  morgan.token('clientIP', req => req.headers['x-forwarded-for'] || req.connection.remoteAddress)
+  return morgan(':date[iso] [:clientIP] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent')
+}
 
 const createServer = (config, log) => mongoConnection.init(config, log)
   .then(() => new Promise((resolve, reject) => {
