@@ -5,5 +5,8 @@ angular.module('tantalus.ticker', [
   'chart.js'
 ])
   .config(['$routeProvider', $routeProvider => $routeProvider
-    .when('/ticker', { templateUrl: 'ticker/ticker.html' })
+    .when('/ticker', {
+      templateUrl: 'ticker/ticker.html',
+      reloadOnSearch: false
+    })
   ])

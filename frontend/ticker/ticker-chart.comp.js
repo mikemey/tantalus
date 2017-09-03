@@ -7,7 +7,7 @@ angular.module('tantalus.ticker')
     controller: chartCtrlName,
     templateUrl: 'ticker/ticker-chart.comp.html'
   })
-  .controller(chartCtrlName, ['$scope', 'tickerService', function ($scope, tickerService) {
+  .controller(chartCtrlName, ['$scope', '$location', 'tickerService', function ($scope, $location, tickerService) {
     const colorHelper = Chart.helpers.color
     const chartColors = {
       blue: 'rgb(39, 101, 223)',
@@ -19,15 +19,6 @@ angular.module('tantalus.ticker')
       grey: 'rgb(181, 183, 187)'
     }
     const colorNames = Object.keys(chartColors)
-
-    const updateActiveButton = period => {
-      angular.forEach($('a.toggle-group'), el => {
-        const button = angular.element(el)
-        return button.attr('ng-click').includes(period)
-          ? button.addClass('disabled')
-          : button.removeClass('disabled')
-      })
-    }
 
     const options = {
       legend: { display: true, position: 'top' },
@@ -45,41 +36,51 @@ angular.module('tantalus.ticker')
     $scope.model = {
       tickerChart,
       data,
-      chartFilled: false
+      chartFill: $location.search()['fill'] === true
     }
-
-    const updateDatasetFillings = () => $scope.model.data.datasets.forEach((dataset, ix) => {
-      dataset.fill = $scope.model.chartFilled && (ix % 2 > 0) ? (ix - 1) : false
+    const updateActiveButton = period => angular.forEach($('a.toggle-group'), el => {
+      const button = angular.element(el)
+      return button.attr('ng-click').includes(period)
+        ? button.addClass('disabled')
+        : button.removeClass('disabled')
     })
 
-    $scope.toggleFilling = (updateChart = true) => {
-      $scope.model.chartFilled = !$scope.model.chartFilled
+    const updateDatasetFillings = () => $scope.model.data.datasets.forEach((dataset, ix) => {
+      dataset.fill = $scope.model.chartFill && (ix % 2 > 0) ? (ix - 1) : false
+    })
+
+    const updatePeriodQuery = period => $location.search('period', period)
+    const updateFillQuery = fill => $location.search('fill', fill)
+
+    $scope.toggleFilling = () => {
+      $scope.model.chartFill = !$scope.model.chartFill
+      updateFillQuery($scope.model.chartFill)
       updateDatasetFillings()
-      if (updateChart) $scope.model.tickerChart.update(0)
+      $scope.model.tickerChart.update(0)
     }
 
-    $scope.updateTicker = period => {
-      tickerService.getGraphData(period)
-        .then(graphData => {
-          const fullGraphData = graphData.map((dataset, ix) => {
-            const colorName = colorNames[ix % colorNames.length]
-            const borderColor = chartColors[colorName]
-            const backgroundColor = colorHelper(chartColors[colorName]).alpha(0.5).rgbString()
+    $scope.updateTicker = period => tickerService.getGraphData(period)
+      .then(graphData => {
+        const fullGraphData = graphData.map((dataset, ix) => {
+          const colorName = colorNames[ix % colorNames.length]
+          const borderColor = chartColors[colorName]
+          const backgroundColor = colorHelper(chartColors[colorName]).alpha(0.5).rgbString()
 
-            return Object.assign(dataset, {
-              borderColor,
-              backgroundColor,
-              fill: false
-            })
+          return Object.assign(dataset, {
+            borderColor,
+            backgroundColor,
+            fill: false
           })
-          $scope.model.data.datasets = fullGraphData
-          if ($scope.model.tickerChart.ctx) {
-            updateDatasetFillings()
-            updateActiveButton(period)
-            $scope.model.tickerChart.update(600)
-          }
         })
-    }
+        $scope.model.data.datasets = fullGraphData
+        if ($scope.model.tickerChart.ctx) {
+          updateDatasetFillings()
+          updateActiveButton(period)
+          updatePeriodQuery(period)
+          $scope.model.tickerChart.update(600)
+        }
+      })
 
-    return $scope.updateTicker('1w')
+    const initialPeriod = $location.search()['period'] || '1w'
+    return $scope.updateTicker(initialPeriod)
   }])
