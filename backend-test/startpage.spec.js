@@ -27,6 +27,6 @@ describe('Start page', () => {
   )
 
   it('response with version number', () => request(app).get('/api/version')
-    .expect(200, 'v1.1.0')
+    .expect(200, 'v1.2.0')
   )
 })
