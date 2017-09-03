@@ -36,6 +36,7 @@ const createApiRouter = log => {
 
   const version = `v${pjson.version}`
   router.get('/version', (req, res) => res.status(200).send(version))
+  log.info(`server version: ${version}`)
 
   return router
 }

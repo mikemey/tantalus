@@ -2,18 +2,21 @@ const createServer = require('./app')
 const config = require('./config').config
 const log = console
 
+const msgTransform = msg => `\x1b[1m${msg}\x1b[0m`
+const serverLog = (msg, prefix = '==') =>
+  log.info('%s===== %s=======', prefix, msgTransform(`SERVER ${msg.padEnd(5)} `))
+
 process.on('SIGINT', () => {
-  log.error('SIGINT received, shutting down app')
+  serverLog('STOP', '')
   process.exit(1)
 })
 
-log.info('--- server config')
-log.info(JSON.stringify(config, null, ' '))
-log.info('--- server config')
+serverLog('START')
 createServer(config, log)
   .then(() => {
-    log.info('Service is up')
+    serverLog('UP')
   })
   .catch(err => {
-    log.error('Startup error', err)
+    serverLog('ERROR')
+    log.error(err)
   })
