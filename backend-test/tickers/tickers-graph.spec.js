@@ -79,14 +79,11 @@ describe('GET /api/tickers/graph endpoint', () => {
     )
 
     it('3 month report', () => getGraphData('3m').expect(200)
-      .then(({ body }) => {
-        const threeMonthsAgo = moment.utc().subtract(3, 'M')
-        expectGraphDataLength(body, daysSince(threeMonthsAgo))
-      })
+      .then(({ body }) => expectGraphDataLength(body, 39))
     )
 
     it('1 year report', () => getGraphData('1y').expect(200)
-      .then(({ body }) => expectGraphDataLength(body, 99))
+      .then(({ body }) => expectGraphDataLength(body, 39))
     )
   })
 })
