@@ -1,6 +1,8 @@
-/* global angular */
+/* global angular moment */
 
 const UPDATE_PERIOD = 20000
+const STALE_PERIOD = UPDATE_PERIOD * 0.8
+
 const EMPTY_TICKER = { created: null, tickers: [] }
 
 angular.module('tantalus.ticker')
@@ -8,14 +10,21 @@ angular.module('tantalus.ticker')
     const $scope = $rootScope.$new()
     $scope.watchCounter = 0
     $scope.latestTicker = EMPTY_TICKER
+    $scope.latestTickerUpdate = moment().subtract(UPDATE_PERIOD)
 
-    const getLatestTicker = () => $http.get('/api/tickers/latest')
-      .then(response => { $scope.latestTicker = response.data })
-      .catch(error => {
-        $scope.latestTicker = EMPTY_TICKER
-        console.log('error fetching latest ticker [%s] %s', error.status, error.statusText)
-      })
-      .then(() => $scope.latestTicker)
+    const isTickerStale = () => moment().diff($scope.latestTickerUpdate) > STALE_PERIOD
+
+    const getLatestTicker = () => isTickerStale()
+      ? $http.get('/api/tickers/latest')
+        .then(response => {
+          $scope.latestTickerUpdate = moment()
+          $scope.latestTicker = response.data
+        })
+        .catch(error => {
+          console.log('error fetching latest ticker [%s] %s', error.status, error.statusText)
+        })
+        .then(() => $scope.latestTicker)
+      : Promise.resolve($scope.latestTicker)
 
     const startUpdate = () => {
       $scope.stop = $interval(getLatestTicker, UPDATE_PERIOD)
