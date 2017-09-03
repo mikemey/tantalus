@@ -1,0 +1,36 @@
+.ticker-box {
+  text-align: center;
+  margin-right: 0;
+  margin-left: 0;
+  background-color: #f6f6f6;
+  border-color: #ddd;
+  border-width: 1px;
+  border-radius: 2px 2px 0 0;
+  -webkit-box-shadow: 0 0 2px gold;
+  box-shadow: 0 0 2px gold;
+  border-style: solid;
+  overflow: hidden;
+}
+
+.ticker-name {
+  background: #eee;
+  padding-top: 5px;
+  border-top: 1px solid #bbb;
+}
+
+.ticker-price {
+  font-size: 0.9em;
+  padding: 2px 0;
+}
+
+.ticker-green {
+  background: rgba(24, 255, 24, 0.5);
+}
+
+.ticker-red {
+  background: rgba(255, 0, 0, 0.45);
+}
+
+.ticker-date {
+  margin: 2px;
+}

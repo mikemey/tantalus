@@ -21,10 +21,10 @@ angular.module('tantalus.ticker')
     const colorNames = Object.keys(chartColors)
 
     const options = {
-      legend: { display: true, position: 'top' },
+      legend: { display: true },
       scales: {
         xAxes: [{ type: 'time', time: { tooltipFormat: 'll HH:mm' } }],
-        yAxes: [{ scaleLabel: { display: true, labelString: 'GBP/Ƀ' } }]
+        yAxes: [{ scaleLabel: { display: true, labelString: 'GBP/Ƀ' }, position: 'right' }]
       }
     }
 
