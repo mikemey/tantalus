@@ -4,27 +4,31 @@
   </div>
 
   <div class="btn-group btn-group-justified">
-    <div class="btn-group" role="group">
-      <a ng-click="updateTicker('1d')" class="btn btn-default toggle-group">1 day</a>
+    <div class="btn-group">
+      <button ng-disabled="model.activeButtons[0]" ng-class=" model.activeButtons[0] ? 'period-selected' : '' " ng-click="updateTicker('1d')"
+        class="btn btn-default toggle-group">1 day</button>
     </div>
-    <div class="btn-group" role="group">
-      <a ng-click="updateTicker('1w')" class="btn btn-default toggle-group">1 week</a>
+    <div class="btn-group">
+      <button ng-disabled="model.activeButtons[1]" ng-class=" model.activeButtons[1] ? 'period-selected' : '' " ng-click="updateTicker('1w')"
+        class="btn btn-default toggle-group">1 week</button>
     </div>
-    <div class="btn-group" role="group">
-      <a ng-click="updateTicker('1m')" class="btn btn-default toggle-group">1 month</a>
+    <div class="btn-group">
+      <button ng-disabled="model.activeButtons[2]" ng-class=" model.activeButtons[2] ? 'period-selected' : '' " ng-click="updateTicker('1m')"
+        class="btn btn-default toggle-group">1 month</button>
     </div>
-    <div class="btn-group" role="group">
-      <a ng-click="updateTicker('3m')" class="btn btn-default toggle-group">3 months</a>
+    <div class="btn-group">
+      <button ng-disabled="model.activeButtons[3]" ng-class=" model.activeButtons[3] ? 'period-selected' : '' " ng-click="updateTicker('3m')"
+        class="btn btn-default toggle-group">3 months</button>
     </div>
-    <div class="btn-group" role="group">
-      <a ng-click="updateTicker('1y')" class="btn btn-default toggle-group">1 year</a>
+    <div class="btn-group">
+      <button ng-disabled="model.activeButtons[4]" ng-class=" model.activeButtons[4] ? 'period-selected' : '' " ng-click="updateTicker('1y')"
+        class="btn btn-default toggle-group">1 year</button>
     </div>
-    <div class="btn-group" role="group">
-    </div>
-    <div class="btn-group" role="group">
-      <a ng-class="{ toggled: model.chartFill }" ng-click="toggleFilling()" class="btn btn-default">
-        Toggle diff
-      </a>
+    <div class="btn-group"></div>
+    <div class="btn-group">
+      <button ng-class=" model.chartFill ? 'fill-toggled' : 'fill-untoggled' " ng-click="toggleFilling()" class="btn btn-default">
+        Toggle diff 
+      </button>
     </div>
   </div>
 </div>

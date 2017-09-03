@@ -36,14 +36,13 @@ angular.module('tantalus.ticker')
     $scope.model = {
       tickerChart,
       data,
-      chartFill: $location.search()['fill'] === true
+      chartFill: $location.search()['fill'] === true,
+      activeButtons: []
     }
-    const updateActiveButton = period => angular.forEach($('a.toggle-group'), el => {
-      const button = angular.element(el)
-      return button.attr('ng-click').includes(period)
-        ? button.addClass('disabled')
-        : button.removeClass('disabled')
-    })
+    const updateActiveButton = period => {
+      $scope.model.activeButtons = $('.toggle-group').toArray()
+        .map(el => el.getAttribute('ng-click').includes(period))
+    }
 
     const updateDatasetFillings = () => $scope.model.data.datasets.forEach((dataset, ix) => {
       dataset.fill = $scope.model.chartFill && (ix % 2 > 0) ? (ix - 1) : false

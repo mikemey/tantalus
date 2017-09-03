@@ -2,6 +2,10 @@ body {
   padding: 30px;
 }
 
+.btn:focus, .btn:active:focus {
+  outline: none;
+}
+
 .ticker-box {
   margin-right: 0;
   margin-left: 0;
@@ -59,9 +63,34 @@ canvas {
   user-select: none;
 }
 
-a.toggle-group.disabled, a.toggled {
+.period-selected[disabled], .period-selected[disabled]:hover,
+.fill-toggled, .fill-toggled:focus {
   color: #333;
-  background-color: #dadada;
-  border-color: #acacac;
+  background-color: #d4d4d4;
+  border-color: #8c8c8c;
   opacity: 1;
+  box-shadow: inset 0 2px 3px rgba(140, 140, 140, 0.5)
+}
+
+.period-selected[disabled] {
+  cursor: default;
+}
+
+.fill-toggled:hover {
+  color: #222;
+  background-color: #c1c1c1;
+  border-color: #797979;
+}
+
+.fill-toggled:hover:active {
+  color: #111;
+  background-color: #afafaf;
+  border-color: #666;
+  box-shadow: inset 0 2px 3px rgba(120, 120, 120, 0.5)
+}
+
+.fill-untoggled:focus:not(:hover) {
+  color: #333;
+  background-color: #fff;
+  border-color: #ccc;
 }
