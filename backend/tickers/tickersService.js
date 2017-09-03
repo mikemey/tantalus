@@ -47,18 +47,14 @@ const TickerService = () => {
   const tickersRepo = createTickersRepo()
 
   const getGraphData = since => {
-    console.time('db read')
     return tickersRepo.getTickers(since)
       .then(allChartTickers => {
-        console.timeEnd('db read')
-        console.time('transform')
         const datasets = []
         allChartTickers
         .filter(sampleTickers(allChartTickers))
         .forEach(ticker =>
           ticker.tickers.forEach(setGraphDataFromTick(datasets, ticker.created))
         )
-        console.timeEnd('transform')
         return datasets
       })
   }
