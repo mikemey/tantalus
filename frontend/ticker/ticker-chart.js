@@ -5,7 +5,7 @@ const chartCtrlName = 'ChartController'
 angular.module('tantalus.ticker')
   .component('tickerChart', {
     controller: chartCtrlName,
-    templateUrl: 'ticker/ticker-chart.comp.html'
+    templateUrl: 'ticker/ticker-chart.html'
   })
   .controller(chartCtrlName, ['$scope', '$location', 'tickerService', function ($scope, $location, tickerService) {
     const colorHelper = Chart.helpers.color
