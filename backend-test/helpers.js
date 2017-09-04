@@ -1,7 +1,10 @@
 const createServer = require('../backend/app')
 const mongoConnection = require('../backend/utils/mongoConnection')
+const mongoose = require('mongoose')
+mongoose.Promise = Promise
 
 const tickerCollectionName = 'tickers'
+const accountCollectionName = 'accounts'
 const testConfig = {
   mongodb: {
     url: 'mongodb://127.0.0.1:27017/tantalus-test'
@@ -41,20 +44,29 @@ const closeAll = server => {
 
 const dropDatabase = () => mongodb().then(db => db.dropDatabase())
 
-const tickerCollection = () => mongodb()
-  .then(db => db.collection(tickerCollectionName))
+const dbCollection = collectionName => mongodb()
+  .then(db => db.collection(collectionName))
 
-const getTickers = () => tickerCollection()
+const getTickers = () => dbCollection(tickerCollectionName)
   .then(collection => collection.find().toArray())
 
-const insertTickers = tickers => tickerCollection()
+const insertTickers = tickers => dbCollection(tickerCollectionName)
   .then(collection => collection.insertMany(tickers))
+
+const getAccounts = () => dbCollection(accountCollectionName)
+  .then(collection => collection.find().toArray())
+
+const connectMongoose = () => mongoose.connect(testConfig.mongodb.url, { useMongoClient: true })
+const closeMongoose = () => mongoose.connection.close()
 
 module.exports = {
   startTestServer,
-  closeAll,
+  connectMongoose,
+  closeMongoose,
   dropDatabase,
+  closeAll,
+
   getTickers,
   insertTickers,
-  tickerCollection
+  getAccounts
 }
