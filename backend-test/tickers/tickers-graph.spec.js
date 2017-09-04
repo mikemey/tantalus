@@ -9,16 +9,16 @@ const helpers = require('../helpers')
 describe('GET /api/tickers/graph endpoint', () => {
   let app, server
 
-  const getGraphData = period => request(app).get(`/api/tickers/graph?period=${period}`)
-
-  beforeEach(helpers.dropDatabase)
-
   before(() => helpers.startTestServer((_app, _server) => {
     app = _app
     server = _server
   }))
 
-  after(done => helpers.close(server, done))
+  after(() => helpers.closeAll(server))
+
+  beforeEach(helpers.dropDatabase)
+
+  const getGraphData = period => request(app).get(`/api/tickers/graph?period=${period}`)
 
   const datePast = daysPast => moment.utc().subtract(daysPast, 'd').subtract(1, 'h').toDate()
   const createTicker = (created, tickValue = 3821) => {

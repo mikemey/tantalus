@@ -8,15 +8,15 @@ const helpers = require('./helpers')
 describe('Start page', () => {
   let app, server
 
-  const getHtml = path => request(app).get(path)
-    .then(({ text }) => cheerio.load(text))
-
   before(() => helpers.startTestServer((_app, _server) => {
     app = _app
     server = _server
   }))
 
-  after(done => helpers.close(server, done))
+  after(() => helpers.closeAll(server))
+
+  const getHtml = path => request(app).get(path)
+    .then(({ text }) => cheerio.load(text))
 
   it('serves index.html on /tantalus', () => getHtml('/tantalus/')
     .then($ => $('title').text().should.equal('Tantalus'))
