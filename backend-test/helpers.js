@@ -5,13 +5,18 @@ mongoose.Promise = Promise
 
 const tickerCollectionName = 'tickers'
 const accountCollectionName = 'accounts'
-const testConfig = {
+const defaultTestConfig = {
   mongodb: {
     url: 'mongodb://127.0.0.1:27017/tantalus-test'
-  }
+  },
+  secret: 'test-secret'
 }
 
-const startTestServer = callback => {
+const startTestServer = (callback, disabled = true) => {
+  const testConfig = disabled
+    ? Object.assign({ disableSecurity: true }, defaultTestConfig)
+    : defaultTestConfig // config without disableSecurity property
+
   return createServer(testConfig, console)
     .then(({ app, server }) => {
       callback(app, server)
@@ -21,7 +26,7 @@ const startTestServer = callback => {
 let db
 const mongodb = () => {
   if (!db) {
-    return mongoConnection.init(testConfig, console)
+    return mongoConnection.init(defaultTestConfig, console)
       .then(() => {
         db = mongoConnection.db
         return db
@@ -56,7 +61,7 @@ const insertTickers = tickers => dbCollection(tickerCollectionName)
 const getAccounts = () => dbCollection(accountCollectionName)
   .then(collection => collection.find().toArray())
 
-const connectMongoose = () => mongoose.connect(testConfig.mongodb.url, { useMongoClient: true })
+const connectMongoose = () => mongoose.connect(defaultTestConfig.mongodb.url, { useMongoClient: true })
 const closeMongoose = () => mongoose.connection.close()
 
 module.exports = {

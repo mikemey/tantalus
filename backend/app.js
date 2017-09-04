@@ -4,6 +4,7 @@ const morgan = require('morgan')
 
 const pjson = require('../package.json')
 const mongoConnection = require('./utils/mongoConnection')
+const security = require('./utils/security')
 const createTickersRouter = require('./tickers/tickers')
 
 const requestLogger = () => {
@@ -19,6 +20,7 @@ const createServer = (config, log) => mongoConnection.init(config, log)
     app.use(bodyParser.urlencoded({ extended: true }))
     app.use(requestLogger())
 
+    security.init(app, config, log)
     app.use('/tantalus', express.static('frontend/'))
     app.use('/api', createApiRouter(log))
 
@@ -35,12 +37,15 @@ const createServer = (config, log) => mongoConnection.init(config, log)
 const createApiRouter = log => {
   const router = express.Router()
   router.use('/tickers', createTickersRouter(log))
-
-  const version = `v${pjson.version}`
-  router.get('/version', (req, res) => res.status(200).send(version))
-  log.info(`server version: ${version}`)
+  router.get('/version', createVersionEndpoint(log))
 
   return router
+}
+
+const createVersionEndpoint = log => {
+  const version = `v${pjson.version}`
+  log.info(`server version: ${version}`)
+  return (req, res) => res.status(200).send(version)
 }
 
 module.exports = createServer

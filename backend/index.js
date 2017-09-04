@@ -13,9 +13,7 @@ process.on('SIGINT', () => {
 
 serverLog('START')
 createServer(config, log)
-  .then(() => {
-    serverLog('UP')
-  })
+  .then(() => serverLog('UP'))
   .catch(err => {
     serverLog('ERROR')
     log.error(err)
