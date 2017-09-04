@@ -27,7 +27,7 @@ describe('GET /api/tickers endpoint', () => {
     ]
   }]
 
-  beforeEach(() => helpers.dropDatabase())
+  beforeEach(helpers.dropDatabase)
 
   before(() => helpers.startTestServer((_app, _server) => {
     app = _app

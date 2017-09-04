@@ -9,7 +9,7 @@ const helpers = require('../helpers')
 describe('TickerService', () => {
   const tickerService = TickerService()
 
-  beforeEach(() => helpers.dropDatabase())
+  beforeEach(helpers.dropDatabase)
 
   const dbDate = dateStr => moment.utc(dateStr).toDate()
   const testData = [{

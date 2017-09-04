@@ -24,7 +24,7 @@ describe('Tickers schedule service', () => {
 
   const nockget = tickerUrl => nock(tickerUrl.host).get(tickerUrl.path)
 
-  beforeEach(() => helpers.dropDatabase())
+  beforeEach(helpers.dropDatabase)
 
   const expectValidDate = date => {
     moment.utc(date).isValid().should.equal(true)
