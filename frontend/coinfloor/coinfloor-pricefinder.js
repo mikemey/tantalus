@@ -14,7 +14,7 @@ angular
         volume: 2000,
         targetRate: 0,
         variant: 100,
-        distance: 0.03
+        distance: 0.01
       }
       $scope.results = []
 

@@ -12,11 +12,11 @@
     </div>
     <div class="form-group">
       <label for="variant">Variant</label>
-      <input ng-model="inputs.variant" ng-change="updatePrices()" class="form-control" id="variant" type="number" step="1" min="0" placeholder="variant">
+      <input ng-model="inputs.variant" ng-change="updatePrices()" class="form-control" id="variant" type="number" step="1" min="0" max="1000" placeholder="variant">
     </div>
     <div class="form-group">
       <label for="distance">Distance</label>
-      <input ng-model="inputs.distance" ng-change="updatePrices()" class="form-control" id="distance" type="number" step="0.001" min="0" placeholder="distance">
+      <input ng-model="inputs.distance" ng-change="updatePrices()" class="form-control" id="distance" type="number" step="0.001" min="0" max='10' placeholder="distance">
     </div>
   </form>
   <div class="col-xs-9">
