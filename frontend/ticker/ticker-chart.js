@@ -80,6 +80,6 @@ angular.module('tantalus.ticker')
         }
       })
 
-    const initialPeriod = $location.search()['period'] || '1w'
+    const initialPeriod = $location.search()['period'] || '1d'
     return $scope.updateTicker(initialPeriod)
   }])

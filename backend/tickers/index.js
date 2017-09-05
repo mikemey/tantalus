@@ -31,7 +31,7 @@ const createTickersRouter = logger => {
     if (!moment.isDate(cutoff)) {
       const msg = `Unsupported period: '${cutoff}'`
       logger.warn(msg)
-      return res.status(400).json(responseError(msg))
+      return responseError(res, msg)
     }
 
     return tickersService.getGraphData(cutoff)
