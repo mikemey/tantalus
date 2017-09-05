@@ -20,22 +20,27 @@ angular.module('tantalus.ticker')
     }
     const colorNames = Object.keys(chartColors)
 
-    const options = {
-      legend: { display: true },
-      scales: {
-        xAxes: [{ type: 'time', time: { tooltipFormat: 'll HH:mm' } }],
-        yAxes: [{ scaleLabel: { display: true, labelString: 'GBP/Ƀ' }, position: 'right' }]
+    const tickerChart = new Chart('tickerChart', {
+      type: 'line',
+      data: { labels: [], datasets: [] },
+      options: {
+        legend: { display: true },
+        scales: {
+          xAxes: [{ type: 'time', time: { tooltipFormat: 'll HH:mm' } }],
+          yAxes: [{ scaleLabel: { display: true, labelString: 'GBP/Ƀ' }, position: 'right' }]
+        }
+      }
+    })
+
+    const lineOptions = (borderColor, backgroundColor) => {
+      return {
+        borderColor, lineTension: 0, spanGaps: false, backgroundColor, fill: false
       }
     }
 
-    const data = { labels: [], datasets: [] }
-    const tickerChart = new Chart('tickerChart', {
-      type: 'line', data, options
-    })
-
     $scope.model = {
       tickerChart,
-      data,
+      data: tickerChart.data,
       chartFill: $location.search()['fill'] === true,
       activeButtons: []
     }
@@ -65,11 +70,7 @@ angular.module('tantalus.ticker')
           const borderColor = chartColors[colorName]
           const backgroundColor = colorHelper(chartColors[colorName]).alpha(0.5).rgbString()
 
-          return Object.assign(dataset, {
-            borderColor,
-            backgroundColor,
-            fill: false
-          })
+          return Object.assign(dataset, lineOptions(borderColor, backgroundColor))
         })
         $scope.model.data.datasets = fullGraphData
         if ($scope.model.tickerChart.ctx) {

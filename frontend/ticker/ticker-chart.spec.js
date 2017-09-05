@@ -31,24 +31,27 @@ describe('ticker chart component', () => {
     ]
   }]
 
-  const expectedDatasets = [{
+  const datasetOptions = optionsOverride => Object.assign(
+    { fill: false, lineTension: 0, spanGaps: false },
+    optionsOverride
+  )
+
+  const expectedDatasets = [datasetOptions({
     label: 'solidi ask',
     backgroundColor: 'rgba(39, 101, 223, 0.5)',
     borderColor: 'rgb(39, 101, 223)',
-    fill: false,
     data: [
       { x: '2017-08-02T00:26:00.256Z', y: 3454.12 }
     ]
-  }, {
+  }), datasetOptions({
     label: 'lakebtc bid',
     backgroundColor: 'rgba(54, 162, 235, 0.5)',
     borderColor: 'rgb(54, 162, 235)',
-    fill: false,
     data: [
       { x: '2017-08-05T00:26:00.256Z', y: 3856.08 },
       { x: '2017-08-02T00:26:00.256Z', y: 3490 }
     ]
-  }]
+  })]
 
   const createChartComponent = () => {
     const $scope = $rootScope.$new()
@@ -59,7 +62,7 @@ describe('ticker chart component', () => {
     return $scope
   }
 
-  const expectGetRequest = (period = '1w') => $httpBackend
+  const expectGetRequest = (period = '1d') => $httpBackend
     .expectGET(`/api/tickers/graph?period=${period}`).respond(200, backendData)
 
   it('transforms ticker data', () => {
