@@ -1,6 +1,9 @@
 const { MongoClient } = require('mongodb')
 
-const init = (config, log) => {
+const mongoose = require('mongoose')
+mongoose.Promise = Promise
+
+const initializeDirectConnection = (config, log) => {
   const mongoUrl = config.mongodb.url
   log.info('Connecting to DB: \'%s\'', mongoUrl)
   return MongoClient.connect(mongoUrl)
@@ -8,7 +11,6 @@ const init = (config, log) => {
       log.info('DB connection established.')
       module.exports.db = db
       module.exports.error = null
-      return db
     })
     .catch(error => {
       log.error('No connection to DB: %s', mongoUrl, error)
@@ -17,6 +19,14 @@ const init = (config, log) => {
     })
 }
 
+const initializeMongooseConnection = config =>
+  mongoose.connect(config.mongodb.url, { useMongoClient: true })
+
+const initializeAll = (config, log) => initializeDirectConnection(config, log)
+  .then(() => initializeMongooseConnection(config))
+
 module.exports = {
-  init
+  initializeDirectConnection,
+  initializeAll,
+  mongoose
 }

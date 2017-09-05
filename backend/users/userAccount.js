@@ -1,5 +1,5 @@
-const mongoose = require('mongoose')
-mongoose.Promise = Promise
+const { mongoose } = require('../utils/mongoConnection')
+
 const passportLocalMongoose = require('passport-local-mongoose')
 
 const AccountSchema = new mongoose.Schema({

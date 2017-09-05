@@ -17,10 +17,10 @@ describe('/api/users/register endpoint', () => {
 
   beforeEach(() => helpers.dropDatabase())
 
-  const testUser = {
-    username: 'new_user',
-    password: 'ladida'
-  }
+  const username = 'new_user'
+  const password = 'ladida'
+  const confirmation = 'ladida'
+  const testUser = { username, password, confirmation }
 
   const registerPost = requestAgent => requestAgent.post('/api/users/register')
   const xsrfRequestHeader = 'X-XSRF-TOKEN'
@@ -46,7 +46,7 @@ describe('/api/users/register endpoint', () => {
       agent.get('/tantalus/').expect(200)
         .then(res => {
           xsrfValue = extractXSRFValue(res)
-          setTimeout(done, 80) // waiting for session to be stored
+          setTimeout(done, 100) // waiting for session to be stored
         })
     })
 
@@ -68,12 +68,26 @@ describe('/api/users/register endpoint', () => {
       })
     )
 
-    it('reject when username not set', () => postUserWithCSRF({ password: testUser.password })
-      .expect(400, { error: 'username or password missing' })
+    it('reject when username not set', () => postUserWithCSRF({ password, confirmation })
+      .expect(400, { error: 'username missing' })
     )
 
-    it('reject when password not set', () => postUserWithCSRF({ username: testUser.username })
-      .expect(400, { error: 'username or password missing' })
+    it('reject when password not set', () => postUserWithCSRF({ username, confirmation })
+      .expect(400, { error: 'password missing' })
+    )
+
+    it('reject when password confirmation not set', () => postUserWithCSRF({ username, password })
+      .expect(400, { error: 'password confirmation missing' })
+    )
+
+    it('reject when password and confirmation do not match', () =>
+      postUserWithCSRF({ username, password, confirmation: 'no-match' })
+        .expect(400, { error: 'password does not match confirmation' })
+    )
+
+    it('reject when user already stored', () => postUserWithCSRF()
+      .expect(201)
+      .then(() => postUserWithCSRF().expect(400, { error: 'username already registered' }))
     )
   })
 })

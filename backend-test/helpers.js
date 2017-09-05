@@ -1,7 +1,5 @@
 const createServer = require('../backend/app')
 const mongoConnection = require('../backend/utils/mongoConnection')
-const mongoose = require('mongoose')
-mongoose.Promise = Promise
 
 const tickerCollectionName = 'tickers'
 const accountCollectionName = 'accounts'
@@ -26,7 +24,7 @@ const startTestServer = (callback, disabled = true) => {
 let db
 const mongodb = () => {
   if (!db) {
-    return mongoConnection.init(defaultTestConfig, console)
+    return mongoConnection.initializeDirectConnection(defaultTestConfig, console)
       .then(() => {
         db = mongoConnection.db
         return db
@@ -61,8 +59,8 @@ const insertTickers = tickers => dbCollection(tickerCollectionName)
 const getAccounts = () => dbCollection(accountCollectionName)
   .then(collection => collection.find().toArray())
 
-const connectMongoose = () => mongoose.connect(defaultTestConfig.mongodb.url, { useMongoClient: true })
-const closeMongoose = () => mongoose.connection.close()
+const connectMongoose = () => mongoConnection.mongoose.connect(defaultTestConfig.mongodb.url, { useMongoClient: true })
+const closeMongoose = () => mongoConnection.mongoose.connection.close()
 
 module.exports = {
   startTestServer,

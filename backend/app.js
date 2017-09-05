@@ -4,7 +4,6 @@ const morgan = require('morgan')
 
 const pjson = require('../package.json')
 
-const mongoose = require('mongoose')
 const mongoConnection = require('./utils/mongoConnection')
 const security = require('./utils/security')
 
@@ -13,8 +12,7 @@ const requestLogger = () => {
   return morgan(':date[iso] [:clientIP] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent')
 }
 
-const createServer = (config, log) => mongoConnection.init(config, log)
-  .then(() => mongoose.connect(config.mongodb.url, { useMongoClient: true }))
+const createServer = (config, log) => mongoConnection.initializeAll(config, log)
   .then(() => new Promise((resolve, reject) => {
     const app = express()
 

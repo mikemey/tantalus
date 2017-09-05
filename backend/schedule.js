@@ -4,7 +4,7 @@ const mongoConnection = require('./utils/mongoConnection')
 const config = require('./config').config
 const log = console
 
-mongoConnection.init(config, log)
+mongoConnection.initializeDirectConnection(config, log)
   .then(() => {
     log.info('setting up scheduler...')
     const tickerScheduleService = require('./schedule/tickerScheduleService')(log)

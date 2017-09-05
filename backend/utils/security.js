@@ -2,16 +2,19 @@ const cors = require('cors')
 const csrf = require('csurf')
 const session = require('express-session')
 
-const mongoose = require('mongoose')
-mongoose.Promise = Promise
-
 const MongoStore = require('connect-mongo')(session)
+const mongoose = require('./mongoConnection').mongoose
+
+const Account = require('../users/userAccount')
+const passport = require('passport')
+const LocalStrategy = require('passport-local').Strategy
 
 const init = (app, config, log) => {
   if (config.disableSecurity) return echoDisabledMessage(log)
 
   setupSession(app, config)
   setupCrossRequestsProtection(app, config, log)
+  setupUserAuthentication(app, config, log)
 }
 
 const echoDisabledMessage = log => {
@@ -55,6 +58,22 @@ const csrfErrorHandler = log => (err, req, res, next) => {
   return res.status(403).json({ error })
 }
 
+const setupUserAuthentication = (app, config, log) => {
+  app.use(passport.initialize())
+  app.use(passport.session())
+
+  passport.use(new LocalStrategy(Account.authenticate()))
+  passport.serializeUser(Account.serializeUser())
+  passport.deserializeUser(Account.deserializeUser())
+}
+
+const requiresAuth = passport.authenticate('local')
+const authenticate = (req, res) => new Promise((resolve, reject) => {
+  requiresAuth(req, res, resolve)
+})
+
 module.exports = {
-  init
+  init,
+  requiresAuth,
+  authenticate
 }
