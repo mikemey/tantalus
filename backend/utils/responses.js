@@ -1,6 +1,4 @@
-const responseError = error => {
-  return { error }
-}
+const responseError = (res, error) => res.status(400).json({ error })
 
 module.exports = {
   responseError

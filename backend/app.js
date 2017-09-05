@@ -3,9 +3,10 @@ const bodyParser = require('body-parser')
 const morgan = require('morgan')
 
 const pjson = require('../package.json')
+
+const mongoose = require('mongoose')
 const mongoConnection = require('./utils/mongoConnection')
 const security = require('./utils/security')
-const createTickersRouter = require('./tickers/tickers')
 
 const requestLogger = () => {
   morgan.token('clientIP', req => req.headers['x-forwarded-for'] || req.connection.remoteAddress)
@@ -13,11 +14,11 @@ const requestLogger = () => {
 }
 
 const createServer = (config, log) => mongoConnection.init(config, log)
+  .then(() => mongoose.connect(config.mongodb.url, { useMongoClient: true }))
   .then(() => new Promise((resolve, reject) => {
     const app = express()
 
     app.use(bodyParser.json())
-    app.use(bodyParser.urlencoded({ extended: true }))
     app.use(requestLogger())
 
     security.init(app, config, log)
@@ -35,8 +36,12 @@ const createServer = (config, log) => mongoConnection.init(config, log)
   }))
 
 const createApiRouter = log => {
+  const createTickersRouter = require('./tickers')
+  const createUsersRouter = require('./users')
+
   const router = express.Router()
   router.use('/tickers', createTickersRouter(log))
+  router.use('/users', createUsersRouter(log))
   router.get('/version', createVersionEndpoint(log))
 
   return router
