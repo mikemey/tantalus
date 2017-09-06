@@ -13,11 +13,11 @@
     "start": "node backend/index.js",
     "schedule": "node backend/schedule.js",
     "pretest": "npm install",
-    "test": "npm run lint -s && npm run backend-test -s && npm run frontend-test -s",
-    "backend-test": "mocha 'backend-test/**/**.spec.js'",
-    "frontend-test": "karma start karma.conf.js",
-    "be-watch": "nodemon -x 'npm run backend-test -s'",
-    "fe-watch": "nodemon -x 'npm run frontend-test -s'"
+    "test": "npm run lint -s && npm run be-test -s && npm run fe-test -s",
+    "be-test": "mocha 'backend-test/**/**.spec.js'",
+    "fe-test": "karma start karma.conf.js",
+    "be-watch": "nodemon -x 'npm run be-test -s'",
+    "fe-watch": "nodemon -x 'npm run fe-test -s'"
   },
   "repository": {
     "type": "git",
