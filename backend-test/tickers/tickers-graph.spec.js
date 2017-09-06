@@ -5,6 +5,7 @@ const moment = require('moment')
 require('chai').should()
 
 const helpers = require('../helpers')
+const { LIMIT_RESULTS } = require('../../backend/tickers/tickersService')()
 
 describe('GET /api/tickers/graph endpoint', () => {
   let app, server
@@ -34,9 +35,9 @@ describe('GET /api/tickers/graph endpoint', () => {
     const expectedResult = dbData => [{
       label: 'coindesk',
       data: [
-        { x: dbData[2].created.toJSON(), y: 3490 },
+        { x: dbData[0].created.toJSON(), y: 3821 },
         { x: dbData[1].created.toJSON(), y: 3802 },
-        { x: dbData[0].created.toJSON(), y: 3821 }
+        { x: dbData[2].created.toJSON(), y: 3490 }
       ]
     }]
     it('respond with graph data', () => helpers.insertTickers(testData)
@@ -79,11 +80,11 @@ describe('GET /api/tickers/graph endpoint', () => {
     )
 
     it('3 month report', () => getGraphData('3m').expect(200)
-      .then(({ body }) => expectGraphDataLength(body, 39))
+      .then(({ body }) => expectGraphDataLength(body, LIMIT_RESULTS))
     )
 
     it('1 year report', () => getGraphData('1y').expect(200)
-      .then(({ body }) => expectGraphDataLength(body, 39))
+      .then(({ body }) => expectGraphDataLength(body, LIMIT_RESULTS))
     )
   })
 })

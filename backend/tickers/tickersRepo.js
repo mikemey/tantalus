@@ -15,7 +15,7 @@ const TickerRepo = () => {
 
   const getTickers = since => tickerCollection()
     .find({ created: { $gte: since } }, { _id: false, created: true, tickers: true })
-    .sort({ created: -1 })
+    .sort({ created: 1 })
     .toArray()
 
   return {

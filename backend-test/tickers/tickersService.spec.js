@@ -15,14 +15,16 @@ describe('TickerService', () => {
   const testData = [{
     created: dbDate('2017-08-02T10:26:00.256Z'),
     tickers: [
-      { name: 'solidi', bid: 3906.82, ask: 'N/A' },
       { name: 'lakebtc', bid: 3856.08, ask: 3879.06 },
+      { name: 'coinfloor', bid: 2222 },
+      { name: 'solidi', bid: 3906.82, ask: 'N/A' },
       { name: 'coindesk', ask: 3821.79 }]
   }, {
     created: dbDate('2017-08-03T00:26:00.256Z'),
     tickers: [
-      { name: 'solidi', bid: 3915.58, ask: 'N/A' },
       { name: 'lakebtc', bid: 3857.84, ask: 3865.78 },
+      { name: 'coinfloor', bid: 2222 },
+      { name: 'solidi', bid: 3915.58, ask: 'N/A' },
       { name: 'coindesk', ask: 3802.64 }]
   }, {
     created: dbDate('2017-08-04T08:26:00.256Z'),
@@ -39,76 +41,97 @@ describe('TickerService', () => {
   }, {
     created: dbDate('2017-08-02T00:26:00.256Z'),
     tickers: [
-      { name: 'solidi', bid: 999999, ask: 999999 },
       { name: 'lakebtc', bid: 999999, ask: 999999 },
+      { name: 'solidi', bid: 999999, ask: 999999 },
       { name: 'coindesk', ask: 999999 }]
   }]
 
   const expectedResult = [{
     label: 'solidi bid',
     data: [
-      { x: dbDate('2017-08-05T00:26:00.256Z'), y: 3675.14 },
-      { x: dbDate('2017-08-04T08:26:00.256Z'), y: 3904.59 },
+      { x: dbDate('2017-08-02T10:26:00.256Z'), y: 3906.82 },
       { x: dbDate('2017-08-03T00:26:00.256Z'), y: 3915.58 },
-      { x: dbDate('2017-08-02T10:26:00.256Z'), y: 3906.82 }
+      { x: dbDate('2017-08-04T08:26:00.256Z'), y: 3904.59 },
+      { x: dbDate('2017-08-05T00:26:00.256Z'), y: 3675.14 }
     ]
   }, {
     label: 'solidi ask',
     data: [
+      { x: dbDate('2017-08-02T10:26:00.256Z'), y: null },
+      { x: dbDate('2017-08-03T00:26:00.256Z'), y: null },
+      { x: dbDate('2017-08-04T08:26:00.256Z'), y: null },
       { x: dbDate('2017-08-05T00:26:00.256Z'), y: 3454.12 }
+    ]
+  }, {
+    label: 'coinfloor bid',
+    data: [
+      { x: dbDate('2017-08-02T10:26:00.256Z'), y: 2222 },
+      { x: dbDate('2017-08-03T00:26:00.256Z'), y: 2222 }
+    ]
+  }, {
+    label: 'coinfloor ask',
+    data: [
+      { x: dbDate('2017-08-02T10:26:00.256Z'), y: null },
+      { x: dbDate('2017-08-03T00:26:00.256Z'), y: null }
     ]
   }, {
     label: 'lakebtc bid',
     data: [
-      { x: dbDate('2017-08-05T00:26:00.256Z'), y: 3490 },
+      { x: dbDate('2017-08-02T10:26:00.256Z'), y: 3856.08 },
       { x: dbDate('2017-08-03T00:26:00.256Z'), y: 3857.84 },
-      { x: dbDate('2017-08-02T10:26:00.256Z'), y: 3856.08 }
+      { x: dbDate('2017-08-04T08:26:00.256Z'), y: null },
+      { x: dbDate('2017-08-05T00:26:00.256Z'), y: 3490 }
     ]
   }, {
     label: 'lakebtc ask',
     data: [
-      { x: dbDate('2017-08-05T00:26:00.256Z'), y: 3567 },
+      { x: dbDate('2017-08-02T10:26:00.256Z'), y: 3879.06 },
       { x: dbDate('2017-08-03T00:26:00.256Z'), y: 3865.78 },
-      { x: dbDate('2017-08-02T10:26:00.256Z'), y: 3879.06 }
+      { x: dbDate('2017-08-04T08:26:00.256Z'), y: null },
+      { x: dbDate('2017-08-05T00:26:00.256Z'), y: 3567 }
     ]
   }, {
     label: 'coindesk',
     data: [
-      { x: dbDate('2017-08-05T00:26:00.256Z'), y: 3584.93 },
-      { x: dbDate('2017-08-04T08:26:00.256Z'), y: 3814.19 },
+      { x: dbDate('2017-08-02T10:26:00.256Z'), y: 3821.79 },
       { x: dbDate('2017-08-03T00:26:00.256Z'), y: 3802.64 },
-      { x: dbDate('2017-08-02T10:26:00.256Z'), y: 3821.79 }
+      { x: dbDate('2017-08-04T08:26:00.256Z'), y: 3814.19 },
+      { x: dbDate('2017-08-05T00:26:00.256Z'), y: 3584.93 }
     ]
   }]
 
-  it('should return graph data', () => {
+  it('should return sorted graph data', () => {
     const testSince = dbDate('2017-08-02T05:26:00Z')
     return helpers.insertTickers(testData)
       .then(() => tickerService.getGraphData(testSince))
       .then(result => result.should.deep.equal(expectedResult))
   })
 
-  it('should return at most 100 data points', () => {
+  it(`should return the average of at most ${tickerService.LIMIT_RESULTS} data points`, () => {
     const length = 2000
     const cutoffIx = 1300
 
-    const randomInt = (min = 3000, max = 5000) => Math.floor(Math.random() * (max - min)) + min
-    const createTicker = created => {
+    const createTicker = (created, ix) => {
       return {
         created,
         tickers: [
-          { name: 'solidi', bid: randomInt(), ask: randomInt() },
-          { name: 'lakebtc', bid: randomInt(), ask: randomInt() },
-          { name: 'coindesk', ask: randomInt() }]
+          { name: 'solidi', bid: ix, ask: ix },
+          { name: 'lakebtc', bid: ix, ask: ix },
+          { name: 'coindesk', ask: ix }]
       }
     }
 
     const datePast = daysPast => moment.utc().subtract(daysPast, 'd').toDate()
-    const testData = Array.from({ length }, (_, i) => createTicker(datePast(length - i)))
+    const testData = Array.from({ length }, (_, ix) => createTicker(datePast(length - 1 - ix), (ix + 1 - cutoffIx)))
 
-    const cutoffDate = moment.utc().subtract(cutoffIx, 'd').subtract(1, 'h').toDate()
-    const oldestDate = moment.utc(testData[length - cutoffIx].created).toJSON()
-    const newestDate = moment.utc(testData[length - 1].created).toJSON()
+    const cutoffDate = moment.utc().subtract((length - 1 - cutoffIx), 'd').subtract(1, 'h').toDate()
+
+    const sliceLen = (length - cutoffIx) / tickerService.LIMIT_RESULTS
+    const oldestSliceDistance = sliceLen * (tickerService.LIMIT_RESULTS - 1) + sliceLen / 2
+    const oldestSliceStartIx = length - Math.floor(oldestSliceDistance) - 1
+    const oldestDateExpected = moment.utc(testData[oldestSliceStartIx].created).toJSON()
+
+    const newestDateExpected = moment.utc(testData[length - Math.floor(sliceLen / 2) - 1].created).toJSON()
 
     return helpers.insertTickers(testData)
       .then(() => tickerService.getGraphData(cutoffDate))
@@ -117,8 +140,13 @@ describe('TickerService', () => {
         result.forEach(chart => {
           const chartData = chart.data
           chartData.should.have.length(tickerService.LIMIT_RESULTS)
-          chartData[0].x.toJSON().should.equal(newestDate)
-          chartData[chartData.length - 1].x.toJSON().should.equal(oldestDate)
+
+          chartData[0].x.toJSON().should.equal(oldestDateExpected)
+          chartData[chartData.length - 1].x.toJSON().should.equal(newestDateExpected)
+          chartData.forEach((datapoint, ix) => {
+            const expectedAverage = (Math.floor(ix * sliceLen + 1) + Math.floor((ix + 1) * sliceLen)) / 2
+            datapoint.y.should.equal(Math.round(expectedAverage))
+          })
         })
       })
   })
