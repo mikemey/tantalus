@@ -59,6 +59,9 @@ const insertTickers = tickers => dbCollection(tickerCollectionName)
 const getAccounts = () => dbCollection(accountCollectionName)
   .then(collection => collection.find().toArray())
 
+const insertAccounts = accounts => dbCollection(accountCollectionName)
+  .then(collection => collection.insertMany(accounts))
+
 const connectMongoose = () => mongoConnection.mongoose.connect(defaultTestConfig.mongodb.url, { useMongoClient: true })
 const closeMongoose = () => mongoConnection.mongoose.connection.close()
 
@@ -71,5 +74,6 @@ module.exports = {
 
   getTickers,
   insertTickers,
-  getAccounts
+  getAccounts,
+  insertAccounts
 }
