@@ -1,8 +1,8 @@
 /* global angular */
 
-const transformPrice = () => input => {
+const transformPrice = () => (input, len = 2) => {
   if (input === 'N/A') return input
-  return input.toFixed(2)
+  return input.toFixed(len)
 }
 
 const appRouter = $routeProvider => $routeProvider
