@@ -33,7 +33,9 @@ const createUsersRouter = logger => {
       })
       .catch(err => {
         logger.warn(err.message)
-        return responseError(res, 'username already registered')
+        return err.name === 'UserExistsError'
+          ? responseError(res, 'username already registered')
+          : responseError(res, err.message, 500)
       })
   })
 
