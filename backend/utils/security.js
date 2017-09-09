@@ -10,15 +10,14 @@ const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 
 const init = (app, config, log) => {
-  if (config.disableSecurity) return echoDisabledMessage(log)
+  if (config.disableSecurity) {
+    log.warn('--------- SERVER IS UNPROTECTED ---------')
+    return
+  }
 
   setupSession(app, config)
   setupCrossRequestsProtection(app, config, log)
   setupUserAuthentication(app, config, log)
-}
-
-const echoDisabledMessage = log => {
-  log.warn('--------- SERVER IS UNPROTECTED ---------')
 }
 
 const setupSession = (app, config) => {

@@ -1,9 +1,9 @@
 /* global describe before beforeEach it */
 const request = require('supertest')
-const setCookieParser = require('set-cookie-parser')
 require('chai').should()
 
 const helpers = require('../helpers')
+const { XSRF_HEADER, setupCSRFAgent } = require('../agents')
 
 describe('/api/users/register endpoint', () => {
   let app, server
@@ -15,7 +15,7 @@ describe('/api/users/register endpoint', () => {
 
   after(() => helpers.closeAll(server))
 
-  beforeEach(() => helpers.dropDatabase())
+  beforeEach(helpers.dropDatabase)
 
   const username = 'new_user'
   const password = 'ladida'
@@ -23,7 +23,6 @@ describe('/api/users/register endpoint', () => {
   const testUser = { username, password, confirmation }
 
   const registerPost = requestAgent => requestAgent.post('/api/users/register')
-  const xsrfRequestHeader = 'X-XSRF-TOKEN'
 
   describe('error cases', () => {
     it('rejects when no csrf token', () => registerPost(request(app))
@@ -32,29 +31,20 @@ describe('/api/users/register endpoint', () => {
     )
 
     it('rejects when invalid csrf token', () => registerPost(request(app))
-      .set(xsrfRequestHeader, 'LADIDA')
+      .set(XSRF_HEADER, 'LADIDA')
       .send(testUser)
       .expect(403, { error: 'invalid csrf token' })
     )
   })
 
   describe('register user', () => {
-    let agent, xsrfValue
+    let csrfAgent
 
-    beforeEach(done => {
-      agent = request.agent(app)
-      agent.get('/tantalus/').expect(200)
-        .then(res => {
-          xsrfValue = extractXSRFValue(res)
-          setTimeout(done, 100) // waiting for session to be stored
-        })
-    })
+    beforeEach(() => setupCSRFAgent(app)
+      .then(agent => { csrfAgent = agent })
+    )
 
-    const extractXSRFValue = res => setCookieParser.parse(res)
-      .find(cookie => cookie.name === 'XSRF-TOKEN').value
-
-    const postUserWithCSRF = (userAccount = testUser) => registerPost(agent)
-      .set(xsrfRequestHeader, xsrfValue)
+    const postUserWithCSRF = (userAccount = testUser) => csrfAgent.post('/api/users/register')
       .send(userAccount)
 
     it('store the user account', () => postUserWithCSRF()
