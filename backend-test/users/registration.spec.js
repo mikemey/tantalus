@@ -5,7 +5,7 @@ require('chai').should()
 const helpers = require('../helpers')
 const { XSRF_HEADER, setupCSRFAgent } = require('../agents')
 
-describe('/api/users/register endpoint', () => {
+describe.only('/api/users/register endpoint', () => {
   let app, server
 
   before(() => helpers.startTestServer((_app, _server) => {
@@ -59,25 +59,25 @@ describe('/api/users/register endpoint', () => {
     )
 
     it('reject when username not set', () => postUserWithCSRF({ password, confirmation })
-      .expect(400, { error: 'username missing' })
+      .expect(400, { error: 'Username missing' })
     )
 
     it('reject when password not set', () => postUserWithCSRF({ username, confirmation })
-      .expect(400, { error: 'password missing' })
+      .expect(400, { error: 'Password missing' })
     )
 
     it('reject when password confirmation not set', () => postUserWithCSRF({ username, password })
-      .expect(400, { error: 'password confirmation missing' })
+      .expect(400, { error: 'Password confirmation missing' })
     )
 
     it('reject when password and confirmation do not match', () =>
       postUserWithCSRF({ username, password, confirmation: 'no-match' })
-        .expect(400, { error: 'password does not match confirmation' })
+        .expect(400, { error: 'Password does not match confirmation' })
     )
 
     it('reject when user already stored', () => postUserWithCSRF()
       .expect(201)
-      .then(() => postUserWithCSRF().expect(400, { error: 'username already registered' }))
+      .then(() => postUserWithCSRF().expect(400, { error: 'Username is already registered' }))
     )
   })
 })
