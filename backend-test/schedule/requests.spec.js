@@ -1,6 +1,6 @@
 /* global describe before beforeEach it */
-const requests = require('../../backend/utils/requests')
-const { RequestError } = require('../../backend/utils/requests')
+const requests = require('../../backend/schedule/requests')
+const RequestError = requests.RequestError
 const nock = require('nock')
 require('chai').should()
 

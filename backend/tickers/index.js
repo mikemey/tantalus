@@ -1,6 +1,6 @@
 const express = require('express')
 const moment = require('moment')
-const { responseError } = require('../utils/responses')
+const { responseError } = require('../utils/jsonResponses')
 
 const createTickersService = require('./tickersService')
 

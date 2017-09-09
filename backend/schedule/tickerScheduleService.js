@@ -1,5 +1,5 @@
-const requests = require('../utils/requests')
-const fmt = require('../utils/formats')
+const requests = require('./requests')
+const fmt = require('./formats')
 const createTickersRepo = require('../tickers/tickersRepo')
 
 const tickers = {

@@ -1,5 +1,5 @@
 /* global describe before beforeEach it */
-const requests = require('../backend/utils/requests')
+const requests = require('../backend/schedule/requests')
 const helpers = require('./helpers')
 require('chai').should()
 
