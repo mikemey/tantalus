@@ -67,8 +67,10 @@ const setupUserAuthentication = (app, config, log) => {
 }
 
 const requiresAuth = passport.authenticate('local')
-const authenticate = (req, res) => new Promise((resolve, reject) => {
-  requiresAuth(req, res, resolve)
+const authenticate = (req, res, next) => new Promise((resolve, reject) => {
+  passport.authenticate('local',
+    (err, user, info) => resolve({ err, user, info })
+  )(req, res, next)
 })
 
 module.exports = {

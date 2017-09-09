@@ -1,5 +1,4 @@
 const express = require('express')
-const passport = require('passport')
 
 const { responseError, apiLinks } = require('../utils/jsonResponses')
 const Account = require('./userAccount')
@@ -20,42 +19,59 @@ const checkRegistration = (username, password, confirmation) => new Promise((res
 })
 
 const usersSlug = '/users'
-const loginSlug = usersSlug + '/login'
-const accountSlug = usersSlug + '/account'
-const registerSlug = usersSlug + '/register'
+const LOGIN_SLUG = usersSlug + '/login'
+const ACCOUNT_SLUG = usersSlug + '/account'
+const REGISTER_SLUG = usersSlug + '/register'
 
 const createUsersRouter = logger => {
   const router = express.Router()
 
-  router.post(loginSlug, passport.authenticate('local'), (req, res) => {
-    const links = apiLinks({ account: accountSlug })
-    return res.status(201).send(links)
+  router.post(LOGIN_SLUG, (req, res, next) => security.authenticate(req, res, next)
+    .then(({ err, user, info }) => {
+      if (err) throw clientError(err)
+      if (!user) return responseError(res, 'Login failed', 401)
+      return loginUser(req, res, user)
+    })
+    .catch(errorHandler(res))
+  )
+
+  const loginUser = (req, res, user) => new Promise((resolve, reject) => {
+    req.logIn(user, function (err) {
+      if (err) throw clientError(err)
+
+      const links = apiLinks({ account: ACCOUNT_SLUG })
+      return res.status(201).json(links)
+    })
   })
 
-  router.post(registerSlug, (req, res) => {
+  router.post(REGISTER_SLUG, (req, res, next) => {
     const username = req.body.username
     const password = req.body.password
     const confirmation = req.body.confirmation
 
     return checkRegistration(username, password, confirmation)
       .then(() => Account.register(username, password))
-      .then(() => security.authenticate(req, res))
-      .then(() => {
+      .then(() => security.authenticate(req, res, next))
+      .then(({ err, user, info }) => {
+        if (err) responseError(res, err, 500)
+        if (!user) responseError(res, 'authentication failed', 500)
         logger.info('new user registration: %s', username)
         return res.status(201).send()
       })
-      .catch(err => {
-        logger.warn(err.message)
-        switch (err.name) {
-          case UserExistsErrorName:
-            return responseError(res, userExistsMessage)
-          case ClientErrorName:
-            return responseError(res, err.message)
-          default:
-            return responseError(res, err.message, 500)
-        }
-      })
+      .catch(errorHandler(res))
   })
+
+  const errorHandler = res => err => {
+    logger.warn(err.message)
+    switch (err.name) {
+      case UserExistsErrorName:
+        return responseError(res, userExistsMessage)
+      case ClientErrorName:
+        return responseError(res, err.message)
+      default:
+        return responseError(res, err.message, 500)
+    }
+  }
 
   return router
 }

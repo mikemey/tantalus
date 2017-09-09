@@ -36,16 +36,17 @@ describe('/api/users/login endpoint', () => {
   )
 
   describe('user login', () => {
-    it('redirects to accounts page', () => loginPost().expect(201, {
-      links: { account: '/api/users/account' }
-    }))
+    it('creates login and provide link to accounts page', () => loginPost()
+      .expect(201, {
+        links: { account: '/api/users/account' }
+      }))
 
-    // it('response with 401 when invalid password', () => loginPost(testUsername, 'wrong pass')
-    //   .expect(401, { error: 'Login failed' })
-    // )
+    it('response with 401 when invalid password', () => loginPost(testUsername, 'wrong pass')
+      .expect(401, { error: 'Login failed' })
+    )
 
-    // it('response with 401 when unknown user', () => loginPost('unknownuser')
-    //   .expect(401, { error: 'Login failed' })
-    // )
+    it('response with 401 when unknown user', () => loginPost('unknownuser')
+      .expect(401, { error: 'Login failed' })
+    )
   })
 })
