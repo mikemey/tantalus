@@ -5,7 +5,7 @@ require('chai').should()
 const helpers = require('../helpers')
 const { XSRF_HEADER, setupCSRFAgent } = require('../agents')
 
-describe.only('/api/users/register endpoint', () => {
+describe('/api/users/register endpoint', () => {
   let app, server
 
   before(() => helpers.startTestServer((_app, _server) => {
@@ -48,7 +48,7 @@ describe.only('/api/users/register endpoint', () => {
       .send(userAccount)
 
     it('store the user account', () => postUserWithCSRF()
-      .expect(201)
+      // .expect(201, { links: { account: '/api/users/account' } })
       .then(helpers.getAccounts)
       .then(accounts => {
         accounts.should.have.length(1)
