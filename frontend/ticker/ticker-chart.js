@@ -27,7 +27,11 @@ angular.module('tantalus.ticker')
         legend: { display: true },
         scales: {
           xAxes: [{ type: 'time', time: { tooltipFormat: 'll HH:mm' } }],
-          yAxes: [{ scaleLabel: { display: true, labelString: 'GBP/Ƀ' }, position: 'right' }]
+          yAxes: [{
+            scaleLabel: { display: true, labelString: 'GBP/Ƀ' },
+            position: 'right',
+            ticks: { suggestedMin: 3000 }
+          }]
         }
       }
     })
