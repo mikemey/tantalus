@@ -7,11 +7,18 @@ const mongoose = require('./mongoConnection').mongoose
 
 const Account = require('../users/userAccount')
 const passport = require('passport')
-const LocalStrategy = require('passport-local').Strategy
+
+const { responseError } = require('./jsonResponses')
+
+let testUser
 
 const init = (app, config, log) => {
+  testUser = null
   if (config.disableSecurity) {
-    log.warn('--------- SERVER IS UNPROTECTED ---------')
+    if (!config.testUser) {
+      throw new Error('disabled security requires test user')
+    }
+    testUser = config.testUser
     return
   }
 
@@ -50,7 +57,10 @@ const csrfTokenGeneration = (req, res, next) => {
 }
 
 const csrfErrorHandler = log => (err, req, res, next) => {
-  if (err.code !== 'EBADCSRFTOKEN') return next(err)
+  if (err.code !== 'EBADCSRFTOKEN') {
+    log.warn('ERROR: %s', error)
+    return next(err)
+  }
 
   const error = err.message
   log.warn('CSRF error: %s', error)
@@ -61,12 +71,21 @@ const setupUserAuthentication = (app, config, log) => {
   app.use(passport.initialize())
   app.use(passport.session())
 
-  passport.use(new LocalStrategy(Account.authenticate()))
+  passport.use(Account.createStrategy())
   passport.serializeUser(Account.serializeUser())
   passport.deserializeUser(Account.deserializeUser())
 }
 
-const requiresAuth = passport.authenticate('local')
+const requiresAuth = (req, res, next) => {
+  if (testUser) {
+    req.user = testUser
+    return next()
+  }
+  return req.user
+    ? next()
+    : responseError(res, 'Authorization required', 401)
+}
+
 const authenticate = (req, res, next) => new Promise((resolve, reject) => {
   passport.authenticate('local',
     (err, user, info) => resolve({ err, user, info })

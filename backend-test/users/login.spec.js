@@ -39,7 +39,11 @@ describe('/api/users/login endpoint', () => {
     it('creates login and provide link to accounts page', () => loginPost()
       .expect(201, {
         links: { account: '/api/users/account' }
-      }))
+      })
+      .then(() => csrfAgent.get('/api/users/account')
+        .expect(200, { username: testUsername })
+      )
+    )
 
     it('response with 401 when invalid password', () => loginPost(testUsername, 'wrong pass')
       .expect(401, { error: 'Login failed' })

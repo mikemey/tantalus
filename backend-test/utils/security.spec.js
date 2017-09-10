@@ -1,9 +1,10 @@
 /* global describe before beforeEach it */
 const request = require('supertest')
-const should = require('chai').should()
+require('chai')
 const setCookieParser = require('set-cookie-parser')
 
 const helpers = require('../helpers')
+const { setupCSRFAgent } = require('../agents')
 
 describe('server security configuration', () => {
   let app, server
@@ -13,31 +14,48 @@ describe('server security configuration', () => {
     server = _server
   }, disabled)
 
-  const getRequest = (page = '/tantalus/') => request.agent(app).get(page).expect(200)
-
-  describe('when disabled', () => {
+  describe('csrf disabled', () => {
     before(startTestServer(true))
     after(() => helpers.closeAll(server))
 
-    it('response without csrf header', () => getRequest()
-      .then(res => should.not.exist(res.header['XSRF-TOKEN']))
+    it('response without csrf header', () => request.agent(app).get('/tantalus/')
+      .then(res => {
+        const cookies = setCookieParser.parse(res)
+        cookies.filter(c => c.name === 'XSRF-TOKEN').should.have.length(0)
+      })
     )
   })
 
-  describe('when enabled', () => {
+  describe('csrf enabled ', () => {
     before(startTestServer(false))
     after(() => helpers.closeAll(server))
 
-    const expectCsrfHeader = page => getRequest(page)
+    const expectCsrfTokens = page => request.agent(app).get(page)
       .then(res => {
         const cookies = setCookieParser.parse(res)
         const xsrfToken = cookies.find(c => c.name === 'XSRF-TOKEN')
-        should.exist(xsrfToken)
         xsrfToken.value.should.have.length(36)
       })
 
-    it('response with csrf header on index page', () => expectCsrfHeader('/tantalus/'))
+    it('response with csrf header on index page', () => expectCsrfTokens('/tantalus/'))
 
-    it('response with csrf header on api endpont', () => expectCsrfHeader('/api/version'))
+    it('response with csrf header on api endpont', () => expectCsrfTokens('/api/version'))
+  })
+
+  describe('endpoints requiring authorization', () => {
+    let csrfAgent
+
+    before(startTestServer(false))
+    after(() => helpers.closeAll(server))
+
+    beforeEach(() => setupCSRFAgent(app)
+      .then(agent => { csrfAgent = agent })
+    )
+
+    const unauthorizedResponseGET = page => csrfAgent.get(page).expect(401, {
+      error: 'Authorization required'
+    })
+
+    it('rejects unauthorizid account request', () => unauthorizedResponseGET('/api/users/account'))
   })
 })

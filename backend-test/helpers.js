@@ -10,10 +10,18 @@ const defaultTestConfig = {
   secret: 'test-secret'
 }
 
-const startTestServer = (callback, disabled = true) => {
+const defaultTestUser = {
+  username: 'default-test-user'
+}
+
+const startTestServer = (callback, disabled = true, testUser = defaultTestUser) => {
   const testConfig = disabled
-    ? Object.assign({ disableSecurity: true }, defaultTestConfig)
-    : defaultTestConfig // config without disableSecurity property
+    ? Object.assign({
+      disableSecurity: true,
+      testUser
+    }, defaultTestConfig
+    )
+    : defaultTestConfig
 
   return createServer(testConfig, console)
     .then(({ app, server }) => {

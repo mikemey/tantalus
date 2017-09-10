@@ -61,6 +61,11 @@ const createUsersRouter = logger => {
       .catch(errorHandler(res))
   })
 
+  router.get(ACCOUNT_SLUG, security.requiresAuth, (req, res) => {
+    const picked = (({ username }) => ({ username }))(req.user)
+    return res.status(200).json(picked)
+  })
+
   const errorHandler = res => err => {
     logger.warn(err.message)
     switch (err.name) {

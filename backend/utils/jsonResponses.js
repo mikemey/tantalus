@@ -4,7 +4,6 @@ const responseError = (res, error, status = 400) => res.status(status).json({ er
 const apiSlug = '/api'
 
 const apiLinks = slugs => {
-  console.log(Object.keys(slugs))
   const links = Object.keys(slugs).reduce((result, key) => {
     result[key] = apiSlug + slugs[key]
     return result
