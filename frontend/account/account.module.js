@@ -12,7 +12,7 @@ angular.module('tantalus.account', [
   .when('/account/login', {
     templateUrl: 'account/login.html'
   })
-]).factory('authorization', ['$http', '$location', ($http, $location) => {
+]).factory('authorization', ['$http', '$location', function ($http, $location) {
   let account
 
   const getAccount = () => account
