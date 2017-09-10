@@ -53,7 +53,7 @@ const setupCSRFAgent = app => new Promise((resolve, reject) => {
   agent.get = csrfGet(agent)
 
   return agent.get('/api/version')
-    .then(res => { resolve(agent) })
+    .then(res => resolve(agent))
 })
 
 module.exports = {
