@@ -40,7 +40,7 @@ const createUsersRouter = logger => {
     req.logIn(user, function (err) {
       if (err) throw clientError(err)
 
-      return res.status(201).send()
+      return res.status(204).send()
     })
   })
 
@@ -56,7 +56,7 @@ const createUsersRouter = logger => {
         if (err) responseError(res, err, 500)
         if (!user) responseError(res, 'authentication failed', 500)
         logger.info('new user registration: %s', username)
-        return res.status(201).send()
+        return res.status(204).send()
       })
       .catch(errorHandler(res))
   })

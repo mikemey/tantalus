@@ -37,7 +37,7 @@ describe('/api/users/login endpoint', () => {
 
   describe('user login', () => {
     it('creates login and provide link to accounts page', () => loginPost()
-      .expect(201)
+      .expect(204)
       .then(() => csrfAgent.get('/api/users/account')
         .expect(200, { username: testUsername })
       )

@@ -48,7 +48,7 @@ describe('/api/users/register endpoint', () => {
       .send(userAccount)
 
     it('store the user account', () => postUserWithCSRF()
-      .expect(201)
+      .expect(204)
       .then(helpers.getAccounts)
       .then(accounts => {
         accounts.should.have.length(1)
@@ -76,7 +76,7 @@ describe('/api/users/register endpoint', () => {
     )
 
     it('reject when user already stored', () => postUserWithCSRF()
-      .expect(201)
+      .expect(204)
       .then(() => postUserWithCSRF().expect(400, { error: 'Username is already registered' }))
     )
   })
