@@ -17,6 +17,7 @@ angular
     'ngCookies',
     'ngRoute',
     'tantalus.navbar',
+    'tantalus.account',
     'tantalus.ticker',
     'tantalus.coinfloor'
   ])
