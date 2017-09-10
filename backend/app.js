@@ -6,7 +6,6 @@ const pjson = require('../package.json')
 
 const mongoConnection = require('./utils/mongoConnection')
 const security = require('./utils/security')
-const apiSlug = require('./utils/jsonResponses').apiSlug
 
 const requestLogger = () => {
   morgan.token('clientIP', req => req.headers['x-forwarded-for'] || req.connection.remoteAddress)
@@ -22,7 +21,7 @@ const createServer = (config, log) => mongoConnection.initializeAll(config, log)
 
     security.init(app, config, log)
     app.use('/tantalus', express.static('frontend/'))
-    app.use(apiSlug, createApiRouter(log))
+    app.use('/api', createApiRouter(log))
 
     const server = app.listen(8000, () => {
       log.info(`Started on port ${server.address().port}`)

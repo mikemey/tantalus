@@ -1,6 +1,6 @@
 const express = require('express')
 
-const { responseError, apiLinks } = require('../utils/jsonResponses')
+const { responseError } = require('../utils/jsonResponses')
 const Account = require('./userAccount')
 const security = require('../utils/security')
 
@@ -22,6 +22,7 @@ const usersSlug = '/users'
 const LOGIN_SLUG = usersSlug + '/login'
 const ACCOUNT_SLUG = usersSlug + '/account'
 const REGISTER_SLUG = usersSlug + '/register'
+const LOGOUT_SLUG = usersSlug + '/logout'
 
 const createUsersRouter = logger => {
   const router = express.Router()
@@ -39,8 +40,7 @@ const createUsersRouter = logger => {
     req.logIn(user, function (err) {
       if (err) throw clientError(err)
 
-      const links = apiLinks({ account: ACCOUNT_SLUG })
-      return res.status(201).json(links)
+      return res.status(201).send()
     })
   })
 
@@ -64,6 +64,11 @@ const createUsersRouter = logger => {
   router.get(ACCOUNT_SLUG, security.requiresAuth, (req, res) => {
     const picked = (({ username }) => ({ username }))(req.user)
     return res.status(200).json(picked)
+  })
+
+  router.post(LOGOUT_SLUG, security.requiresAuth, (req, res) => {
+    req.logout()
+    return res.status(204).send()
   })
 
   const errorHandler = res => err => {

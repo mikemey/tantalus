@@ -48,7 +48,7 @@ describe('/api/users/register endpoint', () => {
       .send(userAccount)
 
     it('store the user account', () => postUserWithCSRF()
-      // .expect(201, { links: { account: '/api/users/account' } })
+      .expect(201)
       .then(helpers.getAccounts)
       .then(accounts => {
         accounts.should.have.length(1)

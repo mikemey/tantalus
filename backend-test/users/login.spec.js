@@ -37,9 +37,7 @@ describe('/api/users/login endpoint', () => {
 
   describe('user login', () => {
     it('creates login and provide link to accounts page', () => loginPost()
-      .expect(201, {
-        links: { account: '/api/users/account' }
-      })
+      .expect(201)
       .then(() => csrfAgent.get('/api/users/account')
         .expect(200, { username: testUsername })
       )
@@ -51,6 +49,15 @@ describe('/api/users/login endpoint', () => {
 
     it('response with 401 when unknown user', () => loginPost('unknownuser')
       .expect(401, { error: 'Login failed' })
+    )
+  })
+
+  describe('user logout', () => {
+    it('is invalidating session', () => loginPost()
+      .then(() => csrfAgent.post('/api/users/logout').send().expect(204))
+      .then(() => csrfAgent.get('/api/users/account')
+        .expect(401, { error: 'Authorization required' })
+      )
     )
   })
 })
