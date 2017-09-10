@@ -54,10 +54,12 @@ describe('/api/users/login endpoint', () => {
 
   describe('user logout', () => {
     it('is invalidating session', () => loginPost()
-      .then(() => csrfAgent.post('/api/users/logout').send().expect(204))
-      .then(() => csrfAgent.get('/api/users/account')
-        .expect(401, { error: 'Authorization required' })
-      )
-    )
+      .then(() => csrfAgent.post('/api/users/logout')
+        .send()
+        .expect(204)
+        .then(() => csrfAgent.get('/api/users/account')
+          .expect(401, { error: 'Authorization required' })
+        )
+      ))
   })
 })
