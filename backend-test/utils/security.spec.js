@@ -26,7 +26,7 @@ describe('server security configuration', () => {
     )
   })
 
-  describe('csrf enabled ', () => {
+  describe('csrf enabled', () => {
     before(startTestServer(false))
     after(() => helpers.closeAll(server))
 
@@ -39,7 +39,7 @@ describe('server security configuration', () => {
 
     it('response with csrf header on index page', () => expectCsrfTokens('/tantalus/'))
 
-    it('response with csrf header on api endpont', () => expectCsrfTokens('/api/version'))
+    it('response with csrf header on api endpoint', () => expectCsrfTokens('/api/version'))
   })
 
   describe('endpoints requiring authorization', () => {
@@ -56,6 +56,6 @@ describe('server security configuration', () => {
       error: 'Authorization required'
     })
 
-    it('rejects unauthorizid account request', () => unauthorizedResponseGET('/api/users/account'))
+    it('rejects unauthorized account request', () => unauthorizedResponseGET('/api/users/account'))
   })
 })
