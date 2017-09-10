@@ -60,9 +60,9 @@
   <script type="text/javascript">
   	// This function doesn't seem to work on IE.
 	function cssLoaded(href) {
-		var cssFound = false;
-		for(var i = 0; i < document.styleSheets.length; i++) {
-			var sheet = document.styleSheets[i];
+		const cssFound = false;
+		for(const i = 0; i < document.styleSheets.length; i++) {
+			const sheet = document.styleSheets[i];
 			if(sheet['href'] != null && sheet['href'].indexOf(href) >= 0 && sheet['cssRules'].length > 0) {
 				cssFound = true;
 			}
@@ -90,8 +90,8 @@
 	}
 
 	// euw....
-	var element3 = document.querySelector('#bootstrapCssTest');
-	var result = element3.currentStyle ? element3.currentStyle["display"] : window.getComputedStyle ? window.getComputedStyle(element3, null).getPropertyValue("display") : null;
+	const element3 = document.querySelector('#bootstrapCssTest');
+	const result = element3.currentStyle ? element3.currentStyle["display"] : window.getComputedStyle ? window.getComputedStyle(element3, null).getPropertyValue("display") : null;
 	if (result=="block") {
 		addCSS('css/bootstrap.css');
 	}
@@ -298,7 +298,7 @@ $(function() {
 
     <!-- misc JS functions -->
     <script>
-    	var ws;
+    	const ws;
     </script>
     <script src="js/misc.js"></script>
     <script src="//www.solidi.co/socket.io/socket.io.js"></script>
@@ -306,7 +306,7 @@ $(function() {
     <script src="js/logger.js"></script>
     <script src="js/coinco-api.js"></script>
     <script>
-      var BuyFormValidator;
+      const BuyFormValidator;
       $(document).ready(function() {
 §
         $('a[data-toggle="tooltip"]').tooltip({
@@ -317,8 +317,8 @@ $(function() {
         // Calculate the correct price when the site loads.
         //recalculateSell();
         $.validator.addMethod("mincur", function(value, element, params) {
-            var minCur = params[0] || 1;
-            var cur = value;
+            const minCur = params[0] || 1;
+            const cur = value;
             if(value.indexOf("£")!=-1) {
             	cur = value.split("£")[1];
             }
@@ -368,7 +368,7 @@ $(function() {
         	}
         });
 
-		var logger = new Logger();
+		const logger = new Logger();
 		ws = new CoincoAPI('www.solidi.co',443, logger);
 		window.ws = ws;
 		
