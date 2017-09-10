@@ -1,6 +1,6 @@
 /* global inject */
 
-describe.only('account details component', () => {
+describe('account details component', () => {
   let $rootScope, $compile
 
   beforeEach(module('testTemplates'))

@@ -9,34 +9,23 @@ angular.module('tantalus.account', [
       account: ['authorization', authorization => authorization.getAccount()]
     }
   })
-]).factory('authorization', ['$http', '$window', function ($http, $window) {
-  // const accountKey = 'account_user'
+  .when('/account/login', {
+    templateUrl: 'account/login.html'
+  })
+]).factory('authorization', ['$http', '$location', ($http, $location) => {
+  let account
 
-  const getAccount = function () {
-    // if (!$window.localStorage[accountKey]) {
-    //   console.log('requesting account from BACKEND')
-    //   return $http.get('/api/users/account')
-    //     .then(response => {
-    //       console.log('received response')
-    //       console.log(response.data)
-    //     })
-    //     .catch(err => {
-    //       console.log('=====================')
-    //       console.log(err)
-    //     })
-    // }
-    console.log('using CACHED account')
-    return Promise.resolve({ username: 'ladidadidaaa' })
-    // if(!$window.localStorage[accountKey]) {
-    // $window.localStorage['user'] = token;
-    //   requestAccount().then
-    // }
-    // return $window.localStorage[accountKey]
-  }
+  const getAccount = () => account
+    ? Promise.resolve(account)
+    : $http.get('/api/users/account')
+      .then(response => {
+        account = response.data
+        return account
+      })
+      .catch(() => $location.path('/account/login'))
 
-  // const logout = function () {
-  //   $window.localStorage.removeItem(accountKey)
-  // }
+  const logout = () => $http.post('/api/users/logout')
+    .then(() => { account = null })
 
-  return { getAccount }
+  return { getAccount, logout }
 }])

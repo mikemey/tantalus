@@ -6,11 +6,11 @@ const transformPrice = () => (input, len = 2) => {
 }
 
 const appRouter = $routeProvider => $routeProvider
-  .when('/', {
+  .when('/dashboard', {
     templateUrl: 'dashboard.template.html',
     reloadOnSearch: false
   })
-  .otherwise('/')
+  .otherwise('/dashboard')
 
 angular
   .module('tantalus', [

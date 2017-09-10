@@ -10,5 +10,5 @@ angular
     templateUrl: 'navbar/navbar.html'
   })
   .controller(navbarController, ['$scope', '$location', ($scope, $location) => {
-    $scope.isActive = currentPath => currentPath === $location.path()
+    $scope.isActive = currentPath => $location.path().startsWith(currentPath)
   }])
