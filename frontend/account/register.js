@@ -8,11 +8,17 @@ angular.module('tantalus.account')
       controller: registerControllerName
     })
   ]).controller(registerControllerName, ['$scope', '$http', '$location', function ($scope, $http, $location) {
-    $scope.model = { username: '', password: '', confirmation: '', error: '' }
+    $scope.model = {
+      data: { username: '', password: '', confirmation: '' },
+      error: ''
+    }
 
     $scope.register = () => {
-      $http.post('/api/users/register', $scope.model)
+      $http.post('/api/users/register', $scope.model.data)
         .then(() => $location.path('/account'))
-        .catch(err => { $scope.model.error = err.data.error })
+        .catch(err => {
+          if (err.data && err.data.error) $scope.model.error = err.data.error
+          else $scope.model.error = 'server error'
+        })
     }
   }])

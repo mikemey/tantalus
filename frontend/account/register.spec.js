@@ -39,24 +39,37 @@ describe('Register controller', () => {
     const $location = locationRecorder()
     $controller('RegisterController', { $scope, $location })
 
-    $scope.model = { username, password, confirmation }
+    $scope.model.data = { username, password, confirmation }
     $scope.register()
     $httpBackend.flush()
 
     $location.currentPath().should.equal('/account')
   })
 
-  it('shows error during registration', () => {
+  it('shows error from registration response', () => {
     const errorMsg = 'Username missing'
     expectRegisterRequest().respond(400, { error: errorMsg })
 
     const $scope = $rootScope.$new()
     $controller('RegisterController', { $scope })
 
-    $scope.model = { username, password, confirmation }
+    $scope.model.data = { username, password, confirmation }
     $scope.register()
     $httpBackend.flush()
 
     $scope.model.error.should.equal(errorMsg)
+  })
+
+  it('shows generic error when server error', () => {
+    expectRegisterRequest().respond(400, 'something wrong')
+
+    const $scope = $rootScope.$new()
+    $controller('RegisterController', { $scope })
+
+    $scope.model.data = { username, password, confirmation }
+    $scope.register()
+    $httpBackend.flush()
+
+    $scope.model.error.should.equal('server error')
   })
 })
