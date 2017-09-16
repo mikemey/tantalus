@@ -1,7 +1,7 @@
 const createTickersRepo = require('./tickersRepo')
 
 const NOT_AVAIL = 'N/A'
-const LIMIT_RESULTS = 40
+const LIMIT_RESULTS = 100
 
 const TickerService = () => {
   const tickersRepo = createTickersRepo()
