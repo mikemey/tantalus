@@ -13,7 +13,9 @@ angular
       $scope.model = {}
 
       $scope.isActive = currentPath => $location.path().startsWith(currentPath)
+
       $scope.logout = () => authorization.logout()
+        .then(() => { $scope.model = {} })
 
       const refreshAccount = () => authorization.reloadAccount()
         .then(() => { $scope.model.account = authorization.getAccount() })
