@@ -6,7 +6,8 @@ const tickers = {
   solidi: { url: 'https://www.solidi.co/index', name: 'solidi' },
   lakebtc: { url: 'https://api.LakeBTC.com/api_v2/ticker', name: 'lakebtc' },
   coinfloor: { url: 'https://webapi.coinfloor.co.uk:8090/bist/XBT/GBP/ticker/', name: 'coinfloor' },
-  coindesk: { url: 'https://api.coindesk.com/site/headerdata.json?currency=BTC', name: 'coindesk' }
+  coindesk: { url: 'https://api.coindesk.com/site/headerdata.json?currency=BTC', name: 'coindesk' },
+  cex: { url: 'https://cex.io/api/ticker/BTC/GBP', name: 'cex' }
 }
 
 const NOT_AVAIL = 'N/A'
@@ -17,9 +18,9 @@ const transformAskBid = (name, json) => Object.assign(
   json.ask !== undefined ? { ask: fmt.rate(json.ask) } : undefined
 )
 
-const tickerErrorHandler = (ticker, log) => err => {
+const tickerErrorHandler = (tickerConfig, log) => err => {
   log.error(err.message)
-  return { name: ticker.name, bid: NOT_AVAIL, ask: NOT_AVAIL }
+  return { name: tickerConfig.name, bid: NOT_AVAIL, ask: NOT_AVAIL }
 }
 
 const solidiTransform = element => {
@@ -40,10 +41,10 @@ const getLakebtcTicker = log => requests
   .then(({ btcgbp }) => transformAskBid(tickers.lakebtc.name, btcgbp))
   .catch(tickerErrorHandler(tickers.lakebtc, log))
 
-const getCoinfloorTicker = log => requests
-  .getJson(tickers.coinfloor.url)
-  .then(responseJson => transformAskBid(tickers.coinfloor.name, responseJson))
-  .catch(tickerErrorHandler(tickers.coinfloor, log))
+const getBidAskTicker = (log, tickerConfig) => requests
+  .getJson(tickerConfig.url)
+  .then(responseJson => transformAskBid(tickerConfig.name, responseJson))
+  .catch(tickerErrorHandler(tickerConfig, log))
 
 const getCoindeskTicker = log => requests
   .getJson(tickers.coindesk.url)
@@ -63,8 +64,9 @@ const TickerScheduleService = log => {
   const storeTickers = () => Promise.all([
     getSolidiTicker(log),
     getLakebtcTicker(log),
-    getCoinfloorTicker(log),
-    getCoindeskTicker(log)
+    getBidAskTicker(log, tickers.coinfloor),
+    getCoindeskTicker(log),
+    getBidAskTicker(log, tickers.cex)
   ]).then(tickers => {
     const created = new Date()
     log.info(created.toISOString() + ' - updated ticker: ' + countData(tickers))
