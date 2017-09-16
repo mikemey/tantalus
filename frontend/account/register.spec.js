@@ -22,10 +22,10 @@ describe('Register controller', () => {
   const testUser = { username, password, confirmation }
 
   const expectRegisterRequest = () => $httpBackend
-    .expectPOST('/api/users/register', testUser).respond(204)
+    .expectPOST('/api/users/register', testUser)
 
   it('posts registration and forward to account', () => {
-    expectRegisterRequest()
+    expectRegisterRequest().respond(204)
 
     const locationRecorder = () => {
       let currentPath = null
@@ -39,10 +39,24 @@ describe('Register controller', () => {
     const $location = locationRecorder()
     $controller('RegisterController', { $scope, $location })
 
-    $scope.model.data = { username, password, confirmation }
+    $scope.model = { username, password, confirmation }
     $scope.register()
     $httpBackend.flush()
 
     $location.currentPath().should.equal('/account')
+  })
+
+  it('shows error during registration', () => {
+    const errorMsg = 'Username missing'
+    expectRegisterRequest().respond(400, { error: errorMsg })
+
+    const $scope = $rootScope.$new()
+    $controller('RegisterController', { $scope })
+
+    $scope.model = { username, password, confirmation }
+    $scope.register()
+    $httpBackend.flush()
+
+    $scope.model.error.should.equal(errorMsg)
   })
 })

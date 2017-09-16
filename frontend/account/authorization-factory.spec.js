@@ -16,7 +16,7 @@ describe('Authorization factory', () => {
     $httpBackend.verifyNoOutstandingRequest()
   })
 
-  const accountData = { username: 'test-user' }
+  const accountData = { username: 'auth-factory-test-user' }
 
   const expectGetAccountRequest = () => $httpBackend
     .expectGET('/api/users/account').respond(200, accountData)

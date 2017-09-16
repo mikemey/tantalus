@@ -11,7 +11,7 @@ describe('account details component', () => {
     $compile = _$compile_
   }))
 
-  const accountData = { username: 'test-user' }
+  const accountData = { username: 'account-details-test-user' }
 
   const createAccountDetailsComponent = () => {
     const $scope = $rootScope.$new()
