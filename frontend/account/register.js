@@ -13,12 +13,10 @@ angular.module('tantalus.account')
       error: ''
     }
 
-    $scope.register = () => {
-      $http.post('/api/users/register', $scope.model.data)
-        .then(() => $location.path('/account'))
-        .catch(err => {
-          if (err.data && err.data.error) $scope.model.error = err.data.error
-          else $scope.model.error = 'server error'
-        })
-    }
+    $scope.register = () => $http.post('/api/users/register', $scope.model.data)
+      .then(() => $location.path('/account'))
+      .catch(err => {
+        if (err.data && err.data.error) $scope.model.error = err.data.error
+        else $scope.model.error = 'server error'
+      })
   }])

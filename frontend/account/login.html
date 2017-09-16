@@ -2,22 +2,29 @@
 
 <div class="row">
   <div class="col-md-offset-3 col-md-3">
+    <div ng-show="model.error" class="alert alert-danger" role="alert">{{ model.error }}</div>
+
     <form class="form-horizontal">
       <div class="form-group">
         <label class="col-sm-5 control-label">Username: </label>
         <div class="col-sm-7">
-          <p class="form-control-static"></p>
+          <input type="text" class="form-control" id="username" ng-model="model.data.username" placeholder="Username">
         </div>
       </div>
       <div class="form-group">
         <label class="col-sm-5 control-label">Password: </label>
         <div class="col-sm-7">
-          <p class="form-control-static"></p>
+          <input type="password" class="form-control" id="password" ng-model="model.data.password" placeholder="Password">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-5 col-sm-7">
+          <button type="submit" ng-click="login()" class="btn btn-success">Login</button>
         </div>
       </div>
     </form>
     <div class="text-center">
-      <a href="#!/register">Register...</a>
+      <a href="#!/account/register">Register...</a>
     </div>
   </div>
 </div>

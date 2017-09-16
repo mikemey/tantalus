@@ -1,13 +1,12 @@
-/* global inject */
+/* global inject expect */
 
 describe('Authorization factory', () => {
-  let $httpBackend, $location, authorization
+  let $httpBackend, authorization
 
   beforeEach(module('tantalus.account'))
 
-  beforeEach(inject((_$httpBackend_, _$location_, _authorization_) => {
+  beforeEach(inject((_$httpBackend_, _authorization_) => {
     $httpBackend = _$httpBackend_
-    $location = _$location_
     authorization = _authorization_
   }))
 
@@ -16,17 +15,22 @@ describe('Authorization factory', () => {
     $httpBackend.verifyNoOutstandingRequest()
   })
 
-  const accountData = { username: 'auth-factory-test-user' }
+  const username = 'auth-factory-test-user'
+  const password = 'abcd'
+  const accountData = { username }
 
-  const expectGetAccountRequest = () => $httpBackend
-    .expectGET('/api/users/account').respond(200, accountData)
+  const expectLoginRequest = () => $httpBackend.expectPOST('/api/users/login', { username, password })
+    .respond(204)
+
+  const expectGetAccountRequest = () => $httpBackend.expectGET('/api/users/account')
+    .respond(200, accountData)
 
   const expectLogoutRequest = () => $httpBackend
     .expectPOST('/api/users/logout').respond(204)
 
   const loginLogoutCycle = () => {
-    expectGetAccountRequest()
-    authorization.getAccount()
+    expectLoginRequest()
+    authorization.login(username, password)
     $httpBackend.flush()
 
     expectLogoutRequest()
@@ -34,45 +38,42 @@ describe('Authorization factory', () => {
     $httpBackend.flush()
   }
 
-  it('requests account data', () => {
-    expectGetAccountRequest()
-    let result
-    authorization.getAccount().then(account => { result = account })
-
-    $httpBackend.flush()
-    result.should.deep.equal(accountData)
+  it('returns empty account data when not logged in', () => {
+    expect(authorization.getAccount()).to.equal(null)
   })
 
-  it('should not re-request account data', () => {
-    expectGetAccountRequest()
-    authorization.getAccount()
-    $httpBackend.flush()
+  it('forwards login', () => {
+    expectLoginRequest()
+    authorization.login(username, password)
 
-    return authorization.getAccount()
-      .then(account => {
-        account.should.deep.equal(accountData)
-      })
+    $httpBackend.flush()
   })
 
-  it('should forward logout', () => loginLogoutCycle())
+  it('reloads account data', () => {
+    expectGetAccountRequest()
+    authorization.reloadAccount()
 
-  it('should re-request account data after logout', () => {
+    $httpBackend.flush()
+    authorization.getAccount().should.deep.equal(accountData)
+  })
+
+  it('should forward logout and reset account data', () => {
+    expectGetAccountRequest()
+    authorization.reloadAccount()
+
     loginLogoutCycle()
-    expectGetAccountRequest()
-
-    let result
-    authorization.getAccount().then(account => { result = account })
-    $httpBackend.flush()
-    result.should.deep.equal(accountData)
+    expect(authorization.getAccount()).to.equal(null)
   })
 
-  it('should redirect to login when unauthorized', () => {
-    $httpBackend.expectGET('/api/users/account')
-      .respond(401, { error: 'Unauthorized' })
+  it('returns empty account data when unauthorized', () => {
+    const errorResponse = { error: 'Unauthorized' }
+    $httpBackend.expectPOST('/api/users/login', { username, password })
+      .respond(401, errorResponse)
 
-    authorization.getAccount()
-
+    authorization.login(username, password)
+      .catch(err => err.data.should.deep.equal(errorResponse))
     $httpBackend.flush()
-    $location.path().should.equal('/account/login')
+
+    expect(authorization.getAccount()).to.equal(null)
   })
 })
