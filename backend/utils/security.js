@@ -10,15 +10,9 @@ const passport = require('passport')
 
 const { responseError } = require('./jsonResponses')
 
-let testUser
-
 const init = (app, config, log) => {
-  testUser = null
   if (config.disableSecurity) {
-    if (!config.testUser) {
-      throw new Error('disabled security requires test user')
-    }
-    testUser = config.testUser
+    setupTestUser(app, config)
     return
   }
 
@@ -74,13 +68,37 @@ const setupUserAuthentication = (app, config, log) => {
   passport.use(Account.createStrategy())
   passport.serializeUser(Account.serializeUser())
   passport.deserializeUser(Account.deserializeUser())
+
+  app.use(requiresAuth)
 }
 
-const requiresAuth = (req, res, next) => {
-  if (testUser) {
-    req.user = testUser
-    return next()
+const setupTestUser = (app, config) => {
+  if (!config.testUser) {
+    throw new Error('disabled security requires test user')
   }
+  app.use((req, res, next) => {
+    req.user = config.testUser
+    return next()
+  })
+}
+
+const unprotectedRoutes = [
+  '/api/version',
+  '/api/users/register',
+  '/api/users/login'
+]
+
+const unprotectedRoutePrefixes = [
+  '/tantalus/'
+]
+
+const bypassAuthorization = route =>
+  unprotectedRoutes.includes(route) ||
+  unprotectedRoutePrefixes.find(prefix => route.startsWith(prefix)) !== undefined
+
+const requiresAuth = (req, res, next) => {
+  if (bypassAuthorization(req.url)) return next()
+
   return req.user
     ? next()
     : responseError(res, 'Authorization required', 401)

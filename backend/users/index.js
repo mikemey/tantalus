@@ -61,12 +61,12 @@ const createUsersRouter = logger => {
       .catch(errorHandler(res))
   })
 
-  router.get(ACCOUNT_SLUG, security.requiresAuth, (req, res) => {
+  router.get(ACCOUNT_SLUG, (req, res) => {
     const picked = (({ username }) => ({ username }))(req.user)
     return res.status(200).json(picked)
   })
 
-  router.post(LOGOUT_SLUG, security.requiresAuth, (req, res) => {
+  router.post(LOGOUT_SLUG, (req, res) => {
     req.logout()
     return res.status(204).send()
   })
