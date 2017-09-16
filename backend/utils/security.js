@@ -58,7 +58,7 @@ const csrfTokenGeneration = (req, res, next) => {
 
 const csrfErrorHandler = log => (err, req, res, next) => {
   if (err.code !== 'EBADCSRFTOKEN') {
-    log.warn('ERROR: %s', error)
+    log.warn('ERROR: %s', err)
     return next(err)
   }
 
