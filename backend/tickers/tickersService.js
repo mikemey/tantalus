@@ -129,6 +129,10 @@ const sortOrdinalOf = dataset => {
       return 5
     case 'coindesk':
       return 6
+    case 'cex bid':
+      return 7
+    case 'cex ask':
+      return 8
     default:
       throw new Error('dataset label not recognised: ' + dataset.label)
   }

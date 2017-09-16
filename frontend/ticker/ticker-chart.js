@@ -16,7 +16,9 @@ angular.module('tantalus.ticker')
       lightgreen: 'rgb(67, 156, 111)',
       orange: 'rgb(255, 159, 64)',
       yellow: 'rgb(255, 205, 86)',
-      grey: 'rgb(181, 183, 187)'
+      grey: 'rgb(181, 183, 187)',
+      lightturq: 'rgb(1, 127, 133)',
+      turq: 'rgb(30, 192, 200)'
     }
     const colorNames = Object.keys(chartColors)
 
