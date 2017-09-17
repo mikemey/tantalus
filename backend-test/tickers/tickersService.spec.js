@@ -18,6 +18,7 @@ describe('TickerService', () => {
       { name: 'lakebtc', bid: 3856.08, ask: 3879.06 },
       { name: 'coinfloor', bid: 2222 },
       { name: 'solidi', bid: 3906.82, ask: 'N/A' },
+      { name: 'cex', bid: 1234.82, ask: 2345.67 },
       { name: 'coindesk', ask: 3821.79 }]
   }, {
     created: dbDate('2017-08-03T00:26:00.256Z'),
@@ -25,6 +26,7 @@ describe('TickerService', () => {
       { name: 'lakebtc', bid: 3857.84, ask: 3865.78 },
       { name: 'coinfloor', bid: 2222 },
       { name: 'solidi', bid: 3915.58, ask: 'N/A' },
+      { name: 'cex', bid: 1235.82, ask: 2346.67 },
       { name: 'coindesk', ask: 3802.64 }]
   }, {
     created: dbDate('2017-08-04T08:26:00.256Z'),
@@ -89,6 +91,18 @@ describe('TickerService', () => {
       { x: dbDate('2017-08-03T00:26:00.256Z'), y: 3865.78 },
       { x: dbDate('2017-08-04T08:26:00.256Z'), y: null },
       { x: dbDate('2017-08-05T00:26:00.256Z'), y: 3567 }
+    ]
+  }, {
+    label: 'cex bid',
+    data: [
+      { x: dbDate('2017-08-02T10:26:00.256Z'), y: 1234.82 },
+      { x: dbDate('2017-08-03T00:26:00.256Z'), y: 1235.82 }
+    ]
+  }, {
+    label: 'cex ask',
+    data: [
+      { x: dbDate('2017-08-02T10:26:00.256Z'), y: 2345.67 },
+      { x: dbDate('2017-08-03T00:26:00.256Z'), y: 2346.67 }
     ]
   }, {
     label: 'coindesk',
