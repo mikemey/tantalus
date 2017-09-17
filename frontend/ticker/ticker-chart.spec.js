@@ -32,7 +32,7 @@ describe('ticker chart component', () => {
   }]
 
   const datasetOptions = optionsOverride => Object.assign(
-    { fill: false, lineTension: 0, spanGaps: false },
+    { fill: false, lineTension: 0, spanGaps: false, hidden: undefined },
     optionsOverride
   )
 

@@ -16,9 +16,9 @@ angular.module('tantalus.ticker')
       lightgreen: 'rgb(67, 156, 111)',
       orange: 'rgb(255, 159, 64)',
       yellow: 'rgb(255, 205, 86)',
-      grey: 'rgb(181, 183, 187)',
       lightturq: 'rgb(1, 127, 133)',
-      turq: 'rgb(30, 192, 200)'
+      turq: 'rgb(30, 192, 200)',
+      grey: 'rgb(181, 183, 187)'
     }
     const colorNames = Object.keys(chartColors)
 
@@ -26,7 +26,19 @@ angular.module('tantalus.ticker')
       type: 'line',
       data: { labels: [], datasets: [] },
       options: {
-        legend: { display: true },
+        legend: {
+          display: true,
+          onClick: (_, legendItem) => {
+            const meta = $scope.model.tickerChart.getDatasetMeta(legendItem.datasetIndex)
+
+            meta.hidden = !meta.hidden
+            const hiddenParam = meta.hidden ? true : null
+            updateHiddenLineQuery(legendItem.text, hiddenParam)
+
+            $scope.$apply()
+            $scope.model.tickerChart.update(0)
+          }
+        },
         scales: {
           xAxes: [{ type: 'time', time: { tooltipFormat: 'll HH:mm' } }],
           yAxes: [{
@@ -38,16 +50,24 @@ angular.module('tantalus.ticker')
       }
     })
 
-    const lineOptions = (borderColor, backgroundColor) => {
+    const lineOptions = (borderColor, backgroundColor, hidden) => {
       return {
-        borderColor, lineTension: 0, spanGaps: false, backgroundColor, fill: false
+        borderColor, lineTension: 0, spanGaps: false, backgroundColor, fill: false, hidden
       }
     }
+
+    const updatePeriodQuery = period => $location.search('period', period)
+    const updateFillQuery = fill => $location.search('fill', fill)
+    const getFillQuery = () => $location.search()['fill']
+
+    const lineParamName = lineLabel => 'hide_' + lineLabel.replace(/\s/, '_')
+    const updateHiddenLineQuery = (lineLabel, hidden) => $location.search(lineParamName(lineLabel), hidden)
+    const getHiddenLineQuery = lineLabel => $location.search()[lineParamName(lineLabel)]
 
     $scope.model = {
       tickerChart,
       data: tickerChart.data,
-      chartFill: $location.search()['fill'] === true,
+      chartFill: getFillQuery() === true,
       activeButtons: []
     }
     const updateActiveButton = period => {
@@ -58,9 +78,6 @@ angular.module('tantalus.ticker')
     const updateDatasetFillings = () => $scope.model.data.datasets.forEach((dataset, ix) => {
       dataset.fill = $scope.model.chartFill && (ix % 2 > 0) ? (ix - 1) : false
     })
-
-    const updatePeriodQuery = period => $location.search('period', period)
-    const updateFillQuery = fill => $location.search('fill', fill)
 
     $scope.toggleFilling = () => {
       $scope.model.chartFill = !$scope.model.chartFill
@@ -75,15 +92,16 @@ angular.module('tantalus.ticker')
           const colorName = colorNames[ix % colorNames.length]
           const borderColor = chartColors[colorName]
           const backgroundColor = colorHelper(chartColors[colorName]).alpha(0.5).rgbString()
+          const hidden = getHiddenLineQuery(dataset.label)
 
-          return Object.assign(dataset, lineOptions(borderColor, backgroundColor))
+          return Object.assign(dataset, lineOptions(borderColor, backgroundColor, hidden))
         })
         $scope.model.data.datasets = fullGraphData
         if ($scope.model.tickerChart.ctx) {
           updateDatasetFillings()
           updateActiveButton(period)
           updatePeriodQuery(period)
-          $scope.model.tickerChart.update(600)
+          $scope.model.tickerChart.update(300)
         }
       })
 
