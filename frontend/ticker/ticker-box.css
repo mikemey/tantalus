@@ -14,23 +14,22 @@
 
 .ticker-name {
   background: #eee;
-  padding-top: 5px;
   border-top: 1px solid #bbb;
+  font-size: 0.7em;
 }
 
 .ticker-price {
   font-size: 0.9em;
-  padding: 2px 0;
 }
 
 .ticker-green {
-  background: rgba(24, 255, 24, 0.5);
+  background: rgb(160, 255, 160);
 }
 
 .ticker-red {
-  background: rgba(255, 0, 0, 0.45);
+  background: rgb(255, 165, 165);
 }
 
 .ticker-date {
-  margin: 2px;
+  font-size: 0.8em;
 }

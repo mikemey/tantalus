@@ -4,7 +4,7 @@
   </div>
   <div ng-repeat="ticker in model.tickers">
     <div class="ticker-name">
-      <strong>{{ ticker.name | uppercase }}</strong>
+      {{ ticker.name | uppercase }}
     </div>
     <div ng-if="ticker.bid === undefined" class="col-xs-12 ticker-price ticker-green">
       {{ ticker.ask| price: 0 }}
