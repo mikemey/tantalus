@@ -42,7 +42,8 @@ describe('ticker chart component', () => {
     borderColor: 'rgb(39, 101, 223)',
     data: [
       { x: '2017-08-02T00:26:00.256Z', y: 3454.12 }
-    ]
+    ],
+    hidden: true
   }), datasetOptions({
     label: 'lakebtc bid',
     backgroundColor: 'rgba(54, 162, 235, 0.5)',

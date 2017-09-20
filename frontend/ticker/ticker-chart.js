@@ -31,9 +31,11 @@ angular.module('tantalus.ticker')
           onClick: (_, legendItem) => {
             const meta = $scope.model.tickerChart.getDatasetMeta(legendItem.datasetIndex)
 
-            meta.hidden = !meta.hidden
-            const hiddenParam = meta.hidden ? true : null
-            updateHiddenLineQuery(legendItem.text, hiddenParam)
+            const hiddenParam = getHiddenLineQuery(legendItem.text)
+            meta.hidden = hiddenParam !== true
+
+            const newHiddenParam = meta.hidden ? true : null
+            updateHiddenLineQuery(legendItem.text, newHiddenParam)
 
             $scope.$apply()
             $scope.model.tickerChart.update(0)
@@ -57,6 +59,7 @@ angular.module('tantalus.ticker')
     }
 
     const updatePeriodQuery = period => $location.search('period', period)
+    const getPeriodQuery = period => $location.search()['period']
     const updateFillQuery = fill => $location.search('fill', fill)
     const getFillQuery = () => $location.search()['fill']
 
@@ -101,10 +104,13 @@ angular.module('tantalus.ticker')
           updateDatasetFillings()
           updateActiveButton(period)
           updatePeriodQuery(period)
-          $scope.model.tickerChart.update(300)
+          $scope.model.tickerChart.update(0)
         }
       })
 
-    const initialPeriod = $location.search()['period'] || '1d'
+    updateHiddenLineQuery('solidi ask', true)
+    updateHiddenLineQuery('solidi bid', true)
+    updateHiddenLineQuery('coindesk', true)
+    const initialPeriod = getPeriodQuery() || '1d'
     return $scope.updateTicker(initialPeriod)
   }])
