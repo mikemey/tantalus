@@ -6,12 +6,12 @@
     <div class="ticker-name">
       {{ ticker.name | uppercase }}
     </div>
-    <div ng-if="ticker.bid === undefined" class="col-xs-12 ticker-price ticker-green">
+    <span ng-if="ticker.bid === undefined" class="col-xs-12 ticker-price ticker-green">
       {{ ticker.ask| price: 0 }}
-    </div>
+    </span>
     <div ng-if="ticker.bid !== undefined">
-      <div class="col-xs-6 ticker-price ticker-red">{{ ticker.bid | price: 0 }}</div>
-      <div class="col-xs-6 ticker-price ticker-green">{{ ticker.ask | price: 0 }}</div>
+      <span class="col-xs-6 ticker-price ticker-red">{{ ticker.bid | price: 0 }}</span>
+      <span class="col-xs-6 ticker-price ticker-green">{{ ticker.ask | price: 0 }}</span>
     </div>
   </div>
 </div>

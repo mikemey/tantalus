@@ -46,7 +46,12 @@ angular.module('tantalus.ticker')
           yAxes: [{
             scaleLabel: { display: true, labelString: 'GBP/Ƀ' },
             position: 'right',
-            ticks: { suggestedMin: 3000 }
+            ticks: {
+              suggestedMin: 3000,
+              fontSize: 16,
+              fontFamily: 'Courier, monospace',
+              fontColor: '#000'
+            }
           }]
         }
       }

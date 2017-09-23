@@ -16,10 +16,17 @@
   background: #eee;
   border-top: 1px solid #bbb;
   font-size: 0.7em;
+  letter-spacing: 3px;
+  font-weight: bold;
 }
 
 .ticker-price {
-  font-size: 18px;
+  font-size: 20px;
+  line-height: 24px;
+  padding-top: 2px;
+  letter-spacing: 1px;
+  font-family: Courier, monospace;
+  margin-bottom: 0px;
 }
 
 .ticker-green {
@@ -29,7 +36,6 @@
 .ticker-red {
   background: rgb(206, 27, 27);
   color: rgb(255, 255, 255);
-  letter-spacing: 2px;
 }
 
 .ticker-date {
