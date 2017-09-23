@@ -42,7 +42,16 @@ angular.module('tantalus.ticker')
           }
         },
         scales: {
-          xAxes: [{ type: 'time', time: { tooltipFormat: 'll HH:mm' } }],
+          xAxes: [{
+            type: 'time',
+            time: {
+              displayFormats: {
+                hour: 'H:mm',
+                day: 'ddd DD.MM'
+              },
+              tooltipFormat: 'll HH:mm'
+            }
+          }],
           yAxes: [{
             scaleLabel: { display: true, labelString: 'GBP/Ƀ' },
             position: 'right',
