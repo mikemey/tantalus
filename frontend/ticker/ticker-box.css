@@ -19,7 +19,7 @@
 }
 
 .ticker-price {
-  font-size: 0.9em;
+  font-size: 18px;
 }
 
 .ticker-green {
@@ -27,7 +27,9 @@
 }
 
 .ticker-red {
-  background: rgb(255, 165, 165);
+  background: rgb(206, 27, 27);
+  color: rgb(255, 255, 255);
+  letter-spacing: 2px;
 }
 
 .ticker-date {
