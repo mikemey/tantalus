@@ -1,6 +1,7 @@
 const cors = require('cors')
 const csrf = require('csurf')
 const session = require('express-session')
+const cookieParser = require('cookie-parser')
 
 const MongoStore = require('connect-mongo')(session)
 const mongoose = require('./mongoConnection').mongoose
@@ -9,6 +10,8 @@ const { Account } = require('../users/userModel')
 const passport = require('passport')
 
 const { responseError } = require('./jsonResponses')
+
+const XSRF_COOKIE = 'XSRF-TOKEN'
 
 const init = (app, config, log) => {
   if (config.disableSecurity) {
@@ -22,6 +25,7 @@ const init = (app, config, log) => {
 }
 
 const setupSession = (app, config) => {
+  app.use(cookieParser())
   app.use(session({
     name: 'tantalus.sid',
     secret: config.secret,
@@ -40,13 +44,13 @@ const setupCrossRequestsProtection = (app, config, log) => {
 }
 
 const csrfProtection = csrf({
-  cookie: false,
-  value: req => req.headers['x-xsrf-token']
+  cookie: true,
+  value: req => req.cookies[XSRF_COOKIE]
 })
 
 const csrfTokenGeneration = (req, res, next) => {
   const token = req.csrfToken()
-  res.cookie('XSRF-TOKEN', token)
+  res.cookie(XSRF_COOKIE, token)
   next()
 }
 

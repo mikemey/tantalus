@@ -3,7 +3,7 @@ const request = require('supertest')
 require('chai').should()
 
 const helpers = require('../helpers')
-const { XSRF_HEADER, setupCSRFAgent } = require('../agents')
+const { setupCSRFAgent } = require('../agents')
 
 describe('/api/users/register endpoint', () => {
   let app, server
@@ -14,8 +14,6 @@ describe('/api/users/register endpoint', () => {
   }, false))
 
   after(() => helpers.closeAll(server))
-
-  beforeEach(helpers.dropDatabase)
 
   const username = 'new_user'
   const password = 'ladida'
@@ -31,7 +29,7 @@ describe('/api/users/register endpoint', () => {
     )
 
     it('rejects when invalid csrf token', () => registerPost(request(app))
-      .set(XSRF_HEADER, 'LADIDA')
+      .set('Cookie', ['XSRF-TOKEN=aaaaaaaa-bbbbbbbbbbbb-cccccccccccccc'])
       .send(testUser)
       .expect(403, { error: 'invalid csrf token' })
     )
@@ -40,7 +38,10 @@ describe('/api/users/register endpoint', () => {
   describe('register user', () => {
     let csrfAgent
 
-    beforeEach(() => setupCSRFAgent(app).then(agent => { csrfAgent = agent }))
+    beforeEach(() => helpers.dropDatabase()
+      .then(() => setupCSRFAgent(app))
+      .then(agent => { csrfAgent = agent })
+    )
 
     const postUserWithCSRF = (userAccount = testUser) => csrfAgent.post('/api/users/register')
       .send(userAccount)
