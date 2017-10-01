@@ -16,8 +16,6 @@ describe('GET /api/tickers/graph endpoint', () => {
 
   after(() => helpers.closeAll(server))
 
-  beforeEach(helpers.dropDatabase)
-
   const getGraphData = period => request(app).get(`/api/tickers/graph?period=${period}`)
 
   describe('data responses', () => {
@@ -39,16 +37,17 @@ describe('GET /api/tickers/graph endpoint', () => {
       graphData: []
     }]
 
-    it('respond with graph data', () => helpers.insertGraphData(testData)
-      .then(() => getGraphData('1w')
-        .expect(200)
-        .then(({ body }) => body.should.deep.equal(testData[0].graphData)
-        ))
+    beforeEach(() => helpers.dropDatabase()
+      .then(() => helpers.insertGraphData(testData))
+    )
+    it('respond with graph data', () => getGraphData('1w')
+      .expect(200)
+      .then(({ body }) => body.should.deep.equal(testData[0].graphData)
+      )
     )
 
-    it('response 400 for invalid period parameter', () => helpers.insertGraphData(testData)
-      .then(() => getGraphData('test')
-        .expect(400, { error: "Unsupported period: 'test'" }))
+    it('response 400 for invalid period parameter', () => getGraphData('test')
+      .expect(400, { error: "Unsupported period: 'test'" })
     )
   })
 
@@ -63,7 +62,9 @@ describe('GET /api/tickers/graph endpoint', () => {
       }
     })
 
-    beforeEach(() => helpers.insertGraphData(testData))
+    beforeEach(() => helpers.dropDatabase()
+      .then(() => helpers.insertGraphData(testData))
+    )
 
     it('1 day report', () => getGraphData('1d').expect(200)
       .then(({ body }) => body.should.deep.equal(testGraphData))

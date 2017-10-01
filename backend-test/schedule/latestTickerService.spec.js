@@ -26,21 +26,19 @@ describe('Latest ticker service', () => {
 
   const nockget = tickerUrl => nock(tickerUrl.host).get(tickerUrl.path)
 
-  beforeEach(helpers.dropDatabase)
-
   const expectValidDate = date => {
     moment.utc(date).isValid().should.equal(true)
   }
 
   describe('valid responses', () => {
-    beforeEach(done => {
+    beforeEach(() => {
       nockget(tickerUrls.solidi).reply(200, solidiResponse)
       nockget(tickerUrls.lakebtc).reply(200, lakebtcResponse)
       nockget(tickerUrls.coinfloor).reply(200, coinfloorResponse)
       nockget(tickerUrls.coindesk).reply(200, coindeskResponse)
       nockget(tickerUrls.cex).reply(200, cexResponse)
 
-      done()
+      return helpers.dropDatabase()
     })
 
     const expectedData = [
@@ -62,11 +60,11 @@ describe('Latest ticker service', () => {
   })
 
   describe('invalid responses', () => {
-    beforeEach(done => {
+    beforeEach(() => {
       const twiceNockGet = tickerUrl => nockget(tickerUrl).twice().reply(429, 'retry later')
       Object.keys(tickerUrls).forEach(tickerName => twiceNockGet(tickerUrls[tickerName]))
 
-      done()
+      return helpers.dropDatabase()
     })
 
     const emptyTicker = name => { return { name, bid: 'N/A', ask: 'N/A' } }
