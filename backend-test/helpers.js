@@ -1,7 +1,6 @@
 const createServer = require('../backend/app')
-const mongoConnection = require('../backend/utils/mongoConnection')
+const mongo = require('../backend/utils/mongoConnection')
 
-const tickerCollectionName = 'tickers'
 const accountCollectionName = 'accounts'
 const defaultTestConfig = {
   mongodb: {
@@ -32,9 +31,9 @@ const startTestServer = (callback, disabled = true, testUser = defaultTestUser) 
 let db
 const mongodb = () => {
   if (!db) {
-    return mongoConnection.initializeDirectConnection(defaultTestConfig, console)
+    return mongo.initializeDirectConnection(defaultTestConfig, console)
       .then(() => {
-        db = mongoConnection.db
+        db = mongo.db
         return db
       })
   }
@@ -58,11 +57,17 @@ const dropDatabase = () => mongodb().then(db => db.dropDatabase())
 const dbCollection = collectionName => mongodb()
   .then(db => db.collection(collectionName))
 
-const getTickers = () => dbCollection(tickerCollectionName)
+const getTickers = () => dbCollection(mongo.tickersCollectionName)
   .then(collection => collection.find().toArray())
 
-const insertTickers = tickers => dbCollection(tickerCollectionName)
+const insertTickers = tickers => dbCollection(mongo.tickersCollectionName)
   .then(collection => collection.insertMany(tickers))
+
+const insertGraphData = graphdata => dbCollection(mongo.graphsCollectionName)
+  .then(collection => collection.insertMany(graphdata))
+
+const getGraphData = period => dbCollection(mongo.graphsCollectionName)
+  .then(collection => collection.find({ period }).toArray())
 
 const getAccounts = () => dbCollection(accountCollectionName)
   .then(collection => collection.find().toArray())
@@ -70,8 +75,8 @@ const getAccounts = () => dbCollection(accountCollectionName)
 const insertAccounts = accounts => dbCollection(accountCollectionName)
   .then(collection => collection.insertMany(accounts))
 
-const connectMongoose = () => mongoConnection.mongoose.connect(defaultTestConfig.mongodb.url, { useMongoClient: true })
-const closeMongoose = () => mongoConnection.mongoose.connection.close()
+const connectMongoose = () => mongo.mongoose.connect(defaultTestConfig.mongodb.url, { useMongoClient: true })
+const closeMongoose = () => mongo.mongoose.connection.close()
 
 module.exports = {
   startTestServer,
@@ -83,5 +88,7 @@ module.exports = {
   getTickers,
   insertTickers,
   getAccounts,
-  insertAccounts
+  insertAccounts,
+  insertGraphData,
+  getGraphData
 }

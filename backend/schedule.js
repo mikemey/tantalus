@@ -7,6 +7,9 @@ const log = console
 mongoConnection.initializeDirectConnection(config, log)
   .then(() => {
     log.info('setting up scheduler...')
-    const tickerScheduleService = require('./schedule/tickerScheduleService')(log)
-    schedule.scheduleJob('*/1 * * * *', tickerScheduleService.storeTickers)
+    const latestTickerService = require('./schedule/latestTickerService')(log)
+    const graphService = require('./schedule/graphService')(log)
+
+    schedule.scheduleJob('*/1 * * * *', () => latestTickerService.storeTickers()
+      .then(graphService.createGraphDatasets))
   })

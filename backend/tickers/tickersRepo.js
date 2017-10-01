@@ -1,27 +1,19 @@
 const mongo = require('../utils/mongoConnection')
 
 const TickerRepo = () => {
-  const tickerCollection = () => mongo.db.collection('tickers')
-
-  const storeTickersData = tickersData => tickerCollection().insertOne(tickersData)
-    .then(result => {
-      if (result.insertedCount === 1) return tickersData
-      else throw new Error('insert ticker failed: ' + result.message)
-    })
+  const tickerCollection = () => mongo.db.collection(mongo.tickersCollectionName)
+  const graphCollection = () => mongo.db.collection(mongo.graphsCollectionName)
 
   const getLatest = () => tickerCollection().find()
     .sort({ created: -1 }).limit(1).toArray()
     .then(docs => docs[0])
 
-  const getTickers = since => tickerCollection()
-    .find({ created: { $gte: since } }, { _id: false, created: true, tickers: true })
-    .sort({ created: 1 })
-    .toArray()
+  const getGraphData = period => graphCollection().find({ period }, { graphData: 1 }).limit(1).next()
+    .then(graphPeriod => graphPeriod.graphData)
 
   return {
-    storeTickersData,
     getLatest,
-    getTickers
+    getGraphData
   }
 }
 

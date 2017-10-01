@@ -5,7 +5,7 @@ const fs = require('fs')
 const moment = require('moment')
 
 const helpers = require('../helpers')
-const createTickerScheduleService = require('../../backend/schedule/tickerScheduleService')
+const LatestTickerService = require('../../backend/schedule/latestTickerService')
 
 const solidiResponse = fs.readFileSync('backend-test/example_responses/solidi.html', 'utf8')
 const lakebtcResponse = fs.readFileSync('backend-test/example_responses/lakebtc.json', 'utf8')
@@ -21,8 +21,8 @@ const tickerUrls = {
   cex: { host: 'https://cex.io', path: '/api/ticker/BTC/GBP' }
 }
 
-describe('Tickers schedule service', () => {
-  const tickerScheduleService = createTickerScheduleService(console)
+describe('Latest ticker service', () => {
+  const latestTickerService = LatestTickerService(console)
 
   const nockget = tickerUrl => nock(tickerUrl.host).get(tickerUrl.path)
 
@@ -51,7 +51,7 @@ describe('Tickers schedule service', () => {
       { name: 'cex', bid: 2850.00, ask: 2900.00 }
     ]
 
-    it('stores all tickers', () => tickerScheduleService.storeTickers()
+    it('stores all tickers', () => latestTickerService.storeTickers()
       .then(() => helpers.getTickers())
       .then(docs => {
         docs.length.should.equal(1)
@@ -78,7 +78,7 @@ describe('Tickers schedule service', () => {
       emptyTicker('cex')
     ]
 
-    it('stores unset tickers', () => tickerScheduleService.storeTickers()
+    it('stores unset tickers', () => latestTickerService.storeTickers()
       .then(() => helpers.getTickers())
       .then(docs => {
         docs.length.should.equal(1)

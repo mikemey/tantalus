@@ -3,6 +3,9 @@ const { MongoClient } = require('mongodb')
 const mongoose = require('mongoose')
 mongoose.Promise = Promise
 
+const tickersCollectionName = 'tickers'
+const graphsCollectionName = 'graphs'
+
 const initializeDirectConnection = (config, log) => {
   const mongoUrl = config.mongodb.url
   log.info('Connecting to DB: \'%s\'', mongoUrl)
@@ -28,5 +31,7 @@ const initializeAll = (config, log) => initializeDirectConnection(config, log)
 module.exports = {
   initializeDirectConnection,
   initializeAll,
-  mongoose
+  mongoose,
+  tickersCollectionName,
+  graphsCollectionName
 }

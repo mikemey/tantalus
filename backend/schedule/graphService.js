@@ -1,23 +1,24 @@
-const createTickersRepo = require('./tickersRepo')
+const ScheduleRepo = require('./scheduleRepo')
+const { supportedPeriods, cutoffDate } = require('../tickers/graphPeriods')
 
 const NOT_AVAIL = 'N/A'
 const LIMIT_RESULTS = 100
 
-const TickerService = () => {
-  const tickersRepo = createTickersRepo()
+const GraphService = log => {
+  const scheduleRepo = ScheduleRepo()
 
-  const getGraphData = since => {
-    return tickersRepo.getTickers(since)
+  const createGraphDatasets = () => Promise.all(supportedPeriods.map(period => {
+    const since = cutoffDate(period)
+    return scheduleRepo.getTickers(since)
       .then(flattenTickers)
       .then(sumupTickers)
       .then(createGraphData)
       .then(sortGraphData)
-  }
+      .then(graphData => scheduleRepo.storeGraphData(period, graphData))
+  })).then(storedPeriods => log.info('stored graph periods: ' + storedPeriods.length))
 
-  const getLatest = () => tickersRepo.getLatest()
   return {
-    getLatest,
-    getGraphData,
+    createGraphDatasets,
     LIMIT_RESULTS
   }
 }
@@ -138,4 +139,4 @@ const sortOrdinalOf = dataset => {
   }
 }
 
-module.exports = TickerService
+module.exports = GraphService

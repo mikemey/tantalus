@@ -1,11 +1,10 @@
 /* global describe before beforeEach it */
 
 const request = require('supertest')
-const moment = require('moment')
 require('chai').should()
 
 const helpers = require('../helpers')
-const { LIMIT_RESULTS } = require('../../backend/tickers/tickersService')()
+const { supportedPeriods } = require('../../backend/tickers/graphPeriods')
 
 describe('GET /api/tickers/graph endpoint', () => {
   let app, server
@@ -21,73 +20,69 @@ describe('GET /api/tickers/graph endpoint', () => {
 
   const getGraphData = period => request(app).get(`/api/tickers/graph?period=${period}`)
 
-  const datePast = daysPast => moment.utc().subtract(daysPast, 'd').subtract(1, 'h').toDate()
-  const createTicker = (created, tickValue = 3821) => {
-    return { created, tickers: [{ name: 'coindesk', ask: tickValue }] }
-  }
-
   describe('data responses', () => {
-    const testData = [
-      createTicker(datePast(2), 3821),
-      createTicker(datePast(1), 3802),
-      createTicker(datePast(0), 3490)
-    ]
-    const expectedResult = dbData => [{
-      label: 'coindesk',
-      data: [
-        { x: dbData[0].created.toJSON(), y: 3821 },
-        { x: dbData[1].created.toJSON(), y: 3802 },
-        { x: dbData[2].created.toJSON(), y: 3490 }
+    const testData = [{
+      period: '1w',
+      graphData: [
+        {
+          label: 'coindesk bid',
+          data: [
+            { x: 'bla', y: 3906.82 },
+            { x: 'bla', y: 3915.58 },
+            { x: 'bla', y: 3904.59 },
+            { x: 'bla', y: 3675.14 }
+          ]
+        }
       ]
+    }, {
+      period: 'other',
+      graphData: []
     }]
-    it('respond with graph data', () => helpers.insertTickers(testData)
+
+    it('respond with graph data', () => helpers.insertGraphData(testData)
       .then(() => getGraphData('1w')
         .expect(200)
-        .then(({ body }) => body.should.deep.equal(expectedResult(testData)))
-      ))
+        .then(({ body }) => body.should.deep.equal(testData[0].graphData)
+        ))
+    )
 
-    it('response 400 for invalid period parameter', () => helpers.insertTickers(testData)
+    it('response 400 for invalid period parameter', () => helpers.insertGraphData(testData)
       .then(() => getGraphData('test')
         .expect(400, { error: "Unsupported period: 'test'" }))
     )
   })
 
   describe('supported period parameter', () => {
-    const length = 2000
-    const testData = Array.from({ length }, (_, i) => createTicker(datePast(length - (i + 1))))
+    const testGraphData = [{
+      abc: 'def'
+    }]
+    const testData = supportedPeriods.map(period => {
+      return {
+        period,
+        graphData: testGraphData
+      }
+    })
 
-    beforeEach(() => helpers.insertTickers(testData))
-
-    const daysSince = start => moment.utc().diff(start, 'd')
-
-    const expectGraphDataLength = (body, expectedLength) => {
-      body[0].data.should.have.length(expectedLength)
-    }
+    beforeEach(() => helpers.insertGraphData(testData))
 
     it('1 day report', () => getGraphData('1d').expect(200)
-      .then(({ body }) => expectGraphDataLength(body, 1))
+      .then(({ body }) => body.should.deep.equal(testGraphData))
     )
 
     it('1 week report', () => getGraphData('1w').expect(200)
-      .then(({ body }) => expectGraphDataLength(body, 7))
+      .then(({ body }) => body.should.deep.equal(testGraphData))
     )
 
     it('1 month report', () => getGraphData('1m').expect(200)
-      .then(({ body }) => {
-        const monthAgo = moment.utc().subtract(1, 'M')
-        expectGraphDataLength(body, daysSince(monthAgo))
-      })
+      .then(({ body }) => body.should.deep.equal(testGraphData))
     )
 
     it('3 month report', () => getGraphData('3m').expect(200)
-      .then(({ body }) => {
-        const monthAgo = moment.utc().subtract(3, 'M')
-        expectGraphDataLength(body, daysSince(monthAgo))
-      })
+      .then(({ body }) => body.should.deep.equal(testGraphData))
     )
 
     it('1 year report', () => getGraphData('1y').expect(200)
-      .then(({ body }) => expectGraphDataLength(body, LIMIT_RESULTS))
+      .then(({ body }) => body.should.deep.equal(testGraphData))
     )
   })
 })

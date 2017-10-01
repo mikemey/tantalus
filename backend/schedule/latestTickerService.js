@@ -1,6 +1,6 @@
 const requests = require('./requests')
 const fmt = require('./formats')
-const createTickersRepo = require('../tickers/tickersRepo')
+const ScheduleRepo = require('./scheduleRepo')
 
 const tickers = {
   solidi: { url: 'https://www.solidi.co/index', name: 'solidi' },
@@ -58,8 +58,8 @@ const countData = tickers => tickers.filter(
   ticker => ticker.bid !== NOT_AVAIL || ticker.ask !== NOT_AVAIL
 ).length
 
-const TickerScheduleService = log => {
-  const tickersRepo = createTickersRepo()
+const LatestTickerService = log => {
+  const scheduleRepo = ScheduleRepo()
 
   const storeTickers = () => Promise.all([
     getSolidiTicker(log),
@@ -71,11 +71,11 @@ const TickerScheduleService = log => {
     const created = new Date()
     log.info(created.toISOString() + ' - updated ticker: ' + countData(tickers))
     return { created, tickers }
-  }).then(tickersRepo.storeTickersData)
+  }).then(scheduleRepo.storeLatestTickers)
 
   return {
     storeTickers
   }
 }
 
-module.exports = TickerScheduleService
+module.exports = LatestTickerService
