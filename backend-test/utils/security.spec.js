@@ -52,10 +52,14 @@ describe('server security configuration', () => {
       .then(agent => { csrfAgent = agent })
     )
 
-    const unauthorizedResponseGET = page => csrfAgent.get(page).expect(401, {
+    const unauthorizedResponseGET = page => expectUnauthorized(csrfAgent.get(page))
+    const unauthorizedResponsePOST = page => expectUnauthorized(csrfAgent.post(page).send({}))
+
+    const expectUnauthorized = result => result.expect(401, {
       error: 'Authorization required'
     })
 
     it('rejects unauthorized account request', () => unauthorizedResponseGET('/api/users/account'))
+    it('rejects unauthorized keys request', () => unauthorizedResponsePOST('/api/users/keys'))
   })
 })

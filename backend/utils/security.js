@@ -5,7 +5,7 @@ const session = require('express-session')
 const MongoStore = require('connect-mongo')(session)
 const mongoose = require('./mongoConnection').mongoose
 
-const Account = require('../users/userAccount')
+const { Account } = require('../users/userModel')
 const passport = require('passport')
 
 const { responseError } = require('./jsonResponses')

@@ -40,9 +40,7 @@ describe('/api/users/register endpoint', () => {
   describe('register user', () => {
     let csrfAgent
 
-    beforeEach(() => setupCSRFAgent(app)
-      .then(agent => { csrfAgent = agent })
-    )
+    beforeEach(() => setupCSRFAgent(app).then(agent => { csrfAgent = agent }))
 
     const postUserWithCSRF = (userAccount = testUser) => csrfAgent.post('/api/users/register')
       .send(userAccount)

@@ -2,6 +2,7 @@ const { mongoose } = require('../utils/mongoConnection')
 
 const passportLocalMongoose = require('passport-local-mongoose')
 
+// ----------- Account
 const AccountSchema = new mongoose.Schema({
   username: String,
   password: String
@@ -20,4 +21,17 @@ const newRegister = (username, password) => new Promise((resolve, reject) => {
 })
 Account.register = newRegister
 
-module.exports = Account
+// ----------- Keys
+const UserKeysSchema = new mongoose.Schema({
+  userId: mongoose.Schema.Types.ObjectId,
+  keys: []
+})
+
+UserKeysSchema.index({ userId: 1 })
+UserKeysSchema.query.byUserId = function (userId) {
+  return this.findOne({ userId })
+}
+
+const UserKeys = mongoose.model('UserKeys', UserKeysSchema)
+
+module.exports = { Account, UserKeys }

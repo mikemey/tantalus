@@ -3,7 +3,7 @@
 require('chai').should()
 
 const helpers = require('../helpers')
-const Account = require('../../backend/users/userAccount')
+const { Account } = require('../../backend/users/userModel')
 
 describe('Account DAO', function () {
   before(helpers.connectMongoose)

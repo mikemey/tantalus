@@ -22,12 +22,13 @@ describe('/api/users/account endpoint', () => {
 
   const getAccount = () => request(app).get('/api/users/account')
 
-  const testAccounts = [testUser]
-
-  beforeEach(helpers.dropDatabase)
-  beforeEach(() => helpers.insertAccounts(testAccounts))
+  beforeEach(() => helpers.dropDatabase()
+    .then(() => helpers.insertAccounts([testUser]))
+  )
 
   it('returns account data', () => getAccount()
-    .expect(200, { username: testAccounts[0].username })
+    .expect(200, {
+      username: testUser.username
+    })
   )
 })
