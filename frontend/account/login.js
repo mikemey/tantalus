@@ -17,7 +17,7 @@ angular.module('tantalus.account')
       $scope.login = () => {
         const { username, password } = $scope.model.data
         authorization.login(username, password)
-          .then(() => $location.path('/account'))
+          .then(() => $location.path('/dashboard'))
           .catch(err => {
             if (err.data && err.data.error) $scope.model.error = err.data.error
             else $scope.model.error = 'server error'

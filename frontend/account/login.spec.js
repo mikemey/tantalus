@@ -22,7 +22,7 @@ describe('Login controller', () => {
 
   const expectLoginPost = () => $httpBackend.expectPOST('/api/users/login', testUser)
 
-  it('posts login and forwards to account', () => {
+  it('posts login and forwards to dashboard', () => {
     const locationRecorder = () => {
       let currentPath = null
       return {
@@ -42,7 +42,7 @@ describe('Login controller', () => {
     $scope.login()
     $httpBackend.flush()
 
-    $location.currentPath().should.equal('/account')
+    $location.currentPath().should.equal('/dashboard')
   })
 
   it('shows error during login', () => {
