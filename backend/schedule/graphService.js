@@ -1,3 +1,5 @@
+const moment = require('moment')
+
 const ScheduleRepo = require('./scheduleRepo')
 const { supportedPeriods, cutoffDate } = require('../tickers/graphPeriods')
 
@@ -9,11 +11,11 @@ const GraphService = log => {
 
   const createGraphDatasets = () => Promise.all(supportedPeriods.map(period => {
     const since = cutoffDate(period)
-    return scheduleRepo.getTickers(since)
+    return scheduleRepo.getTickersSorted(since.toDate())
       .then(flattenTickers)
-      .then(sumupTickers)
+      .then(sumupTickers(since))
       .then(createGraphData)
-      .then(sortGraphData)
+      .then(sortGraphDataWithProviders)
       .then(graphData => scheduleRepo.storeGraphData(period, graphData))
   })).then(storedPeriods => log.info('stored graph periods: ' + storedPeriods.length))
 
@@ -47,20 +49,25 @@ const chartValueFrom = tickVal => !tickVal || tickVal === NOT_AVAIL
   : tickVal
 
 // ========================= sumupTickers =====================
-const sumupTickers = allChartTickers => {
-  const chunkLength = allChartTickers.length / LIMIT_RESULTS
-  if (chunkLength <= 1) return allChartTickers
+const sumupTickers = since => allChartTickers => {
+  const sliceDuration = moment.utc().diff(since) / LIMIT_RESULTS
+  let nextTimestamp = since
+  const dataPointTickers = allChartTickers.reduce((dataPoints, currentTicker) => {
+    const currentCreated = moment.utc(currentTicker.created)
+    if (currentCreated.isAfter(nextTimestamp)) {
+      dataPoints.push([])
+      nextTimestamp = nextTimestamp.add(sliceDuration)
+    }
+    dataPoints[dataPoints.length - 1].push(currentTicker)
+    return dataPoints
+  }, [])
 
-  const chartGroups = Array.from({ length: LIMIT_RESULTS }, (_, sliceIx) => {
-    const offset = chunkLength * sliceIx
-    return allChartTickers.slice(offset, offset + chunkLength)
-  })
-  return chartGroups.map(sumChartGroups(chartGroups.length))
+  return dataPointTickers.map(sumDataPoints)
 }
 
-const sumChartGroups = count => chartGroup => {
-  const created = chartGroup[Math.floor(chartGroup.length / 2)].created
-  const tickers = chartGroup
+const sumDataPoints = dataPoints => {
+  const created = dataPoints[Math.floor(dataPoints.length / 2)].created
+  const tickers = dataPoints
     .reduce((tickerSums, curr) => {
       curr.tickers.forEach(tick => addTickerValues(tickerSums, tick))
       return tickerSums
@@ -112,7 +119,7 @@ const getDatasetFrom = (datasets, label) => {
 const chartPoint = (x, y) => { return { x, y } }
 
 // ========================= sortGraphData =====================
-const sortGraphData = graphData => graphData.sort((a, b) => sortOrdinalOf(a) - sortOrdinalOf(b))
+const sortGraphDataWithProviders = graphData => graphData.sort((a, b) => sortOrdinalOf(a) - sortOrdinalOf(b))
 
 const sortOrdinalOf = dataset => {
   switch (dataset.label) {

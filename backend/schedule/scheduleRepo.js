@@ -10,7 +10,7 @@ const ScheduleRepo = () => {
       else throw new Error('insert ticker failed: ' + result.message)
     })
 
-  const getTickers = since => tickersCollection()
+  const getTickersSorted = since => tickersCollection()
     .find({ created: { $gte: since } }, { _id: false, created: true, tickers: true })
     .sort({ created: 1 })
     .toArray()
@@ -26,7 +26,7 @@ const ScheduleRepo = () => {
 
   return {
     storeLatestTickers,
-    getTickers,
+    getTickersSorted,
     storeGraphData
   }
 }

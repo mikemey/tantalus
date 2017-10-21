@@ -9,11 +9,11 @@ const _1y = '1y'
 
 const cutoffDate = period => {
   switch (period) {
-    case '1d': return now().subtract(1, 'd').toDate()
-    case '1w': return now().subtract(1, 'w').toDate()
-    case '1m': return now().subtract(1, 'M').toDate()
-    case '3m': return now().subtract(3, 'M').toDate()
-    case '1y': return now().subtract(1, 'y').toDate()
+    case '1d': return now().subtract(1, 'd')
+    case '1w': return now().subtract(1, 'w')
+    case '1m': return now().subtract(1, 'M')
+    case '3m': return now().subtract(3, 'M')
+    case '1y': return now().subtract(1, 'y')
     default:
       throw new Error(`Unsupported period: '${period}'`)
   }

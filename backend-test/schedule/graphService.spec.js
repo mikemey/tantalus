@@ -58,10 +58,10 @@ describe('Graph service', () => {
   const expectedGraphData = [{
     label: 'solidi bid',
     data: [
-      { x: _6daysAgo, y: 3906.82 },
-      { x: _5daysAgo, y: 3915.58 },
-      { x: _4daysAgo, y: 3904.59 },
-      { x: _3daysAgo, y: 3675.14 }
+      { x: _6daysAgo, y: 3907 },
+      { x: _5daysAgo, y: 3916 },
+      { x: _4daysAgo, y: 3905 },
+      { x: _3daysAgo, y: 3675 }
     ]
   }, {
     label: 'solidi ask',
@@ -69,7 +69,7 @@ describe('Graph service', () => {
       { x: _6daysAgo, y: null },
       { x: _5daysAgo, y: null },
       { x: _4daysAgo, y: null },
-      { x: _3daysAgo, y: 3454.12 }
+      { x: _3daysAgo, y: 3454 }
     ]
   }, {
     label: 'coinfloor bid',
@@ -86,38 +86,38 @@ describe('Graph service', () => {
   }, {
     label: 'lakebtc bid',
     data: [
-      { x: _6daysAgo, y: 3856.08 },
-      { x: _5daysAgo, y: 3857.84 },
+      { x: _6daysAgo, y: 3856 },
+      { x: _5daysAgo, y: 3858 },
       { x: _4daysAgo, y: null },
       { x: _3daysAgo, y: 3490 }
     ]
   }, {
     label: 'lakebtc ask',
     data: [
-      { x: _6daysAgo, y: 3879.06 },
-      { x: _5daysAgo, y: 3865.78 },
+      { x: _6daysAgo, y: 3879 },
+      { x: _5daysAgo, y: 3866 },
       { x: _4daysAgo, y: null },
       { x: _3daysAgo, y: 3567 }
     ]
   }, {
     label: 'cex bid',
     data: [
-      { x: _6daysAgo, y: 1234.82 },
-      { x: _5daysAgo, y: 1235.82 }
+      { x: _6daysAgo, y: 1235 },
+      { x: _5daysAgo, y: 1236 }
     ]
   }, {
     label: 'cex ask',
     data: [
-      { x: _6daysAgo, y: 2345.67 },
-      { x: _5daysAgo, y: 2346.67 }
+      { x: _6daysAgo, y: 2346 },
+      { x: _5daysAgo, y: 2347 }
     ]
   }, {
     label: 'coindesk',
     data: [
-      { x: _6daysAgo, y: 3821.79 },
-      { x: _5daysAgo, y: 3802.64 },
-      { x: _4daysAgo, y: 3814.19 },
-      { x: _3daysAgo, y: 3584.93 }
+      { x: _6daysAgo, y: 3822 },
+      { x: _5daysAgo, y: 3803 },
+      { x: _4daysAgo, y: 3814 },
+      { x: _3daysAgo, y: 3585 }
     ]
   }]
 
@@ -155,14 +155,11 @@ describe('Graph service', () => {
       }
     }
 
-    const testData = Array.from({ length }, (_, ix) => createTicker(datePast(length - 1 - ix), (ix + 1 - cutoffIx)))
+    const testData = Array.from({ length }, (_, ix) => createTicker(datePast(length - 1 - ix), (ix + 1)))
 
     const sliceLen = (length - cutoffIx) / graphService.LIMIT_RESULTS
-    const oldestSliceDistance = sliceLen * (graphService.LIMIT_RESULTS - 1) + sliceLen / 2
-    const oldestSliceStartIx = length - Math.floor(oldestSliceDistance) - 1
-    const oldestDateExpected = moment.utc(testData[oldestSliceStartIx].created).toJSON()
-
-    const newestDateExpected = moment.utc(testData[length - Math.floor(sliceLen / 2) - 2].created).toJSON()
+    const oldestDateExpected = moment.utc(testData[cutoffIx + 1].created).toJSON()
+    const newestDateExpected = moment.utc(testData[length - Math.floor(sliceLen / 2) - 1].created).toJSON()
 
     return helpers.insertTickers(testData)
       .then(() => graphService.createGraphDatasets())
@@ -177,9 +174,11 @@ describe('Graph service', () => {
 
           chartData[0].x.toJSON().should.equal(oldestDateExpected)
           chartData[chartData.length - 1].x.toJSON().should.equal(newestDateExpected)
+
+          let currentAverage = (cutoffIx + 2)
           chartData.forEach((datapoint, ix) => {
-            const expectedAverage = (Math.floor(ix * sliceLen + 1) + Math.floor((ix + 1) * sliceLen)) / 2
-            datapoint.y.should.be.closeTo(expectedAverage, 1.0)
+            datapoint.y.should.be.closeTo(currentAverage, 1.0)
+            currentAverage = currentAverage + sliceLen
           })
         })
       })
