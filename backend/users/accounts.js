@@ -53,7 +53,7 @@ const createAccountsRouter = logger => {
   })
 
   router.get('/account', (req, res) => {
-    const picked = (({ username, keys }) => ({ username, keys }))(req.user)
+    const picked = (({ username }) => ({ username }))(req.user)
     return res.status(200).json(picked)
   })
 
