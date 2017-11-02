@@ -131,7 +131,7 @@ angular.module('tantalus.ticker')
         return $scope.updateTicker(initialPeriod)
       }
 
-      $scope.stop = $interval(loadGraphData, 5000)
+      $scope.stop = $interval(loadGraphData, 20000)
       $scope.$on('$destroy', () => $interval.cancel($scope.stop))
       return loadGraphData()
     }])
