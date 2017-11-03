@@ -1,9 +1,12 @@
-/* global angular */
+/* global angular moment */
 
 const transformPrice = () => (input, len = 2) => {
-  if (input === 'N/A') return input
+  if (undefined === input || input === 'N/A') return input
+  if (typeof input === 'string') input = Number(input)
   return input.toFixed(len)
 }
+
+const parseUnixDate = () => (input, format) => moment.unix(input).format(format)
 
 const appRouter = $routeProvider => $routeProvider
   .when('/dashboard', {
@@ -23,3 +26,4 @@ angular
   ])
   .config(['$routeProvider', appRouter])
   .filter('price', transformPrice)
+  .filter('unixDate', parseUnixDate)

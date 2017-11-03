@@ -1,0 +1,21 @@
+<div>
+  <table class="table table-condensed">
+    <caption>Time cutoff: {{ model.dateLimit | unixDate: 'HH:mm:ss' }}</caption>
+    <thead>
+      <tr>
+        <th>tid</th>
+        <th>date</th>
+        <th>price</th>
+        <th>amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="tx in model.latestTransactions" ng-class=" $first ? 'info' : '' ">
+        <td>{{ tx.tid }}</td>
+        <td>{{ tx.date | unixDate: 'HH:mm:ss' }}</td>
+        <td>{{ tx.price | price: 0 | number }}</td>
+        <td>{{ tx.amount }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -35,11 +35,13 @@ const createServer = (config, log) => mongoConnection.initializeAll(config, log)
 
 const createApiRouter = log => {
   const createTickersRouter = require('./tickers')
+  const createInvestRouter = require('./invest')
   const createUsersRouter = require('./users')
 
   const router = express.Router()
   router.use('/', createUsersRouter(log))
   router.use('/tickers', createTickersRouter(log))
+  router.use('/invest', createInvestRouter(log))
   router.get('/version', createVersionEndpoint(log))
 
   return router
