@@ -1,4 +1,4 @@
-const requests = require('./requests')
+const requests = require('../utils/requests')
 const fmt = require('./formats')
 const ScheduleRepo = require('./scheduleRepo')
 
