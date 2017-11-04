@@ -1,4 +1,11 @@
 <div>
+  <div>
+    <canvas id="priceChart"></canvas>
+  </div>
+
+  <div>
+    <canvas id="transactionChart"></canvas>
+  </div>
   <table class="table table-condensed">
     <caption>Time cutoff: {{ model.dateLimit | unixDate: 'HH:mm:ss' }}</caption>
     <thead>
@@ -7,6 +14,7 @@
         <th>date</th>
         <th>price</th>
         <th>amount</th>
+        <th>weighted</th>
       </tr>
     </thead>
     <tbody>
@@ -15,6 +23,7 @@
         <td>{{ tx.date | unixDate: 'HH:mm:ss' }}</td>
         <td>{{ tx.price | price: 0 | number }}</td>
         <td>{{ tx.amount }}</td>
+        <td>{{ tx.weightedAmount | price: 4 }}</td>
       </tr>
     </tbody>
   </table>
