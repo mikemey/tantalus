@@ -62,7 +62,8 @@ const createInvestRouter = logger => {
   }
 
   const updateTransactionCaches = filteredTxs => {
-    logger.info('transactions previous: %s \tnew: %s',
+    logger.info('%s transactions previous: %s \tnew: %s',
+      moment.utc().format('HH:mm:ss'),
       transactionCache.transactionList.length,
       filteredTxs.transactionList.length
     )
@@ -88,7 +89,7 @@ const createInvestRouter = logger => {
     .then(updateTransactionCaches)
     .catch(errorHandler)
 
-  schedule.scheduleJob('*/5 * * * * *', updateLatestTransactions)
+  schedule.scheduleJob('4-57/4 * * * * *', updateLatestTransactions)
 
   router.get('/transactions', (req, res) =>
     res.status(200).json(transactionCache)
