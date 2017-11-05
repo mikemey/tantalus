@@ -91,7 +91,7 @@ angular
       const updateTransactionsChart = () => requestTransactions()
         .then(txs => {
           $scope.model.dateLimit = txs.cutoffTimestamp
-          $scope.model.latestTransactions = txs.transactionList
+          $scope.model.latestTransactions = txs.transactionsList
 
           const filledPriceGroups = fillPriceGaps(txs.priceGroups).reverse()
           $scope.model.priceChartData.labels = filledPriceGroups.map(group => group.label)
@@ -107,7 +107,7 @@ angular
           $scope.model.priceChart.update(0)
 
           $scope.model.transactionChartData.datasets = [{
-            data: txs.transactionList.map(tx => {
+            data: txs.transactionsList.map(tx => {
               const x = moment.unix(tx.date)
               const y = tx.price
               return { x, y }
