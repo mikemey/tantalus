@@ -37,6 +37,35 @@ angular
         }
       })
 
+      const priceChangeChart = new Chart('priceChangeChart', {
+        type: 'bar',
+        data: {
+          datasets: [{ data: [] }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            xAxes: [{
+              barThickness: 5,
+              barPercentage: 1.0,
+              categoryPercentage: 1.0,
+              type: 'time',
+              time: {
+                displayFormats: {
+                  minute: 'H:mm',
+                  second: 'H:mm:ss'
+                },
+                tooltipFormat: 'HH:mm:ss'
+              }
+            }],
+            yAxes: [{
+              scaleLabel: { display: true, labelString: '', lineHeight: 0.3 },
+              position: 'right'
+            }]
+          }
+        }
+      })
+
       const transactionChart = new Chart('transactionChart', {
         type: 'line',
         data: { labels: [], datasets: [] },
@@ -46,8 +75,10 @@ angular
               type: 'time',
               time: {
                 displayFormats: {
-                  minute: 'H:mm'
-                }
+                  minute: 'H:mm',
+                  second: 'H:mm:ss'
+                },
+                tooltipFormat: 'HH:mm:ss'
               }
             }],
             yAxes: [{
@@ -64,6 +95,8 @@ angular
       $scope.model = {
         priceChart,
         priceChartData: priceChart.data,
+        priceChangeChart,
+        priceChangeChartData: priceChangeChart.data,
         transactionChart,
         transactionChartData: transactionChart.data,
         latestTransactions: [],
@@ -94,7 +127,8 @@ angular
           $scope.model.latestTransactions = txs.transactionsList
 
           const filledPriceGroups = fillPriceGaps(txs.priceGroups).reverse()
-          $scope.model.priceChartData.labels = filledPriceGroups.map(group => group.label)
+
+          $scope.model.priceChartData.labels = filledPriceGroups.map(group => `${group.label}`)
           $scope.model.priceChartData.datasets = [{
             data: filledPriceGroups.map(group => group.weighted),
             borderWidth: 0,
@@ -105,6 +139,13 @@ angular
             )
           }]
           $scope.model.priceChart.update(0)
+
+          $scope.model.priceChangeChartData.datasets = [{
+            data: txs.priceChanges,
+            borderWidth: 0,
+            backgroundColor: 'rgba(151,187,255,0.7)'
+          }]
+          $scope.model.priceChangeChart.update(0)
 
           $scope.model.transactionChartData.datasets = [{
             data: txs.transactionsList.map(tx => {

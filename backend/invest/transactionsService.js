@@ -21,47 +21,74 @@ const TransactionsService = logger => {
     }
   }
 
-  const calculateWeightedAmount = filteredTxs => {
-    const timeScope = moment.utc().unix() - filteredTxs.cutoff
-    filteredTxs.newTransactions.forEach(tx => {
-      tx.weightedAmount = (tx.amount * (tx.date - filteredTxs.cutoff) / timeScope)
+  const calculateWeightedAmount = txsData => {
+    const timeScope = moment.utc().unix() - txsData.cutoff
+    txsData.newTransactions.forEach(tx => {
+      tx.weightedAmount = (tx.amount * (tx.date - txsData.cutoff) / timeScope)
     })
-    return filteredTxs
+    return txsData
   }
 
-  const groupByPrices = (priceGroups, tx) => {
-    const txPrice = Number(tx.price)
-    const priceGroup = priceGroups.find(group => group.label === txPrice)
+  const sumWeightedAmountByPrice = (priceGroups, tx) => {
+    const parsedPrice = Number(tx.price)
+    tx.price = parsedPrice
+
+    const priceGroup = priceGroups.find(group => group.label === tx.price)
 
     if (priceGroup) {
       priceGroup.weighted += tx.weightedAmount
     } else {
       priceGroups.push({
-        label: txPrice,
+        label: tx.price,
         weighted: tx.weightedAmount
       })
     }
     return priceGroups
   }
 
-  const createPriceGroups = filteredTxs => {
-    filteredTxs.priceGroups = filteredTxs.newTransactions
-      .reduce(groupByPrices, [])
+  const createPriceGroups = txsData => {
+    txsData.priceGroups = txsData.newTransactions
+      .reduce(sumWeightedAmountByPrice, [])
       .sort((groupA, groupB) => groupA.label - groupB.label)
-    return filteredTxs
+    return txsData
   }
 
-  const updateTransactionCaches = filteredTxs => {
-    logger.info('%s transactions previous: %s \tnew: %s',
-      moment.utc().format('HH:mm:ss'),
-      cache.transactionsList.length,
-      filteredTxs.newTransactions.length
-    )
-    cache.cutoffTimestamp = filteredTxs.cutoff
-    cache.transactionsList = filteredTxs.newTransactions
-    cache.latestPrice = filteredTxs.latestPrice
-    cache.priceGroups = filteredTxs.priceGroups
-    cache.txidsList = filteredTxs.newTransactions.map(tx => tx.tid)
+  // const isSameSecond = (unixDateA, unixDateB) =>
+  // moment.unix(unixDateA).isSame(moment.unix(unixDateB), 'second')
+  // const keepLastTransactionPerDate = ({ latestTransactions, lastDate }, tx) => {
+  //   if (lastDate === tx.date) {
+  //     latestTransactions.pop()
+  //   }
+  //   latestTransactions.push(tx)
+
+  //   lastDate = tx.date
+  //   return { latestTransactions, lastDate }
+  // }
+
+  const createPriceChanges = txsData => {
+    txsData.priceChanges = txsData.newTransactions
+      // .reduce(keepLastTransactionPerDate, { latestTransactions: [], lastDate: 0 })
+      // .latestTransactions
+      .reduce((cumulated, currentTx) => {
+        const x = moment.unix(currentTx.date)
+        const y = cumulated.lastTx
+          ? cumulated.lastTx.price - currentTx.price
+          : 0
+
+        cumulated.result.push({ x, y })
+        cumulated.lastTx = currentTx
+        return cumulated
+      }, { result: [], lastTx: null }).result
+    return txsData
+  }
+
+  const updateTransactionCaches = txsData => {
+    cache.cutoffTimestamp = txsData.cutoff
+    cache.transactionsList = txsData.newTransactions
+    cache.latestPrice = txsData.latestPrice
+    cache.priceGroups = txsData.priceGroups
+    cache.priceChanges = txsData.priceChanges
+    cache.txidsList = txsData.newTransactions.map(tx => tx.tid)
   }
 
   const errorHandler = err => {
@@ -76,6 +103,7 @@ const TransactionsService = logger => {
     .then(removeOutdatedTransactions)
     .then(calculateWeightedAmount)
     .then(createPriceGroups)
+    .then(createPriceChanges)
     .then(updateTransactionCaches)
     .catch(errorHandler)
 
@@ -86,7 +114,8 @@ const TransactionsService = logger => {
     transactionsList: [],
     txidsList: [],
     latestPrice: 0,
-    priceGroups: []
+    priceGroups: [],
+    priceChanges: []
   }
 
   return {
@@ -94,13 +123,15 @@ const TransactionsService = logger => {
       cutoffTimestamp,
       transactionsList,
       latestPrice,
-      priceGroups
+      priceGroups,
+      priceChanges
      }) =>
       ({
         cutoffTimestamp,
         transactionsList,
         latestPrice,
-        priceGroups
+        priceGroups,
+        priceChanges
       }))(cache)
   }
 }

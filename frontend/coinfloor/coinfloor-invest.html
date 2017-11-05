@@ -4,8 +4,13 @@
   </div>
 
   <div>
+    <canvas id="priceChangeChart"></canvas>
+  </div>
+
+  <div>
     <canvas id="transactionChart"></canvas>
   </div>
+  
   <table class="table table-condensed">
     <caption>Time cutoff: {{ model.dateLimit | unixDate: 'HH:mm:ss' }}</caption>
     <thead>
