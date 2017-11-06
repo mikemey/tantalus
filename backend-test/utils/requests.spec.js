@@ -11,6 +11,7 @@ describe('requests module', () => {
   const page = '/index'
   const indexUrl = host + page
   const nockIndex = () => nock(host).get(page)
+  const nockPost = body => nock(host).post(page, body)
 
   describe('get', () => {
     const content = 'lalal'
@@ -68,6 +69,24 @@ describe('requests module', () => {
           err.name.should.equal(RequestError.name)
           err.message.should.contain(indexUrl)
         })
+    })
+  })
+
+  describe('postJson', () => {
+    const postBody = { my: 'name' }
+    const workingResponse = { hello: 'world' }
+
+    it('use response when 200 response', () => {
+      nockPost(postBody).reply(200, workingResponse)
+      return requests.postJson(indexUrl, postBody)
+        .then(body => body.should.deep.equal(workingResponse))
+    })
+
+    it('use boolean response when 200 response', () => {
+      const boolResponse = true
+      nockPost(postBody).reply(200, `${boolResponse}`)
+      return requests.postJson(indexUrl, postBody)
+        .then(body => body.should.equal(boolResponse))
     })
   })
 })

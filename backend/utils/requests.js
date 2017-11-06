@@ -18,19 +18,17 @@ const errorHandler = extension =>
   }
 
 const transform = body => cheerio.load(body)
-const methodOpt = verb => {
-  return { method: verb }
-}
 
-const transformOpts = (url, method = methodOpt('GET')) => Object.assign(
+const transformOpts = (url, method = 'GET') => Object.assign(
   { uri: url },
-  method,
+  { method },
   { transform }
 )
 
-const jsonOpts = (url, method = methodOpt('GET')) => Object.assign(
+const jsonOpts = (url, method = 'GET', body = {}) => Object.assign(
   { uri: url },
-  method,
+  { method },
+  { body },
   { json: true }
 )
 
@@ -48,9 +46,11 @@ const retryRequest = request => {
 const getHtml = url => retryRequest(() => rp(transformOpts(url)))
 
 const getJson = url => retryRequest(() => rp(jsonOpts(url)))
+const postJson = (url, body) => retryRequest(() => rp(jsonOpts(url, 'POST', body)))
 
 module.exports = {
   getHtml,
   getJson,
+  postJson,
   RequestError
 }
