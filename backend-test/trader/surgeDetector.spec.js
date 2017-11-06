@@ -4,7 +4,7 @@ require('chai').should()
 
 const SurgeDetector = require('../../backend/trader/surgeDetector')
 
-describe.only('Surge detector', () => {
+describe('Surge detector', () => {
   const surgeConfig = {
     timeslotSeconds: 100,
     buying: {
