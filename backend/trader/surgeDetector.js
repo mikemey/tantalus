@@ -2,8 +2,12 @@ const moment = require('moment')
 
 const SurgeDetector = (logger, config) => {
   const slotDuration = config.timeslotSeconds
-  const slotCount = config.buying.timeslotCount
+  const buySlotCount = config.buying.useTimeslots
+  const sellSlotCount = config.selling.useTimeslots
+  const slotCount = Math.max(buySlotCount, sellSlotCount)
+
   const buyRatio = config.buying.ratio
+  const sellRatio = config.selling.ratio
 
   let currentTransactions = []
 
@@ -56,20 +60,19 @@ const SurgeDetector = (logger, config) => {
     })
   }
 
-  const analyse = transactions => {
+  const analyseTrend = transactions => {
     const dateLimits = createDateLimits()
     const lastDateLimit = dateLimits[slotCount - 1]
     currentTransactions = createNewTransactions(currentTransactions, transactions, lastDateLimit)
 
     const buckets = createBuckets(dateLimits, currentTransactions)
     const ratios = createRatios(buckets)
-    const isPriceSurging = ratios.every(ratio => ratio > buyRatio)
 
-    return {
-      isPriceSurging
-    }
+    const isPriceSurging = ratios.slice(0, buySlotCount).every(ratio => ratio >= buyRatio)
+    const isUnderSellRatio = ratios.slice(0, sellSlotCount).every(ratio => ratio < sellRatio)
+    return { isPriceSurging, isUnderSellRatio }
   }
 
-  return { analyse }
+  return { analyseTrend }
 }
 module.exports = SurgeDetector
