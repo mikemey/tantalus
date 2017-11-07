@@ -1,6 +1,5 @@
 /* global describe before beforeEach it */
 const moment = require('moment')
-require('chai').should()
 
 const SurgeDetector = require('../../backend/trader/surgeDetector')
 
