@@ -1,6 +1,6 @@
 const requests = require('../utils/requests')
 
-const SimExchangeConnector = (host, clientId) => {
+const ExchangeConnector = (host, clientId) => {
   const openOrdersUrl = `${host}/${clientId}/open_orders`
   const buyOrdersUrl = `${host}/${clientId}/buy`
   const sellOrdersUrl = `${host}/${clientId}/sell`
@@ -14,4 +14,4 @@ const SimExchangeConnector = (host, clientId) => {
   }
 }
 
-module.exports = SimExchangeConnector
+module.exports = ExchangeConnector

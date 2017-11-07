@@ -2,13 +2,13 @@
 const nock = require('nock')
 const should = require('chai').should()
 
-const SimExchangeConnector = require('../../backend/trader/simExchangeConnector')
+const ExchangeConnector = require('../../backend/trader/exchangeConnector')
 
 describe('Simulation Exchange connector', () => {
   const testHost = 'http://localhost:14145'
   const testId = 234
 
-  const simExchangeConnector = SimExchangeConnector(testHost, testId)
+  const exchangeConnector = ExchangeConnector(testHost, testId)
 
   afterEach(() => nock.cleanAll())
 
@@ -16,7 +16,7 @@ describe('Simulation Exchange connector', () => {
     const testData = [{ tid: 3 }, { tid: 2 }]
     const scope = nock(testHost).get(`/${testId}/open_orders`).reply(200, testData)
 
-    return simExchangeConnector.getOpenOrders()
+    return exchangeConnector.getOpenOrders()
       .then(orders => {
         scope.isDone().should.equal(true)
         orders.should.deep.equal(testData)
@@ -25,7 +25,7 @@ describe('Simulation Exchange connector', () => {
 
   it('throw expection when open order request fails', () => {
     const scope = nock(testHost).get(`/${testId}/open_orders`).twice().reply(404)
-    return simExchangeConnector.getOpenOrders()
+    return exchangeConnector.getOpenOrders()
       .then(orders => should.fail('should throw exception'))
       .catch(err => {
         scope.isDone().should.equal(true)
@@ -41,7 +41,7 @@ describe('Simulation Exchange connector', () => {
       amount, price
     }).reply(200, orderResponse)
 
-    return simExchangeConnector.buyLimitOrder(amount, price)
+    return exchangeConnector.buyLimitOrder(amount, price)
       .then(response => {
         scope.isDone().should.equal(true)
         response.should.deep.equal(orderResponse)
@@ -56,7 +56,7 @@ describe('Simulation Exchange connector', () => {
       amount, price
     }).reply(200, orderResponse)
 
-    return simExchangeConnector.sellLimitOrder(amount, price)
+    return exchangeConnector.sellLimitOrder(amount, price)
       .then(response => {
         scope.isDone().should.equal(true)
         response.should.deep.equal(orderResponse)
@@ -68,7 +68,7 @@ describe('Simulation Exchange connector', () => {
     const success = false
     const scope = nock(testHost).post(`/${testId}/cancel_order`, { id }).reply(200, `${success}`)
 
-    return simExchangeConnector.cancelOrder(id)
+    return exchangeConnector.cancelOrder(id)
       .then(response => {
         scope.isDone().should.equal(true)
         response.should.equal(success)
