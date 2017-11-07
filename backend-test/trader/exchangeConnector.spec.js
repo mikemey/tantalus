@@ -7,8 +7,12 @@ const ExchangeConnector = require('../../backend/trader/exchangeConnector')
 describe('Simulation Exchange connector', () => {
   const testHost = 'http://localhost:14145'
   const testId = 234
+  const testConfig = {
+    clientId: testId,
+    exchangeHost: testHost
+  }
 
-  const exchangeConnector = ExchangeConnector(testHost, testId)
+  const exchangeConnector = ExchangeConnector(testConfig)
 
   afterEach(() => nock.cleanAll())
 
