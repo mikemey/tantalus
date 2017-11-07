@@ -22,7 +22,7 @@ describe('Surge detector', () => {
   }
 
   beforeEach(() => {
-    surgeDetector = SurgeDetector(console, surgeConfig)
+    surgeDetector = SurgeDetector(surgeConfig)
   })
 
   describe('BUY ratios', () => {

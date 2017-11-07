@@ -1,6 +1,6 @@
 const requests = require('../utils/requests')
 
-const TransactionsConnector = (logger, config) => {
+const TransactionsConnector = config => {
   return {
     getTransactions: () => requests
       .getJson(config.transactionListServiceUrl)

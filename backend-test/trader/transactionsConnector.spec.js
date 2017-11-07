@@ -10,7 +10,7 @@ describe('Transactions connector', () => {
   const testConfig = {
     transactionListServiceUrl: testHost + testPath
   }
-  const transactionsConnector = TransactionsConnector(console, testConfig)
+  const transactionsConnector = TransactionsConnector(testConfig)
 
   const mockTransactionsResponse = transactionsList => nock(testHost)
     .get(testPath)
