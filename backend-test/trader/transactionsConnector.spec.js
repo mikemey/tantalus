@@ -1,6 +1,5 @@
 /* global describe before beforeEach it */
 const nock = require('nock')
-require('chai').should()
 
 const TransactionsConnector = require('../../backend/trader/transactionsConnector')
 
@@ -24,9 +23,12 @@ describe('Transactions connector', () => {
       { tid: 3, amount: '1.2254', date: 199, price: 5500 },
       { tid: 2, amount: '0.0871', date: 0, price: 5488 }
     ]
-    mockTransactionsResponse(testTxs)
+    const scope = mockTransactionsResponse(testTxs)
 
     return transactionsConnector.getTransactions()
-      .then(transactions => transactions.should.deep.equal(testTxs))
+      .then(transactions => {
+        scope.isDone().should.equal(true)
+        transactions.should.deep.equal(testTxs)
+      })
   })
 })
