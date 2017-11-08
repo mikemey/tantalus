@@ -14,30 +14,30 @@ const OrderIssuer = (logger, config, openOrdersWatch, exchangeConnector) => {
     resolve()
   })
 
-  const buyOrders = (trends, latestPrice, accounts) => () => {
+  const buyOrders = (trends, accounts) => () => {
     if (trends.isPriceSurging && accounts.availableVolume > lowerLimit) {
-      const amount = Math.floor(accounts.availableVolume / latestPrice * mBTC)
-      logger.log(amountPriceString(' buy order', amount, latestPrice))
+      const amount = Math.floor(accounts.availableVolume / trends.latestPrice * mBTC)
+      logger.info(amountPriceString(' buy order', amount, trends.latestPrice))
 
-      return exchangeConnector.buyLimitOrder(amount, latestPrice)
+      return exchangeConnector.buyLimitOrder(amount, trends.latestPrice)
         .then(orderResponse => openOrdersWatch.addOpenOrder(orderResponse))
     }
   }
 
-  const sellOrders = (trends, latestPrice, accounts) => () => {
+  const sellOrders = (trends, accounts) => () => {
     const sellAmount = accounts.availableAmount
     if (trends.isUnderSellRatio && sellAmount > 0) {
-      logger.log(amountPriceString('sell order', sellAmount, latestPrice))
+      logger.info(amountPriceString('sell order', sellAmount, trends.latestPrice))
 
-      return exchangeConnector.sellLimitOrder(sellAmount, latestPrice)
+      return exchangeConnector.sellLimitOrder(sellAmount, trends.latestPrice)
         .then(orderResponse => openOrdersWatch.addOpenOrder(orderResponse))
     }
   }
   return {
-    issueOrders: (trends, latestPrice, accounts) =>
+    issueOrders: ({ trends, accounts }) =>
       checkAccounts(accounts)
-        .then(buyOrders(trends, latestPrice, accounts))
-        .then(sellOrders(trends, latestPrice, accounts))
+        .then(buyOrders(trends, accounts))
+        .then(sellOrders(trends, accounts))
   }
 }
 
