@@ -33,7 +33,8 @@ describe('Exchange connector', () => {
       .then(orders => should.fail('should throw exception'))
       .catch(err => {
         scope.isDone().should.equal(true)
-        err.message.should.include('response error')
+        err.message.should.include('Request error')
+        err.message.should.include('404')
       })
   })
 

@@ -13,7 +13,7 @@ const errorHandler = extension =>
     const request = err.options
       ? `${err.options.method} ${err.options.uri}`
       : ''
-    const message = `response error ${extension}: ${err.message} [${request}]`
+    const message = `Request error ${extension}: ${err.message} [${request}]`
     throw new RequestError(message)
   }
 
