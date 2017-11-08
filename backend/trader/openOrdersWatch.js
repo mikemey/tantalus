@@ -19,27 +19,27 @@ const OpenOrdersWatch = (logger, config) => {
   const availableAmountString = () => amountString(accounts.availableAmount)
   const availableVolumeString = () => volumeString(accounts.availableVolume)
 
-  const addOpenOrder = localOrder => {
-    localOrder.volume = floorVolume(localOrder.amount, localOrder.price)
+  const addOpenOrder = newLocalOrder => {
+    newLocalOrder.volume = floorVolume(newLocalOrder.amount, newLocalOrder.price)
 
-    checkLocalOrder(localOrder)
-    localOpenOrders.set(localOrder.id, localOrder)
+    checkLocalOrder(newLocalOrder)
+    localOpenOrders.set(newLocalOrder.id, newLocalOrder)
 
-    if (isBuyOrder(localOrder)) accounts.availableVolume -= localOrder.volume
-    if (isSellOrder(localOrder)) accounts.availableAmount -= localOrder.amount
+    if (isBuyOrder(newLocalOrder)) accounts.availableVolume -= newLocalOrder.volume
+    if (isSellOrder(newLocalOrder)) accounts.availableAmount -= newLocalOrder.amount
   }
 
-  const checkLocalOrder = localOrder => {
-    if (isBuyOrder(localOrder)) {
-      if (localOrder.volume > accounts.availableVolume) {
-        throw new Error(`buying with more volume than available: ${volumeString(localOrder.volume)} > ${availableVolumeString()}`)
+  const checkLocalOrder = newLocalOrder => {
+    if (isBuyOrder(newLocalOrder)) {
+      if (newLocalOrder.volume > accounts.availableVolume) {
+        throw new Error(`buying with more volume than available: ${volumeString(newLocalOrder.volume)} > ${availableVolumeString()}`)
       }
-    } else if (isSellOrder(localOrder)) {
-      if (localOrder.amount > accounts.availableAmount) {
-        throw new Error(`selling more btcs than available: ${amountString(localOrder.amount)} > ${availableAmountString()}`)
+    } else if (isSellOrder(newLocalOrder)) {
+      if (newLocalOrder.amount > accounts.availableAmount) {
+        throw new Error(`selling more btcs than available: ${amountString(newLocalOrder.amount)} > ${availableAmountString()}`)
       }
     } else {
-      throw new Error(`unknown local order type: ${localOrder.type}`)
+      throw new Error(`unknown local order type: ${newLocalOrder.type}`)
     }
   }
 
