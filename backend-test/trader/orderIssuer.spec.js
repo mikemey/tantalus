@@ -2,7 +2,7 @@
 const nock = require('nock')
 const should = require('chai').should()
 
-const BuyStrategy = require('../../backend/trader/buyStrategy')
+const OrderIssuer = require('../../backend/trader/orderIssuer')
 
 describe('Order issuer', () => {
   const testHost = 'http://localhost:14147'
@@ -19,7 +19,7 @@ describe('Order issuer', () => {
     }
   }
 
-  let buyStrategy, openOrdersMock
+  let orderIssuer, openOrdersMock
 
   const createOpenOrdersMock = () => {
     const receivedOrders = []
@@ -31,7 +31,7 @@ describe('Order issuer', () => {
 
   beforeEach(() => {
     openOrdersMock = createOpenOrdersMock()
-    buyStrategy = BuyStrategy(console, testConfig, openOrdersMock)
+    orderIssuer = OrderIssuer(console, testConfig, openOrdersMock)
   })
 
   afterEach(() => nock.cleanAll())
@@ -59,7 +59,7 @@ describe('Order issuer', () => {
       const exchangeOrderResponse = buyOrder(100, 592, latestTransactionPrice)
 
       const buyScope = expectBuyOrder(591, latestTransactionPrice, exchangeOrderResponse)
-      return buyStrategy.issueOrders(surgingTrend, latestTransactionPrice, accounts)
+      return orderIssuer.issueOrders(surgingTrend, latestTransactionPrice, accounts)
         .then(() => {
           buyScope.isDone().should.equal(true)
           openOrdersMock.receivedOrders.should.deep.equal([exchangeOrderResponse])
@@ -68,7 +68,7 @@ describe('Order issuer', () => {
 
     it('should throw error when available volume larger than maximum volume', () => {
       const accounts = { availableVolume: testVolumeLimit + 1 }
-      return buyStrategy.issueOrders(surgingTrend, 123, accounts)
+      return orderIssuer.issueOrders(surgingTrend, 123, accounts)
         .then(() => should.fail(0, 1, 'expected exception not thrown!'))
         .catch(err => {
           console.log(err)
@@ -78,14 +78,14 @@ describe('Order issuer', () => {
 
     it('should NOT issue a buy order when available volume under lower limit', () => {
       const accounts = { availableVolume: testLowerLimit - 1 }
-      return buyStrategy.issueOrders(surgingTrend, 510300, accounts)
+      return orderIssuer.issueOrders(surgingTrend, 510300, accounts)
         .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
     })
 
     it('should NOT issue a buy order when price not surging', () => {
       const accounts = { availableVolume: 30202 }
 
-      return buyStrategy.issueOrders(notSurgingTrend, 500000, accounts)
+      return orderIssuer.issueOrders(notSurgingTrend, 500000, accounts)
         .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
     })
   })
@@ -100,7 +100,7 @@ describe('Order issuer', () => {
       const exchangeOrderResponse = sellOrder(100, 125, latestTransactionPrice)
 
       const sellScope = expectSellOrder(123, latestTransactionPrice, exchangeOrderResponse)
-      return buyStrategy.issueOrders(underSellRatioTrend, latestTransactionPrice, accounts)
+      return orderIssuer.issueOrders(underSellRatioTrend, latestTransactionPrice, accounts)
         .then(() => {
           sellScope.isDone().should.equal(true)
           openOrdersMock.receivedOrders.should.deep.equal([exchangeOrderResponse])
@@ -109,13 +109,13 @@ describe('Order issuer', () => {
 
     it('should NOT issue a sell order when no amount left', () => {
       const accounts = { availableAmount: 0 }
-      return buyStrategy.issueOrders(underSellRatioTrend, 500000, accounts)
+      return orderIssuer.issueOrders(underSellRatioTrend, 500000, accounts)
         .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
     })
 
     it('should NOT issue a sell order trend is over sell ratio', () => {
       const accounts = { availableAmount: 999 }
-      return buyStrategy.issueOrders(overSellRatioTrend, 500000, accounts)
+      return orderIssuer.issueOrders(overSellRatioTrend, 500000, accounts)
         .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
     })
   })

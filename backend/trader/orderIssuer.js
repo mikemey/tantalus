@@ -3,7 +3,7 @@ const { volumeString, amountPriceString } = require('./valueFormatter')
 
 const mBTC = 10000
 
-const BuyStrategy = (logger, config, openOrdersWatch) => {
+const OrderIssuer = (logger, config, openOrdersWatch) => {
   const exchangeConnector = ExchangeConnector(config)
   const volumeLimit = config.buying.volumeLimitPence
   const lowerLimit = config.buying.lowerLimitPence
@@ -30,6 +30,7 @@ const BuyStrategy = (logger, config, openOrdersWatch) => {
     const sellAmount = accounts.availableAmount
     if (trends.isUnderSellRatio && sellAmount > 0) {
       logger.log(amountPriceString('sell order', sellAmount, latestPrice))
+
       return exchangeConnector.sellLimitOrder(sellAmount, latestPrice)
         .then(orderResponse => openOrdersWatch.addOpenOrder(orderResponse))
     }
@@ -42,4 +43,4 @@ const BuyStrategy = (logger, config, openOrdersWatch) => {
   }
 }
 
-module.exports = BuyStrategy
+module.exports = OrderIssuer
