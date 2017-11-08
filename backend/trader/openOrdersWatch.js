@@ -1,6 +1,8 @@
 const ExchangeConnector = require('./exchangeConnector')
-
+const { amountString, volumeString, amountPriceString } = require('./valueFormatter')
 const mBTC = 10000
+const BOUGHT = '************************************* BOUGHT'
+const SOLD = '*************************************** SOLD'
 
 const OpenOrdersWatch = (logger, config) => {
   const exchangeConnector = ExchangeConnector(config)
@@ -59,11 +61,14 @@ const OpenOrdersWatch = (logger, config) => {
             const localOrder = localOpenOrders.get(exchangeOrder.id)
             if (cancelSuccess) {
               localOpenOrders.delete(exchangeOrder.id)
+              const amountExchanged = localOrder.amount - exchangeOrder.amount
               if (isBuyOrder(exchangeOrder)) {
-                accounts.availableAmount += localOrder.amount - exchangeOrder.amount
+                logger.log(amountPriceString(BOUGHT, amountExchanged, localOrder.price))
+                accounts.availableAmount += amountExchanged
                 accounts.availableVolume += floorVolume(exchangeOrder.amount, exchangeOrder.price)
               }
               if (isSellOrder(exchangeOrder)) {
+                logger.log(amountPriceString(SOLD, amountExchanged, localOrder.price))
                 accounts.availableAmount += exchangeOrder.amount
                 accounts.availableVolume += floorVolume(localOrder.amount - exchangeOrder.amount, localOrder.price)
               }
@@ -72,8 +77,14 @@ const OpenOrdersWatch = (logger, config) => {
       )))
       .then(() => {
         localOpenOrders.forEach(localOrder => {
-          if (isBuyOrder(localOrder)) accounts.availableAmount += localOrder.amount
-          if (isSellOrder(localOrder)) accounts.availableVolume += localOrder.volume
+          if (isBuyOrder(localOrder)) {
+            logger.log(amountPriceString(BOUGHT, localOrder.amount, localOrder.price))
+            accounts.availableAmount += localOrder.amount
+          }
+          if (isSellOrder(localOrder)) {
+            logger.log(amountPriceString(SOLD, localOrder.amount, localOrder.price))
+            accounts.availableVolume += localOrder.volume
+          }
         })
         localOpenOrders.clear()
       })
@@ -91,9 +102,6 @@ const OpenOrdersWatch = (logger, config) => {
     resolveOpenOrders
   }
 }
-
-const amountString = amount => `Ƀ ${(amount / mBTC).toFixed(4)}`
-const volumeString = volume => `£ ${(volume / 100).toFixed(2)}`
 
 // order type: (0 - buy; 1 - sell)
 const isBuyOrder = order => order.type === 0
