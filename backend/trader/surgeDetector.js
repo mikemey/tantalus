@@ -1,6 +1,6 @@
 const moment = require('moment')
 
-const SurgeDetector = config => {
+const SurgeDetector = (config, exchangeConnector) => {
   const slotDuration = config.timeslotSeconds
   const buySlotCount = config.buying.useTimeslots
   const sellSlotCount = config.selling.useTimeslots
@@ -60,19 +60,21 @@ const SurgeDetector = config => {
     })
   }
 
-  const analyseTrend = transactions => {
-    const dateLimits = createDateLimits()
-    const lastDateLimit = dateLimits[slotCount - 1]
-    currentTransactions = createNewTransactions(currentTransactions, transactions, lastDateLimit)
+  return {
+    analyseTrends: () => exchangeConnector.getTransactions()
+      .then(transactions => {
+        const dateLimits = createDateLimits()
+        const lastDateLimit = dateLimits[slotCount - 1]
+        currentTransactions = createNewTransactions(currentTransactions, transactions, lastDateLimit)
 
-    const buckets = createBuckets(dateLimits, currentTransactions)
-    const ratios = createRatios(buckets)
+        const buckets = createBuckets(dateLimits, currentTransactions)
+        const ratios = createRatios(buckets)
 
-    const isPriceSurging = ratios.slice(0, buySlotCount).every(ratio => ratio >= buyRatio)
-    const isUnderSellRatio = ratios.slice(0, sellSlotCount).every(ratio => ratio < sellRatio)
-    return { isPriceSurging, isUnderSellRatio }
+        const isPriceSurging = ratios.slice(0, buySlotCount).every(ratio => ratio >= buyRatio)
+        const isUnderSellRatio = ratios.slice(0, sellSlotCount).every(ratio => ratio < sellRatio)
+        return { isPriceSurging, isUnderSellRatio }
+      })
   }
-
-  return { analyseTrend }
 }
+
 module.exports = SurgeDetector

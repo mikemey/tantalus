@@ -1,10 +1,8 @@
-const ExchangeConnector = require('./exchangeConnector')
 const { volumeString, amountPriceString } = require('./valueFormatter')
 
 const mBTC = 10000
 
-const OrderIssuer = (logger, config, openOrdersWatch) => {
-  const exchangeConnector = ExchangeConnector(config)
+const OrderIssuer = (logger, config, openOrdersWatch, exchangeConnector) => {
   const volumeLimit = config.buying.volumeLimitPence
   const lowerLimit = config.buying.lowerLimitPence
 

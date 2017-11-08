@@ -3,6 +3,7 @@ const nock = require('nock')
 const should = require('chai').should()
 
 const OrderIssuer = require('../../backend/trader/orderIssuer')
+const ExchangeConnector = require('../../backend/trader/exchangeConnector')
 
 describe('Order issuer', () => {
   const testHost = 'http://localhost:14147'
@@ -31,7 +32,8 @@ describe('Order issuer', () => {
 
   beforeEach(() => {
     openOrdersMock = createOpenOrdersMock()
-    orderIssuer = OrderIssuer(console, testConfig, openOrdersMock)
+    const exchange = ExchangeConnector(testConfig)
+    orderIssuer = OrderIssuer(console, testConfig, openOrdersMock, exchange)
   })
 
   afterEach(() => nock.cleanAll())

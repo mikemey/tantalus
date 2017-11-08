@@ -1,10 +1,15 @@
 /* global describe before beforeEach it */
+const nock = require('nock')
 const moment = require('moment')
 
 const SurgeDetector = require('../../backend/trader/surgeDetector')
+const ExchangeConnector = require('../../backend/trader/exchangeConnector')
 
 describe('Surge detector', () => {
+  const testHost = 'http://localhost:14149'
+
   const surgeConfig = {
+    exchangeHost: testHost,
     timeslotSeconds: 100,
     buying: {
       ratio: 0.1, // price change per second
@@ -17,13 +22,20 @@ describe('Surge detector', () => {
   }
 
   let surgeDetector
-  const expectTrend = (transactions, isPriceSurging, isUnderSellRatio = false) => {
-    surgeDetector.analyseTrend(transactions).should.deep.equal({ isPriceSurging, isUnderSellRatio })
-  }
 
   beforeEach(() => {
-    surgeDetector = SurgeDetector(surgeConfig)
+    const exchange = ExchangeConnector(surgeConfig)
+    surgeDetector = SurgeDetector(surgeConfig, exchange)
   })
+
+  const expectTrends = (transactions, isPriceSurging, isUnderSellRatio = false) => {
+    const scope = nock(testHost).get('/transactions').reply(200, transactions)
+    return surgeDetector.analyseTrends()
+      .then(result => {
+        scope.isDone().should.equal(true)
+        result.should.deep.equal({ isPriceSurging, isUnderSellRatio })
+      })
+  }
 
   describe('BUY ratios', () => {
     it('should detect price surge', () => {
@@ -42,7 +54,7 @@ describe('Surge detector', () => {
         { tid: 4, amount: '0.3488', date: now - 201, price: 5511 }
       ]
 
-      expectTrend(transactions, true)
+      return expectTrends(transactions, true)
     })
 
     it('should NOT detect price surge when under limit', () => {
@@ -57,7 +69,7 @@ describe('Surge detector', () => {
         { tid: 2, amount: '0.6765', date: now - 250, price: 5480 }
       ]
 
-      expectTrend(transactions, false)
+      return expectTrends(transactions, false)
     })
 
     it('should NOT detect price surge when timeslot without transactions', () => {
@@ -69,7 +81,7 @@ describe('Surge detector', () => {
         // -- timeslot
         { tid: 2, amount: '0.6765', date: now - 250, price: 5480 }
       ]
-      expectTrend(transactions, false)
+      return expectTrends(transactions, false)
     })
 
     it('should NOT detect price surge when older timeslot without transactions', () => {
@@ -81,7 +93,7 @@ describe('Surge detector', () => {
         { tid: 2, amount: '0.6765', date: now - 150, price: 5480 }
         // -- timeslot
       ]
-      expectTrend(transactions, false)
+      return expectTrends(transactions, false)
     })
 
     it('should detect surge after new transactions finishes last timeslot', () => {
@@ -103,8 +115,8 @@ describe('Surge detector', () => {
         { tid: 9, amount: '0.0765', date: now - 50, price: 5529 }
       ]
 
-      expectTrend(firstTxs, false)
-      expectTrend(secondTxs, true)
+      return expectTrends(firstTxs, false)
+        .then(() => expectTrends(secondTxs, true))
     })
   })
 
@@ -119,7 +131,7 @@ describe('Surge detector', () => {
         // -- timeslot should get sorted below
         { tid: 3, amount: '1.2254', date: now - 280, price: 5500 }
       ]
-      expectTrend(transactions, false, true)
+      return expectTrends(transactions, false, true)
     })
 
     it('should NOT detect falling under ratio when just over limit', () => {
@@ -132,7 +144,7 @@ describe('Surge detector', () => {
         // -- timeslot should get sorted below
         { tid: 3, amount: '1.2254', date: now - 280, price: 5500 }
       ]
-      expectTrend(transactions, false, false)
+      return expectTrends(transactions, false, false)
     })
 
     it('should NOT detect falling under ratio when timeslot without transactions', () => {
@@ -144,7 +156,7 @@ describe('Surge detector', () => {
         // -- timeslot should get sorted below
         { tid: 3, amount: '1.2254', date: now - 280, price: 5500 }
       ]
-      expectTrend(transactions, false, false)
+      return expectTrends(transactions, false, false)
     })
   })
 })

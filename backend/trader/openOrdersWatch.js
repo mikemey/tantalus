@@ -1,11 +1,10 @@
-const ExchangeConnector = require('./exchangeConnector')
 const { amountString, volumeString, amountPriceString } = require('./valueFormatter')
+
 const mBTC = 10000
 const BOUGHT = '************************************* BOUGHT'
 const SOLD = '*************************************** SOLD'
 
-const OpenOrdersWatch = (logger, config) => {
-  const exchangeConnector = ExchangeConnector(config)
+const OpenOrdersWatch = (logger, config, exchangeConnector) => {
   const volumeLimit = config.buying.volumeLimitPence
   const lowerLimit = config.buying.lowerLimitPence
 
