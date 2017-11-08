@@ -5,7 +5,7 @@ const traderConfig = {
   buying: {
     ratio: 10, // price change (£/Ƀ) per timeslotSeconds
     useTimeslots: 3,
-    volumeLimitPence: 10000,
+    volumeLimitPence: 100000,
     lowerLimitPence: 2000
   },
   selling: {
