@@ -124,7 +124,9 @@ angular.module('tantalus.ticker')
 
       updateHiddenLineQuery('solidi ask', true)
       updateHiddenLineQuery('solidi bid', true)
-      updateHiddenLineQuery('coindesk', true)
+      updateHiddenLineQuery('lakebtc ask', true)
+      updateHiddenLineQuery('cex bid', true)
+      updateHiddenLineQuery('cex ask', true)
 
       const loadGraphData = () => {
         const initialPeriod = getPeriodQuery() || '1d'
