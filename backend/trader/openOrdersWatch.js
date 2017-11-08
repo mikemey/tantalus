@@ -1,8 +1,8 @@
 const { amountString, volumeString, amountPriceString } = require('./valueFormatter')
 
 const mBTC = 10000
-const BOUGHT = '************************************* BOUGHT'
-const SOLD = '*************************************** SOLD'
+const BOUGHT = '************************** BOUGHT'
+const SOLD = '**************************** SOLD'
 
 const OpenOrdersWatch = (logger, config, exchangeConnector) => {
   const volumeLimit = config.buying.volumeLimitPence
@@ -62,12 +62,12 @@ const OpenOrdersWatch = (logger, config, exchangeConnector) => {
               localOpenOrders.delete(exchangeOrder.id)
               const amountExchanged = localOrder.amount - exchangeOrder.amount
               if (isBuyOrder(exchangeOrder)) {
-                logger.log(amountPriceString(BOUGHT, amountExchanged, localOrder.price))
+                logger.info(amountPriceString(BOUGHT, amountExchanged, localOrder.price))
                 accounts.availableAmount += amountExchanged
                 accounts.availableVolume += floorVolume(exchangeOrder.amount, exchangeOrder.price)
               }
               if (isSellOrder(exchangeOrder)) {
-                logger.log(amountPriceString(SOLD, amountExchanged, localOrder.price))
+                logger.info(amountPriceString(SOLD, amountExchanged, localOrder.price))
                 accounts.availableAmount += exchangeOrder.amount
                 accounts.availableVolume += floorVolume(localOrder.amount - exchangeOrder.amount, localOrder.price)
               }
@@ -77,11 +77,11 @@ const OpenOrdersWatch = (logger, config, exchangeConnector) => {
       .then(() => {
         localOpenOrders.forEach(localOrder => {
           if (isBuyOrder(localOrder)) {
-            logger.log(amountPriceString(BOUGHT, localOrder.amount, localOrder.price))
+            logger.info(amountPriceString(BOUGHT, localOrder.amount, localOrder.price))
             accounts.availableAmount += localOrder.amount
           }
           if (isSellOrder(localOrder)) {
-            logger.log(amountPriceString(SOLD, localOrder.amount, localOrder.price))
+            logger.info(amountPriceString(SOLD, localOrder.amount, localOrder.price))
             accounts.availableVolume += localOrder.volume
           }
         })
