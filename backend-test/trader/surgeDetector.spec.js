@@ -12,11 +12,11 @@ describe('Surge detector', () => {
     exchangeHost: testHost,
     timeslotSeconds: 100,
     buying: {
-      ratio: 0.1, // price change per second
+      ratio: 10, // price change (£/Ƀ) per timeslotSeconds
       useTimeslots: 3
     },
     selling: {
-      ratio: -0.05,
+      ratio: -5,
       useTimeslots: 2
     }
   }
@@ -42,16 +42,16 @@ describe('Surge detector', () => {
       const now = moment().unix()
       const transactions = [
         // -- timeslot
-        { tid: 9, amount: '0.6765', date: now - 50, price: 5530 },
+        { tid: 9, amount: 6765, date: now - 50, price: 553000 },
         // -- timeslot
-        { tid: 8, amount: '1.2254', date: now - 120, price: 5518 },
-        { tid: 7, amount: '2.2454', date: now - 140, price: 5521 },
-        { tid: 6, amount: '0.0501', date: now - 199, price: 5523 },
+        { tid: 8, amount: 12254, date: now - 120, price: 551800 },
+        { tid: 7, amount: 22454, date: now - 140, price: 552100 },
+        { tid: 6, amount: 501, date: now - 199, price: 552300 },
         // -- timeslot should get sorted below
-        { tid: 3, amount: '1.2254', date: now - 399, price: 5520 },
+        { tid: 3, amount: 12254, date: now - 399, price: 552000 },
         // -- timeslot
-        { tid: 5, amount: '0.0511', date: now - 201, price: 5503 },
-        { tid: 4, amount: '0.3488', date: now - 201, price: 5511 }
+        { tid: 5, amount: 511, date: now - 201, price: 550300 },
+        { tid: 4, amount: 3488, date: now - 201, price: 551100 }
       ]
 
       return expectTrends(transactions, true)
@@ -61,12 +61,12 @@ describe('Surge detector', () => {
       const now = moment().unix()
       const transactions = [
         // -- timeslot
-        { tid: 5, amount: '0.0511', date: now - 10, price: 5503 },
-        { tid: 4, amount: '0.3488', date: now - 99, price: 5511 },
+        { tid: 5, amount: 511, date: now - 10, price: 550300 },
+        { tid: 4, amount: 3488, date: now - 99, price: 551100 },
         // -- timeslot
-        { tid: 3, amount: '1.2254', date: now - 101, price: 5500 },
+        { tid: 3, amount: 12254, date: now - 101, price: 550000 },
         // -- timeslot
-        { tid: 2, amount: '0.6765', date: now - 250, price: 5480 }
+        { tid: 2, amount: 6765, date: now - 250, price: 548000 }
       ]
 
       return expectTrends(transactions, false)
@@ -77,9 +77,9 @@ describe('Surge detector', () => {
       const transactions = [
         // -- timeslot
         // -- timeslot
-        { tid: 3, amount: '1.2254', date: now - 101, price: 5500 },
+        { tid: 3, amount: 12254, date: now - 101, price: 550000 },
         // -- timeslot
-        { tid: 2, amount: '0.6765', date: now - 250, price: 5480 }
+        { tid: 2, amount: 6765, date: now - 250, price: 548000 }
       ]
       return expectTrends(transactions, false)
     })
@@ -88,9 +88,9 @@ describe('Surge detector', () => {
       const now = moment().unix()
       const transactions = [
         // -- timeslot
-        { tid: 3, amount: '1.2254', date: now - 30, price: 5500 },
+        { tid: 3, amount: 12254, date: now - 30, price: 550000 },
         // -- timeslot
-        { tid: 2, amount: '0.6765', date: now - 150, price: 5480 }
+        { tid: 2, amount: 6765, date: now - 150, price: 548000 }
         // -- timeslot
       ]
       return expectTrends(transactions, false)
@@ -100,19 +100,19 @@ describe('Surge detector', () => {
       const now = moment().unix()
       const firstTxs = [
         // -- timeslot
-        { tid: 9, amount: '0.0765', date: now - 50, price: 5529 },
+        { tid: 9, amount: 765, date: now - 50, price: 552900 },
         // -- timeslot
-        { tid: 8, amount: '1.2254', date: now - 120, price: 5518 },
-        { tid: 7, amount: '2.2454', date: now - 140, price: 5521 },
-        { tid: 6, amount: '0.0501', date: now - 199, price: 5523 },
+        { tid: 8, amount: 12254, date: now - 120, price: 551800 },
+        { tid: 7, amount: 22454, date: now - 140, price: 552100 },
+        { tid: 6, amount: 501, date: now - 199, price: 552300 },
         // -- timeslot
-        { tid: 5, amount: '0.0511', date: now - 201, price: 5503 },
-        { tid: 4, amount: '0.3488', date: now - 201, price: 5511 }
+        { tid: 5, amount: 511, date: now - 201, price: 550300 },
+        { tid: 4, amount: 3488, date: now - 201, price: 551100 }
       ]
       const secondTxs = [
         // -- timeslot
-        { tid: 10, amount: '0.6765', date: now - 20, price: 5532 },
-        { tid: 9, amount: '0.0765', date: now - 50, price: 5529 }
+        { tid: 10, amount: 6765, date: now - 20, price: 553200 },
+        { tid: 9, amount: 765, date: now - 50, price: 552900 }
       ]
 
       return expectTrends(firstTxs, false)
@@ -125,11 +125,11 @@ describe('Surge detector', () => {
       const now = moment().unix()
       const transactions = [
         // -- timeslot
-        { tid: 9, amount: '0.6765', date: now - 50, price: 5488 },
+        { tid: 9, amount: 6765, date: now - 50, price: 548800 },
         // -- timeslot
-        { tid: 8, amount: '1.2254', date: now - 120, price: 5494 },
+        { tid: 8, amount: 12254, date: now - 120, price: 549400 },
         // -- timeslot should get sorted below
-        { tid: 3, amount: '1.2254', date: now - 280, price: 5500 }
+        { tid: 3, amount: 12254, date: now - 280, price: 550000 }
       ]
       return expectTrends(transactions, false, true)
     })
@@ -138,11 +138,11 @@ describe('Surge detector', () => {
       const now = moment().unix()
       const transactions = [
         // -- timeslot
-        { tid: 9, amount: '0.6765', date: now - 50, price: 5489 },
+        { tid: 9, amount: 6765, date: now - 50, price: 548900 },
         // -- timeslot
-        { tid: 8, amount: '1.2254', date: now - 120, price: 5495 },
+        { tid: 8, amount: 12254, date: now - 120, price: 549500 },
         // -- timeslot should get sorted below
-        { tid: 3, amount: '1.2254', date: now - 280, price: 5500 }
+        { tid: 3, amount: 12254, date: now - 280, price: 550000 }
       ]
       return expectTrends(transactions, false, false)
     })
@@ -152,9 +152,9 @@ describe('Surge detector', () => {
       const transactions = [
         // -- timeslot
         // -- timeslot
-        { tid: 8, amount: '1.2254', date: now - 120, price: 5494 },
+        { tid: 8, amount: 12254, date: now - 120, price: 549400 },
         // -- timeslot should get sorted below
-        { tid: 3, amount: '1.2254', date: now - 280, price: 5500 }
+        { tid: 3, amount: 12254, date: now - 280, price: 550000 }
       ]
       return expectTrends(transactions, false, false)
     })

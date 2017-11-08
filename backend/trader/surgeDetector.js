@@ -46,10 +46,10 @@ const SurgeDetector = (config, exchangeConnector) => {
     const averagePrices = buckets.map(transactions => {
       const sums = transactions.reduce((sums, currentTx) => {
         sums.totalAmount += currentTx.amount
-        sums.totalPounds += currentTx.amount * currentTx.price
+        sums.totalPence += currentTx.amount * currentTx.price
         return sums
-      }, { totalAmount: 0, totalPounds: 0 })
-      return sums.totalPounds / sums.totalAmount
+      }, { totalAmount: 0, totalPence: 0 })
+      return sums.totalPence / sums.totalAmount
     })
 
     let previousAverage = averagePrices[0]
