@@ -4,7 +4,7 @@ const should = require('chai').should()
 
 const ExchangeConnector = require('../../backend/trader/exchangeConnector')
 
-describe('Simulation Exchange connector', () => {
+describe('Exchange connector', () => {
   const testHost = 'http://localhost:14145'
   const testId = 234
   const testConfig = {
