@@ -1,6 +1,7 @@
 /* global describe before beforeEach it */
 const nock = require('nock')
 const moment = require('moment')
+const logger = require('./testLogger')
 
 const SurgeDetector = require('../../backend/trader/surgeDetector')
 const ExchangeConnector = require('../../backend/trader/exchangeConnector')
@@ -25,7 +26,7 @@ describe('Surge detector', () => {
 
   beforeEach(() => {
     const exchange = ExchangeConnector(surgeConfig)
-    surgeDetector = SurgeDetector(surgeConfig, exchange)
+    surgeDetector = SurgeDetector(logger, surgeConfig, exchange)
   })
 
   const expectTrends = (transactions, isPriceSurging, isUnderSellRatio = false) => {
@@ -33,7 +34,10 @@ describe('Surge detector', () => {
     return surgeDetector.analyseTrends()
       .then(result => {
         scope.isDone().should.equal(true)
-        result.should.deep.equal({ isPriceSurging, isUnderSellRatio })
+        result.should.deep.equal({
+          latestPrice: transactions[0].price,
+          isPriceSurging, isUnderSellRatio
+        })
       })
   }
 

@@ -1,6 +1,6 @@
 const moment = require('moment')
 
-const SurgeDetector = (config, exchangeConnector) => {
+const SurgeDetector = (logger, config, exchangeConnector) => {
   const slotDuration = config.timeslotSeconds
   const buySlotCount = config.buying.useTimeslots
   const sellSlotCount = config.selling.useTimeslots
@@ -70,9 +70,13 @@ const SurgeDetector = (config, exchangeConnector) => {
         const buckets = createBuckets(dateLimits, currentTransactions)
         const ratios = createRatios(buckets)
 
+        const latestPrice = currentTransactions[0].price
         const isPriceSurging = ratios.slice(0, buySlotCount).every(ratio => ratio >= buyRatio)
         const isUnderSellRatio = ratios.slice(0, sellSlotCount).every(ratio => ratio < sellRatio)
-        return { isPriceSurging, isUnderSellRatio }
+
+        if (isPriceSurging) logger.info('price SURGE detected')
+        if (isUnderSellRatio) logger.info('price surge UNDER sell ratio')
+        return { latestPrice, isPriceSurging, isUnderSellRatio }
       })
   }
 }
