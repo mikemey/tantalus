@@ -1,7 +1,6 @@
 const traderConfig = {
   clientId: 100,
   exchangeHost: 'http://localhost:14005',
-  transactionListServiceUrl: 'http://localhost:14006',
   timeslotSeconds: 100,
   buying: {
     ratio: 0.1, // price change per second

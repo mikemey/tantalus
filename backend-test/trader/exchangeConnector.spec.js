@@ -41,9 +41,8 @@ describe('Exchange connector', () => {
     const amount = 20
     const price = 40
     const orderResponse = { id: 1 }
-    const scope = nock(testHost).post(`/${testId}/buy`, {
-      amount, price
-    }).reply(200, orderResponse)
+    const scope = nock(testHost)
+      .post(`/${testId}/buy`, { amount, price }).reply(200, orderResponse)
 
     return exchangeConnector.buyLimitOrder(amount, price)
       .then(response => {
@@ -56,9 +55,9 @@ describe('Exchange connector', () => {
     const amount = 220
     const price = 420
     const orderResponse = { id: 2 }
-    const scope = nock(testHost).post(`/${testId}/sell`, {
-      amount, price
-    }).reply(200, orderResponse)
+    const scope = nock(testHost)
+      .post(`/${testId}/sell`, { amount, price })
+      .reply(200, orderResponse)
 
     return exchangeConnector.sellLimitOrder(amount, price)
       .then(response => {
@@ -70,12 +69,30 @@ describe('Exchange connector', () => {
   it('should send cancel order', () => {
     const id = 123
     const success = false
-    const scope = nock(testHost).post(`/${testId}/cancel_order`, { id }).reply(200, `${success}`)
+    const scope = nock(testHost)
+      .post(`/${testId}/cancel_order`, { id })
+      .reply(200, `${success}`)
 
     return exchangeConnector.cancelOrder(id)
       .then(response => {
         scope.isDone().should.equal(true)
         response.should.equal(success)
+      })
+  })
+
+  it('should request transactions', () => {
+    const transactionsList = [
+      { tid: 3, amount: '1.2254', date: 199, price: 5500 },
+      { tid: 2, amount: '0.0871', date: 0, price: 5488 }
+    ]
+    const scope = nock(testHost)
+      .get('/transactions')
+      .reply(200, transactionsList)
+
+    return exchangeConnector.getTransactions()
+      .then(transactions => {
+        scope.isDone().should.equal(true)
+        transactions.should.deep.equal(transactionsList)
       })
   })
 })
