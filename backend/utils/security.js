@@ -93,7 +93,8 @@ const unprotectedRoutes = [
 ]
 
 const unprotectedRoutePrefixes = [
-  '/tantalus/'
+  '/tantalus/',
+  '/api/simex'
 ]
 
 const bypassAuthorization = route =>

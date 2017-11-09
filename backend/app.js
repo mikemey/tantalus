@@ -9,7 +9,9 @@ const security = require('./utils/security')
 
 const requestLogger = () => {
   morgan.token('clientIP', req => req.headers['x-forwarded-for'] || req.connection.remoteAddress)
-  return morgan(':date[iso] [:clientIP] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent')
+  return morgan(':date[iso] [:clientIP] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent', {
+    skip: (req, res) => req.baseUrl && req.baseUrl.startsWith('/api/simex')
+  })
 }
 
 const createServer = (config, log) => mongoConnection.initializeAll(config, log)
@@ -55,11 +57,12 @@ const createVersionEndpoint = log => {
 const createSimexEndpoints = (router, config, log) => {
   if (config.simex) {
     const createInvestRouter = require('./invest')
+    const createSimexRouter = require('./simex')
     const transactionService = require('./simex/transactionsService')(log, config)
     transactionService.startScheduling()
 
     router.use('/invest', createInvestRouter(log, transactionService))
-    // router.use('/simex', createSimexRouter(log, transactionService))
+    router.use('/simex', createSimexRouter(log, transactionService))
   }
 }
 
