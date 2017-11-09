@@ -12,6 +12,9 @@ const createSimexRouter = (logger, transactionService) => {
 
   const transactionsUpdate = newTransactions => {
     data.transactions = newTransactions
+    return Promise.all(Array.from(data.tradeAccounts.values())
+      .map(tradeAccount => Promise.resolve([tradeAccount.transactionsUpdate(newTransactions)]))
+    )
   }
 
   const injectTrader = (req, res, next) => {
@@ -25,7 +28,7 @@ const createSimexRouter = (logger, transactionService) => {
 
   const getOrCreateTradeAccount = clientId => {
     if (!data.tradeAccounts.has(clientId)) {
-      data.tradeAccounts.set(clientId, TradeAccount(clientId))
+      data.tradeAccounts.set(clientId, TradeAccount(clientId, logger))
     }
     return data.tradeAccounts.get(clientId)
   }
