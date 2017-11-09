@@ -1,3 +1,4 @@
+const schedule = require('node-schedule')
 const moment = require('moment')
 
 const requests = require('../utils/requests')
@@ -5,6 +6,7 @@ const requests = require('../utils/requests')
 const TransactionsService = (logger, config) => {
   const TX_SERVICE_URL = config.simex.transactionsServiceUrl
   const TXS_TTL = config.simex.transactionsTTLminutes
+  const SCHEDULING = config.simex.transactionsUpateSchedule
 
   const data = {
     listeners: [],
@@ -61,9 +63,12 @@ const TransactionsService = (logger, config) => {
     logger.error(err.message)
   }
 
+  const startScheduling = () => schedule.scheduleJob(SCHEDULING, updateTransactions)
+
   return {
     addTransactionsListener,
-    updateTransactions
+    updateTransactions,
+    startScheduling
   }
 }
 

@@ -1,15 +1,11 @@
-const schedule = require('node-schedule')
 const moment = require('moment')
 
-const requests = require('../utils/requests')
-
-const coinfloorTransactionUrl = 'https://webapi.coinfloor.co.uk:8090/bist/XBT/GBP/transactions/'
-
-const TransactionsService = logger => {
-  const filterExistingTransactions = txs => txs
-    .filter(tx => !cache.txidsList.includes(tx.tid))
-  const mergeWithLatestTransactions = txs => txs.concat(cache.transactionsList)
-  const sortTransactions = txs => txs.sort((a, b) => b.tid - a.tid)
+const InvestService = (logger, transactionsService) => {
+  const humanReadableValues = newTransactions => newTransactions.map(tx => {
+    tx.amount = tx.amount / 10000
+    tx.price = tx.price / 100
+    return tx
+  })
 
   const cutoffTimestamp = () => moment.utc().subtract(10, 'm').unix()
   const removeOutdatedTransactions = txs => {
@@ -53,22 +49,8 @@ const TransactionsService = logger => {
     return txsData
   }
 
-  // const isSameSecond = (unixDateA, unixDateB) =>
-  // moment.unix(unixDateA).isSame(moment.unix(unixDateB), 'second')
-  // const keepLastTransactionPerDate = ({ latestTransactions, lastDate }, tx) => {
-  //   if (lastDate === tx.date) {
-  //     latestTransactions.pop()
-  //   }
-  //   latestTransactions.push(tx)
-
-  //   lastDate = tx.date
-  //   return { latestTransactions, lastDate }
-  // }
-
   const createPriceChanges = txsData => {
     txsData.priceChanges = txsData.newTransactions
-      // .reduce(keepLastTransactionPerDate, { latestTransactions: [], lastDate: 0 })
-      // .latestTransactions
       .reduce((cumulated, currentTx) => {
         const x = moment.unix(currentTx.date)
         const y = cumulated.lastTx
@@ -95,11 +77,8 @@ const TransactionsService = logger => {
     logger.error(err.message)
   }
 
-  const updateLatestTransactions = () => requests
-    .getJson(coinfloorTransactionUrl)
-    .then(filterExistingTransactions)
-    .then(mergeWithLatestTransactions)
-    .then(sortTransactions)
+  const updateLatestTransactions = newTransactions => Promise
+    .resolve(humanReadableValues(newTransactions))
     .then(removeOutdatedTransactions)
     .then(calculateWeightedAmount)
     .then(createPriceGroups)
@@ -107,7 +86,7 @@ const TransactionsService = logger => {
     .then(updateTransactionCaches)
     .catch(errorHandler)
 
-  schedule.scheduleJob('4-57/4 * * * * *', updateLatestTransactions)
+  transactionsService.addTransactionsListener(updateLatestTransactions)
 
   const cache = {
     cutoffTimestamp: 0,
@@ -136,4 +115,4 @@ const TransactionsService = logger => {
   }
 }
 
-module.exports = TransactionsService
+module.exports = InvestService

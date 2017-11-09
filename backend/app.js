@@ -21,7 +21,7 @@ const createServer = (config, log) => mongoConnection.initializeAll(config, log)
 
     security.init(app, config, log)
     app.use('/tantalus', express.static('frontend/'))
-    app.use('/api', createApiRouter(log))
+    app.use('/api', createApiRouter(config, log))
 
     const server = app.listen(8000, () => {
       log.info(`Started on port ${server.address().port}`)
@@ -33,17 +33,16 @@ const createServer = (config, log) => mongoConnection.initializeAll(config, log)
     })
   }))
 
-const createApiRouter = log => {
+const createApiRouter = (config, log) => {
   const createTickersRouter = require('./tickers')
-  const createInvestRouter = require('./invest')
   const createUsersRouter = require('./users')
 
   const router = express.Router()
   router.use('/', createUsersRouter(log))
   router.use('/tickers', createTickersRouter(log))
-  router.use('/invest', createInvestRouter(log))
   router.get('/version', createVersionEndpoint(log))
 
+  createSimexEndpoints(router, config, log)
   return router
 }
 
@@ -51,6 +50,17 @@ const createVersionEndpoint = log => {
   const version = `v${pjson.version}`
   log.info(`server version: ${version}`)
   return (req, res) => res.status(200).send(version)
+}
+
+const createSimexEndpoints = (router, config, log) => {
+  if (config.simex) {
+    const createInvestRouter = require('./invest')
+    const transactionService = require('./simex/transactionsService')(log, config)
+    transactionService.startScheduling()
+
+    router.use('/invest', createInvestRouter(log, transactionService))
+    // router.use('/simex', createSimexRouter(log, transactionService))
+  }
 }
 
 module.exports = createServer
