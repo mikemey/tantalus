@@ -11,7 +11,7 @@ const testLogger = require('../utils/testLogger')
 
 const createSimexRouter = require('../../backend/simex')
 
-describe.only('SimEx router', () => {
+describe('SimEx router', () => {
   const API_PREFIX = '/api/simex'
   const clientId = '13014'
 
