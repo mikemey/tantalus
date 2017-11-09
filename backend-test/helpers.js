@@ -13,8 +13,8 @@ const defaultTestUser = {
   username: 'default-test-user'
 }
 
-const startTestServer = (callback, disabled = true, testUser = defaultTestUser) => {
-  const testConfig = disabled
+const startTestServer = (callback, disableSecurity = true, testUser = defaultTestUser) => {
+  const testConfig = disableSecurity
     ? Object.assign({
       disableSecurity: true,
       testUser
