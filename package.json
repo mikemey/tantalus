@@ -13,7 +13,7 @@
     "start": "node backend/index.js",
     "schedule": "node backend/schedule.js",
     "trader": "node backend/trader",
-    "tx-test": "mocha 'backend-test/trader/**.spec.js'",
+    "tx-test": "mocha 'backend-test/trader/**.spec.js' 'backend-test/simex/**.spec.js'",
     "tx-watch": "nodemon -x 'npm run tx-test -s'",
     "pretest": "npm install",
     "test": "npm run lint -s && npm run be-test -s && npm run fe-test -s",
@@ -69,6 +69,7 @@
   },
   "devDependencies": {
     "chai": "^4.0.2",
+    "chai-string": "^1.4.0",
     "karma": "^1.7.1",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
