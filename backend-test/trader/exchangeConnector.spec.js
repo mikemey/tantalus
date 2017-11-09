@@ -84,7 +84,7 @@ describe('Exchange connector', () => {
   it('should request transactions', () => {
     const transactionsList = [{ tid: 1 }, { tid: 2 }]
     const scope = nock(testHost)
-      .get('/transactions')
+      .get(`/${testId}/transactions`)
       .reply(200, transactionsList)
 
     return exchangeConnector.getTransactions()

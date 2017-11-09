@@ -8,7 +8,7 @@ const ExchangeConnector = config => {
   const buyOrdersUrl = `${host}/${clientId}/buy`
   const sellOrdersUrl = `${host}/${clientId}/sell`
   const cancelOrderUrl = `${host}/${clientId}/cancel_order`
-  const transactionsUrl = `${host}/transactions`
+  const transactionsUrl = `${host}/${clientId}/transactions`
 
   return {
     getOpenOrders: () => requests.getJson(openOrdersUrl),
