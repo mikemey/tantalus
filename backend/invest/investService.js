@@ -1,11 +1,11 @@
 const moment = require('moment')
 
 const InvestService = (logger, transactionsService) => {
-  const humanReadableValues = newTransactions => newTransactions.map(tx => {
-    tx.amount = tx.amount / 10000
-    tx.price = tx.price / 100
-    return tx
-  })
+  const humanReadableValues = newTransactions => newTransactions
+    .map(tx => Object.assign({}, tx,
+      { amount: tx.amount / 10000 },
+      { price: tx.price / 100 }
+    ))
 
   const cutoffTimestamp = () => moment.utc().subtract(10, 'm').unix()
   const removeOutdatedTransactions = txs => {
