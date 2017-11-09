@@ -53,7 +53,9 @@ const TransactionsService = (logger, config) => {
     data.lastTransactionsIds = conversionResult.newTransactions.map(tx => tx.tid)
   }
 
-  const callListeners = () => data.listeners.forEach(listener => listener(data.lastTransactions))
+  const callListeners = () => Promise.all(
+    data.listeners.map(listener => listener(data.lastTransactions))
+  )
 
   const errorHandler = err => {
     logger.error(err.message)
