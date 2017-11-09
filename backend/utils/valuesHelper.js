@@ -8,9 +8,12 @@ const volumeString = volume => priceString(volume, '£')
 const amountPriceString = (prefix, amount, price) =>
   `${prefix}: ${amountString(amount)} - ${priceString(price)}`
 
+const floorVolume = (amount, price) => Math.floor(amount * price / mBTC)
+
 module.exports = {
   amountString,
   priceString,
   volumeString,
-  amountPriceString
+  amountPriceString,
+  floorVolume
 }

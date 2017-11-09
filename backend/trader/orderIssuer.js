@@ -1,4 +1,4 @@
-const { volumeString, amountPriceString } = require('./valueFormatter')
+const { volumeString, amountPriceString } = require('../utils/valuesHelper')
 
 const mBTC = 10000
 

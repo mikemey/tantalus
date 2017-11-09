@@ -1,6 +1,10 @@
-const { amountString, volumeString, amountPriceString } = require('./valueFormatter')
+const {
+  amountString,
+  volumeString,
+  amountPriceString,
+  floorVolume
+ } = require('../utils/valuesHelper')
 
-const mBTC = 10000
 const BOUGHT = '************************** BOUGHT'
 const SOLD = '**************************** SOLD'
 
@@ -105,7 +109,5 @@ const OpenOrdersWatch = (logger, config, exchangeConnector) => {
 // order type: (0 - buy; 1 - sell)
 const isBuyOrder = order => order.type === 0
 const isSellOrder = order => order.type === 1
-
-const floorVolume = (amount, price) => Math.floor(amount * price / mBTC)
 
 module.exports = OpenOrdersWatch
