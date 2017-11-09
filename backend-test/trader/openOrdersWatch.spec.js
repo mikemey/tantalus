@@ -3,7 +3,7 @@ const nock = require('nock')
 const chai = require('chai')
 const expect = chai.expect
 const should = chai.should()
-const logger = require('./testLogger')
+const logger = require('../utils/testLogger')
 
 const OpenOrdersWatch = require('../../backend/trader/openOrdersWatch')
 const ExchangeConnector = require('../../backend/trader/exchangeConnector')

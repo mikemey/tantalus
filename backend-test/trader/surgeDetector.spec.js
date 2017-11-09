@@ -1,7 +1,7 @@
 /* global describe before beforeEach it */
 const nock = require('nock')
 const moment = require('moment')
-const logger = require('./testLogger')
+const logger = require('../utils/testLogger')
 
 const SurgeDetector = require('../../backend/trader/surgeDetector')
 const ExchangeConnector = require('../../backend/trader/exchangeConnector')
