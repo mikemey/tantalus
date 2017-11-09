@@ -26,9 +26,12 @@ const TradeAccount = (clientId, logger) => {
     balances: b
   }
 
+  const greenText = msg => `\x1b[92m${msg}\x1b[0m`
+  const redText = msg => `\x1b[91m${msg}\x1b[0m`
+
   const log = message => {
     const ts = moment().format('YYYY-MM-DD HH:mm:ss')
-    logger.info(`========== ${ts} [${clientId}] ${message}`)
+    logger.info(`${ts} [${clientId}] ${message}`)
   }
 
   const data = {
@@ -111,13 +114,14 @@ const TradeAccount = (clientId, logger) => {
       .map(tx => Object.assign({}, tx))
       .sort((txa, txb) => txb.tid - txa.tid)
 
-    data.latestTransactionId = transactions[0].tid
-
-    data.openOrders = data.openOrders.reduce((stillOpen, order) => {
-      transactions.forEach(matchOrderWithTransaction(order))
-      if (order.amount > 0) stillOpen.push(order)
-      return stillOpen
-    }, [])
+    if (transactions.length > 0) {
+      data.latestTransactionId = transactions[0].tid
+      data.openOrders = data.openOrders.reduce((stillOpen, order) => {
+        transactions.forEach(matchOrderWithTransaction(order))
+        if (order.amount > 0) stillOpen.push(order)
+        return stillOpen
+      }, [])
+    }
   }
 
   const matchingBidPrice = (order, transaction) =>
@@ -135,11 +139,11 @@ const TradeAccount = (clientId, logger) => {
       if (order.type === BUY_ORDER) {
         b.gbp_reserved -= floorVolume(matchingAmount, order.price)
         b.xbt_available += matchingAmount
-        log(`!! BOUGHT ${amountString(matchingAmount)} for ${priceString(order.price)}`)
+        log(redText(`BOUGHT ${amountString(matchingAmount)} for ${priceString(order.price)}`))
       } else {
         b.gbp_available += floorVolume(matchingAmount, order.price)
         b.xbt_reserved -= matchingAmount
-        log(`!!   SOLD ${amountString(matchingAmount)} for ${priceString(order.price)}`)
+        log(greenText(`SOLD ${amountString(matchingAmount)} for ${priceString(order.price)}`))
       }
     }
   }

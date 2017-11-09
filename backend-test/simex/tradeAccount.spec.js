@@ -249,5 +249,18 @@ describe('Trade account', () => {
       xbtAvailable().should.equal(200)
       xbtReserved().should.equal(600)
     })
+
+    it('ignores repeated transactions', () => {
+      gbpAvailable(50000)
+      xbtAvailable(250)
+      tradeAccount.newBuyOrder(1000, 230200)
+      const staticTxs = [transaction(400, 230100)]
+      tradeAccount.transactionsUpdate(staticTxs)
+      tradeAccount.transactionsUpdate(staticTxs)
+
+      gbpAvailable().should.equal(26980)
+      gbpReserved().should.equal(13812)
+      xbtAvailable().should.equal(650)
+    })
   })
 })
