@@ -7,7 +7,7 @@ const request = require('supertest')
 const chai = require('chai')
 chai.use(require('chai-string'))
 
-const logger = require('../utils/testLogger')
+const testLogger = require('../utils/testLogger')
 
 const createSimexRouter = require('../../backend/simex')
 
@@ -34,7 +34,7 @@ describe.only('SimEx router', () => {
     app.use(bodyParser.json())
 
     transactionServiceMock = createTransactionServiceMock()
-    app.use(API_PREFIX, createSimexRouter(logger, transactionServiceMock))
+    app.use(API_PREFIX, createSimexRouter(testLogger, transactionServiceMock))
   })
 
   const getOpenOrders = () => request(app)
