@@ -25,10 +25,10 @@ const transformOpts = (url, method = 'GET') => Object.assign(
   { transform }
 )
 
-const jsonOpts = (url, method = 'GET', body = {}) => Object.assign(
+const jsonOpts = (url, method = 'GET', body = null) => Object.assign(
   { uri: url },
   { method },
-  { body },
+  body && { body },
   { json: true }
 )
 
