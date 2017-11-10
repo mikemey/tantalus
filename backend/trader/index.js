@@ -1,5 +1,4 @@
 const schedule = require('node-schedule')
-const moment = require('moment')
 
 const { createOrderLogger, createClientLogger } = require('../utils/ordersHelper')
 const { traderConfigs } = require('./config')
