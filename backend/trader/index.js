@@ -43,7 +43,6 @@ const createTrader = cfg => {
   const job = schedule.scheduleJob(cfg.tickSchedule, tick)
 }
 
-createTrader(traderConfigs[1])
-createTrader(traderConfigs[2])
+traderConfigs.forEach(createTrader)
 
 mainLogger.info('traders running')
