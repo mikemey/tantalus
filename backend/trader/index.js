@@ -22,6 +22,7 @@ const orderIssuer = require('./orderIssuer')(logger, traderConfig, openOrdersWat
 
 const errorHandler = err => {
   logger.error(err.message)
+  logger.error(err.stack)
   job.cancel()
 }
 
@@ -31,6 +32,6 @@ const tick = () => Promise.all([
 ]).then(orderIssuer.issueOrders)
   .catch(errorHandler)
 
-const job = schedule.scheduleJob('10,30,50 * * * * *', tick)
+const job = schedule.scheduleJob(traderConfig.tickSchedule, tick)
 
 logger.info('trader running')
