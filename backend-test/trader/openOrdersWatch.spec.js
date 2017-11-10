@@ -44,8 +44,8 @@ describe('Open orders watch', () => {
   const buyOrder = (id, amount, price) => openOrder(id, 0, amount, price)
   const sellOrder = (id, amount, price) => openOrder(id, 1, amount, price)
 
-  const resolveOpenOrders = (newOpenOrders, expectedAvailableAmount, expectedAvailableVolume) => {
-    const getOrderScope = expectGetOpenOrders(newOpenOrders)
+  const resolveOpenOrders = (exchangeOpenOrders, expectedAvailableAmount, expectedAvailableVolume) => {
+    const getOrderScope = expectGetOpenOrders(exchangeOpenOrders)
     return openOrdersWatch.resolveOpenOrders()
       .then(result => {
         getOrderScope.isDone().should.equal(true, 'getOrderScope')
@@ -114,6 +114,13 @@ describe('Open orders watch', () => {
       return resolveOpenOrders([], 2000, 0)
     })
 
+    it('revert when order still open', () => {
+      const order = buyOrder(540, 1500, 500000)
+      openOrdersWatch.addOpenOrder(order)
+      expectCancelOrder(540)
+      return resolveOpenOrders([order], 0, 100000)
+    })
+
     it('partially when order partially bought', () => {
       openOrdersWatch.addOpenOrder(buyOrder(124, 1980, 505000))
       const cancelScope = expectCancelOrder(124)
@@ -149,6 +156,13 @@ describe('Open orders watch', () => {
     it('fully when amount sold', () => {
       openOrdersWatch.addOpenOrder(sellOrder(555, 2000, 500000))
       return resolveOpenOrders([], 0, 100000)
+    })
+
+    it('revert when order still open', () => {
+      const order = sellOrder(222, 1500, 550000)
+      openOrdersWatch.addOpenOrder(order)
+      expectCancelOrder(222)
+      return resolveOpenOrders([order], 2000, 0)
     })
 
     it('partially when part of amount sold', () => {

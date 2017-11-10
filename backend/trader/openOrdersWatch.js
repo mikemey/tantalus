@@ -72,14 +72,18 @@ const OpenOrdersWatch = (baseLogger, config, exchangeConnector) => {
 
   const cancelBuyOrder = (localOrder, exchangeOrder) => {
     const amountBought = localOrder.amount - exchangeOrder.amount
-    orderLogger.logOrderBought(amountBought, localOrder.price)
-    accounts.availableAmount += amountBought
+    if (amountBought > 0) {
+      orderLogger.logOrderBought(amountBought, localOrder.price)
+      accounts.availableAmount += amountBought
+    }
     accounts.availableVolume += floorVolume(exchangeOrder.amount, exchangeOrder.price)
   }
 
   const cancelSellOrder = (localOrder, exchangeOrder) => {
     const amountSold = localOrder.amount - exchangeOrder.amount
-    orderLogger.logOrderSold(amountSold, localOrder.price)
+    if (amountSold > 0) {
+      orderLogger.logOrderSold(amountSold, localOrder.price)
+    }
     accounts.availableAmount += exchangeOrder.amount
     accounts.availableVolume += floorVolume(localOrder.amount - exchangeOrder.amount, localOrder.price)
   }
