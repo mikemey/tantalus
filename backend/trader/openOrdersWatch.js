@@ -5,7 +5,7 @@ const {
   createOrderLogger,
   isBuyOrder,
   isSellOrder
- } = require('../utils/valuesHelper')
+ } = require('../utils/ordersHelper')
 
 const OpenOrdersWatch = (baseLogger, config, exchangeConnector) => {
   const orderLogger = createOrderLogger(baseLogger)

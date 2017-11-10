@@ -2,7 +2,7 @@ const schedule = require('node-schedule')
 const moment = require('moment')
 
 const requests = require('../utils/requests')
-const { createOrderLogger } = require('../utils/valuesHelper')
+const { createOrderLogger } = require('../utils/ordersHelper')
 
 const TransactionsService = (baseLogger, config) => {
   const logger = createOrderLogger(baseLogger, 'TXS')

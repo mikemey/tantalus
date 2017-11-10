@@ -4,7 +4,7 @@ const {
   createOrderLogger,
   BUY_ORDER_TYPE, SELL_ORDER_TYPE, isBuyOrder, isSellOrder,
   floorVolume, amountString, volumeString
- } = require('../utils/valuesHelper')
+ } = require('../utils/ordersHelper')
 
 const START_BALANCE_PENCE = 100000
 
