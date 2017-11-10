@@ -9,14 +9,16 @@ const security = require('./utils/security')
 
 const suppressRequestLog = [
   '/api/simex',
-  '/api/invest/transactions'
+  '/api/invest/transactions',
+  '/api/tickers/graph',
+  '/api/tickers/latest'
 ]
 
 const requestLogger = () => {
   morgan.token('clientIP', req => req.headers['x-forwarded-for'] || req.connection.remoteAddress)
   return morgan(':date[iso] [:clientIP] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent', {
     skip: (req, res) =>
-      suppressRequestLog.includes(req.baseUrl) ||
+      suppressRequestLog.some(excludePath => req.originalUrl.startsWith(excludePath)) ||
       res.statusCode === 304
   })
 }
