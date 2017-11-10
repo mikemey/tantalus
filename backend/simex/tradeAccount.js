@@ -8,6 +8,8 @@ const {
 
 const START_BALANCE_PENCE = 100000
 
+const randomStartId = () => Math.floor(Math.random() * 89 + 10) * 1000
+
 const TradeAccount = (clientId, baseLogger) => {
   const orderLogger = createOrderLogger(baseLogger, clientId)
   const b = {
@@ -27,7 +29,7 @@ const TradeAccount = (clientId, baseLogger) => {
   }
 
   const data = {
-    latestOrderId: clientId * 100000,
+    latestOrderId: randomStartId(),
     openOrders: [],
     latestTransactionId: 0
   }
