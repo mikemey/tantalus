@@ -127,16 +127,19 @@ const TradeAccount = (clientId, baseLogger) => {
     if (order.amount <= 0 || transaction.amount <= 0) return
     if (matchingBidPrice(order, transaction) || matchingAskPrice(order, transaction)) {
       const matchingAmount = Math.min(order.amount, transaction.amount)
+      const tradingPrice = order.price
+      const tradingVolume = floorVolume(matchingAmount, tradingPrice)
+
       order.amount -= matchingAmount
       transaction.amount -= matchingAmount
       if (isBuyOrder(order)) {
-        b.gbp_reserved -= floorVolume(matchingAmount, order.price)
+        b.gbp_reserved -= tradingVolume
         b.xbt_available += matchingAmount
-        orderLogger.logOrderBought(matchingAmount, order.price)
+        orderLogger.logOrderBought(matchingAmount, tradingPrice)
       } else {
-        b.gbp_available += floorVolume(matchingAmount, order.price)
+        b.gbp_available += tradingVolume
         b.xbt_reserved -= matchingAmount
-        orderLogger.logOrderSold(matchingAmount, order.price)
+        orderLogger.logOrderSold(matchingAmount, tradingPrice)
       }
     }
   }

@@ -11,7 +11,7 @@ const createSimexRouter = require('../../backend/simex')
 
 describe('SimEx router', () => {
   const API_PREFIX = '/api/simex'
-  const clientId = '13014'
+  const defaultClientId = '13014'
 
   let app, transactionServiceMock
 
@@ -36,31 +36,35 @@ describe('SimEx router', () => {
   })
 
   const getOpenOrders = () => request(app)
-    .get(`${API_PREFIX}/${clientId}/open_orders`)
+    .get(`${API_PREFIX}/${defaultClientId}/open_orders`)
     .expect(200)
 
-  const postBuyOrder = (amount, price) => request(app)
+  const postBuyOrder = (amount, price, clientId = defaultClientId) => request(app)
     .post(`${API_PREFIX}/${clientId}/buy`)
     .send({ amount, price })
     .expect(200)
 
-  const postSellOrder = (amount, price) => request(app)
+  const postSellOrder = (amount, price, clientId = defaultClientId) => request(app)
     .post(`${API_PREFIX}/${clientId}/sell`)
     .send({ amount, price })
     .expect(200)
 
   const postCancelOrder = id => request(app)
-    .post(`${API_PREFIX}/${clientId}/cancel_order`)
+    .post(`${API_PREFIX}/${defaultClientId}/cancel_order`)
     .send({ id })
     .expect(200)
 
   const getTransactions = () => request(app)
-    .get(`${API_PREFIX}/${clientId}/transactions`)
+    .get(`${API_PREFIX}/${defaultClientId}/transactions`)
     .expect(200)
 
   const getAccounts = () => request(app)
     .get(`${API_PREFIX}/accounts`)
     .expect(200)
+    .then(({ body }) => body.reduce((map, account) => {
+      map.set(account.clientId, account)
+      return map
+    }, new Map()))
 
   const runRequests = (...args) => Promise
     .all(args)
@@ -107,8 +111,8 @@ describe('SimEx router', () => {
     it('should set start date', () => {
       return getTransactions()
         .then(getAccounts)
-        .then(({ body }) => {
-          const account = body.find(stats => stats.clientId === clientId)
+        .then(accounts => {
+          const account = accounts.get(defaultClientId)
           moment.utc().diff(account.stats.startDate, 'seconds').should.equal(0)
         })
     })
@@ -132,8 +136,8 @@ describe('SimEx router', () => {
 
     const checkRequestCounter = (expectedCount, startPromise) => startPromise
       .then(getAccounts)
-      .then(({ body }) => {
-        const account = body.find(stats => stats.clientId === clientId)
+      .then(accounts => {
+        const account = accounts.get(defaultClientId)
         account.stats.requestCount.should.equal(expectedCount)
       })
   })
@@ -222,14 +226,49 @@ describe('SimEx router', () => {
           body[0].should.deep.equal(keptTransaction)
         })
         .then(getAccounts)
-        .then(({ body }) => {
-          const account = body.find(stats => stats.clientId === clientId)
+        .then(accounts => {
+          const account = accounts.get(defaultClientId)
           account.stats.requestCount.should.equal(7)
         })
     })
 
     it('resolves all open orders of different clients', () => {
-      throw Error('not yet implemented')
+      const clientA = '1234'
+      const clientB = '9876'
+      return runRequests(
+        postBuyOrder(500, 50000, clientA),
+        postBuyOrder(300, 50500, clientB)
+      ).then(() => runRequests(
+        postBuyOrder(500, 50200, clientA),
+        postBuyOrder(900, 51000, clientB)
+      )).then(() => transactionServiceMock.setTransactions([transaction(1000, 50000)]))
+        .then(getAccounts)
+        .then(accounts => {
+          accounts.get(clientA).balances.should.deep.equal({
+            gbp_balance: 94990, gbp_available: 94990, gbp_reserved: 0,
+            xbt_balance: 1000, xbt_available: 1000, xbt_reserved: 0
+          })
+          accounts.get(clientB).balances.should.deep.equal({
+            gbp_balance: 94915, gbp_available: 93895, gbp_reserved: 1020,
+            xbt_balance: 1000, xbt_available: 1000, xbt_reserved: 0
+          })
+        })
+        .then(() => runRequests(
+          postSellOrder(250, 51500, clientA),
+          postSellOrder(330, 51600, clientB)
+        ))
+        .then(() => transactionServiceMock.setTransactions([transaction(220, 52000)]))
+        .then(getAccounts)
+        .then(accounts => {
+          accounts.get(clientA).balances.should.deep.equal({
+            gbp_balance: 96123, gbp_available: 96123, gbp_reserved: 0,
+            xbt_balance: 780, xbt_available: 750, xbt_reserved: 30
+          })
+          accounts.get(clientB).balances.should.deep.equal({
+            gbp_balance: 96050, gbp_available: 95030, gbp_reserved: 1020,
+            xbt_balance: 780, xbt_available: 670, xbt_reserved: 110
+          })
+        })
     })
   })
 })
