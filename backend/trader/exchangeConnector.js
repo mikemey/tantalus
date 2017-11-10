@@ -2,7 +2,7 @@ const requests = require('../utils/requests')
 
 const ExchangeConnector = config => {
   const host = config.exchangeHost
-  const clientId = config.clientId
+  const clientId = encodeURIComponent(config.clientId)
 
   const openOrdersUrl = `${host}/${clientId}/open_orders`
   const buyOrdersUrl = `${host}/${clientId}/buy`
