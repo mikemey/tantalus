@@ -1,5 +1,6 @@
 const moment = require('moment')
 
+const KEEP_ALIVE_MESSAGE_MINUTES = 15
 const mBTC = 10000
 
 const amountString = amount => `Ƀ ${(amount / mBTC).toFixed(4)}`
@@ -49,7 +50,7 @@ const createOrderLogger = (baseLogger, category) => {
 
   const aliveMessage = () => {
     const now = moment.utc()
-    if (now.diff(lastAlive, 'minutes') > 2) {
+    if (now.diff(lastAlive, 'minutes') >= KEEP_ALIVE_MESSAGE_MINUTES) {
       info(darkText('alive'))
     }
   }
