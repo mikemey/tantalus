@@ -10,7 +10,9 @@ const security = require('./utils/security')
 const requestLogger = () => {
   morgan.token('clientIP', req => req.headers['x-forwarded-for'] || req.connection.remoteAddress)
   return morgan(':date[iso] [:clientIP] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent', {
-    skip: (req, res) => req.baseUrl && req.baseUrl.startsWith('/api/simex')
+    skip: (req, res) =>
+      (req.baseUrl && req.baseUrl.startsWith('/api/simex')) ||
+      res.statusCode === 304
   })
 }
 
