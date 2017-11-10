@@ -13,7 +13,7 @@ const defaultTestUser = {
   username: 'default-test-user'
 }
 
-const startTestServer = (callback, disableSecurity = true, testUser = defaultTestUser) => {
+const startTestServer = (callback, disableSecurity = true, testUser = defaultTestUser, configOverride) => {
   const testConfig = disableSecurity
     ? Object.assign({
       disableSecurity: true,
@@ -22,6 +22,7 @@ const startTestServer = (callback, disableSecurity = true, testUser = defaultTes
     )
     : defaultTestConfig
 
+  Object.assign(testConfig, configOverride)
   return createServer(testConfig, console)
     .then(({ app, server }) => {
       callback(app, server)

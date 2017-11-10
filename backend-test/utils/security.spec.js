@@ -64,4 +64,26 @@ describe('server security configuration', () => {
     it('rejects unauthorized keys POST request', () => unauthorizedResponsePOST('/api/users/logout'))
     it('rejects unauthorized keys PUT request', () => unauthorizedResponsePUT('/api/users/keys'))
   })
+
+  describe('endpoints without authorization', () => {
+    const simexConfig = {
+      simex: {
+        transactionsServiceUrl: 'https://webapi.coinfloor.co.uk:8090/bist/XBT/GBP/transactions/',
+        transactionsTTLminutes: 1,
+        transactionsUpateSchedule: '1 1 1 1 *'
+      }
+    }
+    before(() => helpers.startTestServer((_app, _server) => {
+      app = _app
+      server = _server
+    }, false, {}, simexConfig))
+
+    after(() => helpers.closeAll(server))
+
+    it('allows POST on /api/simex enpoint', () => request(app)
+      .post('/api/simex/sec-test/buy')
+      .send({ amount: 10, price: 10 })
+      .expect(200)
+    )
+  })
 })
