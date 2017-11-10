@@ -78,7 +78,7 @@ const OpenOrdersWatch = (logger, config, exchangeConnector) => {
 
   const checkBoughtSoldOrder = () => {
     localOpenOrders.forEach(localOrder => {
-      if (isBuyOrder(localOrder && localOrder.amount > 0)) {
+      if (isBuyOrder(localOrder) && localOrder.amount > 0) {
         logger.info(amountPriceString(BOUGHT, localOrder.amount, localOrder.price))
         accounts.availableAmount += localOrder.amount
       }
@@ -90,7 +90,7 @@ const OpenOrdersWatch = (logger, config, exchangeConnector) => {
     localOpenOrders.clear()
   }
 
-  const createAccount = () => {
+  const createAvailableAccounts = () => {
     const availableAmount = accounts.availableAmount
     const availableVolume = accounts.availableVolume < lowerLimit
       ? 0
@@ -99,13 +99,12 @@ const OpenOrdersWatch = (logger, config, exchangeConnector) => {
     return { availableAmount, availableVolume }
   }
 
-  const resolveOpenOrders = () => {
-    return exchangeConnector.getOpenOrders()
-      .then(checkExchangeOrders)
-      .then(cancelUnresolvedOrder)
-      .then(checkBoughtSoldOrder)
-      .then(createAccount)
-  }
+  const resolveOpenOrders = () => exchangeConnector.getOpenOrders()
+    .then(checkExchangeOrders)
+    .then(cancelUnresolvedOrder)
+    .then(checkBoughtSoldOrder)
+    .then(createAvailableAccounts)
+
   return {
     addOpenOrder,
     resolveOpenOrders
