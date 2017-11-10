@@ -42,6 +42,18 @@ describe('Surge detector', () => {
       })
   }
 
+  it('should ignore empty transactions', () => {
+    const scope = nock(testHost).get(`/${testId}/transactions`).reply(200, [])
+    return surgeDetector.analyseTrends()
+      .then(result => {
+        scope.isDone().should.equal(true)
+        result.should.deep.equal({
+          isPriceSurging: false,
+          isUnderSellRatio: false
+        })
+      })
+  })
+
   describe('BUY ratios', () => {
     it('should detect price surge', () => {
       const now = moment().unix()

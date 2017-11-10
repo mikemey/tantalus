@@ -78,16 +78,13 @@ describe('Order issuer', () => {
 
     it('should NOT issue a buy order when available volume under lower limit', () => {
       const accounts = { availableVolume: testLowerLimit - 1 }
-      return issueOrder(surgingTrend(), 510300, accounts)
+      return issueOrder(surgingTrend(510300), accounts)
         .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
     })
 
-    it('should NOT issue a buy order when price not surging', () => {
+    it('should NOT issue a buy order when price not surging (and ignores missing latestPrice)', () => {
       const accounts = { availableVolume: 30202 }
-      const notSurgingTrend = {
-        latestPrice: 500000,
-        isPriceSurging: false
-      }
+      const notSurgingTrend = { isPriceSurging: false }
 
       return issueOrder(notSurgingTrend, accounts)
         .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
@@ -116,9 +113,9 @@ describe('Order issuer', () => {
         .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
     })
 
-    it('should NOT issue a sell order trend is over sell ratio', () => {
+    it('should NOT issue a sell order trend is over sell ratio (and ignores missing latestPrice)', () => {
       const accounts = { availableAmount: 999 }
-      const overSellRatioTrend = { latestPrice: 500000, isUnderSellRatio: false }
+      const overSellRatioTrend = { isUnderSellRatio: false }
       return issueOrder(overSellRatioTrend, accounts)
         .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
     })

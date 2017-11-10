@@ -63,6 +63,8 @@ const SurgeDetector = (baseLogger, config, exchangeConnector) => {
   return {
     analyseTrends: () => exchangeConnector.getTransactions()
       .then(transactions => {
+        if (transactions.length === 0) return { isPriceSurging: false, isUnderSellRatio: false }
+
         const dateLimits = createDateLimits()
         const lastDateLimit = dateLimits[slotCount - 1]
         currentTransactions = createNewTransactions(currentTransactions, transactions, lastDateLimit)
