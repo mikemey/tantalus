@@ -44,7 +44,18 @@ const createOrderLogger = (baseLogger, category) => {
 
   const categoryTemplate = createTemplate()
 
+  let lastAlive = moment.utc(0)
+  const updateLastAlive = () => { lastAlive = moment.utc() }
+
+  const aliveMessage = () => {
+    const now = moment.utc()
+    if (now.diff(lastAlive, 'minutes') > 2) {
+      info(darkText('alive'))
+    }
+  }
+
   const logWithBaseTemplate = logFunc => message => {
+    updateLastAlive()
     const ts = moment().format('YYYY-MM-DD HH:mm:ss')
     logFunc(`${ts}${categoryTemplate} ${message}`)
   }
@@ -68,15 +79,6 @@ const createOrderLogger = (baseLogger, category) => {
   const logOrderSold = (orderId, amount, price) => info(greenText(
     `SOLD [${orderId}]: ${amountString(amount)} for ${priceString(price)}`
   ))
-
-  let lastAlive = moment.utc(0)
-  const aliveMessage = () => {
-    const now = moment.utc()
-    if (now.diff(lastAlive, 'minutes') > 2) {
-      info(darkText('alive'))
-      lastAlive = now
-    }
-  }
 
   return {
     info, error,
