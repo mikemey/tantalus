@@ -3,7 +3,6 @@ const nock = require('nock')
 const chai = require('chai')
 const expect = chai.expect
 const should = chai.should()
-const logger = require('../utils/testLogger')
 
 const OpenOrdersWatch = require('../../backend/trader/openOrdersWatch')
 const ExchangeConnector = require('../../backend/trader/exchangeConnector')
@@ -27,7 +26,7 @@ describe('Open orders watch', () => {
 
   beforeEach(() => {
     const exchange = ExchangeConnector(testConfig)
-    openOrdersWatch = OpenOrdersWatch(logger, testConfig, exchange)
+    openOrdersWatch = OpenOrdersWatch(console, testConfig, exchange)
   })
 
   afterEach(() => nock.cleanAll())

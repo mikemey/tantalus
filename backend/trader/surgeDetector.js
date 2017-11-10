@@ -1,6 +1,6 @@
 const moment = require('moment')
 
-const SurgeDetector = (logger, config, exchangeConnector) => {
+const SurgeDetector = (baseLogger, config, exchangeConnector) => {
   const slotDuration = config.timeslotSeconds
   const buySlotCount = config.buying.useTimeslots
   const sellSlotCount = config.selling.useTimeslots

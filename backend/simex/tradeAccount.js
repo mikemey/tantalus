@@ -1,15 +1,15 @@
 const moment = require('moment')
 
-const { floorVolume, volumeString, amountString, priceString } = require('../utils/valuesHelper')
-// order type: (0 - buy; 1 - sell)
-const BUY_ORDER = 0
-const SELL_ORDER = 1
+const {
+  createOrderLogger,
+  BUY_ORDER_TYPE, SELL_ORDER_TYPE, isBuyOrder, isSellOrder,
+  floorVolume, amountString, volumeString
+ } = require('../utils/valuesHelper')
 
 const START_BALANCE_PENCE = 100000
 
-const orderType = order => order.type === BUY_ORDER ? ' BUY order' : 'SELL order'
-
-const TradeAccount = (clientId, logger) => {
+const TradeAccount = (clientId, baseLogger) => {
+  const orderLogger = createOrderLogger(baseLogger, clientId)
   const b = {
     gbp_available: START_BALANCE_PENCE,
     gbp_reserved: 0,
@@ -24,14 +24,6 @@ const TradeAccount = (clientId, logger) => {
       requestCount: 0
     },
     balances: b
-  }
-
-  const greenText = msg => `\x1b[92m${msg}\x1b[0m`
-  const redText = msg => `\x1b[91m${msg}\x1b[0m`
-
-  const log = message => {
-    const ts = moment().format('YYYY-MM-DD HH:mm:ss')
-    logger.info(`${ts} [${clientId}] ${message}`)
   }
 
   const data = {
@@ -59,7 +51,7 @@ const TradeAccount = (clientId, logger) => {
       price,
       amount
     }
-    log(`${orderType(newOrder)} received: ${amountString(amount)} - ${priceString(price)}`)
+    orderLogger.logNewOrder(newOrder)
     data.openOrders.push(newOrder)
     return newOrder
   }
@@ -72,7 +64,7 @@ const TradeAccount = (clientId, logger) => {
     }
     b.gbp_reserved += volume
     b.gbp_available -= volume
-    return newOpenOrder(BUY_ORDER, amount, price)
+    return newOpenOrder(BUY_ORDER_TYPE, amount, price)
   }
 
   const newSellOrder = (amount, price) => {
@@ -82,7 +74,7 @@ const TradeAccount = (clientId, logger) => {
     }
     b.xbt_available -= amount
     b.xbt_reserved += amount
-    return newOpenOrder(SELL_ORDER, amount, price)
+    return newOpenOrder(SELL_ORDER_TYPE, amount, price)
   }
 
   const getOpenOrders = () => data.openOrders
@@ -94,15 +86,16 @@ const TradeAccount = (clientId, logger) => {
         return true
       }
       found = true
-      if (order.type === BUY_ORDER) {
+      if (isBuyOrder(order)) {
         const volume = floorVolume(order.amount, order.price)
         b.gbp_reserved -= volume
         b.gbp_available += volume
       }
-      if (order.type === SELL_ORDER) {
+      if (isSellOrder(order)) {
         b.xbt_available += order.amount
         b.xbt_reserved -= order.amount
       }
+      orderLogger.logCancelledOrder(order)
       return false
     })
     return found
@@ -125,10 +118,10 @@ const TradeAccount = (clientId, logger) => {
   }
 
   const matchingBidPrice = (order, transaction) =>
-    order.type === BUY_ORDER && order.price >= transaction.price
+    isBuyOrder(order) && order.price >= transaction.price
 
   const matchingAskPrice = (order, transaction) =>
-    order.type === SELL_ORDER && order.price <= transaction.price
+    isSellOrder(order) && order.price <= transaction.price
 
   const matchOrderWithTransaction = order => transaction => {
     if (order.amount <= 0 || transaction.amount <= 0) return
@@ -136,14 +129,14 @@ const TradeAccount = (clientId, logger) => {
       const matchingAmount = Math.min(order.amount, transaction.amount)
       order.amount -= matchingAmount
       transaction.amount -= matchingAmount
-      if (order.type === BUY_ORDER) {
+      if (isBuyOrder(order)) {
         b.gbp_reserved -= floorVolume(matchingAmount, order.price)
         b.xbt_available += matchingAmount
-        log(redText(`BOUGHT ${amountString(matchingAmount)} for ${priceString(order.price)}`))
+        orderLogger.logOrderBought(matchingAmount, order.price)
       } else {
         b.gbp_available += floorVolume(matchingAmount, order.price)
         b.xbt_reserved -= matchingAmount
-        log(greenText(`SOLD ${amountString(matchingAmount)} for ${priceString(order.price)}`))
+        orderLogger.logOrderSold(matchingAmount, order.price)
       }
     }
   }

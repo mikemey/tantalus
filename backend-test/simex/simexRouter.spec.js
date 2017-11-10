@@ -7,8 +7,6 @@ const request = require('supertest')
 const chai = require('chai')
 chai.use(require('chai-string'))
 
-const testLogger = require('../utils/testLogger')
-
 const createSimexRouter = require('../../backend/simex')
 
 describe('SimEx router', () => {
@@ -34,7 +32,7 @@ describe('SimEx router', () => {
     app.use(bodyParser.json())
 
     transactionServiceMock = createTransactionServiceMock()
-    app.use(API_PREFIX, createSimexRouter(testLogger, transactionServiceMock))
+    app.use(API_PREFIX, createSimexRouter(console, transactionServiceMock))
   })
 
   const getOpenOrders = () => request(app)
@@ -111,7 +109,7 @@ describe('SimEx router', () => {
         .then(getAccounts)
         .then(({ body }) => {
           const account = body.find(stats => stats.clientId === clientId)
-          moment.utc().isSame(account.stats.startDate, 'second').should.equal(true)
+          moment.utc().diff(account.stats.startDate, 'seconds').should.equal(0)
         })
     })
 
@@ -148,7 +146,7 @@ describe('SimEx router', () => {
         .then(({ body }) => {
           body.id.should.be.ok
           const orderDate = moment.unix(body.datetime)
-          moment.utc().isSame(orderDate, 'second').should.equal(true)
+          moment.utc().diff(orderDate, 'seconds').should.equal(0)
           // type - buy or sell (0 - buy; 1 - sell)
           body.type.should.equal(0)
           body.amount.should.equal(amount)
@@ -164,7 +162,7 @@ describe('SimEx router', () => {
         .then(({ body }) => {
           body.id.should.be.ok
           const orderDate = moment.unix(body.datetime)
-          moment.utc().isSame(orderDate, 'second').should.equal(true)
+          moment.utc().diff(orderDate, 'seconds').should.equal(0)
           // type - buy or sell (0 - buy; 1 - sell)
           body.type.should.equal(1)
           body.amount.should.equal(amount)
@@ -228,6 +226,10 @@ describe('SimEx router', () => {
           const account = body.find(stats => stats.clientId === clientId)
           account.stats.requestCount.should.equal(7)
         })
+    })
+
+    it('resolves all open orders of different clients', () => {
+      throw Error('not yet implemented')
     })
   })
 })

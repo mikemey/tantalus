@@ -1,7 +1,6 @@
 /* global describe before beforeEach it */
 const nock = require('nock')
 const moment = require('moment')
-const logger = require('../utils/testLogger')
 
 const SurgeDetector = require('../../backend/trader/surgeDetector')
 const ExchangeConnector = require('../../backend/trader/exchangeConnector')
@@ -28,7 +27,7 @@ describe('Surge detector', () => {
 
   beforeEach(() => {
     const exchange = ExchangeConnector(surgeConfig)
-    surgeDetector = SurgeDetector(logger, surgeConfig, exchange)
+    surgeDetector = SurgeDetector(console, surgeConfig, exchange)
   })
 
   const expectTrends = (transactions, isPriceSurging, isUnderSellRatio = false) => {

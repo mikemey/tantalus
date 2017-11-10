@@ -1,7 +1,6 @@
 /* global describe before beforeEach it */
 const nock = require('nock')
 const should = require('chai').should()
-const logger = require('../utils/testLogger')
 
 const OrderIssuer = require('../../backend/trader/orderIssuer')
 const ExchangeConnector = require('../../backend/trader/exchangeConnector')
@@ -34,7 +33,7 @@ describe('Order issuer', () => {
   beforeEach(() => {
     openOrdersMock = createOpenOrdersMock()
     const exchange = ExchangeConnector(testConfig)
-    orderIssuer = OrderIssuer(logger, testConfig, openOrdersMock, exchange)
+    orderIssuer = OrderIssuer(console, testConfig, openOrdersMock, exchange)
   })
 
   afterEach(() => nock.cleanAll())

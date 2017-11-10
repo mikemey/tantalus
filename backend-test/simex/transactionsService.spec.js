@@ -1,7 +1,6 @@
 /* global describe before beforeEach it */
 const nock = require('nock')
 const moment = require('moment')
-const testLogger = require('../utils/testLogger')
 
 const TransactionsService = require('../../backend/simex/transactionsService')
 
@@ -27,7 +26,7 @@ describe('Transaction service', () => {
 
   beforeEach(() => {
     testListener = createTestListener()
-    transactionsService = TransactionsService(testLogger, testConfig)
+    transactionsService = TransactionsService(console, testConfig)
     transactionsService.addTransactionsListener(testListener.update)
   })
 

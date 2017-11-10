@@ -1,16 +1,15 @@
 /* global describe before beforeEach it */
 const moment = require('moment')
 const expect = require('chai').expect
-const testLogger = require('../utils/testLogger')
 
 const TradeAccount = require('../../backend/simex/tradeAccount')
 
 describe('Trade account', () => {
   const testId = 3242
-  let tradeAccount = TradeAccount(testId, testLogger)
+  let tradeAccount
 
   beforeEach(() => {
-    tradeAccount = TradeAccount(testId, testLogger)
+    tradeAccount = TradeAccount(testId, console)
   })
 
   let transactionId = 1000

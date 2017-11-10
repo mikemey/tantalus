@@ -1,14 +1,14 @@
 const {
   amountString,
   volumeString,
-  amountPriceString,
-  floorVolume
+  floorVolume,
+  createOrderLogger,
+  isBuyOrder,
+  isSellOrder
  } = require('../utils/valuesHelper')
 
-const BOUGHT = '************************** BOUGHT'
-const SOLD = '**************************** SOLD'
-
-const OpenOrdersWatch = (logger, config, exchangeConnector) => {
+const OpenOrdersWatch = (baseLogger, config, exchangeConnector) => {
+  const orderLogger = createOrderLogger(baseLogger)
   const volumeLimit = config.buying.volumeLimitPence
   const lowerLimit = config.buying.lowerLimitPence
 
@@ -19,14 +19,12 @@ const OpenOrdersWatch = (logger, config, exchangeConnector) => {
 
   const localOpenOrders = new Map()
 
-  const availableAmountString = () => amountString(accounts.availableAmount)
-  const availableVolumeString = () => volumeString(accounts.availableVolume)
-
   const addOpenOrder = newLocalOrder => {
     newLocalOrder.volume = floorVolume(newLocalOrder.amount, newLocalOrder.price)
 
     checkLocalOrder(newLocalOrder)
     localOpenOrders.set(newLocalOrder.id, newLocalOrder)
+    orderLogger.logNewOrder(newLocalOrder)
 
     if (isBuyOrder(newLocalOrder)) accounts.availableVolume -= newLocalOrder.volume
     if (isSellOrder(newLocalOrder)) accounts.availableAmount -= newLocalOrder.amount
@@ -35,11 +33,15 @@ const OpenOrdersWatch = (logger, config, exchangeConnector) => {
   const checkLocalOrder = newLocalOrder => {
     if (isBuyOrder(newLocalOrder)) {
       if (newLocalOrder.volume > accounts.availableVolume) {
-        throw new Error(`buying with more volume than available: ${volumeString(newLocalOrder.volume)} > ${availableVolumeString()}`)
+        const newVolume = volumeString(newLocalOrder.volume)
+        const availableVolume = volumeString(accounts.availableVolume)
+        throw new Error(`buying with more volume than available: ${newVolume} > ${availableVolume}`)
       }
     } else if (isSellOrder(newLocalOrder)) {
       if (newLocalOrder.amount > accounts.availableAmount) {
-        throw new Error(`selling more btcs than available: ${amountString(newLocalOrder.amount)} > ${availableAmountString()}`)
+        const newAmount = amountString(newLocalOrder.amount)
+        const availableAmount = amountString(accounts.availableAmount)
+        throw new Error(`selling more btcs than available: ${newAmount} > ${availableAmount}`)
       }
     } else {
       throw new Error(`unknown local order type: ${newLocalOrder.type}`)
@@ -63,12 +65,12 @@ const OpenOrdersWatch = (logger, config, exchangeConnector) => {
           localOpenOrders.delete(exchangeOrder.id)
           const amountExchanged = localOrder.amount - exchangeOrder.amount
           if (isBuyOrder(exchangeOrder)) {
-            logger.info(amountPriceString(BOUGHT, amountExchanged, localOrder.price))
+            orderLogger.logOrderBought(amountExchanged, localOrder.price)
             accounts.availableAmount += amountExchanged
             accounts.availableVolume += floorVolume(exchangeOrder.amount, exchangeOrder.price)
           }
           if (isSellOrder(exchangeOrder)) {
-            logger.info(amountPriceString(SOLD, amountExchanged, localOrder.price))
+            orderLogger.logOrderSold(amountExchanged, localOrder.price)
             accounts.availableAmount += exchangeOrder.amount
             accounts.availableVolume += floorVolume(localOrder.amount - exchangeOrder.amount, localOrder.price)
           }
@@ -79,11 +81,11 @@ const OpenOrdersWatch = (logger, config, exchangeConnector) => {
   const checkBoughtSoldOrder = () => {
     localOpenOrders.forEach(localOrder => {
       if (isBuyOrder(localOrder) && localOrder.amount > 0) {
-        logger.info(amountPriceString(BOUGHT, localOrder.amount, localOrder.price))
+        orderLogger.logOrderBought(localOrder.amount, localOrder.price)
         accounts.availableAmount += localOrder.amount
       }
       if (isSellOrder(localOrder) && localOrder.amount > 0) {
-        logger.info(amountPriceString(SOLD, localOrder.amount, localOrder.price))
+        orderLogger.logOrderSold(localOrder.amount, localOrder.price)
         accounts.availableVolume += localOrder.volume
       }
     })
@@ -110,9 +112,5 @@ const OpenOrdersWatch = (logger, config, exchangeConnector) => {
     resolveOpenOrders
   }
 }
-
-// order type: (0 - buy; 1 - sell)
-const isBuyOrder = order => order.type === 0
-const isSellOrder = order => order.type === 1
 
 module.exports = OpenOrdersWatch

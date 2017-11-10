@@ -2,8 +2,10 @@ const schedule = require('node-schedule')
 const moment = require('moment')
 
 const requests = require('../utils/requests')
+const { createOrderLogger } = require('../utils/valuesHelper')
 
-const TransactionsService = (logger, config) => {
+const TransactionsService = (baseLogger, config) => {
+  const logger = createOrderLogger(baseLogger, 'TXS')
   const TX_SERVICE_URL = config.simex.transactionsServiceUrl
   const TXS_TTL = config.simex.transactionsTTLminutes
   const SCHEDULING = config.simex.transactionsUpateSchedule
@@ -60,7 +62,7 @@ const TransactionsService = (logger, config) => {
   )
 
   const errorHandler = err => {
-    logger.error('transaction service: ' + err.message)
+    logger.error(err.message)
   }
 
   const startScheduling = () => schedule.scheduleJob(SCHEDULING, updateTransactions)
