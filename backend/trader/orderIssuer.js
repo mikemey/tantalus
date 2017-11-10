@@ -34,7 +34,7 @@ const OrderIssuer = (logger, config, openOrdersWatch, exchangeConnector) => {
     }
   }
   return {
-    issueOrders: ({ trends, accounts }) =>
+    issueOrders: ([trends, accounts]) =>
       checkAccounts(accounts)
         .then(buyOrders(trends, accounts))
         .then(sellOrders(trends, accounts))

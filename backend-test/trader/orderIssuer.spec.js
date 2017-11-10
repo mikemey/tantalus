@@ -52,7 +52,7 @@ describe('Order issuer', () => {
     .post(`/${testId}/sell`, { amount, price })
     .reply(200, buyResponse)
 
-  const issueOrder = (trends, accounts) => orderIssuer.issueOrders({ trends, accounts })
+  const issueOrder = (trends, accounts) => orderIssuer.issueOrders([trends, accounts])
 
   describe('buy strategy', () => {
     const surgingTrend = (latestPrice = 123) => { return { latestPrice, isPriceSurging: true } }
