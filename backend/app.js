@@ -7,11 +7,16 @@ const pjson = require('../package.json')
 const mongoConnection = require('./utils/mongoConnection')
 const security = require('./utils/security')
 
+const suppressRequestLog = [
+  '/api/simex',
+  '/api/invest/transactions'
+]
+
 const requestLogger = () => {
   morgan.token('clientIP', req => req.headers['x-forwarded-for'] || req.connection.remoteAddress)
   return morgan(':date[iso] [:clientIP] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent', {
     skip: (req, res) =>
-      (req.baseUrl && req.baseUrl.startsWith('/api/simex')) ||
+      suppressRequestLog.includes(req.baseUrl) ||
       res.statusCode === 304
   })
 }
