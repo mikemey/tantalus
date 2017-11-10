@@ -55,50 +55,56 @@ const OpenOrdersWatch = (logger, config, exchangeConnector) => {
     return exchangeOrders
   }
 
+  const cancelUnresolvedOrder = exchangeOrders => Promise.all(exchangeOrders.map(exchangeOrder =>
+    exchangeConnector.cancelOrder(exchangeOrder.id)
+      .then(cancelSuccess => {
+        const localOrder = localOpenOrders.get(exchangeOrder.id)
+        if (cancelSuccess) {
+          localOpenOrders.delete(exchangeOrder.id)
+          const amountExchanged = localOrder.amount - exchangeOrder.amount
+          if (isBuyOrder(exchangeOrder)) {
+            logger.info(amountPriceString(BOUGHT, amountExchanged, localOrder.price))
+            accounts.availableAmount += amountExchanged
+            accounts.availableVolume += floorVolume(exchangeOrder.amount, exchangeOrder.price)
+          }
+          if (isSellOrder(exchangeOrder)) {
+            logger.info(amountPriceString(SOLD, amountExchanged, localOrder.price))
+            accounts.availableAmount += exchangeOrder.amount
+            accounts.availableVolume += floorVolume(localOrder.amount - exchangeOrder.amount, localOrder.price)
+          }
+        }
+      })
+  ))
+
+  const checkBoughtSoldOrder = () => {
+    localOpenOrders.forEach(localOrder => {
+      if (isBuyOrder(localOrder)) {
+        logger.info(amountPriceString(BOUGHT, localOrder.amount, localOrder.price))
+        accounts.availableAmount += localOrder.amount
+      }
+      if (isSellOrder(localOrder)) {
+        logger.info(amountPriceString(SOLD, localOrder.amount, localOrder.price))
+        accounts.availableVolume += localOrder.volume
+      }
+    })
+    localOpenOrders.clear()
+  }
+
+  const createAccount = () => {
+    const availableAmount = accounts.availableAmount
+    const availableVolume = accounts.availableVolume < lowerLimit
+      ? 0
+      : Math.min(accounts.availableVolume, volumeLimit)
+
+    return { availableAmount, availableVolume }
+  }
+
   const resolveOpenOrders = () => {
     return exchangeConnector.getOpenOrders()
       .then(checkExchangeOrders)
-      .then(exchangeOrders => Promise.all(exchangeOrders.map(exchangeOrder =>
-        exchangeConnector.cancelOrder(exchangeOrder.id)
-          .then(cancelSuccess => {
-            const localOrder = localOpenOrders.get(exchangeOrder.id)
-            if (cancelSuccess) {
-              localOpenOrders.delete(exchangeOrder.id)
-              const amountExchanged = localOrder.amount - exchangeOrder.amount
-              if (isBuyOrder(exchangeOrder)) {
-                logger.info(amountPriceString(BOUGHT, amountExchanged, localOrder.price))
-                accounts.availableAmount += amountExchanged
-                accounts.availableVolume += floorVolume(exchangeOrder.amount, exchangeOrder.price)
-              }
-              if (isSellOrder(exchangeOrder)) {
-                logger.info(amountPriceString(SOLD, amountExchanged, localOrder.price))
-                accounts.availableAmount += exchangeOrder.amount
-                accounts.availableVolume += floorVolume(localOrder.amount - exchangeOrder.amount, localOrder.price)
-              }
-            }
-          })
-      )))
-      .then(() => {
-        localOpenOrders.forEach(localOrder => {
-          if (isBuyOrder(localOrder)) {
-            logger.info(amountPriceString(BOUGHT, localOrder.amount, localOrder.price))
-            accounts.availableAmount += localOrder.amount
-          }
-          if (isSellOrder(localOrder)) {
-            logger.info(amountPriceString(SOLD, localOrder.amount, localOrder.price))
-            accounts.availableVolume += localOrder.volume
-          }
-        })
-        localOpenOrders.clear()
-      })
-      .then(() => {
-        const availableAmount = accounts.availableAmount
-        const availableVolume = accounts.availableVolume < lowerLimit
-          ? 0
-          : Math.min(accounts.availableVolume, volumeLimit)
-
-        return { availableAmount, availableVolume }
-      })
+      .then(cancelUnresolvedOrder)
+      .then(checkBoughtSoldOrder)
+      .then(createAccount)
   }
   return {
     addOpenOrder,
