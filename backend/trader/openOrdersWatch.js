@@ -78,11 +78,11 @@ const OpenOrdersWatch = (logger, config, exchangeConnector) => {
 
   const checkBoughtSoldOrder = () => {
     localOpenOrders.forEach(localOrder => {
-      if (isBuyOrder(localOrder)) {
+      if (isBuyOrder(localOrder && localOrder.amount > 0)) {
         logger.info(amountPriceString(BOUGHT, localOrder.amount, localOrder.price))
         accounts.availableAmount += localOrder.amount
       }
-      if (isSellOrder(localOrder)) {
+      if (isSellOrder(localOrder) && localOrder.amount > 0) {
         logger.info(amountPriceString(SOLD, localOrder.amount, localOrder.price))
         accounts.availableVolume += localOrder.volume
       }
