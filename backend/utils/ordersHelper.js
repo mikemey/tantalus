@@ -22,8 +22,27 @@ const redText = msg => `\x1b[91m${msg}\x1b[0m`
 const darkText = msg => `\x1b[90m${msg}\x1b[0m`
 const lightText = msg => `\x1b[97m${msg}\x1b[0m`
 
+const colors = [31, 32, 33, 34, 35, 36, 90, 91, 92, 93, 94, 95, 96, 97]
+const pickColor = () => colors[Math.floor(Math.random() * colors.length)]
+
+const randomColorText = msg => `\x1b[${pickColor()}m${msg}\x1b[0m`
+
+const createClientLogger = (baseLogger, clientId) => {
+  return {
+    clientId,
+    info: baseLogger.info,
+    error: baseLogger.error
+  }
+}
+
 const createOrderLogger = (baseLogger, category) => {
-  const categoryTemplate = category ? ` [${category}]` : ''
+  const createTemplate = () => {
+    if (baseLogger.clientId) return ` [${randomColorText(baseLogger.clientId)}]`
+    if (category) return ` [${randomColorText(category)}]`
+    return ''
+  }
+
+  const categoryTemplate = createTemplate()
 
   const logWithBaseTemplate = logFunc => message => {
     const ts = moment().format('YYYY-MM-DD HH:mm:ss')
@@ -65,7 +84,8 @@ module.exports = {
   floorVolume,
   amountString,
   volumeString,
-  createOrderLogger,
   isBuyOrder,
-  isSellOrder
+  isSellOrder,
+  createOrderLogger,
+  createClientLogger
 }
