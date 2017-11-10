@@ -61,7 +61,6 @@ const TransactionsService = (logger, config) => {
 
   const errorHandler = err => {
     logger.error('transaction service: ' + err.message)
-    logger.error(err)
   }
 
   const startScheduling = () => schedule.scheduleJob(SCHEDULING, updateTransactions)

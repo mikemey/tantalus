@@ -75,7 +75,6 @@ const SurgeDetector = (logger, config, exchangeConnector) => {
         const isUnderSellRatio = ratios.slice(0, sellSlotCount).every(ratio => ratio < sellRatio)
 
         if (isPriceSurging) logger.info('price SURGE detected')
-        if (isUnderSellRatio) logger.info('price surge UNDER sell ratio')
         return { latestPrice, isPriceSurging, isUnderSellRatio }
       })
   }
