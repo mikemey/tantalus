@@ -253,21 +253,6 @@ const traderConfigs = [{ // =========================== T 200
     ratio: -0.1, // price change (£/Ƀ) per timeslotSeconds
     useTimeslots: 1
   }
-}, {
-  clientId: 'T(200) B( 7.0 / 2) S(- 0.1 / 1)',
-  exchangeHost: 'http://localhost:8000/api/simex',
-  timeslotSeconds: 200,
-  tickSchedule: '11-59/9 * * * * *',
-  buying: {
-    ratio: 7.0, // price change (£/Ƀ) per timeslotSeconds
-    useTimeslots: 2,
-    volumeLimitPence: 100000,
-    lowerLimitPence: 5000
-  },
-  selling: {
-    ratio: -0.1, // price change (£/Ƀ) per timeslotSeconds
-    useTimeslots: 1
-  }
 }]
 
 module.exports = { traderConfigs }

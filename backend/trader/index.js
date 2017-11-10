@@ -33,6 +33,16 @@ const createTrader = cfg => {
   const job = schedule.scheduleJob(cfg.tickSchedule, tick)
 }
 
-traderConfigs.forEach(createTrader)
+let duplicatesFound = false
+traderConfigs.reduce((existing, cfg) => {
+  if (existing.includes(cfg.clientId)) {
+    duplicatesFound = true
+    mainLogger.error(`duplicate client ID [${cfg.clientId}]`)
+  }
+  existing.push(cfg.clientId)
+  return existing
+}, [])
+
+if (!duplicatesFound) traderConfigs.forEach(createTrader)
 
 mainLogger.info('traders running')
