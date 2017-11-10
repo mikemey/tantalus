@@ -24,19 +24,10 @@ const createTrader = cfg => {
     job.cancel()
   }
 
-  let lastAlive = moment.utc(0)
-  const logAlive = () => {
-    const now = moment.utc()
-    if (now.diff(lastAlive, 'minutes') > 2) {
-      traderLogger.info('alive')
-      lastAlive = now
-    }
-  }
-
   const tick = () => Promise.all([
     surgeDetector.analyseTrends(),
     openOrdersWatch.resolveOpenOrders(),
-    logAlive()
+    traderLogger.aliveMessage()
   ]).then(orderIssuer.issueOrders)
     .catch(errorHandler)
 

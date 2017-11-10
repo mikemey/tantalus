@@ -137,11 +137,11 @@ const TradeAccount = (clientId, baseLogger) => {
       if (isBuyOrder(order)) {
         b.gbp_reserved -= tradingVolume
         b.xbt_available += matchingAmount
-        orderLogger.logOrderBought(matchingAmount, tradingPrice)
+        orderLogger.logOrderBought(order.id, matchingAmount, tradingPrice)
       } else {
         b.gbp_available += tradingVolume
         b.xbt_reserved -= matchingAmount
-        orderLogger.logOrderSold(matchingAmount, tradingPrice)
+        orderLogger.logOrderSold(order.id, matchingAmount, tradingPrice)
       }
     }
   }

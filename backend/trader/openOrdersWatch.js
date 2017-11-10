@@ -73,7 +73,7 @@ const OpenOrdersWatch = (baseLogger, config, exchangeConnector) => {
   const cancelBuyOrder = (localOrder, exchangeOrder) => {
     const amountBought = localOrder.amount - exchangeOrder.amount
     if (amountBought > 0) {
-      orderLogger.logOrderBought(amountBought, localOrder.price)
+      orderLogger.logOrderBought(localOrder.id, amountBought, localOrder.price)
       accounts.availableAmount += amountBought
     }
     accounts.availableVolume += floorVolume(exchangeOrder.amount, exchangeOrder.price)
@@ -82,7 +82,7 @@ const OpenOrdersWatch = (baseLogger, config, exchangeConnector) => {
   const cancelSellOrder = (localOrder, exchangeOrder) => {
     const amountSold = localOrder.amount - exchangeOrder.amount
     if (amountSold > 0) {
-      orderLogger.logOrderSold(amountSold, localOrder.price)
+      orderLogger.logOrderSold(localOrder.id, amountSold, localOrder.price)
     }
     accounts.availableAmount += exchangeOrder.amount
     accounts.availableVolume += floorVolume(localOrder.amount - exchangeOrder.amount, localOrder.price)
@@ -91,11 +91,11 @@ const OpenOrdersWatch = (baseLogger, config, exchangeConnector) => {
   const checkBoughtSoldOrder = () => {
     localOpenOrders.forEach(localOrder => {
       if (isBuyOrder(localOrder) && localOrder.amount > 0) {
-        orderLogger.logOrderBought(localOrder.amount, localOrder.price)
+        orderLogger.logOrderBought(localOrder.id, localOrder.amount, localOrder.price)
         accounts.availableAmount += localOrder.amount
       }
       if (isSellOrder(localOrder) && localOrder.amount > 0) {
-        orderLogger.logOrderSold(localOrder.amount, localOrder.price)
+        orderLogger.logOrderSold(localOrder.id, localOrder.amount, localOrder.price)
         accounts.availableVolume += localOrder.volume
       }
     })

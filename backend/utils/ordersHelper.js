@@ -61,20 +61,30 @@ const createOrderLogger = (baseLogger, category) => {
     lightText(' cancelled')
   )
 
-  const logOrderBought = (amount, price) => info(redText(
-    `BOUGHT: ${amountString(amount)} for ${priceString(price)}`
+  const logOrderBought = (orderId, amount, price) => info(redText(
+    `BOUGHT [${orderId}]: ${amountString(amount)} for ${priceString(price)}`
   ))
 
-  const logOrderSold = (amount, price) => info(greenText(
-    `SOLD: ${amountString(amount)} for ${priceString(price)}`
+  const logOrderSold = (orderId, amount, price) => info(greenText(
+    `SOLD [${orderId}]: ${amountString(amount)} for ${priceString(price)}`
   ))
+
+  let lastAlive = moment.utc(0)
+  const aliveMessage = () => {
+    const now = moment.utc()
+    if (now.diff(lastAlive, 'minutes') > 2) {
+      info(darkText('alive'))
+      lastAlive = now
+    }
+  }
 
   return {
     info, error,
     logNewOrder,
     logCancelledOrder,
     logOrderBought,
-    logOrderSold
+    logOrderSold,
+    aliveMessage
   }
 }
 
