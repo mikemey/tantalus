@@ -14,7 +14,7 @@ const SurgeDetector = (baseLogger, config, exchangeConnector) => {
   let currentTransactions = []
 
   const createDateLimits = () => Array.from({ length: slotCount }, (_, ix) => {
-    const now = moment().unix()
+    const now = moment.utc().unix()
     return now - ((ix + 1) * slotDuration)
   })
 
