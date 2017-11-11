@@ -34,7 +34,7 @@ describe('Exchange connector', () => {
       .catch(err => {
         scope.isDone().should.equal(true)
         err.message.should.include('Request error')
-        err.message.should.include('404')
+        err.message.should.include(`GET ${testHost}/${testClientId}/open_orders`)
       })
   })
 
