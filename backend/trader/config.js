@@ -211,6 +211,9 @@ const commonConfig = {
   buying: {
     volumeLimitPence: 100000,
     lowerLimitPence: 5000
+  },
+  selling: {
+    lowerLimit_mBtc: 80
   }
 }
 

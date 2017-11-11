@@ -1,39 +1,41 @@
-const { volumeString } = require('../utils/ordersHelper')
-
 const mBTC = 10000
 
 const OrderIssuer = (baseLogger, config, openOrdersWatch, exchangeConnector) => {
-  const volumeLimit = config.buying.volumeLimitPence
-  const lowerLimit = config.buying.lowerLimitPence
+  const amountLowerLimit = config.selling.lowerLimit_mBtc
+  const volumeUpperLimit = config.buying.volumeLimitPence
+  const volumeLowerLimit = config.buying.lowerLimitPence
 
-  const checkAccounts = accounts => new Promise(resolve => {
-    if (accounts.availableVolume > volumeLimit) {
-      throw new Error('available volume higher than allowed: ' +
-        `${volumeString(accounts.availableVolume)} > ${volumeString(volumeLimit)}`)
-    }
-    resolve()
-  })
-
-  const buyOrders = (trends, accounts) => () => {
-    if (trends.isPriceSurging && accounts.availableVolume > lowerLimit) {
-      const amount = Math.floor(accounts.availableVolume / trends.latestPrice * mBTC)
-      return exchangeConnector.buyLimitOrder(amount, trends.latestPrice)
-        .then(orderResponse => openOrdersWatch.addOpenOrder(orderResponse))
+  const issueBuyOrder = (trends, account) => {
+    if (trends.isPriceSurging) {
+      const buyingPrice = trends.latestPrice
+      const buyVolume = Math.min(account.balances.gbp_available, volumeUpperLimit)
+      if (buyVolume > volumeLowerLimit) {
+        const amount = Math.floor(buyVolume / buyingPrice * mBTC)
+        return exchangeConnector.buyLimitOrder(amount, buyingPrice)
+          .then(orderResponse => openOrdersWatch.addOpenOrder(orderResponse))
+      }
     }
   }
 
-  const sellOrders = (trends, accounts) => () => {
-    const sellAmount = accounts.availableAmount
-    if (trends.isUnderSellRatio && sellAmount > 0) {
-      return exchangeConnector.sellLimitOrder(sellAmount, trends.latestPrice)
-        .then(orderResponse => openOrdersWatch.addOpenOrder(orderResponse))
+  const issueSellOrder = (trends, account) => {
+    if (trends.isUnderSellRatio) {
+      const sellingPrice = trends.latestPrice
+      const sellAmount = account.balances.xbt_available
+      if (sellAmount > amountLowerLimit) {
+        return exchangeConnector.sellLimitOrder(sellAmount, sellingPrice)
+          .then(orderResponse => openOrdersWatch.addOpenOrder(orderResponse))
+      }
     }
   }
+
   return {
-    issueOrders: ([trends, accounts]) =>
-      checkAccounts(accounts)
-        .then(buyOrders(trends, accounts))
-        .then(sellOrders(trends, accounts))
+    issueOrders: ([trends]) => trends.isPriceSurging || trends.isUnderSellRatio
+      ? exchangeConnector.getAccount()
+        .then(account => Promise.all([
+          issueBuyOrder(trends, account),
+          issueSellOrder(trends, account)
+        ]))
+      : Promise.resolve()
   }
 }
 
