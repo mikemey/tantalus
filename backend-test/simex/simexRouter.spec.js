@@ -35,40 +35,43 @@ describe('SimEx router', () => {
     app.use(API_PREFIX, createSimexRouter(console, transactionServiceMock))
   })
 
-  const getOpenOrders = () => request(app)
-    .get(`${API_PREFIX}/${defaultClientId}/open_orders`)
-    .expect(200)
+  const extractBody = req => req.expect(200).then(({ body }) => body)
 
-  const postBuyOrder = (amount, price, clientId = defaultClientId) => request(app)
+  const getOpenOrders = () => extractBody(request(app)
+    .get(`${API_PREFIX}/${defaultClientId}/open_orders`)
+  )
+
+  const postBuyOrder = (amount, price, clientId = defaultClientId) => extractBody(request(app)
     .post(`${API_PREFIX}/${clientId}/buy`)
     .send({ amount, price })
-    .expect(200)
+  )
 
-  const postSellOrder = (amount, price, clientId = defaultClientId) => request(app)
+  const postSellOrder = (amount, price, clientId = defaultClientId) => extractBody(request(app)
     .post(`${API_PREFIX}/${clientId}/sell`)
     .send({ amount, price })
-    .expect(200)
+  )
 
   const postCancelOrder = id => request(app)
     .post(`${API_PREFIX}/${defaultClientId}/cancel_order`)
     .send({ id })
     .expect(200)
 
-  const getTransactions = () => request(app)
-    .get(`${API_PREFIX}/${defaultClientId}/transactions`)
-    .expect(200)
+  const getTransactions = () => extractBody(request(app)
+    .get(`${API_PREFIX}/transactions`)
+  )
 
-  const getAccounts = () => request(app)
+  const getAccount = () => extractBody(request(app)
+    .get(`${API_PREFIX}/${defaultClientId}/account`)
+  )
+
+  const getAllAccounts = () => extractBody(request(app)
     .get(`${API_PREFIX}/accounts`)
-    .expect(200)
-    .then(({ body }) => body.reduce((map, account) => {
-      map.set(account.clientId, account)
-      return map
-    }, new Map()))
+  ).then(accounts => accounts.reduce((map, account) => {
+    map.set(account.clientId, account)
+    return map
+  }, new Map()))
 
-  const runRequests = (...args) => Promise
-    .all(args)
-    .then(results => results.map(result => result.body))
+  const runRequests = (...args) => Promise.all(args)
 
   const testTransactions = [
     { amount: 163, date: 1510215305, price: 562200, tid: 1510215305263732 },
@@ -77,7 +80,7 @@ describe('SimEx router', () => {
   ]
 
   let transactionId = 1000
-  const transaction = (amount, price) => {
+  const createTx = (amount, price) => {
     return {
       amount,
       price,
@@ -87,7 +90,7 @@ describe('SimEx router', () => {
   }
 
   const makeBitcoinAvailable = amount => postBuyOrder(amount, 10)
-    .then(() => transactionServiceMock.setTransactions([transaction(amount, 10)]))
+    .then(() => transactionServiceMock.setTransactions([createTx(amount, 10)]))
 
   describe('transactions', () => {
     it('registers on transaction service as listener', () => {
@@ -98,32 +101,31 @@ describe('SimEx router', () => {
 
     it('empty transactions when nothing happened', () => {
       return getTransactions()
-        .then(({ body }) => body.should.deep.equal([]))
+        .then(transactions => transactions.should.deep.equal([]))
     })
 
     it('new transactions after listener update', () => {
       transactionServiceMock.setTransactions(testTransactions)
       return getTransactions()
-        .then(({ body }) => body.should.deep.equal(testTransactions))
+        .then(transactions => transactions.should.deep.equal(testTransactions))
     })
   })
 
   describe('statistics', () => {
     it('should set start date', () => {
       return getTransactions()
-        .then(getAccounts)
-        .then(accounts => {
-          const account = accounts.get(defaultClientId)
+        .then(getAccount)
+        .then(account => {
           moment.utc().diff(account.stats.startDate, 'seconds').should.equal(0)
         })
     })
 
-    it('increase request counter for transaction request', () => {
-      return checkRequestCounter(1, getTransactions())
+    it('does NOT increase request counter for transaction request', () => {
+      return checkRequestCounter(0, getTransactions())
     })
 
     it('increase request counter for requests buy/sell/cancel/openOrders', () => {
-      return checkRequestCounter(7, makeBitcoinAvailable(1241)
+      return checkRequestCounter(6, makeBitcoinAvailable(1241)
         .then(() => runRequests(
           postBuyOrder(123, 356),
           postBuyOrder(123, 356),
@@ -135,11 +137,28 @@ describe('SimEx router', () => {
       )
     })
 
+    it('should return all accounts', () => {
+      const clientA = 'c1'
+      const clientB = 'c2'
+
+      return makeBitcoinAvailable(1241)
+        .then(() => runRequests(
+          postBuyOrder(123, 356, clientA),
+          postBuyOrder(123, 356, clientB),
+          postBuyOrder(567, 890, clientA)
+        ))
+        .then(getAllAccounts)
+        .then(allAccounts => {
+          allAccounts.get(clientA).stats.requestCount.should.equal(2)
+          allAccounts.get(clientB).stats.requestCount.should.equal(1)
+        })
+    })
+
     const checkRequestCounter = (expectedCount, startPromise) => startPromise
-      .then(getAccounts)
-      .then(accounts => {
-        const account = accounts.get(defaultClientId)
-        account.stats.requestCount.should.equal(expectedCount)
+      .then(getAccount)
+      .then(account => {
+        const expectedAfterAccount = expectedCount + 1
+        account.stats.requestCount.should.equal(expectedAfterAccount)
       })
   })
 
@@ -148,14 +167,14 @@ describe('SimEx router', () => {
       const amount = 123
       const price = 505
       return postBuyOrder(amount, price)
-        .then(({ body }) => {
-          body.id.should.be.ok
-          const orderDate = moment.unix(body.datetime)
+        .then(exchangeOrder => {
+          exchangeOrder.id.should.be.ok
+          const orderDate = moment.unix(exchangeOrder.datetime)
           moment.utc().diff(orderDate, 'seconds').should.equal(0)
           // type - buy or sell (0 - buy; 1 - sell)
-          body.type.should.equal(0)
-          body.amount.should.equal(amount)
-          body.price.should.equal(price)
+          exchangeOrder.type.should.equal(0)
+          exchangeOrder.amount.should.equal(amount)
+          exchangeOrder.price.should.equal(price)
         })
     })
 
@@ -164,14 +183,14 @@ describe('SimEx router', () => {
       const price = 505
       return makeBitcoinAvailable(125)
         .then(() => postSellOrder(amount, price))
-        .then(({ body }) => {
-          body.id.should.be.ok
-          const orderDate = moment.unix(body.datetime)
+        .then(exchangeOrder => {
+          exchangeOrder.id.should.be.ok
+          const orderDate = moment.unix(exchangeOrder.datetime)
           moment.utc().diff(orderDate, 'seconds').should.equal(0)
           // type - buy or sell (0 - buy; 1 - sell)
-          body.type.should.equal(1)
-          body.amount.should.equal(amount)
-          body.price.should.equal(price)
+          exchangeOrder.type.should.equal(1)
+          exchangeOrder.amount.should.equal(amount)
+          exchangeOrder.price.should.equal(price)
         })
     })
 
@@ -183,53 +202,52 @@ describe('SimEx router', () => {
           postBuyOrder(125, 2677)
         ))
         .then(getOpenOrders)
-        .then(({ body }) => {
-          body.length.should.equal(3)
-          body[0].id.should.not.equal(body[1].id)
-          body[1].id.should.not.equal(body[2].id)
-          body[0].id.should.not.equal(body[2].id)
+        .then(openOrders => {
+          openOrders.length.should.equal(3)
+          openOrders[0].id.should.not.equal(openOrders[1].id)
+          openOrders[1].id.should.not.equal(openOrders[2].id)
+          openOrders[0].id.should.not.equal(openOrders[2].id)
         })
     })
 
     it('should cancel order and return true', () => {
       return makeBitcoinAvailable(213124)
         .then(() => postSellOrder(213124, 12321))
-        .then(({ body }) => postCancelOrder(body.id))
+        .then(exchangeOrder => postCancelOrder(exchangeOrder.id))
         .then(result => result.text.should.equal('true'))
     })
 
     it('should not cancel order and return false when order not found', () => {
       return makeBitcoinAvailable(240)
         .then(() => postSellOrder(231, 1231))
-        .then(({ body }) => postCancelOrder(999))
+        .then(() => postCancelOrder(999))
         .then(result => result.text.should.equal('false'))
     })
 
     it('should cancel sell/post orders', () => {
-      let keptTransaction = null
+      let keptOrder = null
       return makeBitcoinAvailable(56)
         .then(() => runRequests(
           postBuyOrder(12, 34),
           postSellOrder(56, 78),
           postBuyOrder(90, 12)
         ))
-        .then(bodies => {
-          bodies.length.should.equal(3)
-          keptTransaction = bodies[1]
+        .then(exchangeOrders => {
+          exchangeOrders.length.should.equal(3)
+          keptOrder = exchangeOrders[1]
           return runRequests(
-            postCancelOrder(bodies[0].id),
-            postCancelOrder(bodies[2].id)
+            postCancelOrder(exchangeOrders[0].id),
+            postCancelOrder(exchangeOrders[2].id)
           )
         })
         .then(getOpenOrders)
-        .then(({ body }) => {
-          body.length.should.equal(1)
-          body[0].should.deep.equal(keptTransaction)
+        .then(openOrders => {
+          openOrders.length.should.equal(1)
+          openOrders[0].should.deep.equal(keptOrder)
         })
-        .then(getAccounts)
-        .then(accounts => {
-          const account = accounts.get(defaultClientId)
-          account.stats.requestCount.should.equal(7)
+        .then(getAccount)
+        .then(account => {
+          account.stats.requestCount.should.equal(8)
         })
     })
 
@@ -242,14 +260,14 @@ describe('SimEx router', () => {
       ).then(() => runRequests(
         postBuyOrder(500, 50200, clientA),
         postBuyOrder(900, 51000, clientB)
-      )).then(() => transactionServiceMock.setTransactions([transaction(1000, 50000)]))
-        .then(getAccounts)
-        .then(accounts => {
-          accounts.get(clientA).balances.should.deep.equal({
+      )).then(() => transactionServiceMock.setTransactions([createTx(1000, 50000)]))
+        .then(getAllAccounts)
+        .then(allAccounts => {
+          allAccounts.get(clientA).balances.should.deep.equal({
             gbp_balance: 94990, gbp_available: 94990, gbp_reserved: 0,
             xbt_balance: 1000, xbt_available: 1000, xbt_reserved: 0
           })
-          accounts.get(clientB).balances.should.deep.equal({
+          allAccounts.get(clientB).balances.should.deep.equal({
             gbp_balance: 94915, gbp_available: 93895, gbp_reserved: 1020,
             xbt_balance: 1000, xbt_available: 1000, xbt_reserved: 0
           })
@@ -258,8 +276,8 @@ describe('SimEx router', () => {
           postSellOrder(250, 51500, clientA),
           postSellOrder(330, 51600, clientB)
         ))
-        .then(() => transactionServiceMock.setTransactions([transaction(220, 52000)]))
-        .then(getAccounts)
+        .then(() => transactionServiceMock.setTransactions([createTx(220, 52000)]))
+        .then(getAllAccounts)
         .then(accounts => {
           accounts.get(clientA).balances.should.deep.equal({
             gbp_balance: 96123, gbp_available: 96123, gbp_reserved: 0,

@@ -7,10 +7,9 @@ const ExchangeConnector = require('../../backend/trader/exchangeConnector')
 
 describe('Surge detector', () => {
   const testHost = 'http://localhost:14149'
-  const testId = 2231
 
   const surgeConfig = {
-    clientId: testId,
+    clientId: 2231,
     exchangeHost: testHost,
     timeslotSeconds: 100,
     buying: {
@@ -31,7 +30,7 @@ describe('Surge detector', () => {
   })
 
   const expectTrends = (transactions, isPriceSurging, isUnderSellRatio = false) => {
-    const scope = nock(testHost).get(`/${testId}/transactions`).reply(200, transactions)
+    const scope = nock(testHost).get('/transactions').reply(200, transactions)
     return surgeDetector.analyseTrends()
       .then(result => {
         scope.isDone().should.equal(true)
@@ -44,7 +43,7 @@ describe('Surge detector', () => {
   }
 
   it('should ignore empty transactions', () => {
-    const scope = nock(testHost).get(`/${testId}/transactions`).reply(200, [])
+    const scope = nock(testHost).get('/transactions').reply(200, [])
     return surgeDetector.analyseTrends()
       .then(result => {
         scope.isDone().should.equal(true)

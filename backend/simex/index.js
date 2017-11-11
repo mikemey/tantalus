@@ -33,7 +33,7 @@ const createSimexRouter = (logger, transactionService) => {
     return data.tradeAccounts.get(clientId)
   }
 
-  router.get('/:clientId/transactions', injectTrader, (req, res) => {
+  router.get('/transactions', (req, res) => {
     return res.status(200).json(data.transactions)
   })
 
@@ -43,6 +43,10 @@ const createSimexRouter = (logger, transactionService) => {
       .map(clientId => data.tradeAccounts.get(clientId).getAccount())
 
     return res.status(200).json(accounts)
+  })
+
+  router.get('/:clientId/account', injectTrader, (req, res) => {
+    return res.status(200).json(req.trader.getAccount())
   })
 
   router.post('/:clientId/sell', injectTrader, (req, res) => {
