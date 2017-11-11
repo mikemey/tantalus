@@ -11,7 +11,7 @@
     "lint": "standard",
     "prestart": "npm install",
     "start": "node backend/index.js",
-    "schedule": "node backend/schedule.js",
+    "schedule": "node backend/schedule",
     "trader": "node backend/trader",
     "tx-test": "mocha 'backend-test/trader/**.spec.js' 'backend-test/simex/**.spec.js'",
     "tx-watch": "nodemon -x 'npm run tx-test -s'",
