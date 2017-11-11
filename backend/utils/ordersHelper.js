@@ -32,7 +32,8 @@ const createClientLogger = (baseLogger, clientId) => {
   return {
     clientId,
     info: baseLogger.info,
-    error: baseLogger.error
+    error: baseLogger.error,
+    log: baseLogger.log
   }
 }
 
@@ -63,6 +64,7 @@ const createOrderLogger = (baseLogger, category) => {
 
   const info = logWithBaseTemplate(baseLogger.info)
   const error = logWithBaseTemplate(baseLogger.error)
+  const log = baseLogger.log
 
   const logNewOrder = order => info(darkText(
     `${orderName(order)} [${order.id}]: ${amountString(order.amount)} - ${priceString(order.price)}`
@@ -84,6 +86,7 @@ const createOrderLogger = (baseLogger, category) => {
   return {
     info,
     error,
+    log,
     logNewOrder,
     logCancelledOrder,
     logOrderBought,

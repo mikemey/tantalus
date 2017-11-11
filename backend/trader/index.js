@@ -1,56 +1,32 @@
-const schedule = require('node-schedule')
-
-const { createOrderLogger, createClientLogger } = require('../utils/ordersHelper')
-const { traderConfigs } = require('./config')
+const { createOrderLogger } = require('../utils/ordersHelper')
+const { getTraderConfigs } = require('./config')
+const { createTrader } = require('./traderInstance')
 
 const baseLogger = console
 const mainLogger = createOrderLogger(baseLogger, 'MAIN')
 
-process.on ('SIGTERM', () => {
-  // mainLogger.info('stopping traders...')
-  mainLogger.info('EXIT')
-  process.exit (0)
-})
-
 mainLogger.info('setting up traders...')
 
-const createTrader = cfg => {
-  const clientLogger = createClientLogger(baseLogger, cfg.clientId)
-  const traderLogger = createOrderLogger(clientLogger)
+let traderJobs = []
 
-  const exchangeConnector = require('./exchangeConnector')(cfg)
-  const surgeDetector = require('./surgeDetector')(clientLogger, cfg, exchangeConnector)
-  const openOrdersWatch = require('./openOrdersWatch')(clientLogger, cfg, exchangeConnector)
-  const orderIssuer = require('./orderIssuer')(clientLogger, cfg, openOrdersWatch, exchangeConnector)
-
-  const errorHandler = (err, issueQuit = true) => {
-    traderLogger.error(err.message)
-    if (err.stack !== undefined) errorHandler(err.cause, false)
-    traderLogger.error('QUIT')
-    if (err.cause !== undefined) errorHandler(err.cause, false)
-    if (issueQuit) job.cancel()
-  }
-
-  const tick = () => Promise.all([
-    surgeDetector.analyseTrends(),
-    openOrdersWatch.resolveOpenOrders(),
-    traderLogger.aliveMessage()
-  ]).then(orderIssuer.issueOrders)
-    .catch(errorHandler)
-
-  const job = schedule.scheduleJob(cfg.tickSchedule, tick)
+const shutdown = () => {
+  mainLogger.info('stopping traders...')
+  traderJobs.forEach(trader => trader.stop())
+  mainLogger.info('stopped')
 }
 
-let duplicatesFound = false
-traderConfigs.reduce((existing, cfg) => {
-  if (existing.includes(cfg.clientId)) {
-    duplicatesFound = true
-    mainLogger.error(`duplicate client ID [${cfg.clientId}]`)
-  }
-  existing.push(cfg.clientId)
-  return existing
-}, [])
+process.on('uncaughtException', err => {
+  mainLogger.error(err.message)
+  mainLogger.log(err)
+  shutdown()
+})
 
-if (!duplicatesFound) traderConfigs.forEach(createTrader)
+process.on('SIGTERM', () => {
+  shutdown()
+  process.exit(0)
+})
+
+traderJobs = getTraderConfigs()
+  .map(config => createTrader(baseLogger, config))
 
 mainLogger.info('traders running')

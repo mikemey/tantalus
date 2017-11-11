@@ -255,4 +255,17 @@ const traderConfigs = [{ // =========================== T 200
   }
 }]
 
-module.exports = { traderConfigs }
+const checkForDuplicates = () => traderConfigs.reduce((existing, config) => {
+  if (existing.includes(config.clientId)) {
+    throw Error(`duplicate client ID [${config.clientId}]`)
+  }
+  existing.push(config.clientId)
+  return existing
+}, [])
+
+const getTraderConfigs = () => {
+  checkForDuplicates()
+  return traderConfigs
+}
+
+module.exports = { getTraderConfigs }

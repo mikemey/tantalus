@@ -6,9 +6,9 @@ const msgTransform = msg => `\x1b[1m${msg}\x1b[0m`
 const serverLog = msg =>
   log.info('===== %s=======', msgTransform(`SERVER ${msg.padEnd(5)} `))
 
-process.on('SIGINT', () => {
+process.on('SIGTERM', () => {
   serverLog('STOP')
-  process.exit(1)
+  process.exit(0)
 })
 
 serverLog('START')
