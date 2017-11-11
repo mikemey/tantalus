@@ -19,7 +19,7 @@ describe('ticker chart component', () => {
   })
 
   const backendData = [{
-    label: 'solidi ask',
+    label: 'coinfloor ask',
     data: [
       { x: '2017-08-02T00:26:00.256Z', y: 3454.12 }
     ]
@@ -37,17 +37,16 @@ describe('ticker chart component', () => {
   )
 
   const expectedDatasets = [datasetOptions({
-    label: 'solidi ask',
-    backgroundColor: 'rgba(39, 101, 223, 0.5)',
-    borderColor: 'rgb(39, 101, 223)',
+    label: 'coinfloor ask',
+    backgroundColor: 'rgba(18, 107, 62, 0.5)',
+    borderColor: 'rgb(18, 107, 62)',
     data: [
       { x: '2017-08-02T00:26:00.256Z', y: 3454.12 }
-    ],
-    hidden: true
+    ]
   }), datasetOptions({
     label: 'lakebtc bid',
-    backgroundColor: 'rgba(54, 162, 235, 0.5)',
-    borderColor: 'rgb(54, 162, 235)',
+    backgroundColor: 'rgba(67, 156, 111, 0.5)',
+    borderColor: 'rgb(67, 156, 111)',
     data: [
       { x: '2017-08-05T00:26:00.256Z', y: 3856.08 },
       { x: '2017-08-02T00:26:00.256Z', y: 3490 }

@@ -24,54 +24,31 @@ describe('Graph service', () => {
     tickers: [
       { name: 'lakebtc', bid: 3856.08, ask: 3879.06 },
       { name: 'coinfloor', bid: 2222 },
-      { name: 'solidi', bid: 3906.82, ask: 'N/A' },
-      { name: 'cex', bid: 1234.82, ask: 2345.67 },
       { name: 'coindesk', ask: 3821.79 }]
   }, {
     created: _5daysAgo,
     tickers: [
       { name: 'lakebtc', bid: 3857.84, ask: 3865.78 },
       { name: 'coinfloor', bid: 2222 },
-      { name: 'solidi', bid: 3915.58, ask: 'N/A' },
-      { name: 'cex', bid: 1235.82, ask: 2346.67 },
       { name: 'coindesk', ask: 3802.64 }]
   }, {
     created: _4daysAgo,
     tickers: [
-      { name: 'solidi', bid: 3904.59, ask: 0 },
       { name: 'lakebtc', bid: 'N/A', ask: 'N/A' },
       { name: 'coindesk', ask: 3814.19 }]
   }, {
     created: _3daysAgo,
     tickers: [
-      { name: 'solidi', bid: 3675.14, ask: 3454.12 },
       { name: 'lakebtc', bid: 3490, ask: 3567 },
       { name: 'coindesk', ask: 3584.93 }]
   }, {
     created: _8daysAgo,
     tickers: [
       { name: 'lakebtc', bid: 999999, ask: 999999 },
-      { name: 'solidi', bid: 999999, ask: 999999 },
       { name: 'coindesk', ask: 999999 }]
   }]
 
   const expectedGraphData = [{
-    label: 'solidi bid',
-    data: [
-      { x: _6daysAgo, y: 3907 },
-      { x: _5daysAgo, y: 3916 },
-      { x: _4daysAgo, y: 3905 },
-      { x: _3daysAgo, y: 3675 }
-    ]
-  }, {
-    label: 'solidi ask',
-    data: [
-      { x: _6daysAgo, y: null },
-      { x: _5daysAgo, y: null },
-      { x: _4daysAgo, y: null },
-      { x: _3daysAgo, y: 3454 }
-    ]
-  }, {
     label: 'coinfloor bid',
     data: [
       { x: _6daysAgo, y: 2222 },
@@ -98,18 +75,6 @@ describe('Graph service', () => {
       { x: _5daysAgo, y: 3866 },
       { x: _4daysAgo, y: null },
       { x: _3daysAgo, y: 3567 }
-    ]
-  }, {
-    label: 'cex bid',
-    data: [
-      { x: _6daysAgo, y: 1235 },
-      { x: _5daysAgo, y: 1236 }
-    ]
-  }, {
-    label: 'cex ask',
-    data: [
-      { x: _6daysAgo, y: 2346 },
-      { x: _5daysAgo, y: 2347 }
     ]
   }, {
     label: 'coindesk',
@@ -149,7 +114,6 @@ describe('Graph service', () => {
       return {
         created,
         tickers: [
-          { name: 'solidi', bid: ix, ask: ix },
           { name: 'lakebtc', bid: ix, ask: ix },
           { name: 'coindesk', ask: ix }]
       }
@@ -167,7 +131,7 @@ describe('Graph service', () => {
       .then(docs => {
         const result = docs[0]
         result.period.should.equal(_1y)
-        result.graphData.should.have.length(5)
+        result.graphData.should.have.length(3)
         result.graphData.forEach(chart => {
           const chartData = chart.data
           chartData.should.have.length(graphService.LIMIT_RESULTS)

@@ -123,24 +123,16 @@ const sortGraphDataWithProviders = graphData => graphData.sort((a, b) => sortOrd
 
 const sortOrdinalOf = dataset => {
   switch (dataset.label) {
-    case 'solidi bid':
-      return 0
-    case 'solidi ask':
-      return 1
     case 'coinfloor bid':
-      return 2
+      return 0
     case 'coinfloor ask':
-      return 3
+      return 1
     case 'lakebtc bid':
-      return 4
+      return 2
     case 'lakebtc ask':
-      return 5
-    case 'cex bid':
-      return 6
-    case 'cex ask':
-      return 7
+      return 3
     case 'coindesk':
-      return 8
+      return 4
     default:
       throw new Error('dataset label not recognised: ' + dataset.label)
   }

@@ -11,15 +11,15 @@ angular.module('tantalus.ticker')
     function ($scope, $location, $interval, tickerService) {
       const colorHelper = Chart.helpers.color
       const chartColors = {
-        blue: 'rgb(39, 101, 223)',
-        lightblue: 'rgb(54, 162, 235)',
         green: 'rgb(18, 107, 62)',
         lightgreen: 'rgb(67, 156, 111)',
         orange: 'rgb(255, 159, 64)',
         yellow: 'rgb(255, 205, 86)',
+        grey: 'rgb(181, 183, 187)',
+        blue: 'rgb(39, 101, 223)',
+        lightblue: 'rgb(54, 162, 235)',
         lightturq: 'rgb(1, 127, 133)',
-        turq: 'rgb(30, 192, 200)',
-        grey: 'rgb(181, 183, 187)'
+        turq: 'rgb(30, 192, 200)'
       }
       const colorNames = Object.keys(chartColors)
 
@@ -122,11 +122,7 @@ angular.module('tantalus.ticker')
           }
         })
 
-      updateHiddenLineQuery('solidi ask', true)
-      updateHiddenLineQuery('solidi bid', true)
       updateHiddenLineQuery('lakebtc ask', true)
-      updateHiddenLineQuery('cex bid', true)
-      updateHiddenLineQuery('cex ask', true)
 
       const loadGraphData = () => {
         const initialPeriod = getPeriodQuery() || '1d'
