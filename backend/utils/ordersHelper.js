@@ -5,12 +5,15 @@ const mBTC = 10000
 
 const amountString = amount => `Ƀ ${(amount / mBTC).toFixed(4)}`
 const priceString = (price, unit = '£/Ƀ') => `${unit} ${(price / 100).toFixed(2)}`
+const amountPriceString = (amount, price) => `${amountString(amount)} - ${priceString(price)}`
 
 const volumeString = volume => priceString(volume, '£')
 
 const floorVolume = (amount, price) => Math.floor(amount * price / mBTC)
 
 const orderName = order => order.type === BUY_ORDER_TYPE ? 'BUY' : 'SELL'
+const BOUGHT_MSG = 'B'
+const SOLD_MSG = 'S'
 
 // order type: (0 - buy; 1 - sell)
 const BUY_ORDER_TYPE = 0
@@ -56,10 +59,11 @@ const createOrderLogger = (baseLogger, category) => {
     }
   }
 
+  const timeStamp = () => moment.utc().format('YYYY-MM-DD HH:mm:ss')
+
   const logWithBaseTemplate = logFunc => message => {
     updateLastAlive()
-    const ts = moment().format('YYYY-MM-DD HH:mm:ss')
-    logFunc(`${ts}${categoryTemplate} ${message}`)
+    logFunc(`${timeStamp()}${categoryTemplate} ${message}`)
   }
 
   const info = logWithBaseTemplate(baseLogger.info)
@@ -67,7 +71,7 @@ const createOrderLogger = (baseLogger, category) => {
   const log = baseLogger.log
 
   const logNewOrder = order => info(darkText(
-    `${orderName(order)} [${order.id}]: ${amountString(order.amount)} - ${priceString(order.price)}`
+    `${orderName(order)} [${order.id}]: ${amountPriceString(order.amount, order.price)}`
   ))
 
   const logCancelledOrder = order => info(
@@ -76,11 +80,11 @@ const createOrderLogger = (baseLogger, category) => {
   )
 
   const logOrderBought = (orderId, amount, price) => info(redText(
-    `BOUGHT [${orderId}]: ${amountString(amount)} for ${priceString(price)}`
+    `${BOUGHT_MSG} [${orderId}]: ${amountPriceString(amount, price)}`
   ))
 
   const logOrderSold = (orderId, amount, price) => info(greenText(
-    `SOLD [${orderId}]: ${amountString(amount)} for ${priceString(price)}`
+    `${SOLD_MSG} [${orderId}]: ${amountPriceString(amount, price)}`
   ))
 
   return {
