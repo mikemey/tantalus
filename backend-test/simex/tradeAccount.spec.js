@@ -16,7 +16,8 @@ describe('Trade account', () => {
 
   const transaction = (amount, price) => {
     return {
-      amount, price,
+      amount,
+      price,
       date: moment.utc().unix(),
       tid: transactionId++
     }

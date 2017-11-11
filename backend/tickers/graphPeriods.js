@@ -22,7 +22,8 @@ const cutoffDate = period => {
 }
 
 module.exports = {
-  _1w, _1y,
+  _1w,
+  _1y,
   supportedPeriods: [_100min, _1d, _1w, _1m, _3m, _1y],
   cutoffDate
 }

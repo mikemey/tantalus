@@ -82,7 +82,8 @@ const createOrderLogger = (baseLogger, category) => {
   ))
 
   return {
-    info, error,
+    info,
+    error,
     logNewOrder,
     logCancelledOrder,
     logOrderBought,

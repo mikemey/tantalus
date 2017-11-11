@@ -37,7 +37,8 @@ describe('Surge detector', () => {
         scope.isDone().should.equal(true)
         result.should.deep.equal({
           latestPrice: transactions[0].price,
-          isPriceSurging, isUnderSellRatio
+          isPriceSurging,
+          isUnderSellRatio
         })
       })
   }
