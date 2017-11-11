@@ -20,6 +20,7 @@ const OpenOrdersWatch = (baseLogger, config, exchangeConnector) => {
   const localOpenOrders = new Map()
 
   const addOpenOrder = newLocalOrder => {
+    if (newLocalOrder === undefined) orderLogger.error('OOW.addOpenOrder.newLocalOrder')
     newLocalOrder.volume = floorVolume(newLocalOrder.amount, newLocalOrder.price)
 
     checkLocalOrder(newLocalOrder)
@@ -73,23 +74,28 @@ const OpenOrdersWatch = (baseLogger, config, exchangeConnector) => {
   const cancelBuyOrder = (localOrder, exchangeOrder) => {
     const amountBought = localOrder.amount - exchangeOrder.amount
     if (amountBought > 0) {
+      if (localOrder === undefined) orderLogger.error('OOW.cancelBuyOrder.localOrder')
       orderLogger.logOrderBought(localOrder.id, amountBought, localOrder.price)
       accounts.availableAmount += amountBought
     }
+    if (exchangeOrder === undefined) orderLogger.error('OOW.cancelBuyOrder.exchangeOrder')
     accounts.availableVolume += floorVolume(exchangeOrder.amount, exchangeOrder.price)
   }
 
   const cancelSellOrder = (localOrder, exchangeOrder) => {
     const amountSold = localOrder.amount - exchangeOrder.amount
     if (amountSold > 0) {
+      if (localOrder === undefined) orderLogger.error('OOW.cancelSellOrder.localOrder')
       orderLogger.logOrderSold(localOrder.id, amountSold, localOrder.price)
     }
     accounts.availableAmount += exchangeOrder.amount
+    if (localOrder === undefined) orderLogger.error('OOW.cancelSellOrder.localOrder')
     accounts.availableVolume += floorVolume(localOrder.amount - exchangeOrder.amount, localOrder.price)
   }
 
   const checkBoughtSoldOrder = () => {
     localOpenOrders.forEach(localOrder => {
+      if (localOrder === undefined) orderLogger.error('OOW.checkBoughtSoldOrder.localOrder')
       if (isBuyOrder(localOrder) && localOrder.amount > 0) {
         orderLogger.logOrderBought(localOrder.id, localOrder.amount, localOrder.price)
         accounts.availableAmount += localOrder.amount

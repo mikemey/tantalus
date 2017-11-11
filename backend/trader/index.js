@@ -17,10 +17,12 @@ const createTrader = cfg => {
   const openOrdersWatch = require('./openOrdersWatch')(clientLogger, cfg, exchangeConnector)
   const orderIssuer = require('./orderIssuer')(clientLogger, cfg, openOrdersWatch, exchangeConnector)
 
-  const errorHandler = err => {
+  const errorHandler = (err, issueQuit = true) => {
     traderLogger.error(err.message)
+    if (err.stack !== undefined) errorHandler(err.cause, false)
     traderLogger.error('QUIT')
-    job.cancel()
+    if (err.cause !== undefined) errorHandler(err.cause, false)
+    if (issueQuit) job.cancel()
   }
 
   const tick = () => Promise.all([

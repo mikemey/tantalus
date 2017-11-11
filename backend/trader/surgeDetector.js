@@ -1,6 +1,8 @@
 const moment = require('moment')
+const { createOrderLogger } = require('../utils/ordersHelper')
 
 const SurgeDetector = (baseLogger, config, exchangeConnector) => {
+  const orderLogger = createOrderLogger(baseLogger)
   const slotDuration = config.timeslotSeconds
   const buySlotCount = config.buying.useTimeslots
   const sellSlotCount = config.selling.useTimeslots
@@ -45,6 +47,7 @@ const SurgeDetector = (baseLogger, config, exchangeConnector) => {
   const createRatios = buckets => {
     const averagePrices = buckets.map(transactions => {
       const sums = transactions.reduce((sums, currentTx) => {
+        if (currentTx === undefined) orderLogger.error('SURGE.createRatios.currentTx')
         sums.totalAmount += currentTx.amount
         sums.totalPence += currentTx.amount * currentTx.price
         return sums
@@ -72,6 +75,7 @@ const SurgeDetector = (baseLogger, config, exchangeConnector) => {
         const buckets = createBuckets(dateLimits, currentTransactions)
         const ratios = createRatios(buckets)
 
+        if (currentTransactions === undefined) orderLogger.error('SURGE.checkBoughtSoldOrder.analyseTrends')
         const latestPrice = currentTransactions[0].price
         const isPriceSurging = ratios.slice(0, buySlotCount).every(ratio => ratio >= buyRatio)
         const isUnderSellRatio = ratios.slice(0, sellSlotCount).every(ratio => ratio < sellRatio)

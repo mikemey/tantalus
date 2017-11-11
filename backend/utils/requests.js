@@ -2,9 +2,10 @@ const rp = require('request-promise')
 const cheerio = require('cheerio')
 
 class RequestError {
-  constructor (message) {
+  constructor (message, err) {
     this.name = this.constructor.name
     this.message = message
+    this.cause = err
   }
 }
 
@@ -14,7 +15,7 @@ const errorHandler = extension =>
       ? `${err.options.method} ${err.options.uri}`
       : ''
     const message = `Request error ${extension}: ${err.message} [${request}]`
-    throw new RequestError(message)
+    throw new RequestError(message, err)
   }
 
 const transform = body => cheerio.load(body)
