@@ -41,9 +41,12 @@ const createClientLogger = (baseLogger, clientId) => {
 }
 
 const createOrderLogger = (baseLogger, category) => {
+  let timeStampFormat = 'YYYY-MM-DD HH:mm:ss'
   const createTemplate = () => {
     if (baseLogger.clientId) return ` [${randomColorText(baseLogger.clientId)}]`
     if (category) return ` [${randomColorText(category)}]`
+
+    timeStampFormat = '[[]YYYY-MM-DD HH:mm:ss[]]'
     return ''
   }
 
@@ -59,7 +62,7 @@ const createOrderLogger = (baseLogger, category) => {
     }
   }
 
-  const timeStamp = () => moment.utc().format('YYYY-MM-DD HH:mm:ss')
+  const timeStamp = () => moment.utc().format(timeStampFormat)
 
   const logWithBaseTemplate = logFunc => message => {
     updateLastAlive()

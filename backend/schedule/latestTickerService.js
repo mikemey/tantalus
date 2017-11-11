@@ -51,8 +51,8 @@ const LatestTickerService = log => {
     getBidAskTicker(log, tickers.coinfloor),
     getCoindeskTicker(log)
   ]).then(tickers => {
+    log.info('updated ticker: ' + countData(tickers))
     const created = new Date()
-    log.info(created.toISOString() + ' - updated ticker: ' + countData(tickers))
     return { created, tickers }
   }).then(scheduleRepo.storeLatestTickers)
 
