@@ -1,9 +1,16 @@
 /* global describe before beforeEach it */
+const moment = require('moment')
+
 const requests = require('../backend/utils/requests')
+const ExchangeConnector = require('../backend/trader/exchangeConnector')
+const { amountString, volumeString } = require('../backend/utils/ordersHelper')
+
 const helpers = require('./helpers')
 require('chai').should()
 
 xdescribe('exploring', () => {
+  const log = console.log
+
   describe('lakebtc', () => {
     it('orders', () => requests
       .getJson('https://api.LakeBTC.com/api_v2/bcorderbook?symbol=btcgbp')
@@ -72,5 +79,47 @@ xdescribe('exploring', () => {
         closing: { $first: '$tickers' }
       }
     }])
+  })
+
+  it('should print colors', () => {
+    const colormsg = (msg, col) => console.log(`\x1b[${col}m${msg}\x1b[0m`)
+    Array.from({ length: 200 }, (_, ix) => ix)
+      .forEach(c => colormsg(`THIS is color # ${c}`, c))
+  })
+
+  describe('Simex queries', () => {
+    const config = {
+      exchangeHost: 'https://msm-itc.com/api/simex',
+      clientId: 'haumea'
+    }
+    const exchangeConnector = ExchangeConnector(config)
+
+    it('all accounts', () => {
+      log('ALL ACCOUNTS')
+      return exchangeConnector.getAllAccounts()
+        .then(accounts => accounts
+          .sort((a, b) => a.clientId < b.clientId ? -1 : a.clientId > b.clientId ? 1 : 0)
+          .forEach(acc => {
+            log(`${acc.clientId}:`)
+            log(`\t${volumeString(acc.balances.gbp_available)} \t ${amountString(acc.balances.xbt_available)}`)
+            log(`\t${volumeString(acc.balances.gbp_reserved)} \t ${amountString(acc.balances.xbt_reserved)}`)
+          }))
+        .catch(log)
+        .then(process.exit)
+    })
+
+    it('transaction request', () => {
+      return exchangeConnector.getTransactions()
+        .then(transactions => {
+          log(moment.unix(transactions[0].date))
+          log(moment.unix(transactions[transactions.length - 1].date))
+          const transactionCsv = tx => {
+            const time = moment.unix(tx.date).format('HH:mm:ss')
+            return `${tx.tid},${time},${(tx.amount / 10000).toFixed(4)},${tx.price / 100}`
+            // log(`${time},${(tx.amount / 10000).toFixed(4)},${tx.price / 100}`)
+          }
+          transactions.map(transactionCsv).forEach(x => console.log(x))
+        })
+    })
   })
 })
