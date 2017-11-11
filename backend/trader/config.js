@@ -207,7 +207,7 @@ const traderConfigs = [{ // =========================== T 200
 }]
 
 const commonConfig = {
-  exchangeHost: 'http://localhost:8000/api/simex',
+  exchangeHost: 'https://msm-itc.com/api/simex',
   buying: {
     volumeLimitPence: 100000,
     lowerLimitPence: 5000
@@ -227,7 +227,11 @@ const checkForDuplicates = () => traderConfigs.reduce((existing, config) => {
 
 const getTraderConfigs = () => {
   checkForDuplicates()
-  return traderConfigs.map(config => deepAssign(config, commonConfig))
+  const clientPrefix = process.argv[2] ? process.argv[2] : ''
+  return traderConfigs.map(config => {
+    config.clientId = clientPrefix + config.clientId
+    return deepAssign(config, commonConfig)
+  })
 }
 
 module.exports = { getTraderConfigs }
