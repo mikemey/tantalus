@@ -6,6 +6,12 @@ const { traderConfigs } = require('./config')
 const baseLogger = console
 const mainLogger = createOrderLogger(baseLogger, 'MAIN')
 
+process.on ('SIGTERM', () => {
+  // mainLogger.info('stopping traders...')
+  mainLogger.info('EXIT')
+  process.exit (0)
+})
+
 mainLogger.info('setting up traders...')
 
 const createTrader = cfg => {
