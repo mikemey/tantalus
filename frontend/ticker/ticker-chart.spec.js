@@ -29,6 +29,12 @@ describe('ticker chart component', () => {
       { x: '2017-08-05T00:26:00.256Z', y: 3856.08 },
       { x: '2017-08-02T00:26:00.256Z', y: 3490 }
     ]
+  }, {
+    label: 'this is ignored',
+    data: [
+      { x: '2017-08-05T00:26:00.256Z', y: 3856.08 },
+      { x: '2017-08-02T00:26:00.256Z', y: 3490 }
+    ]
   }]
 
   const datasetOptions = optionsOverride => Object.assign(

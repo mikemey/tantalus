@@ -2,6 +2,14 @@
 
 const chartCtrlName = 'ChartController'
 
+const SUPPORTED_TICKERS = [
+  'coinfloor bid',
+  'coinfloor ask',
+  'lakebtc bid',
+  'lakebtc ask',
+  'coindesk'
+]
+
 angular.module('tantalus.ticker')
   .component('tickerChart', {
     controller: chartCtrlName,
@@ -103,17 +111,20 @@ angular.module('tantalus.ticker')
         $scope.model.tickerChart.update(0)
       }
 
+      const enhanceGraphData = datasets => datasets
+        .filter(dataset => SUPPORTED_TICKERS.includes(dataset.label))
+        .map((dataset, ix) => {
+          const colorName = colorNames[ix % colorNames.length]
+          const borderColor = chartColors[colorName]
+          const backgroundColor = colorHelper(chartColors[colorName]).alpha(0.5).rgbString()
+          const hidden = getHiddenLineQuery(dataset.label)
+
+          return Object.assign(dataset, lineOptions(borderColor, backgroundColor, hidden))
+        })
+
       $scope.updateTicker = period => tickerService.getGraphData(period)
         .then(graphData => {
-          const fullGraphData = graphData.map((dataset, ix) => {
-            const colorName = colorNames[ix % colorNames.length]
-            const borderColor = chartColors[colorName]
-            const backgroundColor = colorHelper(chartColors[colorName]).alpha(0.5).rgbString()
-            const hidden = getHiddenLineQuery(dataset.label)
-
-            return Object.assign(dataset, lineOptions(borderColor, backgroundColor, hidden))
-          })
-          $scope.model.data.datasets = fullGraphData
+          $scope.model.data.datasets = enhanceGraphData(graphData)
           if ($scope.model.tickerChart.ctx) {
             updateDatasetFillings()
             updateActiveButton(period)
