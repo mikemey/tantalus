@@ -47,7 +47,6 @@ const SurgeDetector = (baseLogger, config, exchangeConnector) => {
   const createRatios = buckets => {
     const averagePrices = buckets.map(transactions => {
       const sums = transactions.reduce((sums, currentTx) => {
-        if (currentTx === undefined) orderLogger.error('SURGE.createRatios.currentTx')
         sums.totalAmount += currentTx.amount
         sums.totalPence += currentTx.amount * currentTx.price
         return sums
@@ -73,12 +72,24 @@ const SurgeDetector = (baseLogger, config, exchangeConnector) => {
 
         const dateLimits = createDateLimits()
         const lastDateLimit = dateLimits[slotCount - 1]
+
+        const previousCurrentTxs = Array.from(currentTransactions)
         currentTransactions = createNewTransactions(currentTransactions, transactions, lastDateLimit)
+
+        if (!currentTransactions[0]) {
+          console.log('---previousCurrent')
+          console.log(previousCurrentTxs)
+          console.log('---------------')
+          console.log('---exchange transactions')
+          console.log(transactions)
+          console.log('---lastDateLimit')
+          console.log(lastDateLimit)
+          console.log('---------------')
+        }
 
         const buckets = createBuckets(dateLimits, currentTransactions)
         const ratios = createRatios(buckets)
 
-        if (currentTransactions === undefined) orderLogger.error('SURGE.checkBoughtSoldOrder.analyseTrends')
         const latestPrice = currentTransactions[0].price
         const isPriceSurging = ratios.slice(0, buySlotCount).every(ratio => ratio >= buyRatio)
         const isUnderSellRatio = ratios.slice(0, sellSlotCount).every(ratio => ratio < sellRatio)
