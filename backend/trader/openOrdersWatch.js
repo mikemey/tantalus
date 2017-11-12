@@ -32,6 +32,7 @@ const OpenOrdersWatch = (baseLogger, config, exchangeConnector) => {
     exchangeConnector.cancelOrder(exchangeOrder.id)
       .then(cancelSuccess => {
         if (cancelSuccess) {
+          orderLogger.logCancelledOrder(exchangeOrder)
           const localOrder = localOpenOrders.get(exchangeOrder.id)
           if (localOrder) {
             localOpenOrders.delete(exchangeOrder.id)
