@@ -64,8 +64,18 @@ describe('Open orders watch', () => {
   })
 
   describe('common scenarios', () => {
-    it('should do nothing when starting', () => {
+    it('should do nothing when no local or exchange orders', () => {
       return resolveOpenOrders([])
+    })
+
+    it('should cancel order when order only in exchange (ie trader restarted)', () => {
+      const cancel1 = expectCancelOrder(1234)
+      const cancel2 = expectCancelOrder(5678)
+      return resolveOpenOrders([buyOrder(1234, 100, 100), sellOrder(5678, 100, 100)])
+        .then(() => {
+          cancel1.isDone().should.equal(true)
+          cancel2.isDone().should.equal(true)
+        })
     })
 
     it('full cycle with partial amounts', () => {
