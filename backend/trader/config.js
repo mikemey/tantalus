@@ -207,7 +207,7 @@ const traderConfigs = [{ // =========================== T 200
 }]
 
 const commonConfig = {
-  exchangeHost: 'https://msm-itc.com/api/simex',
+  exchangeHost: 'http://localhost:8000/api/simex',
   buying: {
     volumeLimitPence: 100000,
     lowerLimitPence: 5000
