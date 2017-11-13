@@ -13,6 +13,9 @@ const defaultTestUser = {
   username: 'default-test-user'
 }
 
+const connectMongoose = () => mongo.mongoose.connect(defaultTestConfig.mongodb.url, { useMongoClient: true })
+const closeMongoose = () => mongo.mongoose.connection.close()
+
 const startTestServer = (callback, disableSecurity = true, testUser = defaultTestUser, configOverride) => {
   const testConfig = disableSecurity
     ? Object.assign({
@@ -53,31 +56,35 @@ const closeAll = server => {
   return serverClosedPromise().then(dbClosedPromise)
 }
 
-const dropDatabase = () => mongodb().then(db => db.dropDatabase())
+const dropDatabase = () => mongodb()
+  .then(db => db.dropDatabase())
+  .then(() => mongo.ensureAllIndices(db))
 
-const dbCollection = collectionName => mongodb()
-  .then(db => db.collection(collectionName))
+const dbCollection = collectionName => mongodb().then(db => db.collection(collectionName))
 
-const getTickers = () => dbCollection(mongo.tickersCollectionName)
-  .then(collection => collection.find().toArray())
+const getData = (collectionName, find) => dbCollection(collectionName)
+  .then(collection => collection.find(find).toArray())
 
-const insertTickers = tickers => dbCollection(mongo.tickersCollectionName)
-  .then(collection => collection.insertMany(tickers))
+const insertData = (collectionName, data) => dbCollection(collectionName)
+  .then(collection => collection.insertMany(data))
 
-const insertGraphData = graphdata => dbCollection(mongo.graphsCollectionName)
-  .then(collection => collection.insertMany(graphdata))
+const getTickers = () => getData(mongo.tickersCollectionName)
+const insertTickers = tickers => insertData(mongo.tickersCollectionName, tickers)
 
-const getGraphData = period => dbCollection(mongo.graphsCollectionName)
-  .then(collection => collection.find({ period }).toArray())
+const getGraphData = period => getData(mongo.graphsCollectionName, { period })
+const insertGraphData = graphdata => insertData(mongo.graphsCollectionName, graphdata)
 
-const getAccounts = () => dbCollection(accountCollectionName)
-  .then(collection => collection.find().toArray())
+const getAccounts = () => getData(accountCollectionName)
+const insertAccounts = accounts => insertData(accountCollectionName, accounts)
 
-const insertAccounts = accounts => dbCollection(accountCollectionName)
-  .then(collection => collection.insertMany(accounts))
+const getTransactions = () => getData(mongo.transactionCollectionName)
+const insertTransactions = transactions => insertData(mongo.transactionCollectionName, transactions)
 
-const connectMongoose = () => mongo.mongoose.connect(defaultTestConfig.mongodb.url, { useMongoClient: true })
-const closeMongoose = () => mongo.mongoose.connection.close()
+const copyWithoutIDField = (transactions, defaultId = '_id') => transactions.map(tx => {
+  const copy = Object.assign({}, tx)
+  delete copy[defaultId]
+  return copy
+})
 
 module.exports = {
   startTestServer,
@@ -91,5 +98,9 @@ module.exports = {
   getAccounts,
   insertAccounts,
   insertGraphData,
-  getGraphData
+  getGraphData,
+  copyWithoutIDField,
+
+  getTransactions,
+  insertTransactions
 }
