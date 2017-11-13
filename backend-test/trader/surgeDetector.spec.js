@@ -29,6 +29,8 @@ describe('Surge detector', () => {
     surgeDetector = SurgeDetector(console, surgeConfig, exchange)
   })
 
+  afterEach(() => nock.cleanAll())
+
   const expectTrends = (transactions, isPriceSurging, isUnderSellRatio = false) => {
     const scope = nock(testHost).get('/transactions').reply(200, transactions)
     return surgeDetector.analyseTrends()

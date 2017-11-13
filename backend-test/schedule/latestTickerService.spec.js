@@ -26,6 +26,8 @@ describe('Latest ticker service', () => {
     moment.utc(date).isValid().should.equal(true)
   }
 
+  afterEach(() => nock.cleanAll())
+
   describe('valid responses', () => {
     beforeEach(() => {
       nockget(tickerUrls.lakebtc).reply(200, lakebtcResponse)
@@ -42,7 +44,7 @@ describe('Latest ticker service', () => {
     ]
 
     it('stores all tickers', () => latestTickerService.storeTickers()
-      .then(() => helpers.getTickers())
+      .then(helpers.getTickers)
       .then(docs => {
         docs.length.should.equal(1)
         const doc = docs[0]
@@ -67,7 +69,7 @@ describe('Latest ticker service', () => {
     ]
 
     it('stores unset tickers', () => latestTickerService.storeTickers()
-      .then(() => helpers.getTickers())
+      .then(helpers.getTickers)
       .then(docs => {
         docs.length.should.equal(1)
         const doc = docs[0]
