@@ -106,6 +106,7 @@ const createOrderLogger = (baseLogger, category) => {
 module.exports = {
   BUY_ORDER_TYPE,
   SELL_ORDER_TYPE,
+  mmBTC,
   floorVolume,
   floorAmount,
   amountString,

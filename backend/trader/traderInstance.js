@@ -1,4 +1,5 @@
 const schedule = require('node-schedule')
+const moment = require('moment')
 
 const {
   amountString,
@@ -11,8 +12,10 @@ const createTrader = (baseLogger, config) => {
   const clientLogger = createClientLogger(baseLogger, config.clientId)
   const traderLogger = createOrderLogger(clientLogger)
 
+  const unixTime = () => moment.utc().unix()
   const exchangeConnector = require('./exchangeConnector')(config)
-  const surgeDetector = require('./surgeDetector')(clientLogger, config, exchangeConnector)
+
+  const surgeDetector = require('./surgeDetector')(clientLogger, config, exchangeConnector, unixTime)
   const openOrdersWatch = require('./openOrdersWatch')(clientLogger, config, exchangeConnector)
   const orderIssuer = require('./orderIssuer')(clientLogger, config, openOrdersWatch, exchangeConnector)
 

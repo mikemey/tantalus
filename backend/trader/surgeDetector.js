@@ -1,8 +1,6 @@
-const moment = require('moment')
-const { createOrderLogger } = require('../utils/ordersHelper')
+const { floorAmount, mmBTC } = require('../utils/ordersHelper')
 
-const SurgeDetector = (baseLogger, config, exchangeConnector) => {
-  const orderLogger = createOrderLogger(baseLogger)
+const SurgeDetector = (baseLogger, config, exchangeConnector, unixTime) => {
   const slotDuration = config.timeslotSeconds
   const buySlotCount = config.buying.useTimeslots
   const sellSlotCount = config.selling.useTimeslots
@@ -11,90 +9,83 @@ const SurgeDetector = (baseLogger, config, exchangeConnector) => {
   const buyRatio = config.buying.ratio
   const sellRatio = config.selling.ratio
 
-  let currentTransactions = []
-
-  const createDateLimits = () => Array.from({ length: slotCount }, (_, ix) => {
-    const now = moment.utc().unix()
-    return now - ((ix + 1) * slotDuration)
-  })
-
-  const createNewTransactions = (oldTransactions, txUpdate, dateLimit) => {
-    const latestRecordedId = oldTransactions[0]
-      ? oldTransactions[0].tid
-      : 0
-    const newTransactions = txUpdate
-      .sort((txA, txB) => txB.tid - txA.tid)
-      .filter(tx => tx.tid > latestRecordedId)
-      .map(tx => {
-        tx.amount = Number(tx.amount)
-        return tx
-      })
-
-    return newTransactions.concat(oldTransactions)
-      .filter(tx => tx.date > dateLimit)
+  const data = {
+    cachedTransactions: [],
+    latestPrice: 0,
+    latestTransactionTid: 0
   }
 
-  const createBuckets = (dateLimits, transactions) => dateLimits.map(dateLimit =>
-    transactions.findIndex(tx => tx.date < dateLimit)
-  ).reduce((collected, endIx) => {
-    if (endIx < 0) endIx = transactions.length
+  const createNewTransactions = (txUpdate, dateLimit) => {
+    const allTransactions = txUpdate.filter(tx => tx.tid > data.latestTransactionTid)
+      .map(convertTransactionAmount)
+      .concat(data.cachedTransactions)
+      .sort((txA, txB) => txB.tid - txA.tid)
 
-    collected.buckets.push(transactions.slice(collected.startIx, endIx))
-    collected.startIx = endIx
-    return collected
-  }, { buckets: [], startIx: 0 }).buckets
+    data.latestTransactionTid = allTransactions[0] ? allTransactions[0].tid : data.latestTransactionTid
+    data.latestPrice = allTransactions[0] ? allTransactions[0].price : 0
+    return allTransactions.filter(tx => tx.date >= dateLimit)
+  }
 
-  const createRatios = buckets => {
-    const averagePrices = buckets.map(transactions => {
-      const sums = transactions.reduce((sums, currentTx) => {
+  const convertTransactionAmount = tx => {
+    tx.amount = Number(tx.amount)
+    return tx
+  }
+
+  const groupInTimeslots = transactions => Array
+    .from({ length: slotCount }, (_, ix) => {
+      return {
+        latest: unixTime() - (ix * slotDuration),
+        earliest: unixTime() - ((ix + 1) * slotDuration)
+      }
+    })
+    .map(({ latest, earliest }) => transactions.filter(tx => {
+      return tx.date < latest && tx.date > earliest
+    }))
+
+  const sumupAmountsAndVolumes = bucket => {
+    const startSums = { totalAmount: 0, totalVolume: 0 }
+    switch (bucket.length) {
+      case 0: return startSums
+      case 1: return {
+        totalAmount: bucket[0].amount,
+        totalVolume: transactionVolume(bucket[0])
+      }
+      default: return bucket.reduce((sums, currentTx) => {
         sums.totalAmount += currentTx.amount
-        sums.totalPence += currentTx.amount * currentTx.price
+        sums.totalVolume += transactionVolume(currentTx)
         return sums
-      }, { totalAmount: 0, totalPence: 0 })
-      return sums.totalPence / sums.totalAmount
-    })
+      }, startSums)
+    }
+  }
 
-    let previousAverage = averagePrices[0]
-    return averagePrices.slice(1).map(averagePrice => {
-      const ratio = (previousAverage - averagePrice) / slotDuration
-      previousAverage = averagePrice
-      return ratio
-    })
+  const transactionVolume = tx => Math.round(tx.amount * tx.price / mmBTC)
+
+  const calculateRatios = (currentPrice, ix, averagePrices) => {
+    if (ix === (averagePrices.length - 1)) return 0
+
+    const previousPrice = averagePrices[ix + 1]
+    return (currentPrice - previousPrice) / slotDuration
   }
 
   return {
     analyseTrends: () => exchangeConnector.getTransactions()
       .then(transactions => {
-        if (transactions.length === 0) {
-          orderLogger.info('received empty transactions list.')
-          return { isPriceSurging: false, isUnderSellRatio: false }
+        const lastDateLimit = unixTime() - (slotCount * slotDuration)
+        data.cachedTransactions = createNewTransactions(transactions, lastDateLimit)
+
+        const ratios = groupInTimeslots(data.cachedTransactions)
+          .map(sumupAmountsAndVolumes)
+          .map(sums => floorAmount(sums.totalVolume, sums.totalAmount))
+          .map(calculateRatios)
+
+        const isPriceSurging = ratios.length && ratios.slice(0, buySlotCount - 1).every(ratio => ratio >= buyRatio)
+        const isUnderSellRatio = ratios.length && ratios.slice(0, sellSlotCount - 1).every(ratio => ratio < sellRatio)
+
+        return {
+          latestPrice: data.latestPrice,
+          isPriceSurging,
+          isUnderSellRatio
         }
-
-        const dateLimits = createDateLimits()
-        const lastDateLimit = dateLimits[slotCount - 1]
-
-        const previousCurrentTxs = Array.from(currentTransactions)
-        currentTransactions = createNewTransactions(currentTransactions, transactions, lastDateLimit)
-
-        if (!currentTransactions[0]) {
-          console.log('---previousCurrent')
-          console.log(previousCurrentTxs)
-          console.log('---------------')
-          console.log('---exchange transactions')
-          console.log(transactions)
-          console.log('---lastDateLimit')
-          console.log(lastDateLimit)
-          console.log('---------------')
-        }
-
-        const buckets = createBuckets(dateLimits, currentTransactions)
-        const ratios = createRatios(buckets)
-
-        const latestPrice = currentTransactions[0].price
-        const isPriceSurging = ratios.slice(0, buySlotCount).every(ratio => ratio >= buyRatio)
-        const isUnderSellRatio = ratios.slice(0, sellSlotCount).every(ratio => ratio < sellRatio)
-
-        return { latestPrice, isPriceSurging, isUnderSellRatio }
       })
   }
 }
