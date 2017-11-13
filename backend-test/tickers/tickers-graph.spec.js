@@ -16,6 +16,8 @@ describe('GET /api/tickers/graph endpoint', () => {
 
   after(() => helpers.closeAll(server))
 
+      beforeEach(helpers.dropDatabase)
+
   const getGraphData = period => request(app).get(`/api/tickers/graph?period=${period}`)
 
   describe('data responses', () => {
@@ -37,13 +39,11 @@ describe('GET /api/tickers/graph endpoint', () => {
       graphData: []
     }]
 
-    beforeEach(() => helpers.dropDatabase()
-      .then(() => helpers.insertGraphData(testData))
-    )
+    beforeEach(() => helpers.insertGraphData(testData))
+
     it('respond with graph data', () => getGraphData('1w')
       .expect(200)
-      .then(({ body }) => body.should.deep.equal(testData[0].graphData)
-      )
+      .then(({ body }) => body.should.deep.equal(testData[0].graphData))
     )
 
     it('response 400 for invalid period parameter', () => getGraphData('test')
@@ -62,9 +62,7 @@ describe('GET /api/tickers/graph endpoint', () => {
       }
     })
 
-    beforeEach(() => helpers.dropDatabase()
-      .then(() => helpers.insertGraphData(testData))
-    )
+    beforeEach(() => helpers.insertGraphData(testData))
 
     it('1 day report', () => getGraphData('1d').expect(200)
       .then(({ body }) => body.should.deep.equal(testGraphData))
