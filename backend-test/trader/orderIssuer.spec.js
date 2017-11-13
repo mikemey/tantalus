@@ -19,7 +19,7 @@ describe('Order issuer', () => {
       lowerLimitPence: testLowerVolumeLimit
     },
     selling: {
-      lowerLimit_mBtc: testLowerAmountLimit
+      lowerLimit_mmBtc: testLowerAmountLimit
     }
   }
 
@@ -104,6 +104,10 @@ describe('Order issuer', () => {
       return issueOrders(notSurgingTrend)
         .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
     })
+
+    it('should NOT issue a buy order when latest price is 0', () => {
+      throw Error('implement me')
+    })
   })
 
   describe('sell strategy', () => {
@@ -135,6 +139,10 @@ describe('Order issuer', () => {
       expectGetAccount(createAccountResponse(0, 999))
       return issueOrders(overSellRatioTrend)
         .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
+    })
+
+    it('should NOT issue a sell order when latest price is 0', () => {
+      throw Error('implement me')
     })
   })
 })

@@ -1,15 +1,16 @@
 const moment = require('moment')
 
 const KEEP_ALIVE_MESSAGE_MINUTES = 15
-const mBTC = 10000
+const mmBTC = 10000
 
-const amountString = amount => `Ƀ ${(amount / mBTC).toFixed(4)}`
+const amountString = amount => `Ƀ ${(amount / mmBTC).toFixed(4)}`
 const priceString = (price, unit = '£/Ƀ') => `${unit} ${(price / 100).toFixed(2)}`
 const amountPriceString = (amount, price) => `${amountString(amount)} - ${priceString(price)}`
 
 const volumeString = volume => priceString(volume, '£')
 
-const floorVolume = (amount, price) => Math.floor(amount * price / mBTC)
+const floorVolume = (amount, price) => Math.floor(amount * price / mmBTC)
+const floorAmount = (volume, amountOrPrice) => Math.floor(volume / amountOrPrice * mmBTC)
 
 const orderName = order => order.type === BUY_ORDER_TYPE ? 'BUY' : 'SELL'
 const BOUGHT_MSG = 'B'
@@ -106,6 +107,7 @@ module.exports = {
   BUY_ORDER_TYPE,
   SELL_ORDER_TYPE,
   floorVolume,
+  floorAmount,
   amountString,
   volumeString,
   isBuyOrder,

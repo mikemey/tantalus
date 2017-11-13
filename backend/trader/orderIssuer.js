@@ -1,7 +1,7 @@
-const mBTC = 10000
+const { floorAmount } = require('../utils/ordersHelper')
 
 const OrderIssuer = (baseLogger, config, openOrdersWatch, exchangeConnector) => {
-  const amountLowerLimit = config.selling.lowerLimit_mBtc
+  const amountLowerLimit = config.selling.lowerLimit_mmBtc
   const volumeUpperLimit = config.buying.volumeLimitPence
   const volumeLowerLimit = config.buying.lowerLimitPence
 
@@ -10,7 +10,7 @@ const OrderIssuer = (baseLogger, config, openOrdersWatch, exchangeConnector) => 
       const buyingPrice = trends.latestPrice
       const buyVolume = Math.min(account.balances.gbp_available, volumeUpperLimit)
       if (buyVolume > volumeLowerLimit) {
-        const amount = Math.floor(buyVolume / buyingPrice * mBTC)
+        const amount = floorAmount(buyVolume, buyingPrice)
         return exchangeConnector.buyLimitOrder(amount, buyingPrice)
           .then(orderResponse => openOrdersWatch.addOpenOrder(orderResponse))
       }

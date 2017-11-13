@@ -213,7 +213,7 @@ const commonConfig = {
     lowerLimitPence: 5000
   },
   selling: {
-    lowerLimit_mBtc: 80
+    lowerLimit_mmBtc: 80
   }
 }
 
