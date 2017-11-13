@@ -88,6 +88,18 @@ describe('Trade account', () => {
   })
 
   describe('transactions', () => {
+    it('does nothing when no new transactions', () => {
+      gbpAvailable(50000)
+      xbtAvailable(300)
+      tradeAccount.newSellOrder(146, 230000)
+      tradeAccount.newBuyOrder(1000, 230000)
+
+      tradeAccount.transactionsUpdate([])
+      tradeAccount.getOpenOrders().should.have.length(2)
+      gbpAvailable(27000)
+      xbtAvailable(154)
+    })
+
     it('resolves buy order when transaction price <= bid price', () => {
       gbpAvailable(50000)
       xbtAvailable(250)
