@@ -68,6 +68,24 @@ describe('Order issuer', () => {
 
   const issueOrders = trends => orderIssuer.issueOrders([trends])
 
+  describe('(latestPrice)', () => {
+    it('should NOT issue an order when latest price is 0', () => {
+      const zeroPrice = {
+        latestPrice: 0,
+        isPriceSurging: true,
+        isUnderSellRatio: true
+      }
+      return issueOrders(zeroPrice)
+        .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
+    })
+
+    it('should NOT issue an order when latest price is missing', () => {
+      const noPrice = { isPriceSurging: true, isUnderSellRatio: true }
+      return issueOrders(noPrice)
+        .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
+    })
+  })
+
   describe('buy strategy', () => {
     const surgingTrend = (latestPrice = 123) => { return { latestPrice, isPriceSurging: true } }
 
@@ -104,10 +122,6 @@ describe('Order issuer', () => {
       return issueOrders(notSurgingTrend)
         .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
     })
-
-    it('should NOT issue a buy order when latest price is 0', () => {
-      throw Error('implement me')
-    })
   })
 
   describe('sell strategy', () => {
@@ -139,10 +153,6 @@ describe('Order issuer', () => {
       expectGetAccount(createAccountResponse(0, 999))
       return issueOrders(overSellRatioTrend)
         .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
-    })
-
-    it('should NOT issue a sell order when latest price is 0', () => {
-      throw Error('implement me')
     })
   })
 })

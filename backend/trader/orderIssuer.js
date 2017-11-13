@@ -29,13 +29,14 @@ const OrderIssuer = (baseLogger, config, openOrdersWatch, exchangeConnector) => 
   }
 
   return {
-    issueOrders: ([trends]) => trends.isPriceSurging || trends.isUnderSellRatio
-      ? exchangeConnector.getAccount()
-        .then(account => Promise.all([
-          issueBuyOrder(trends, account),
-          issueSellOrder(trends, account)
-        ]))
-      : Promise.resolve()
+    issueOrders: ([trends]) =>
+      trends.latestPrice && (trends.isPriceSurging || trends.isUnderSellRatio)
+        ? exchangeConnector.getAccount()
+          .then(account => Promise.all([
+            issueBuyOrder(trends, account),
+            issueSellOrder(trends, account)
+          ]))
+        : Promise.resolve()
   }
 }
 
