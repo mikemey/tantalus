@@ -16,7 +16,7 @@ describe('GET /api/tickers/graph endpoint', () => {
 
   after(() => helpers.closeAll(server))
 
-      beforeEach(helpers.dropDatabase)
+  beforeEach(helpers.dropDatabase)
 
   const getGraphData = period => request(app).get(`/api/tickers/graph?period=${period}`)
 
