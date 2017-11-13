@@ -7,13 +7,14 @@ const InvestService = (logger, transactionsService) => {
       { price: tx.price / 100 }
     ))
 
-  const cutoffTimestamp = () => moment.utc().subtract(10, 'm').unix()
+  const cutoffTimestamp = () => moment.utc().subtract(30, 'm').unix()
+
   const removeOutdatedTransactions = txs => {
     const cutoff = cutoffTimestamp()
     return {
       cutoff,
       newTransactions: txs.filter(tx => tx.date > cutoff),
-      latestPrice: Number(txs[0].price)
+      latestPrice: txs[0] ? Number(txs[0].price) : cache.latestPrice
     }
   }
 
@@ -22,6 +23,13 @@ const InvestService = (logger, transactionsService) => {
     txsData.newTransactions.forEach(tx => {
       tx.weightedAmount = (tx.amount * (tx.date - txsData.cutoff) / timeScope)
     })
+    return txsData
+  }
+
+  const createPriceGroups = txsData => {
+    txsData.priceGroups = txsData.newTransactions
+      .reduce(sumWeightedAmountByPrice, [])
+      .sort((groupA, groupB) => groupA.label - groupB.label)
     return txsData
   }
 
@@ -42,17 +50,10 @@ const InvestService = (logger, transactionsService) => {
     return priceGroups
   }
 
-  const createPriceGroups = txsData => {
-    txsData.priceGroups = txsData.newTransactions
-      .reduce(sumWeightedAmountByPrice, [])
-      .sort((groupA, groupB) => groupA.label - groupB.label)
-    return txsData
-  }
-
   const createPriceChanges = txsData => {
     txsData.priceChanges = txsData.newTransactions
       .reduce((cumulated, currentTx) => {
-        const x = moment.unix(currentTx.date)
+        const x = moment.unix(currentTx.date).toISOString()
         const y = cumulated.lastTx
           ? cumulated.lastTx.price - currentTx.price
           : 0
@@ -70,7 +71,6 @@ const InvestService = (logger, transactionsService) => {
     cache.latestPrice = txsData.latestPrice
     cache.priceGroups = txsData.priceGroups
     cache.priceChanges = txsData.priceChanges
-    cache.txidsList = txsData.newTransactions.map(tx => tx.tid)
   }
 
   const errorHandler = err => {
@@ -91,7 +91,6 @@ const InvestService = (logger, transactionsService) => {
   const cache = {
     cutoffTimestamp: 0,
     transactionsList: [],
-    txidsList: [],
     latestPrice: 0,
     priceGroups: [],
     priceChanges: []
