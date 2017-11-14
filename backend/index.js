@@ -7,10 +7,13 @@ const tantalusLogger = TantalusLogger(console, 'SERVER', highlightText)
 
 const serverLog = msg => tantalusLogger.info(highlightText(`========== ${msg.padEnd(5)} ==========`))
 
-process.on('SIGTERM', () => {
+const shutdown = () => {
   serverLog('STOP')
   process.exit(0)
-})
+}
+
+process.on('SIGTERM', shutdown)
+process.on('SIGINT', shutdown)
 
 serverLog('START')
 createServer(config, tantalusLogger)

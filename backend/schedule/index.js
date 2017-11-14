@@ -10,6 +10,14 @@ const TransactionsService = require('../simex/transactionsService')
 
 const mainLogger = TantalusLogger(console)
 
+const shutdown = () => {
+  mainLogger.info('stopped')
+  process.exit(0)
+}
+
+process.on('SIGTERM', shutdown)
+process.on('SIGINT', shutdown)
+
 mongoConnection.initializeDirectConnection(config, mainLogger)
   .then(() => {
     mainLogger.info('setting up scheduler...')

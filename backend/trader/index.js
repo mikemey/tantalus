@@ -9,21 +9,23 @@ mainLogger.info('setting up traders...')
 
 let traderJobs = []
 
-const shutdown = () => {
+const stopTraderJobs = () => {
   mainLogger.info('stopping traders...')
   traderJobs.forEach(trader => trader.stop())
   mainLogger.info('stopped')
 }
 
+const shutdown = () => {
+  stopTraderJobs()
+  process.exit(0)
+}
+
+process.on('SIGTERM', shutdown)
+process.on('SIGINT', shutdown)
 process.on('uncaughtException', err => {
   mainLogger.error(err.message)
   mainLogger.log(err)
-  shutdown()
-})
-
-process.on('SIGTERM', () => {
-  shutdown()
-  process.exit(0)
+  stopTraderJobs()
 })
 
 traderJobs = getTraderConfigs()
