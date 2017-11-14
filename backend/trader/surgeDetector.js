@@ -1,6 +1,19 @@
 const { mmBTC } = require('../utils/ordersHelper')
 
+const checkRequiredConfiguration = config => {
+  if (!config.timeslotSeconds) throw Error('config.timeslotSeconds not found!')
+  checkUseTimeslots(config, 'buying')
+  checkUseTimeslots(config, 'selling')
+}
+
+const checkUseTimeslots = (config, type) => {
+  if (!(config[type] && config[type].useTimeslots && config[type].useTimeslots > 1)) {
+    throw Error(`config.${type}.useTimeslots requires at least 2, found: ${config[type].useTimeslots}`)
+  }
+}
+
 const SurgeDetector = (orderLogger, config, exchangeConnector, unixTime) => {
+  checkRequiredConfiguration(config)
   const slotDuration = config.timeslotSeconds
   const buySlotCount = config.buying.useTimeslots
   const sellSlotCount = config.selling.useTimeslots
@@ -78,10 +91,11 @@ const SurgeDetector = (orderLogger, config, exchangeConnector, unixTime) => {
         const ratios = groupInTimeslots(data.cachedTransactions)
           .map(sumupAmountsAndVolumes)
           .map(calculateRatios)
+          .slice(0, -1)
 
         data.latestRatios = ratios
-        const isPriceSurging = ratios.length && ratios.slice(0, buySlotCount - 1).every(ratio => ratio >= buyRatio)
-        const isUnderSellRatio = ratios.length && ratios.slice(0, sellSlotCount - 1).every(ratio => ratio < sellRatio)
+        const isPriceSurging = ratios.length && ratios.slice(0, buySlotCount).every(ratio => ratio >= buyRatio)
+        const isUnderSellRatio = ratios.length && ratios.slice(0, sellSlotCount).every(ratio => ratio < sellRatio)
 
         return {
           latestPrice: data.latestPrice,
