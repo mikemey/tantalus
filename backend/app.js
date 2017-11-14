@@ -7,6 +7,13 @@ const pjson = require('../package.json')
 const mongoConnection = require('./utils/mongoConnection')
 const security = require('./utils/security')
 
+const createTickersRouter = require('./tickers')
+const createUsersRouter = require('./users')
+const createInvestRouter = require('./invest')
+const createSimexRouter = require('./simex')
+
+const TransactionsService = require('./simex/transactionsService')
+
 const suppressRequestLog = [
   '/api/simex',
   '/api/invest/transactions',
@@ -23,55 +30,51 @@ const requestLogger = () => {
   })
 }
 
-const createServer = (config, log) => mongoConnection.initializeAll(config, log)
+const createServer = (config, tantalusLogger) => mongoConnection.initializeAll(config, tantalusLogger)
   .then(() => new Promise((resolve, reject) => {
     const app = express()
 
     app.use(bodyParser.json())
     app.use(requestLogger())
 
-    security.init(app, config, log)
+    security.init(app, config, tantalusLogger)
     app.use('/tantalus', express.static('frontend/'))
-    app.use('/api', createApiRouter(config, log))
+    app.use('/api', createApiRouter(config, tantalusLogger))
 
     const server = app.listen(8000, () => {
-      log.info(`Started on port ${server.address().port}`)
+      tantalusLogger.info(`Started on port ${server.address().port}`)
       return resolve({ app, server })
     })
     server.once('error', err => {
-      log.info('server error: ' + err)
+      tantalusLogger.error(`server error: ${err.message}`)
+      tantalusLogger.log(err)
       return reject(err)
     })
   }))
 
-const createApiRouter = (config, log) => {
-  const createTickersRouter = require('./tickers')
-  const createUsersRouter = require('./users')
-
+const createApiRouter = (config, tantalusLogger) => {
   const router = express.Router()
-  router.use('/', createUsersRouter(log))
-  router.use('/tickers', createTickersRouter(log))
-  router.get('/version', createVersionEndpoint(log))
+  router.use('/', createUsersRouter(tantalusLogger))
+  router.use('/tickers', createTickersRouter(tantalusLogger))
+  router.get('/version', createVersionEndpoint(tantalusLogger))
 
-  createSimexEndpoints(router, config, log)
+  createSimexEndpoints(router, config, tantalusLogger)
   return router
 }
 
-const createVersionEndpoint = log => {
+const createVersionEndpoint = tantalusLogger => {
   const version = `v${pjson.version}`
-  log.info(`server version: ${version}`)
+  tantalusLogger.info(`server version: ${version}`)
   return (req, res) => res.status(200).send(version)
 }
 
-const createSimexEndpoints = (router, config, log) => {
+const createSimexEndpoints = (router, config, tantalusLogger) => {
   if (config.simex) {
-    const createInvestRouter = require('./invest')
-    const createSimexRouter = require('./simex')
-    const transactionService = require('./simex/transactionsService')(log, config)
+    const transactionService = TransactionsService(tantalusLogger, config)
     transactionService.startScheduling()
 
-    router.use('/invest', createInvestRouter(log, transactionService))
-    router.use('/simex', createSimexRouter(log, transactionService))
+    router.use('/invest', createInvestRouter(tantalusLogger, transactionService))
+    router.use('/simex', createSimexRouter(tantalusLogger, transactionService))
   }
 }
 

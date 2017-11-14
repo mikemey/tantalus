@@ -1,6 +1,6 @@
 const moment = require('moment')
 
-const InvestService = (logger, transactionsService) => {
+const InvestService = (tantalusLogger, transactionsService) => {
   const humanReadableValues = newTransactions => newTransactions
     .map(tx => Object.assign({}, tx,
       { amount: tx.amount / 10000 },
@@ -74,7 +74,7 @@ const InvestService = (logger, transactionsService) => {
   }
 
   const errorHandler = err => {
-    logger.error(err.message)
+    tantalusLogger.error(err.message)
   }
 
   const updateLatestTransactions = newTransactions => Promise

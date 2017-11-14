@@ -1,12 +1,10 @@
 const {
   floorVolume,
-  createOrderLogger,
   isBuyOrder,
   isSellOrder
  } = require('../utils/ordersHelper')
 
-const OpenOrdersWatch = (baseLogger, config, exchangeConnector) => {
-  const orderLogger = createOrderLogger(baseLogger)
+const OpenOrdersWatch = (orderLogger, config, exchangeConnector) => {
   const localOpenOrders = new Map()
 
   const addOpenOrder = newLocalOrder => {

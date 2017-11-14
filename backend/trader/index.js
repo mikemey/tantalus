@@ -1,9 +1,9 @@
-const { createOrderLogger } = require('../utils/ordersHelper')
+const { TantalusLogger } = require('../utils/tantalusLogger')
 const { getTraderConfigs } = require('./config')
-const { createTrader } = require('./traderInstance')
+const { Trader } = require('./traderInstance')
 
 const baseLogger = console
-const mainLogger = createOrderLogger(baseLogger, 'MAIN')
+const mainLogger = TantalusLogger(baseLogger, 'MAIN')
 
 mainLogger.info('setting up traders...')
 
@@ -27,6 +27,6 @@ process.on('SIGTERM', () => {
 })
 
 traderJobs = getTraderConfigs()
-  .map(config => createTrader(baseLogger, config))
+  .map(config => Trader(baseLogger, config))
 
 mainLogger.info('traders running')

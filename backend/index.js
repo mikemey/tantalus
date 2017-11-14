@@ -1,10 +1,11 @@
 const createServer = require('./app')
 const config = require('./config').config
-const log = console
 
-const msgTransform = msg => `\x1b[1m${msg}\x1b[0m`
-const serverLog = msg =>
-  log.info('===== %s=======', msgTransform(`SERVER ${msg.padEnd(5)} `))
+const { TantalusLogger, highlightText } = require('./utils/tantalusLogger')
+
+const tantalusLogger = TantalusLogger(console, 'SERVER', highlightText)
+
+const serverLog = msg => tantalusLogger.info(highlightText(`========== ${msg.padEnd(5)} ==========`))
 
 process.on('SIGTERM', () => {
   serverLog('STOP')
@@ -12,9 +13,9 @@ process.on('SIGTERM', () => {
 })
 
 serverLog('START')
-createServer(config, log)
+createServer(config, tantalusLogger)
   .then(() => serverLog('UP'))
   .catch(err => {
     serverLog('ERROR')
-    log.error(err)
+    tantalusLogger.error(err)
   })

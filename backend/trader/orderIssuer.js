@@ -1,6 +1,6 @@
 const { floorAmount } = require('../utils/ordersHelper')
 
-const OrderIssuer = (baseLogger, config, openOrdersWatch, exchangeConnector) => {
+const OrderIssuer = (orderLogger, config, openOrdersWatch, exchangeConnector) => {
   const amountLowerLimit = config.selling.lowerLimit_mmBtc
   const volumeUpperLimit = config.buying.volumeLimitPence
   const volumeLowerLimit = config.buying.lowerLimitPence

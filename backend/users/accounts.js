@@ -46,7 +46,7 @@ const createAccountsRouter = logger => {
       .then(({ err, user, info }) => {
         if (err) responseError(res, err, 500)
         if (!user) responseError(res, 'authentication failed', 500)
-        logger.info('new user registration: %s', username)
+        logger.info(`new user registration: ${username}`)
         return res.status(204).send()
       })
       .catch(errorHandler(res))
@@ -63,7 +63,7 @@ const createAccountsRouter = logger => {
   })
 
   const errorHandler = res => err => {
-    logger.warn(err.message)
+    logger.error(err.message)
     switch (err.name) {
       case UserExistsErrorType:
         return responseError(res, userExistsMessage)

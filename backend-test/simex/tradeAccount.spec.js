@@ -3,13 +3,16 @@ const moment = require('moment')
 const expect = require('chai').expect
 
 const TradeAccount = require('../../backend/simex/tradeAccount')
+const { TantalusLogger } = require('../../backend/utils/tantalusLogger')
 
 describe('Trade account', () => {
   const testId = 3242
+
   let tradeAccount
 
   beforeEach(() => {
-    tradeAccount = TradeAccount(testId, console)
+    const testLogger = TantalusLogger(console, 'Trade account test')
+    tradeAccount = TradeAccount(testLogger, testId)
   })
 
   let transactionId = 1000

@@ -1,5 +1,6 @@
 const createServer = require('../backend/app')
 const mongo = require('../backend/utils/mongoConnection')
+const { TantalusLogger } = require('../backend/utils/tantalusLogger')
 
 const accountCollectionName = 'accounts'
 const defaultTestConfig = {
@@ -26,7 +27,7 @@ const startTestServer = (callback, disableSecurity = true, testUser = defaultTes
     : defaultTestConfig
 
   Object.assign(testConfig, configOverride)
-  return createServer(testConfig, console)
+  return createServer(testConfig, TantalusLogger(console, 'test'))
     .then(({ app, server }) => {
       callback(app, server)
     })

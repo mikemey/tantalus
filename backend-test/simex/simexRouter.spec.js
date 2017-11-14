@@ -8,6 +8,7 @@ const chai = require('chai')
 chai.use(require('chai-string'))
 
 const createSimexRouter = require('../../backend/simex')
+const { TantalusLogger } = require('../../backend/utils/tantalusLogger')
 
 describe('SimEx router', () => {
   const API_PREFIX = '/api/simex'
@@ -31,8 +32,9 @@ describe('SimEx router', () => {
     app = express()
     app.use(bodyParser.json())
 
+    const testLogger = TantalusLogger(console, 'SIMEX test')
     transactionServiceMock = createTransactionServiceMock()
-    app.use(API_PREFIX, createSimexRouter(console, transactionServiceMock))
+    app.use(API_PREFIX, createSimexRouter(testLogger, transactionServiceMock))
   })
 
   const extractBody = req => req.expect(200).then(({ body }) => body)

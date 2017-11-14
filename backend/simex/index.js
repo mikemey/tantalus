@@ -2,7 +2,7 @@ const express = require('express')
 
 const TradeAccount = require('./tradeAccount')
 
-const createSimexRouter = (logger, transactionService) => {
+const createSimexRouter = (tantalusLogger, transactionService) => {
   const router = express.Router()
 
   const data = {
@@ -28,7 +28,7 @@ const createSimexRouter = (logger, transactionService) => {
 
   const getOrCreateTradeAccount = clientId => {
     if (!data.tradeAccounts.has(clientId)) {
-      data.tradeAccounts.set(clientId, TradeAccount(clientId, logger))
+      data.tradeAccounts.set(clientId, TradeAccount(tantalusLogger, clientId))
     }
     return data.tradeAccounts.get(clientId)
   }

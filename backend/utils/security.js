@@ -13,15 +13,15 @@ const { responseError } = require('./jsonResponses')
 
 const XSRF_COOKIE = 'XSRF-TOKEN'
 
-const init = (app, config, log) => {
+const init = (app, config, logger) => {
   if (config.disableSecurity) {
     setupTestUser(app, config)
     return
   }
 
   setupSession(app, config)
-  setupCrossRequestsProtection(app, config, log)
-  setupUserAuthentication(app, config, log)
+  setupCrossRequestsProtection(app, config, logger)
+  setupUserAuthentication(app, config)
 }
 
 const setupSession = (app, config) => {
@@ -35,12 +35,12 @@ const setupSession = (app, config) => {
   }))
 }
 
-const setupCrossRequestsProtection = (app, config, log) => {
+const setupCrossRequestsProtection = (app, config, logger) => {
   app.use(cors())
 
   const csrfMiddlewares = [csrfProtection, csrfTokenGeneration]
   app.all(/^\/(?!api\/simex).*/, ...csrfMiddlewares)
-  app.use(csrfErrorHandler(log))
+  app.use(csrfErrorHandler(logger))
 }
 
 const csrfProtection = csrf({
@@ -54,18 +54,19 @@ const csrfTokenGeneration = (req, res, next) => {
   next()
 }
 
-const csrfErrorHandler = log => (err, req, res, next) => {
+const csrfErrorHandler = logger => (err, req, res, next) => {
   if (err.code !== 'EBADCSRFTOKEN') {
-    log.warn('ERROR: %s', err)
+    logger.error(`ERROR: ${err.message}`)
+    logger.log(err)
     return next(err)
   }
 
-  const error = err.message
-  log.warn('CSRF error: %s', error)
-  return res.status(403).json({ error })
+  const message = err.message
+  logger.info(`CSRF error: ${message}`)
+  return res.status(403).json({ error: message })
 }
 
-const setupUserAuthentication = (app, config, log) => {
+const setupUserAuthentication = (app, config) => {
   app.use(passport.initialize())
   app.use(passport.session())
 

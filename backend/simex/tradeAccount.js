@@ -1,17 +1,19 @@
 const moment = require('moment')
 
 const {
-  createOrderLogger,
   BUY_ORDER_TYPE, SELL_ORDER_TYPE, isBuyOrder, isSellOrder,
-  floorVolume, amountString, volumeString
+  floorVolume, amountString, volumeString,
+  OrderLogger
  } = require('../utils/ordersHelper')
+
+const { TantalusLogger } = require('../utils/tantalusLogger')
 
 const START_BALANCE_PENCE = 100000
 
 const randomStartId = () => Math.floor(Math.random() * 89 + 10) * 1000
 
-const TradeAccount = (clientId, baseLogger) => {
-  const orderLogger = createOrderLogger(baseLogger, clientId)
+const TradeAccount = (tantalusLogger, clientId) => {
+  const orderLogger = OrderLogger(TantalusLogger(tantalusLogger.baseLogger, clientId))
   const b = {
     gbp_available: START_BALANCE_PENCE,
     gbp_reserved: 0,

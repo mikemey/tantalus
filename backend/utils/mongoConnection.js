@@ -32,18 +32,18 @@ const ensureAllIndices = db =>
     })
   ).then(() => db)
 
-const initializeDirectConnection = (config, log) => {
+const initializeDirectConnection = (config, logger) => {
   const mongoUrl = config.mongodb.url
-  log.info('Connecting to DB: \'%s\'', mongoUrl)
+  logger.info(`Connecting to DB: '${mongoUrl}'`)
   return MongoClient.connect(mongoUrl)
     .then(ensureAllIndices)
     .then(db => {
-      log.info('DB connection established.')
+      logger.info('DB connection established.')
       module.exports.db = db
       module.exports.error = null
     })
     .catch(error => {
-      log.error('No connection to DB: %s', mongoUrl, error)
+      logger.error(`No connection to DB: ${mongoUrl}`, error)
       module.exports.db = null
       module.exports.error = error
     })
@@ -52,7 +52,7 @@ const initializeDirectConnection = (config, log) => {
 const initializeMongooseConnection = config =>
   mongoose.connect(config.mongodb.url, { useMongoClient: true })
 
-const initializeAll = (config, log) => initializeDirectConnection(config, log)
+const initializeAll = (config, logger) => initializeDirectConnection(config, logger)
   .then(() => initializeMongooseConnection(config))
 
 module.exports = {
