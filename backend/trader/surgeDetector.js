@@ -1,6 +1,6 @@
-const { floorAmount, mmBTC } = require('../utils/ordersHelper')
+const { mmBTC } = require('../utils/ordersHelper')
 
-const SurgeDetector = (baseLogger, config, exchangeConnector, unixTime) => {
+const SurgeDetector = (orderLogger, config, exchangeConnector, unixTime) => {
   const slotDuration = config.timeslotSeconds
   const buySlotCount = config.buying.useTimeslots
   const sellSlotCount = config.selling.useTimeslots
@@ -12,7 +12,8 @@ const SurgeDetector = (baseLogger, config, exchangeConnector, unixTime) => {
   const data = {
     cachedTransactions: [],
     latestPrice: 0,
-    latestTransactionTid: 0
+    latestTransactionTid: 0,
+    latestRatios: []
   }
 
   const createNewTransactions = (txUpdate, dateLimit) => {
@@ -43,28 +44,29 @@ const SurgeDetector = (baseLogger, config, exchangeConnector, unixTime) => {
     }))
 
   const sumupAmountsAndVolumes = bucket => {
-    const startSums = { totalAmount: 0, totalVolume: 0 }
     switch (bucket.length) {
-      case 0: return startSums
-      case 1: return {
-        totalAmount: bucket[0].amount,
-        totalVolume: transactionVolume(bucket[0])
-      }
-      default: return bucket.reduce((sums, currentTx) => {
-        sums.totalAmount += currentTx.amount
-        sums.totalVolume += transactionVolume(currentTx)
-        return sums
-      }, startSums)
+      case 0: return NaN
+      case 1: return bucket[0].price
+      default:
+        const sums = bucket.reduce((sums, currentTx) => {
+          sums.totalAmount += currentTx.amount
+          sums.totalVolume += transactionVolume(currentTx)
+          return sums
+        }, { totalAmount: 0, totalVolume: 0 })
+        return priceFrom(sums.totalVolume, sums.totalAmount)
     }
   }
 
   const transactionVolume = tx => Math.round(tx.amount * tx.price / mmBTC)
+  const priceFrom = (volume, amount) => Math.round(volume / amount * mmBTC)
 
   const calculateRatios = (currentPrice, ix, averagePrices) => {
     if (ix === (averagePrices.length - 1)) return 0
 
     const previousPrice = averagePrices[ix + 1]
-    return (currentPrice - previousPrice) / slotDuration
+    return isNaN(currentPrice) || isNaN(previousPrice)
+      ? 0
+      : (currentPrice - previousPrice) / slotDuration
   }
 
   return {
@@ -75,9 +77,9 @@ const SurgeDetector = (baseLogger, config, exchangeConnector, unixTime) => {
 
         const ratios = groupInTimeslots(data.cachedTransactions)
           .map(sumupAmountsAndVolumes)
-          .map(sums => floorAmount(sums.totalVolume, sums.totalAmount))
           .map(calculateRatios)
 
+        data.latestRatios = ratios
         const isPriceSurging = ratios.length && ratios.slice(0, buySlotCount - 1).every(ratio => ratio >= buyRatio)
         const isUnderSellRatio = ratios.length && ratios.slice(0, sellSlotCount - 1).every(ratio => ratio < sellRatio)
 
@@ -86,7 +88,8 @@ const SurgeDetector = (baseLogger, config, exchangeConnector, unixTime) => {
           isPriceSurging,
           isUnderSellRatio
         }
-      })
+      }),
+    getLatestRatios: () => data.latestRatios
   }
 }
 
