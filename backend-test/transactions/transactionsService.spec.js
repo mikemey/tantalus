@@ -3,7 +3,7 @@ const nock = require('nock')
 const moment = require('moment')
 
 const helpers = require('../helpers')
-const TransactionsService = require('../../backend/simex/transactionsService')
+const TransactionsService = require('../../backend/transactions/transactionsService')
 
 describe('Transaction service', () => {
   const testHost = 'http://localhost:14150'

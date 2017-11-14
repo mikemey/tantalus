@@ -6,7 +6,7 @@ const { TantalusLogger } = require('../utils/tantalusLogger')
 
 const LatestTickerService = require('./latestTickerService')
 const GraphService = require('./graphService')
-const TransactionsService = require('../simex/transactionsService')
+const TransactionsService = require('../transactions/transactionsService')
 
 const mainLogger = TantalusLogger(console)
 
