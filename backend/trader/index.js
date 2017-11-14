@@ -1,6 +1,6 @@
 const { TantalusLogger } = require('../utils/tantalusLogger')
 const { getTraderConfigs } = require('./config')
-const { Trader } = require('./traderInstance')
+const { Trader } = require('./trader')
 
 const baseLogger = console
 const mainLogger = TantalusLogger(baseLogger, 'MAIN')
