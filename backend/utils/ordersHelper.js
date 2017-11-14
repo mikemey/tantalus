@@ -1,6 +1,6 @@
 const {
   darkText,
-  lightText,
+  highlightText,
   redText,
   greenText
  } = require('./tantalusLogger')
@@ -34,7 +34,7 @@ const OrderLogger = baseLogger => {
   ))
 
   const logCancelledOrder = order => baseLogger.info(
-    darkText(`${orderName(order)} [${order.id}]:`) + lightText(' cancelled')
+    darkText(`${orderName(order)} [${order.id}]:`) + highlightText(' cancelled')
   )
 
   const logOrderBought = (orderId, amount, price) => baseLogger.info(redText(
