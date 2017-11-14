@@ -55,9 +55,13 @@ angular.module('tantalus.ticker')
               type: 'time',
               time: {
                 displayFormats: {
+                  minute: 'H:mm',
                   hour: 'H:mm',
-                  day: 'ddd DD.MM'
+                  day: 'DD. MMM',
+                  week: 'DD. MMM',
+                  month: 'MMM YYYY'
                 },
+                isoWeekday: true,
                 tooltipFormat: 'll HH:mm'
               }
             }],
