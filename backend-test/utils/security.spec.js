@@ -69,8 +69,7 @@ describe('server security configuration', () => {
     const simexConfig = {
       simex: {
         transactionsServiceUrl: 'https://webapi.coinfloor.co.uk:8090/bist/XBT/GBP/transactions/',
-        transactionsTTLminutes: 1,
-        transactionsUpateSchedule: '1 1 1 1 *'
+        transactionsTTLminutes: 1
       }
     }
     before(() => helpers.startTestServer((_app, _server) => {

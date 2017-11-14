@@ -3,7 +3,6 @@ const moment = require('moment')
 
 const mongo = require('../utils/mongoConnection')
 const requests = require('../utils/requests')
-const { createOrderLogger } = require('../utils/ordersHelper')
 
 const TransactionRepo = () => {
   const transactionsCollection = () => mongo.db.collection(mongo.transactionCollectionName)
@@ -15,7 +14,7 @@ const TransactionRepo = () => {
     .toArray()
     .then(transactions => transactions.length ? transactions[0].tid : 0)
 
-  const storeTransactions = transactions => transactionsCollection().insertMany(transactions)
+  const store = transactions => transactionsCollection().insertMany(transactions)
     .then(result => {
       if (result.insertedCount === transactions.length) return transactions
       else throw new Error('insert transactions failed: ' + result.message)
@@ -23,15 +22,14 @@ const TransactionRepo = () => {
 
   return {
     getLatestTransactionId,
-    storeTransactions
+    store
   }
 }
 
-const TransactionsService = (baseLogger, config) => {
-  const logger = createOrderLogger(baseLogger, 'TXS')
+const TransactionsService = (tantalusLogger, config) => {
   const TX_SERVICE_URL = config.simex.transactionsServiceUrl
   const TXS_TTL = config.simex.transactionsTTLminutes
-  const SCHEDULING = config.simex.transactionsUpateSchedule
+  const CACHE_UPDATE_SCHEDULING = config.simex.transactionsCacheUpateSchedule
 
   const transactionRepo = TransactionRepo()
 
@@ -45,7 +43,7 @@ const TransactionsService = (baseLogger, config) => {
 
   const addTransactionsListener = listener => data.listeners.push(listener)
 
-  const cacheTransactions = () => newTransactionsSince(data.latestCachedTransactionId)
+  const cacheTransactions = () => newExchangeTransactionsSince(data.latestCachedTransactionId)
     .then(mergeWithLatestTransactions)
     .then(sortTransactions)
     .then(removeOutdatedTransactions)
@@ -56,16 +54,17 @@ const TransactionsService = (baseLogger, config) => {
   const storeTransactions = () => (data.latestStoredTransactionId === undefined
     ? transactionRepo.getLatestTransactionId()
     : Promise.resolve(data.latestStoredTransactionId)
-  ).then(latestTid => newTransactionsSince(latestTid))
+  ).then(latestTid => newExchangeTransactionsSince(latestTid))
     .then(newTransactions => {
+      tantalusLogger.info(`stored new transactions: ${newTransactions.length}`)
       if (newTransactions.length) {
-        return transactionRepo.storeTransactions(newTransactions)
+        return transactionRepo.store(newTransactions)
       }
     })
     .then(updateLatestStoredTransactionId)
     .catch(errorHandler)
 
-  const newTransactionsSince = latestTid => requests
+  const newExchangeTransactionsSince = latestTid => requests
     .getJson(TX_SERVICE_URL)
     .then(filterNewestTransactions(latestTid))
     .then(convertValues)
@@ -107,17 +106,17 @@ const TransactionsService = (baseLogger, config) => {
   )
 
   const errorHandler = err => {
-    logger.error(err.message)
-    logger.log(err)
+    tantalusLogger.error(err.message)
+    tantalusLogger.log(err)
   }
 
-  const startScheduling = () => schedule.scheduleJob(SCHEDULING, cacheTransactions)
+  const scheduleCacheUpdate = () => schedule.scheduleJob(CACHE_UPDATE_SCHEDULING, cacheTransactions)
 
   return {
     cacheTransactions,
     storeTransactions,
     addTransactionsListener,
-    startScheduling
+    scheduleCacheUpdate
   }
 }
 

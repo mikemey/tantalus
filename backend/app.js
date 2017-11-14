@@ -71,7 +71,7 @@ const createVersionEndpoint = tantalusLogger => {
 const createSimexEndpoints = (router, config, tantalusLogger) => {
   if (config.simex) {
     const transactionService = TransactionsService(tantalusLogger, config)
-    transactionService.startScheduling()
+    transactionService.scheduleCacheUpdate()
 
     router.use('/invest', createInvestRouter(tantalusLogger, transactionService))
     router.use('/simex', createSimexRouter(tantalusLogger, transactionService))
