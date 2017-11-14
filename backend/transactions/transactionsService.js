@@ -1,30 +1,8 @@
 const schedule = require('node-schedule')
 const moment = require('moment')
 
-const mongo = require('../utils/mongoConnection')
 const requests = require('../utils/requests')
-
-const TransactionRepo = () => {
-  const transactionsCollection = () => mongo.db.collection(mongo.transactionCollectionName)
-
-  const getLatestTransactionId = () => transactionsCollection()
-    .find({}, { tid: true })
-    .sort({ tid: -1 })
-    .limit(1)
-    .toArray()
-    .then(transactions => transactions.length ? transactions[0].tid : 0)
-
-  const store = transactions => transactionsCollection().insertMany(transactions)
-    .then(result => {
-      if (result.insertedCount === transactions.length) return transactions
-      else throw new Error('insert transactions failed: ' + result.message)
-    })
-
-  return {
-    getLatestTransactionId,
-    store
-  }
-}
+const TransactionRepo = require('./transactionsRepo')
 
 const TransactionsService = (tantalusLogger, config) => {
   const TX_SERVICE_URL = config.simex.transactionsServiceUrl
