@@ -15,14 +15,16 @@
     "schedule": "node backend/schedule",
     "pretrader": "npm install",
     "trader": "node backend/trader",
-    "tx-test": "mocha 'backend-test/trader/**.spec.js' 'backend-test/simex/**.spec.js'",
-    "tx-watch": "nodemon -x 'npm run tx-test -s'",
+    "presimrun": "npm install",
+    "simrun": "node backend/simrun",
     "pretest": "npm install",
     "test": "npm run lint -s && npm run be-test -s && npm run fe-test -s",
     "be-test": "mocha 'backend-test/**/**.spec.js'",
     "be-watch": "nodemon -x 'npm run be-test -s'",
     "fe-test": "karma start karma.conf.js",
-    "fe-watch": "nodemon -x 'npm run fe-test -s'"
+    "fe-watch": "nodemon -x 'npm run fe-test -s'",
+    "tx-test": "mocha 'backend-test/trader/**.spec.js' 'backend-test/simex/**.spec.js' 'backend-test/simrun/**.spec.js'",
+    "tx-watch": "nodemon -x 'npm run tx-test -s'"
   },
   "repository": {
     "type": "git",
@@ -42,6 +44,7 @@
     "csurf": "^1.9.0",
     "express": "^4.13.3",
     "express-session": "^1.15.5",
+    "js-combinatorics": "^0.5.2",
     "moment": "^2.18.1",
     "mongodb": "^2.2.31",
     "mongoose": "^4.11.10",
