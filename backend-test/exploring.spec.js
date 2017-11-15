@@ -6,7 +6,6 @@ const ExchangeConnector = require('../backend/trader/exchangeConnector')
 const { amountString, volumeString } = require('../backend/utils/ordersHelper')
 
 const helpers = require('./helpers')
-require('chai').should()
 
 xdescribe('exploring', () => {
   const log = console.log

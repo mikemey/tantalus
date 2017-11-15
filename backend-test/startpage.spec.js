@@ -1,6 +1,5 @@
 /* global describe before beforeEach it */
 const request = require('supertest')
-require('chai').should()
 const cheerio = require('cheerio')
 
 const helpers = require('./helpers')

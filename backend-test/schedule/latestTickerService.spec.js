@@ -1,6 +1,5 @@
 /* global describe before beforeEach it */
 const nock = require('nock')
-require('chai').should()
 const fs = require('fs')
 const moment = require('moment')
 

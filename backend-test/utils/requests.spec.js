@@ -1,8 +1,8 @@
 /* global describe before beforeEach it */
+const nock = require('nock')
+
 const requests = require('../../backend/utils/requests')
 const RequestError = requests.RequestError
-const nock = require('nock')
-require('chai').should()
 
 describe('requests module', () => {
   afterEach(() => nock.cleanAll())

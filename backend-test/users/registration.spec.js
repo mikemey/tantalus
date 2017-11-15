@@ -1,6 +1,5 @@
 /* global describe before beforeEach it */
 const request = require('supertest')
-require('chai').should()
 
 const helpers = require('../helpers')
 const { setupCSRFAgent } = require('../agents')

@@ -1,6 +1,4 @@
 /* global describe before beforeEach it */
-require('chai').should()
-
 const helpers = require('../helpers')
 const { setupCSRFAgent } = require('../agents')
 

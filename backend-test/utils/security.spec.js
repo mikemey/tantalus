@@ -1,6 +1,5 @@
 /* global describe before beforeEach it */
 const request = require('supertest')
-require('chai')
 const setCookieParser = require('set-cookie-parser')
 
 const helpers = require('../helpers')

@@ -1,7 +1,4 @@
 /* global describe before beforeEach it */
-
-require('chai').should()
-
 const helpers = require('../helpers')
 const { Account } = require('../../backend/users/userModel')
 
