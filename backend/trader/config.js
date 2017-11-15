@@ -267,6 +267,7 @@ const traderConfigs = [{ // =========================== T 200
 }]
 
 const commonConfig = {
+  exchangeHost: 'http://localhost:8000/api/simex',
   buying: {
     volumeLimitPence: 100000,
     lowerLimitPence: 5000
@@ -294,7 +295,6 @@ const checkForDuplicates = () => traderConfigs.reduce((existing, config) => {
 }, [])
 
 const config = {
-  exchangeHost: 'http://localhost:8000/api/simex',
   tickSchedule: '2-12/5,12-59/4 * * * * *',
   traderConfigs: getTraderConfigs()
 }

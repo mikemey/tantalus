@@ -1,6 +1,8 @@
 /* global describe before beforeEach it */
 const nock = require('nock')
-const should = require('chai').should()
+const chai = require('chai')
+const should = chai.should()
+const expect = chai.expect
 
 const ExchangeConnector = require('../../backend/trader/exchangeConnector')
 
@@ -118,5 +120,17 @@ describe('Exchange connector', () => {
         scope.isDone().should.equal(true)
         account.should.deep.equal(testAccount)
       })
+  })
+
+  it('throw expection when exchangeHost not set', () => {
+    const testConfig = { clientId: testClientId }
+    expect(() => ExchangeConnector(testConfig))
+      .to.throw(Error, 'config.exchangeHost not found!')
+  })
+
+  it('throw expection when clientId not set', () => {
+    const testConfig = { exchangeHost: 'some host' }
+    expect(() => ExchangeConnector(testConfig))
+      .to.throw(Error, 'config.clientId not found!')
   })
 })

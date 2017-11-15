@@ -1,6 +1,12 @@
 const requests = require('../utils/requests')
 
+const checkConfig = config => {
+  if (!config.clientId) throw Error('config.clientId not found!')
+  if (!config.exchangeHost) throw Error('config.exchangeHost not found!')
+}
+
 const ExchangeConnector = config => {
+  checkConfig(config)
   const host = config.exchangeHost
   const clientId = encodeURIComponent(config.clientId)
 

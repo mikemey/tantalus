@@ -2,7 +2,7 @@ const schedule = require('node-schedule')
 const moment = require('moment')
 
 const { TantalusLogger } = require('../utils/tantalusLogger')
-const config = require('./config')
+const { tickSchedule, traderConfigs } = require('./config')
 const TraderJob = require('./traderJob')
 const ExchangeConnector = require('./exchangeConnector')
 
@@ -11,9 +11,12 @@ const mainLogger = TantalusLogger(baseLogger, 'MAIN')
 
 const createTraderJobs = () => {
   mainLogger.info('setting up traders...')
-  const exchangeConnector = ExchangeConnector(config)
-  const traders = config.traderConfigs
-    .map(config => TraderJob(baseLogger, config, exchangeConnector))
+  const traders = traderConfigs
+    .map(config => {
+      const exchangeConnector = ExchangeConnector(config)
+      return TraderJob(baseLogger, config, exchangeConnector)
+    })
+
   mainLogger.info('traders configured')
   traders.forEach(trader => trader.logBalance().catch(errorHandler))
   return traders
@@ -52,4 +55,4 @@ const runTraderTicks = () => Promise.all(
   traderJobs.map(trader => trader.tick(moment.utc().unix()))
 ).catch(errorHandler('Run ticks: ', true))
 
-const job = schedule.scheduleJob(config.tickSchedule, runTraderTicks)
+const job = schedule.scheduleJob(tickSchedule, runTraderTicks)
