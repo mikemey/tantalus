@@ -11,16 +11,10 @@ const ExchangeConnector = require('../../backend/trader/exchangeConnector')
 describe('Open orders watch', () => {
   const testHost = 'http://localhost:14146'
   const testId = 234
-  const testVolumeLimit = 100000
-  const testLowerLimit = 10000
 
   const testConfig = {
     clientId: testId,
-    exchangeHost: testHost,
-    buying: {
-      volumeLimitPence: testVolumeLimit,
-      lowerLimitPence: testLowerLimit
-    }
+    exchangeHost: testHost
   }
 
   const logger = OrderLogger(console)
