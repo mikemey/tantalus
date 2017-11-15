@@ -81,11 +81,15 @@ const insertAccounts = accounts => insertData(accountCollectionName, accounts)
 const getTransactions = () => getData(mongo.transactionCollectionName)
 const insertTransactions = transactions => insertData(mongo.transactionCollectionName, transactions)
 
-const copyWithoutIDField = (transactions, defaultId = '_id') => transactions.map(tx => {
-  const copy = Object.assign({}, tx)
-  delete copy[defaultId]
+const copyWithoutIDField = (obj, defaultId = '_id') => obj.map
+  ? obj.map(copyObjectWithoutField(defaultId))
+  : copyObjectWithoutField(defaultId)(obj)
+
+const copyObjectWithoutField = deleteField => obj => {
+  const copy = Object.assign({}, obj)
+  delete copy[deleteField]
   return copy
-})
+}
 
 module.exports = {
   startTestServer,

@@ -8,7 +8,14 @@ const TransactionRepo = () => {
     .sort({ tid: -1 })
     .limit(1)
     .toArray()
-    .then(transactions => transactions.length ? transactions[0].tid : 0)
+    .then(txs => txs.length ? txs[0].tid : 0)
+
+  const getEarliestTransaction = () => transactionsCollection()
+    .find({}, { _id: false })
+    .sort({ tid: 1 })
+    .limit(1)
+    .toArray()
+    .then(txs => txs.length ? txs[0] : {})
 
   const store = transactions => transactionsCollection().insertMany(transactions)
     .then(result => {
@@ -16,9 +23,16 @@ const TransactionRepo = () => {
       else throw new Error('insert transactions failed: ' + result.message)
     })
 
+  const readTransactions = (from, to) => transactionsCollection()
+    .find({ date: { $gte: from, $lte: to } }, { _id: false })
+    .sort({ tid: 1 })
+    .toArray()
+
   return {
     getLatestTransactionId,
-    store
+    getEarliestTransaction,
+    store,
+    readTransactions
   }
 }
 

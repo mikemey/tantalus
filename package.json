@@ -23,7 +23,7 @@
     "be-watch": "nodemon -x 'npm run be-test -s'",
     "fe-test": "karma start karma.conf.js",
     "fe-watch": "nodemon -x 'npm run fe-test -s'",
-    "tx-test": "mocha 'backend-test/trader/**.spec.js' 'backend-test/simex/**.spec.js' 'backend-test/simrun/**.spec.js'",
+    "tx-test": "mocha 'backend-test/trader/**.spec.js' 'backend-test/simex/**.spec.js' 'backend-test/transactions/**.spec.js' 'backend-test/simrun/**.spec.js'",
     "tx-watch": "nodemon -x 'npm run tx-test -s'"
   },
   "repository": {
