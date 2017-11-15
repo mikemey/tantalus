@@ -1,35 +1,52 @@
+const schedule = require('node-schedule')
+const moment = require('moment')
+
 const { TantalusLogger } = require('../utils/tantalusLogger')
-const { getTraderConfigs } = require('./config')
+const { tickSchedule, traderConfigs } = require('./config')
 const { TraderJob } = require('./traderJob')
 
 const baseLogger = console
 const mainLogger = TantalusLogger(baseLogger, 'MAIN')
 
-let traderJobs = []
-
-const startTraderJobs = () => {
+const createTraderJobs = () => {
   mainLogger.info('setting up traders...')
-  traderJobs = getTraderConfigs().map(config => TraderJob(baseLogger, config))
-  mainLogger.info('traders running')
-}
-
-const stopTraderJobs = () => {
-  mainLogger.info('stopping traders...')
-  traderJobs.forEach(trader => trader.stop())
-  mainLogger.info('stopped')
+  const traders = traderConfigs.map(config => TraderJob(baseLogger, config))
+  mainLogger.info('traders configured')
+  traders.forEach(trader => trader.logBalance().catch(errorHandler))
+  return traders
 }
 
 const shutdown = () => {
+  if (job) job.cancel()
   stopTraderJobs()
   process.exit(0)
+  mainLogger.info('quit')
 }
 
+const stopTraderJobs = () => {
+  if (traderJobs) {
+    mainLogger.info('stopping traders...')
+    traderJobs.forEach(trader => trader.stop())
+    mainLogger.info('traders stopped')
+  }
+}
+
+const errorHandler = (prefix, stop) => err => {
+  mainLogger.error(prefix + err.message)
+  mainLogger.log(err)
+  if (err.cause !== undefined) errorHandler('<=== CAUSED BY: ', false)(err.cause)
+  if (stop) shutdown()
+}
+
+// SETUP ===================================
 process.on('SIGTERM', shutdown)
 process.on('SIGINT', shutdown)
-process.on('uncaughtException', err => {
-  mainLogger.error(`uncaught exception: ${err.message}`)
-  mainLogger.log(err)
-  stopTraderJobs()
-})
+process.on('uncaughtException', errorHandler('uncaught exception: ', true))
 
-startTraderJobs()
+const traderJobs = createTraderJobs()
+
+const runTraderTicks = () => Promise.all(
+  traderJobs.map(trader => trader.tick(moment.utc().unix()))
+).catch(errorHandler('Run ticks: ', true))
+
+const job = schedule.scheduleJob(tickSchedule, runTraderTicks)

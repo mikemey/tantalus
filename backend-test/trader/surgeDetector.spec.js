@@ -1,6 +1,5 @@
 /* global describe before beforeEach it */
 const nock = require('nock')
-const moment = require('moment')
 
 const expect = require('chai').expect
 
@@ -27,30 +26,19 @@ describe('Surge detector', () => {
 
   const logger = TantalusLogger(console, 'SURGE-TEST')
 
-  let surgeDetector, testTimer
-
-  const TestTimer = () => {
-    let override = 0
-    return {
-      unixTime: () => override || moment.utc().unix(),
-      setTime: newTime => { override = newTime }
-    }
-  }
-
-  const testTime = () => testTimer.unixTime()
+  let surgeDetector
 
   describe('(valid config)', () => {
     beforeEach(() => {
       const exchange = ExchangeConnector(surgeConfig)
-      testTimer = TestTimer()
-      surgeDetector = SurgeDetector(logger, surgeConfig, exchange, testTimer.unixTime)
+      surgeDetector = SurgeDetector(logger, surgeConfig, exchange)
     })
 
     afterEach(() => nock.cleanAll())
 
-    const analyseTrends = transactions => {
+    const analyseTrends = (unixTime, transactions) => {
       const scope = nock(testHost).get('/transactions').reply(200, transactions)
-      return surgeDetector.analyseTrends()
+      return surgeDetector.analyseTrends(unixTime)
         .then(result => {
           scope.isDone().should.equal(true)
           return result
@@ -58,14 +46,16 @@ describe('Surge detector', () => {
     }
 
     const EMPTY_RATIOS = [0, 0]
+    const testTime = 1510532327
 
     const expectResults = (expectedTrends, expectedRatios = EMPTY_RATIOS) => actualTrends => {
       actualTrends.should.deep.equal(expectedTrends)
       surgeDetector.getLatestRatios().should.deep.equal(expectedRatios)
     }
+
     describe('latest price', () => {
       it('should ignore empty transactions', () => {
-        return analyseTrends([]).then(expectResults({
+        return analyseTrends(testTime, []).then(expectResults({
           latestPrice: 0,
           isPriceSurging: false,
           isUnderSellRatio: false
@@ -73,8 +63,8 @@ describe('Surge detector', () => {
       })
 
       it('should use even out of date exchange transaction', () => {
-        return analyseTrends([
-          { tid: 9, amount: 6765, date: testTime() - 301, price: 11000 }
+        return analyseTrends(testTime, [
+          { tid: 9, amount: 6765, date: testTime - 301, price: 11000 }
         ]).then(expectResults({
           latestPrice: 11000,
           isPriceSurging: false,
@@ -83,22 +73,16 @@ describe('Surge detector', () => {
       })
 
       it('should keep previous price when transactions gets out of date', () => {
-        const firstRunDate = 1510590812
-        const secondRunDate = firstRunDate + 100
-
-        testTimer.setTime(firstRunDate)
-        return analyseTrends([
-          { tid: 9, amount: 6765, date: firstRunDate - 250, price: 1111 }
+        const secondRunDate = testTime + 100
+        return analyseTrends(testTime, [
+          { tid: 9, amount: 6765, date: testTime - 250, price: 1111 }
         ])
           .then(expectResults({
             latestPrice: 1111,
             isPriceSurging: false,
             isUnderSellRatio: false
           }))
-          .then(() => {
-            testTimer.setTime(secondRunDate)
-            return analyseTrends([])
-          })
+          .then(() => analyseTrends(secondRunDate, []))
           .then(expectResults({
             latestPrice: 1111,
             isPriceSurging: false,
@@ -109,18 +93,18 @@ describe('Surge detector', () => {
 
     describe('BUY ratios', () => {
       it('should detect price surge', () => {
-        return analyseTrends([
+        return analyseTrends(testTime, [
           // -- timeslot
-          { tid: 9, amount: 6765, date: testTime() - 50, price: 553000 },
+          { tid: 9, amount: 6765, date: testTime - 50, price: 553000 },
           // -- timeslot unsorted
-          { tid: 6, amount: 501, date: testTime() - 199, price: 552300 },
-          { tid: 7, amount: 22454, date: testTime() - 140, price: 552100 },
-          { tid: 8, amount: 12254, date: testTime() - 120, price: 551800 },
+          { tid: 6, amount: 501, date: testTime - 199, price: 552300 },
+          { tid: 7, amount: 22454, date: testTime - 140, price: 552100 },
+          { tid: 8, amount: 12254, date: testTime - 120, price: 551800 },
           // -- timeslot should get sorted below
-          { tid: 3, amount: 12254, date: testTime() - 399, price: 552000 },
+          { tid: 3, amount: 12254, date: testTime - 399, price: 552000 },
           // -- timeslot
-          { tid: 5, amount: 511, date: testTime() - 201, price: 550300 },
-          { tid: 4, amount: 3488, date: testTime() - 201, price: 551100 }
+          { tid: 5, amount: 511, date: testTime - 201, price: 550300 },
+          { tid: 4, amount: 3488, date: testTime - 201, price: 551100 }
         ]).then(expectResults({
           latestPrice: 553000,
           isPriceSurging: true,
@@ -129,14 +113,14 @@ describe('Surge detector', () => {
       })
 
       it('should NOT detect price surge when under limit', () => {
-        return analyseTrends([
+        return analyseTrends(testTime, [
           // -- timeslot
-          { tid: 5, amount: 511, date: testTime() - 10, price: 550300 },
-          { tid: 4, amount: 3488, date: testTime() - 99, price: 551100 },
+          { tid: 5, amount: 511, date: testTime - 10, price: 550300 },
+          { tid: 4, amount: 3488, date: testTime - 99, price: 551100 },
           // -- timeslot
-          { tid: 3, amount: 12254, date: testTime() - 101, price: 550000 },
+          { tid: 3, amount: 12254, date: testTime - 101, price: 550000 },
           // -- timeslot
-          { tid: 2, amount: 6765, date: testTime() - 250, price: 548000 }
+          { tid: 2, amount: 6765, date: testTime - 250, price: 548000 }
         ]).then(expectResults({
           latestPrice: 550300,
           isPriceSurging: false,
@@ -145,12 +129,12 @@ describe('Surge detector', () => {
       })
 
       it('should NOT detect price surge when timeslot without transactions', () => {
-        return analyseTrends([
+        return analyseTrends(testTime, [
           // -- timeslot
           // -- timeslot
-          { tid: 3, amount: 12254, date: testTime() - 101, price: 550000 },
+          { tid: 3, amount: 12254, date: testTime - 101, price: 550000 },
           // -- timeslot
-          { tid: 2, amount: 6765, date: testTime() - 250, price: 548000 }
+          { tid: 2, amount: 6765, date: testTime - 250, price: 548000 }
         ]).then(expectResults({
           latestPrice: 550000,
           isPriceSurging: false,
@@ -159,11 +143,11 @@ describe('Surge detector', () => {
       })
 
       it('should NOT detect price surge when older timeslot without transactions', () => {
-        return analyseTrends([
+        return analyseTrends(testTime, [
           // -- timeslot
-          { tid: 3, amount: 12254, date: testTime() - 30, price: 550000 },
+          { tid: 3, amount: 12254, date: testTime - 30, price: 550000 },
           // -- timeslot
-          { tid: 2, amount: 6765, date: testTime() - 150, price: 548000 }
+          { tid: 2, amount: 6765, date: testTime - 150, price: 548000 }
           // -- timeslot
         ]).then(expectResults({
           latestPrice: 550000,
@@ -173,25 +157,25 @@ describe('Surge detector', () => {
       })
 
       it('should detect surge after new transaction finishes last timeslot', () => {
-        return analyseTrends([
+        return analyseTrends(testTime, [
           // -- timeslot
-          { tid: 9, amount: 765, date: testTime() - 50, price: 552900 },
+          { tid: 9, amount: 765, date: testTime - 50, price: 552900 },
           // -- timeslot
-          { tid: 8, amount: 12254, date: testTime() - 120, price: 551800 },
-          { tid: 7, amount: 22454, date: testTime() - 140, price: 552100 },
-          { tid: 6, amount: 501, date: testTime() - 199, price: 552300 },
+          { tid: 8, amount: 12254, date: testTime - 120, price: 551800 },
+          { tid: 7, amount: 22454, date: testTime - 140, price: 552100 },
+          { tid: 6, amount: 501, date: testTime - 199, price: 552300 },
           // -- timeslot
-          { tid: 5, amount: 511, date: testTime() - 201, price: 550300 },
-          { tid: 4, amount: 3488, date: testTime() - 201, price: 551100 }
+          { tid: 5, amount: 511, date: testTime - 201, price: 550300 },
+          { tid: 4, amount: 3488, date: testTime - 201, price: 551100 }
         ]).then(expectResults({
           latestPrice: 552900,
           isPriceSurging: false,
           isUnderSellRatio: false
         }, [9.02, 10]))
-          .then(() => analyseTrends([
+          .then(() => analyseTrends(testTime, [
             // -- timeslot
-            { tid: 10, amount: 6765, date: testTime() - 20, price: 553200 },
-            { tid: 9, amount: 765, date: testTime() - 50, price: 552900 }
+            { tid: 10, amount: 6765, date: testTime - 20, price: 553200 },
+            { tid: 9, amount: 765, date: testTime - 50, price: 552900 }
           ]))
           .then(expectResults({
             latestPrice: 553200,
@@ -203,13 +187,13 @@ describe('Surge detector', () => {
 
     describe('SELL ratios', () => {
       it('should detect falling under ratio', () => {
-        return analyseTrends([
+        return analyseTrends(testTime, [
           // -- timeslot
-          { tid: 9, amount: 6765, date: testTime() - 50, price: 548800 },
+          { tid: 9, amount: 6765, date: testTime - 50, price: 548800 },
           // -- timeslot
-          { tid: 8, amount: 12254, date: testTime() - 120, price: 549400 },
+          { tid: 8, amount: 12254, date: testTime - 120, price: 549400 },
           // -- timeslot should get sorted below
-          { tid: 3, amount: 12254, date: testTime() - 280, price: 550000 }
+          { tid: 3, amount: 12254, date: testTime - 280, price: 550000 }
         ]).then(expectResults({
           latestPrice: 548800,
           isPriceSurging: false,
@@ -218,13 +202,13 @@ describe('Surge detector', () => {
       })
 
       it('should NOT detect falling under ratio when just over limit', () => {
-        return analyseTrends([
+        return analyseTrends(testTime, [
           // -- timeslot
-          { tid: 9, amount: 6765, date: testTime() - 50, price: 549000 },
+          { tid: 9, amount: 6765, date: testTime - 50, price: 549000 },
           // -- timeslot
-          { tid: 8, amount: 12254, date: testTime() - 120, price: 549500 },
+          { tid: 8, amount: 12254, date: testTime - 120, price: 549500 },
           // -- timeslot
-          { tid: 3, amount: 12254, date: testTime() - 280, price: 550000 }
+          { tid: 3, amount: 12254, date: testTime - 280, price: 550000 }
         ]).then(expectResults({
           latestPrice: 549000,
           isPriceSurging: false,
@@ -233,12 +217,12 @@ describe('Surge detector', () => {
       })
 
       it('should NOT detect falling under ratio when timeslot without transactions', () => {
-        return analyseTrends([
+        return analyseTrends(testTime, [
           // -- timeslot
           // -- timeslot
-          { tid: 8, amount: 12254, date: testTime() - 120, price: 549400 },
+          { tid: 8, amount: 12254, date: testTime - 120, price: 549400 },
           // -- timeslot should get sorted below
-          { tid: 3, amount: 12254, date: testTime() - 280, price: 550000 }
+          { tid: 3, amount: 12254, date: testTime - 280, price: 550000 }
         ]).then(expectResults({
           latestPrice: 549400,
           isPriceSurging: false,
@@ -250,11 +234,10 @@ describe('Surge detector', () => {
 
   describe('config checks', () => {
     const exchange = {}
-    const unixTime = () => { }
 
     it('should throw exception when timeslotSeconds is not set', () => {
       const config = { clientId: 9 }
-      expect(() => SurgeDetector(logger, config, exchange, unixTime))
+      expect(() => SurgeDetector(logger, config, exchange))
         .to.throw(Error, 'config.timeslotSeconds not found!')
     })
 
@@ -265,7 +248,7 @@ describe('Surge detector', () => {
         buying: { useTimeslots: 1 },
         selling: { useTimeslots: 2 }
       }
-      expect(() => SurgeDetector(logger, config, exchange, unixTime))
+      expect(() => SurgeDetector(logger, config, exchange))
         .to.throw(Error, 'config.buying.useTimeslots requires at least 2, found: 1')
     })
 
@@ -276,7 +259,7 @@ describe('Surge detector', () => {
         buying: {},
         selling: { useTimeslots: 2 }
       }
-      expect(() => SurgeDetector(logger, noUseTimeslots, exchange, unixTime))
+      expect(() => SurgeDetector(logger, noUseTimeslots, exchange))
         .to.throw(Error, 'config.buying.useTimeslots requires at least 2, found: undefined')
     })
 
@@ -287,7 +270,7 @@ describe('Surge detector', () => {
         buying: { useTimeslots: 2 },
         selling: { useTimeslots: 1 }
       }
-      expect(() => SurgeDetector(logger, config, exchange, unixTime))
+      expect(() => SurgeDetector(logger, config, exchange))
         .to.throw(Error, 'config.selling.useTimeslots requires at least 2, found: 1')
     })
   })

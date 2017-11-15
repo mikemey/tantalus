@@ -12,7 +12,7 @@ const checkUseTimeslots = (config, type) => {
   }
 }
 
-const SurgeDetector = (orderLogger, config, exchangeConnector, unixTime) => {
+const SurgeDetector = (orderLogger, config, exchangeConnector) => {
   checkRequiredConfiguration(config)
   const slotDuration = config.timeslotSeconds
   const buySlotCount = config.buying.useTimeslots
@@ -45,11 +45,11 @@ const SurgeDetector = (orderLogger, config, exchangeConnector, unixTime) => {
     return tx
   }
 
-  const groupInTimeslots = transactions => Array
+  const groupInTimeslots = (transactions, unixTime) => Array
     .from({ length: slotCount }, (_, ix) => {
       return {
-        latest: unixTime() - (ix * slotDuration),
-        earliest: unixTime() - ((ix + 1) * slotDuration)
+        latest: unixTime - (ix * slotDuration),
+        earliest: unixTime - ((ix + 1) * slotDuration)
       }
     })
     .map(({ latest, earliest }) => transactions.filter(tx => {
@@ -83,12 +83,12 @@ const SurgeDetector = (orderLogger, config, exchangeConnector, unixTime) => {
   }
 
   return {
-    analyseTrends: () => exchangeConnector.getTransactions()
+    analyseTrends: unixTime => exchangeConnector.getTransactions()
       .then(transactions => {
-        const lastDateLimit = unixTime() - (slotCount * slotDuration)
+        const lastDateLimit = unixTime - (slotCount * slotDuration)
         data.cachedTransactions = createNewTransactions(transactions, lastDateLimit)
 
-        const ratios = groupInTimeslots(data.cachedTransactions)
+        const ratios = groupInTimeslots(data.cachedTransactions, unixTime)
           .map(sumupAmountsAndVolumes)
           .map(calculateRatios)
           .slice(0, -1)
