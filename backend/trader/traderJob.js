@@ -14,7 +14,7 @@ const SurgeDetector = require('./surgeDetector')
 const OpenOrdersWatch = require('./openOrdersWatch')
 const OrderIssuer = require('./orderIssuer')
 
-const Trader = (baseLogger, config) => {
+const TraderJob = (baseLogger, config) => {
   const logger = OrderLogger(TantalusLogger(baseLogger, config.clientId))
 
   const unixTime = () => moment.utc().unix()
@@ -54,4 +54,4 @@ const Trader = (baseLogger, config) => {
   return { stop }
 }
 
-module.exports = { Trader }
+module.exports = { TraderJob }

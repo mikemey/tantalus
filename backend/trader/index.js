@@ -1,6 +1,6 @@
 const { TantalusLogger } = require('../utils/tantalusLogger')
 const { getTraderConfigs } = require('./config')
-const { Trader } = require('./trader')
+const { TraderJob } = require('./traderJob')
 
 const baseLogger = console
 const mainLogger = TantalusLogger(baseLogger, 'MAIN')
@@ -9,7 +9,7 @@ let traderJobs = []
 
 const startTraderJobs = () => {
   mainLogger.info('setting up traders...')
-  traderJobs = getTraderConfigs().map(config => Trader(baseLogger, config))
+  traderJobs = getTraderConfigs().map(config => TraderJob(baseLogger, config))
   mainLogger.info('traders running')
 }
 
