@@ -19,7 +19,7 @@
     "tx-watch": "nodemon -x 'npm run tx-test -s'",
     "pretest": "npm install",
     "test": "npm run lint -s && npm run be-test -s && npm run fe-test -s",
-    "be-test": "mocha 'backend-test/**/**.spec.js' --timeout 5000",
+    "be-test": "mocha 'backend-test/**/**.spec.js'",
     "be-watch": "nodemon -x 'npm run be-test -s'",
     "fe-test": "karma start karma.conf.js",
     "fe-watch": "nodemon -x 'npm run fe-test -s'"
