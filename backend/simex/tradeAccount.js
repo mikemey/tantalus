@@ -105,8 +105,8 @@ const TradeAccount = (tantalusLogger, clientId) => {
     return found
   }
 
-  const transactionsUpdate = originalTxs => {
-    const transactions = originalTxs
+  const transactionsUpdate = txsUpdate => {
+    const transactions = txsUpdate
       .filter(tx => tx.tid > data.latestTransactionId)
       .map(tx => Object.assign({}, tx))
       .sort((txa, txb) => txb.tid - txa.tid)
