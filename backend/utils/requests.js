@@ -9,14 +9,13 @@ class RequestError {
   }
 }
 
-const errorHandler = extension =>
-  err => {
-    const request = err.options
-      ? `${err.options.method} ${err.options.uri}`
-      : ''
-    const message = `Request error ${extension}: [${request}]`
-    throw new RequestError(message, err)
-  }
+const errorHandler = extension => err => {
+  const errorMessage = err.options
+    ? `${err.options.method} ${err.options.uri}`
+    : err.message
+  const message = `Request error ${extension}: [${errorMessage}]`
+  throw new RequestError(message, err)
+}
 
 const transform = body => cheerio.load(body)
 

@@ -5,9 +5,13 @@ const { Trader } = require('./trader')
 const baseLogger = console
 const mainLogger = TantalusLogger(baseLogger, 'MAIN')
 
-mainLogger.info('setting up traders...')
-
 let traderJobs = []
+
+const startTraderJobs = () => {
+  mainLogger.info('setting up traders...')
+  traderJobs = getTraderConfigs().map(config => Trader(baseLogger, config))
+  mainLogger.info('traders running')
+}
 
 const stopTraderJobs = () => {
   mainLogger.info('stopping traders...')
@@ -23,12 +27,9 @@ const shutdown = () => {
 process.on('SIGTERM', shutdown)
 process.on('SIGINT', shutdown)
 process.on('uncaughtException', err => {
-  mainLogger.error(err.message)
+  mainLogger.error(`uncaught exception: ${err.message}`)
   mainLogger.log(err)
   stopTraderJobs()
 })
 
-traderJobs = getTraderConfigs()
-  .map(config => Trader(baseLogger, config))
-
-mainLogger.info('traders running')
+startTraderJobs()
