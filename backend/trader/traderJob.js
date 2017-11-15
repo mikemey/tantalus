@@ -6,15 +6,12 @@ const {
 
 const { TantalusLogger } = require('../utils/tantalusLogger')
 
-const ExchangeConnector = require('./exchangeConnector')
 const SurgeDetector = require('./surgeDetector')
 const OpenOrdersWatch = require('./openOrdersWatch')
 const OrderIssuer = require('./orderIssuer')
 
-const TraderJob = (baseLogger, config) => {
+const TraderJob = (baseLogger, config, exchangeConnector) => {
   const logger = OrderLogger(TantalusLogger(baseLogger, config.clientId))
-
-  const exchangeConnector = ExchangeConnector(config)
 
   const surgeDetector = SurgeDetector(logger, config, exchangeConnector)
   const openOrdersWatch = OpenOrdersWatch(logger, config, exchangeConnector)
@@ -40,4 +37,4 @@ const TraderJob = (baseLogger, config) => {
   return { tick, stop, logBalance }
 }
 
-module.exports = { TraderJob }
+module.exports = TraderJob
