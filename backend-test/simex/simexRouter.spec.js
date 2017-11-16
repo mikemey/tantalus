@@ -118,7 +118,7 @@ describe('SimEx router', () => {
       return getTransactions()
         .then(getAccount)
         .then(account => {
-          moment.utc().diff(account.stats.startDate, 'seconds').should.equal(0)
+          moment.utc().diff(account.startDate, 'seconds').should.equal(0)
         })
     })
 
@@ -151,8 +151,8 @@ describe('SimEx router', () => {
         ))
         .then(getAllAccounts)
         .then(allAccounts => {
-          allAccounts.get(clientA).stats.requestCount.should.equal(2)
-          allAccounts.get(clientB).stats.requestCount.should.equal(1)
+          allAccounts.get(clientA).requestCount.should.equal(2)
+          allAccounts.get(clientB).requestCount.should.equal(1)
         })
     })
 
@@ -160,7 +160,7 @@ describe('SimEx router', () => {
       .then(getAccount)
       .then(account => {
         const expectedAfterAccount = expectedCount + 1
-        account.stats.requestCount.should.equal(expectedAfterAccount)
+        account.requestCount.should.equal(expectedAfterAccount)
       })
   })
 
@@ -249,7 +249,7 @@ describe('SimEx router', () => {
         })
         .then(getAccount)
         .then(account => {
-          account.stats.requestCount.should.equal(8)
+          account.requestCount.should.equal(8)
         })
     })
 

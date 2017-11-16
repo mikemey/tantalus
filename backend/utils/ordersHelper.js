@@ -13,7 +13,7 @@ const amountPriceString = (amount, price) => `${amountString(amount)} ${priceStr
 
 const volumeString = volume => `£ ${(volume / 100).toFixed(2)}`
 
-const floorVolume = (amount, price) => Math.floor(amount * price / mmBTC)
+const roundVolume = (amount, price) => Math.round(amount * price / mmBTC)
 const reverseVolume = (volume, amountOrPrice) => Math.floor(volume / amountOrPrice * mmBTC)
 const floorAmount = reverseVolume
 const floorPrice = reverseVolume
@@ -57,7 +57,7 @@ module.exports = {
   BUY_ORDER_TYPE,
   SELL_ORDER_TYPE,
   mmBTC,
-  floorVolume,
+  roundVolume,
   floorAmount,
   floorPrice,
   amountString,

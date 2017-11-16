@@ -7,14 +7,6 @@ const { TantalusLogger } = require('../../backend/utils/tantalusLogger')
 
 describe('Trade account', () => {
   const testId = 3242
-
-  let tradeAccount
-
-  beforeEach(() => {
-    const testLogger = TantalusLogger(console, 'Trade account test')
-    tradeAccount = TradeAccount(testLogger, testId)
-  })
-
   let transactionId = 1000
 
   const transaction = (amount, price) => {
@@ -26,16 +18,40 @@ describe('Trade account', () => {
     }
   }
 
-  const balanceProperty = pname => pval => {
+  const balanceProperty = (pname, prohibitSetter = false) => pval => {
+    if (prohibitSetter && pval) throw Error(`setting property ${pname} prohibited`)
     if (pval === undefined) return tradeAccount.getAccount().balances[pname]
-    else tradeAccount.getAccount().balances[pname] = pval
+    else {
+      tradeAccount.account[pname] = pval
+    }
   }
+
   const gbpBalance = balanceProperty('gbp_balance')
-  const gbpAvailable = balanceProperty('gbp_available')
-  const gbpReserved = balanceProperty('gbp_reserved')
   const xbtBalance = balanceProperty('xbt_balance')
-  const xbtAvailable = balanceProperty('xbt_available')
-  const xbtReserved = balanceProperty('xbt_reserved')
+
+  const gbpAvailable = balanceProperty('gbp_available', true)
+  const xbtAvailable = balanceProperty('xbt_available', true)
+
+  const gbpReserved = reserveGbp => {
+    if (reserveGbp === undefined) return balanceProperty('gbp_reserved')()
+    setupOrders.push(tradeAccount.newBuyOrder(reserveGbp, 10000))
+  }
+
+  const xbtReserved = reserveXbt => {
+    if (reserveXbt === undefined) return balanceProperty('xbt_reserved')()
+    setupOrders.push(tradeAccount.newSellOrder(reserveXbt, 10000000))
+  }
+  let tradeAccount, setupOrders
+
+  beforeEach(() => {
+    const testLogger = TantalusLogger(console, 'Trade account test')
+    tradeAccount = TradeAccount(testLogger, testId)
+    setupOrders = []
+  })
+
+  const getOpenOrdersFromTest = () => tradeAccount
+    .getOpenOrders()
+    .filter(oo => undefined === setupOrders.find(so => so.id === oo.id))
 
   describe('buy orders', () => {
     it('start amounts', () => {
@@ -49,40 +65,54 @@ describe('Trade account', () => {
       tradeAccount.newBuyOrder(1000, 230000)
       tradeAccount.newBuyOrder(2000, 340000)
 
-      tradeAccount.getOpenOrders().should.have.length(2)
+      getOpenOrdersFromTest().should.have.length(2)
       gbpBalance().should.equal(100000)
       gbpAvailable().should.equal(9000)
       gbpReserved().should.equal(91000)
     })
 
     it('throws exception when larger volume in order than available', () => {
-      gbpAvailable(3230)
-      expect(tradeAccount.newBuyOrder.bind(tradeAccount, 5000, 340000))
-        .to.throw(Error, 'buying with more volume than available: £ 1700.00 > £ 32.30')
+      gbpBalance(3230)
+      expect(() => tradeAccount.newBuyOrder(951, 34000))
+        .to.throw(Error, 'buying with more volume than available: £ 32.33 > £ 32.30')
 
       gbpBalance().should.equal(3230)
       gbpAvailable().should.equal(3230)
       gbpReserved().should.equal(0)
     })
+
+    it('ignores repeated transactions', () => {
+      gbpBalance(50000)
+      xbtBalance(250)
+      tradeAccount.newBuyOrder(1000, 230200)
+      const staticTxs = [transaction(400, 230100)]
+      tradeAccount.transactionsUpdate(staticTxs)
+      tradeAccount.transactionsUpdate(staticTxs)
+
+      gbpBalance().should.equal(40792)
+      gbpAvailable().should.equal(26980)
+      gbpReserved().should.equal(13812)
+      xbtAvailable().should.equal(650)
+    })
   })
 
   describe('sell orders', () => {
     it('reserves xbt amount after sell order', () => {
-      xbtAvailable(300)
+      xbtBalance(400)
       xbtReserved(100)
       tradeAccount.newSellOrder(146, 230000)
       tradeAccount.newSellOrder(143, 250000)
 
-      tradeAccount.getOpenOrders().should.have.length(2)
+      getOpenOrdersFromTest().should.have.length(2)
       xbtBalance().should.equal(400)
       xbtAvailable().should.equal(11)
       xbtReserved().should.equal(389)
     })
 
     it('throws exception when larger amount in order than available', () => {
-      xbtAvailable(300)
+      xbtBalance(400)
       xbtReserved(100)
-      expect(tradeAccount.newSellOrder.bind(tradeAccount, 301, 340000))
+      expect(() => tradeAccount.newSellOrder(301, 340000))
         .to.throw(Error, 'selling more btcs than available: Ƀ 0.0301 > Ƀ 0.0300')
       xbtBalance().should.equal(400)
       xbtAvailable().should.equal(300)
@@ -92,69 +122,72 @@ describe('Trade account', () => {
 
   describe('transactions', () => {
     it('does nothing when no new transactions', () => {
-      gbpAvailable(50000)
-      xbtAvailable(300)
+      gbpBalance(50000)
+      xbtBalance(300)
       tradeAccount.newSellOrder(146, 230000)
       tradeAccount.newBuyOrder(1000, 230000)
 
       tradeAccount.transactionsUpdate([])
-      tradeAccount.getOpenOrders().should.have.length(2)
-      gbpAvailable(27000)
-      xbtAvailable(154)
+      getOpenOrdersFromTest().should.have.length(2)
+      gbpAvailable().should.equal(27000)
+      xbtAvailable().should.equal(154)
     })
 
-    it('resolves buy order when transaction price <= bid price', () => {
-      gbpAvailable(50000)
-      xbtAvailable(250)
-      const unresolvedId = tradeAccount.newBuyOrder(1000, 230000).id
-      tradeAccount.newBuyOrder(1000, 230200)
+    it('resolves buy order when transaction.price <= bid.price', () => {
+      gbpBalance(50000)
+      xbtBalance(250)
+      const unresolvedId = tradeAccount.newBuyOrder(1000, 230100).id
+      tradeAccount.newBuyOrder(1000, 230300)
       tradeAccount.transactionsUpdate([
-        transaction(1000, 230100)
+        transaction(1000, 230200)
       ])
 
-      const openOrders = tradeAccount.getOpenOrders()
+      const openOrders = getOpenOrdersFromTest()
       openOrders.should.have.length(1)
       openOrders[0].id.should.equal(unresolvedId, 'wrong open order')
 
-      gbpAvailable().should.equal(3980)
-      gbpReserved().should.equal(23000)
+      gbpAvailable().should.equal(3960)
+      gbpReserved().should.equal(23010)
       xbtAvailable().should.equal(1250)
     })
 
     it('partially resolves buy order', () => {
-      gbpAvailable(50000)
-      xbtAvailable(250)
-      tradeAccount.newBuyOrder(1000, 230000)
-      gbpAvailable().should.equal(27000)
-      gbpReserved().should.equal(23000)
+      gbpBalance(50000)
+      xbtBalance(250)
+      tradeAccount.newBuyOrder(1000, 229900)
+      gbpBalance().should.equal(50000)
+      gbpAvailable().should.equal(27010)
+      gbpReserved().should.equal(22990)
       xbtAvailable().should.equal(250)
 
       tradeAccount.transactionsUpdate([
-        transaction(500, 230100),
         transaction(500, 230000),
-        transaction(200, 229900)
+        transaction(500, 229900),
+        transaction(200, 229800)
       ])
-      const openOrders = tradeAccount.getOpenOrders()
+      const openOrders = getOpenOrdersFromTest()
       openOrders.should.have.length(1)
 
-      gbpAvailable().should.equal(27000)
-      gbpReserved().should.equal(6900)
+      gbpBalance().should.equal(33907)
+      gbpAvailable().should.equal(27010)
+      gbpReserved().should.equal(6897)
       xbtAvailable().should.equal(950)
 
       tradeAccount.transactionsUpdate([
-        transaction(300, 230000)
+        transaction(300, 229900)
       ])
-      const openOrders2 = tradeAccount.getOpenOrders()
+      const openOrders2 = getOpenOrdersFromTest()
       openOrders2.should.have.length(0)
 
-      gbpAvailable().should.equal(27000)
+      gbpBalance().should.equal(27010)
+      gbpAvailable().should.equal(27010)
       gbpReserved().should.equal(0)
       xbtAvailable().should.equal(1250)
     })
 
     it('does NOT resolve same transaction twice', () => {
-      gbpAvailable(50000)
-      xbtAvailable(250)
+      gbpBalance(50000)
+      xbtBalance(250)
       const orderId = tradeAccount.newBuyOrder(1000, 234500).id
       const tx = transaction(600, 234500)
       const sameTx = Object.assign({}, tx)
@@ -166,7 +199,7 @@ describe('Trade account', () => {
         sameTx
       ])
 
-      const openOrders = tradeAccount.getOpenOrders()
+      const openOrders = getOpenOrdersFromTest()
       openOrders.should.have.length(1)
       openOrders[0].id.should.equal(orderId)
       openOrders[0].amount.should.equal(300)
@@ -176,8 +209,8 @@ describe('Trade account', () => {
     })
 
     it('resolves sell order when transaction price >= asking price', () => {
-      gbpAvailable(50000)
-      xbtAvailable(1000)
+      gbpBalance(50000)
+      xbtBalance(2250)
       xbtReserved(1250)
       tradeAccount.newSellOrder(500, 230000)
       const unresolvedId = tradeAccount.newSellOrder(500, 230200).id
@@ -187,7 +220,7 @@ describe('Trade account', () => {
         transaction(450, 230100)
       ])
 
-      const openOrders = tradeAccount.getOpenOrders()
+      const openOrders = getOpenOrdersFromTest()
       openOrders.should.have.length(1)
       openOrders[0].id.should.equal(unresolvedId, 'wrong open order')
 
@@ -197,59 +230,84 @@ describe('Trade account', () => {
     })
 
     it('partially resolves sell order', () => {
-      gbpAvailable(50000)
-      xbtAvailable(1000)
+      gbpBalance(50000)
+      xbtBalance(3800)
       xbtReserved(1250)
-      tradeAccount.newSellOrder(1000, 230000)
+      tradeAccount.newSellOrder(1000, 231100)
 
       tradeAccount.transactionsUpdate([
-        transaction(300, 230100),
-        transaction(500, 230000),
-        transaction(200, 229900)
+        transaction(333, 231200),
+        transaction(111, 231100),
+        transaction(1000, 231000)
       ])
-      const openOrders = tradeAccount.getOpenOrders()
+
+      const openOrders = getOpenOrdersFromTest()
       openOrders.should.have.length(1)
-      openOrders[0].amount.should.equal(200)
+      openOrders[0].amount.should.equal(556)
 
-      gbpAvailable().should.equal(68400)
-      xbtAvailable().should.equal(0)
-      xbtReserved().should.equal(1450)
+      gbpAvailable().should.equal(60261)
+      xbtBalance().should.equal(3356)
+      xbtAvailable().should.equal(1550)
+      xbtReserved().should.equal(1806)
 
       tradeAccount.transactionsUpdate([
-        transaction(200, 230000)
+        transaction(560, 231100)
       ])
-      const openOrders2 = tradeAccount.getOpenOrders()
+      const openOrders2 = getOpenOrdersFromTest()
       openOrders2.should.have.length(0)
 
-      gbpAvailable().should.equal(73000)
+      gbpAvailable().should.equal(73110)
+      xbtBalance().should.equal(2800)
+      xbtAvailable().should.equal(1550)
       xbtReserved().should.equal(1250)
     })
   })
 
   describe('cancel orders', () => {
     it('cancels buy order', () => {
-      gbpAvailable(50000)
+      gbpBalance(62300)
       gbpReserved(12300)
 
       const orderId = tradeAccount.newBuyOrder(500, 230000).id
-      tradeAccount.newBuyOrder(1000, 230200)
+      const unboughtId = tradeAccount.newBuyOrder(1000, 230200).id
 
       const cancelResult = tradeAccount.cancelOrder(orderId)
       cancelResult.should.equal(true)
 
-      const openOrders = tradeAccount.getOpenOrders()
+      const openOrders = getOpenOrdersFromTest()
       openOrders.should.have.length(1)
-      openOrders[0].id.should.not.equal(orderId)
+      openOrders[0].id.should.equal(unboughtId)
 
       gbpAvailable().should.equal(26980)
       gbpReserved().should.equal(35320)
     })
 
+    it('cancels partially bought order', () => {
+      gbpBalance(62300)
+      gbpReserved(12300)
+      const orderId = tradeAccount.newBuyOrder(500, 230100).id
+
+      tradeAccount.transactionsUpdate([
+        transaction(300, 230200),
+        transaction(110, 230100),
+        transaction(220, 230000)
+      ])
+      xbtAvailable().should.equal(330)
+      gbpBalance().should.equal(54707)
+      gbpAvailable().should.equal(38495)
+      gbpReserved().should.equal(16212)
+
+      tradeAccount.cancelOrder(orderId)
+      gbpBalance().should.equal(54707)
+      gbpAvailable().should.equal(42407)
+      gbpReserved().should.equal(12300)
+    })
+
     it('cancels sell order', () => {
-      xbtAvailable(800)
+      xbtBalance(1100)
       xbtReserved(300)
       const orderId = tradeAccount.newSellOrder(500, 230000).id
-      tradeAccount.newSellOrder(300, 230200)
+      const unsoldId = tradeAccount.newSellOrder(300, 230200).id
       tradeAccount.transactionsUpdate([
         transaction(300, 230000)
       ])
@@ -257,25 +315,29 @@ describe('Trade account', () => {
       const cancelResult = tradeAccount.cancelOrder(orderId)
       cancelResult.should.equal(true)
 
-      const openOrders = tradeAccount.getOpenOrders()
+      const openOrders = getOpenOrdersFromTest()
       openOrders.should.have.length(1)
-      openOrders[0].id.should.not.equal(orderId)
+      openOrders[0].id.should.equal(unsoldId)
 
       xbtAvailable().should.equal(200)
       xbtReserved().should.equal(600)
     })
 
-    it('ignores repeated transactions', () => {
-      gbpAvailable(50000)
-      xbtAvailable(250)
-      tradeAccount.newBuyOrder(1000, 230200)
-      const staticTxs = [transaction(400, 230100)]
-      tradeAccount.transactionsUpdate(staticTxs)
-      tradeAccount.transactionsUpdate(staticTxs)
+    it('cancels partially sold order', () => {
+      gbpBalance(0)
+      xbtBalance(1600)
+      const orderId = tradeAccount.newSellOrder(500, 335300).id
+      tradeAccount.transactionsUpdate([transaction(300, 335500)])
 
-      gbpAvailable().should.equal(26980)
-      gbpReserved().should.equal(13812)
-      xbtAvailable().should.equal(650)
+      gbpAvailable().should.equal(10059)
+      xbtBalance().should.equal(1300)
+      xbtAvailable().should.equal(1100)
+      xbtReserved().should.equal(200)
+
+      tradeAccount.cancelOrder(orderId)
+      xbtBalance().should.equal(1300)
+      xbtAvailable().should.equal(1300)
+      xbtReserved().should.equal(0)
     })
   })
 })
