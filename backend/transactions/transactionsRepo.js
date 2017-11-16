@@ -3,19 +3,23 @@ const mongo = require('../utils/mongoConnection')
 const TransactionRepo = () => {
   const transactionsCollection = () => mongo.db.collection(mongo.transactionCollectionName)
 
-  const getLatestTransactionId = () => transactionsCollection()
-    .find({}, { tid: true })
-    .sort({ tid: -1 })
+  const getLatestTransactionId = () => getLatestTransaction()
+    .then(txs => txs.tid ? txs.tid : 0)
+
+  const singleDocument = cursor => cursor
     .limit(1)
     .toArray()
-    .then(txs => txs.length ? txs[0].tid : 0)
+    .then(docs => docs.length ? docs[0] : {})
 
-  const getEarliestTransaction = () => transactionsCollection()
+  const getLatestTransaction = () => singleDocument(transactionsCollection()
+    .find({}, { _id: false })
+    .sort({ tid: -1 })
+  )
+
+  const getEarliestTransaction = () => singleDocument(transactionsCollection()
     .find({}, { _id: false })
     .sort({ tid: 1 })
-    .limit(1)
-    .toArray()
-    .then(txs => txs.length ? txs[0] : {})
+  )
 
   const store = transactions => transactionsCollection().insertMany(transactions)
     .then(result => {
@@ -32,7 +36,8 @@ const TransactionRepo = () => {
     getLatestTransactionId,
     getEarliestTransaction,
     store,
-    readTransactions
+    readTransactions,
+    getLatestTransaction
   }
 }
 

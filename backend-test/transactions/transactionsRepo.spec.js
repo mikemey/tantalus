@@ -47,6 +47,12 @@ describe('Transaction repo', () => {
       return transactionsRepo.getEarliestTransaction()
         .then(earliestTx => earliestTx.should.deep.equal(expectedTx))
     })
+
+    it('returns latest transaction', () => {
+      const expectedTx = withoutId(dbTxs[2])
+      return transactionsRepo.getLatestTransaction()
+        .then(earliestTx => earliestTx.should.deep.equal(expectedTx))
+    })
   })
 
   describe('without data', () => {
@@ -64,6 +70,11 @@ describe('Transaction repo', () => {
 
     it('earliest transaction returns empty object', () => {
       return transactionsRepo.getEarliestTransaction()
+        .then(earliestTx => earliestTx.should.deep.equal({}))
+    })
+
+    it('latest transaction returns empty object', () => {
+      return transactionsRepo.getLatestTransaction()
         .then(earliestTx => earliestTx.should.deep.equal({}))
     })
   })
