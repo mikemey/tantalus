@@ -1,5 +1,4 @@
 const {
-  floorVolume,
   isBuyOrder,
   isSellOrder
  } = require('../utils/ordersHelper')
@@ -8,8 +7,6 @@ const OpenOrdersWatch = (orderLogger, config, exchangeConnector) => {
   const localOpenOrders = new Map()
 
   const addOpenOrder = newLocalOrder => {
-    newLocalOrder.volume = floorVolume(newLocalOrder.amount, newLocalOrder.price)
-
     checkOrderType(newLocalOrder)
     localOpenOrders.set(newLocalOrder.id, newLocalOrder)
     orderLogger.logNewOrder(newLocalOrder)
