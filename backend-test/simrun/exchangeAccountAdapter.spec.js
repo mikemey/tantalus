@@ -1,12 +1,12 @@
 const expect = require('chai').expect
 
-const AccountAdapter = require('../../backend/simrun/accountAdapter')
+const ExchangeAccountAdapter = require('../../backend/simrun/exchangeAccountAdapter')
 
 describe('Account adapter', () => {
   const testTxs = [{ abc: 'def' }, { ghi: 'jkl' }]
 
   describe('general functions', () => {
-    const adapter = AccountAdapter()
+    const adapter = ExchangeAccountAdapter()
 
     it('getAllAccounts throws error', () => {
       expect(adapter.getAllAccounts)
@@ -26,7 +26,7 @@ describe('Account adapter', () => {
   })
 
   describe('forwards TradeAccount functions', () => {
-    const createMockAccount = () => {
+    const createMockTradeAccount = () => {
       const account = { ladida: 123 }
       const openOrders = [{ bibi: 'babb' }]
 
@@ -48,17 +48,17 @@ describe('Account adapter', () => {
       }
     }
 
-    const mockAccount = createMockAccount()
-    const adapter = AccountAdapter(mockAccount)
+    const mockTradeAccount = createMockTradeAccount()
+    const adapter = ExchangeAccountAdapter(mockTradeAccount)
 
     it('getAccount', () => {
       return adapter.getAccount()
-        .then(res => res.should.deep.equal(mockAccount.account))
+        .then(res => res.should.deep.equal(mockTradeAccount.account))
     })
 
     it('getOpenOrders', () => {
       return adapter.getOpenOrders()
-        .then(res => res.should.deep.equal(mockAccount.openOrders))
+        .then(res => res.should.deep.equal(mockTradeAccount.openOrders))
     })
 
     it('buyLimitOrder', () => {

@@ -1,5 +1,4 @@
-
-const AccountAdapter = tradeAccount => {
+const ExchangeAccountAdapter = tradeAccount => {
   const data = {
     transactions: []
   }
@@ -17,4 +16,4 @@ const AccountAdapter = tradeAccount => {
     cancelOrder: id => Promise.resolve(tradeAccount.cancelOrder(id))
   }
 }
-module.exports = AccountAdapter
+module.exports = ExchangeAccountAdapter
