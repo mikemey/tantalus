@@ -43,13 +43,16 @@ describe('SimEx router', () => {
     .get(`${API_PREFIX}/${defaultClientId}/open_orders`)
   )
 
+  const buyOrderUrl = (clientId = defaultClientId) => `${API_PREFIX}/${clientId}/buy`
+  const sellOrderUrl = (clientId = defaultClientId) => `${API_PREFIX}/${clientId}/sell`
+
   const postBuyOrder = (amount, price, clientId = defaultClientId) => extractBody(request(app)
-    .post(`${API_PREFIX}/${clientId}/buy`)
+    .post(buyOrderUrl(clientId))
     .send({ amount, price })
   )
 
   const postSellOrder = (amount, price, clientId = defaultClientId) => extractBody(request(app)
-    .post(`${API_PREFIX}/${clientId}/sell`)
+    .post(sellOrderUrl(clientId))
     .send({ amount, price })
   )
 
@@ -172,7 +175,7 @@ describe('SimEx router', () => {
         .then(exchangeOrder => {
           exchangeOrder.id.should.be.ok
           const orderDate = moment.unix(exchangeOrder.datetime)
-          moment.utc().diff(orderDate, 'seconds').should.equal(0)
+          moment.utc().diff(orderDate, 'seconds').should.be.most(1)
           // type - buy or sell (0 - buy; 1 - sell)
           exchangeOrder.type.should.equal(0)
           exchangeOrder.amount.should.equal(amount)
@@ -290,6 +293,59 @@ describe('SimEx router', () => {
             xbt_balance: 780, xbt_available: 670, xbt_reserved: 110
           })
         })
+    })
+  })
+
+  describe('error responses', () => {
+    const amount = 122
+    const price = 4000
+
+    const amountMissingMessage = 'Amount is missing or zero!'
+    const priceMissingMessage = 'Price is missing or zero!'
+
+    const requestBuy = () => request(app).post(buyOrderUrl())
+    const requestSell = () => request(app).post(sellOrderUrl())
+
+    it('buy order response 400 when amount is missing or zero', () => {
+      return requestBuy().send({ price })
+        .expect(400, { message: amountMissingMessage })
+        .then(() => requestBuy().send({ amount: 0, price })
+          .expect(400, { message: amountMissingMessage })
+        )
+    })
+
+    it('buy order response 400 when price is missing', () => {
+      return requestBuy().send({ amount })
+        .expect(400, { message: priceMissingMessage })
+        .then(() => requestBuy().send({ amount, price: 0 })
+          .expect(400, { message: priceMissingMessage })
+        )
+    })
+
+    it('sell order response 400 when amount is missing or zero', () => {
+      return requestSell().send({ price })
+        .expect(400, { message: amountMissingMessage })
+        .then(() => requestSell().send({ amount: 0, price })
+          .expect(400, { message: amountMissingMessage })
+        )
+    })
+
+    it('sell order response 400 when price is missing', () => {
+      return requestSell().send({ amount })
+        .expect(400, { message: priceMissingMessage })
+        .then(() => requestSell().send({ amount, price: 0 })
+          .expect(400, { message: priceMissingMessage })
+        )
+    })
+
+    it('buy order response 409 Conflict when volume is higher than available', () => {
+      return requestBuy().send({ amount: 50000, price: 100000 })
+        .expect(409, { message: 'buying with more volume than available: £ 5000.00 > £ 1000.00' })
+    })
+
+    it('buy order response 409 Conflict when amount is higher than available', () => {
+      return requestSell().send({ amount: 10, price: 100000 })
+        .expect(409, { message: 'selling more btcs than available: Ƀ 0.0010 > Ƀ 0.0000' })
     })
   })
 })

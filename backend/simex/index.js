@@ -2,6 +2,21 @@ const express = require('express')
 
 const TradeAccount = require('./tradeAccount')
 
+const amountMissing = { message: 'Amount is missing or zero!' }
+const priceMissing = { message: 'Price is missing or zero!' }
+
+const newOrder = (req, res, traderFunc) => {
+  const amount = req.body.amount
+  const price = req.body.price
+  if (!amount) return res.status(400).json(amountMissing)
+  if (!price) return res.status(400).json(priceMissing)
+  try {
+    return res.status(200).json(traderFunc(amount, price))
+  } catch (err) {
+    return res.status(409).json({ message: err.message })
+  }
+}
+
 const createSimexRouter = (tantalusLogger, transactionService) => {
   const router = express.Router()
 
@@ -54,14 +69,9 @@ const createSimexRouter = (tantalusLogger, transactionService) => {
   })
 
   router.post('/:clientId/buy', injectTrader, (req, res) => {
+  router.post('/:clientId/buy', injectTrader, (req, res) => {
     return newOrder(req, res, req.trader.newBuyOrder)
   })
-
-  const newOrder = (req, res, traderFunc) => {
-    const amount = req.body.amount
-    const price = req.body.price
-    return res.status(200).json(traderFunc(amount, price))
-  }
 
   router.get('/:clientId/open_orders', injectTrader, (req, res) => {
     return res.status(200).json(req.trader.getOpenOrders())
