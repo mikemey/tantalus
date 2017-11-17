@@ -29,11 +29,14 @@ const requestLogger = () => {
     ? `\n${JSON.stringify(req.body, null, ' ')}`
     : ''
   )
-  return morgan(':date[iso] [:clientIP] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent :errorBody', {
-    skip: (req, res) =>
-      suppressRequestLog.some(excludePath => req.originalUrl.startsWith(excludePath)) ||
-      res.statusCode === 304
-  })
+
+  const format = ':date[iso] [:clientIP] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent :errorBody'
+  const skip = (req, res) =>
+    process.env.TESTING !== undefined ||
+    suppressRequestLog.some(excludePath => req.originalUrl.startsWith(excludePath)) ||
+    res.statusCode === 304
+
+  return morgan(format, { skip })
 }
 
 const createServer = (config, tantalusLogger) => mongoConnection.initializeAll(config, tantalusLogger)

@@ -17,6 +17,14 @@ const defaultTestUser = {
 const connectMongoose = () => mongo.mongoose.connect(defaultTestConfig.mongodb.url, { useMongoClient: true })
 const closeMongoose = () => mongo.mongoose.connection.close()
 
+const createQuietLogger = () => {
+  return {
+    info: () => { },
+    error: console.error,
+    log: () => { }
+  }
+}
+
 const startTestServer = (callback, disableSecurity = true, testUser = defaultTestUser, configOverride) => {
   const testConfig = disableSecurity
     ? Object.assign({
@@ -27,7 +35,9 @@ const startTestServer = (callback, disableSecurity = true, testUser = defaultTes
     : defaultTestConfig
 
   Object.assign(testConfig, configOverride)
-  return createServer(testConfig, TantalusLogger(console, 'test'))
+  process.env.TESTING = 'true'
+
+  return createServer(testConfig, TantalusLogger(createQuietLogger(), 'test'))
     .then(({ app, server }) => {
       callback(app, server)
     })
@@ -36,7 +46,7 @@ const startTestServer = (callback, disableSecurity = true, testUser = defaultTes
 let db
 const mongodb = () => {
   if (!db) {
-    return mongo.initializeDirectConnection(defaultTestConfig, console)
+    return mongo.initializeDirectConnection(defaultTestConfig, createQuietLogger())
       .then(() => {
         db = mongo.db
         return db
