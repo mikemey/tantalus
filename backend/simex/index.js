@@ -69,7 +69,6 @@ const createSimexRouter = (tantalusLogger, transactionService) => {
   })
 
   router.post('/:clientId/buy', injectTrader, (req, res) => {
-  router.post('/:clientId/buy', injectTrader, (req, res) => {
     return newOrder(req, res, req.trader.newBuyOrder)
   })
 
