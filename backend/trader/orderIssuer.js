@@ -12,7 +12,8 @@ const OrderIssuer = (orderLogger, config, openOrdersWatch, exchangeConnector) =>
       if (buyVolume > volumeLowerLimit) {
         const amount = floorAmount(buyVolume, buyingPrice)
         return exchangeConnector.buyLimitOrder(amount, buyingPrice)
-          .then(orderResponse => openOrdersWatch.addOpenOrder(orderResponse))
+          .then(sendOrderToWatch)
+          .catch(exchangeErrors('buy'))
       }
     }
   }
@@ -23,11 +24,22 @@ const OrderIssuer = (orderLogger, config, openOrdersWatch, exchangeConnector) =>
       const sellAmount = account.balances.xbt_available
       if (sellAmount > amountLowerLimit) {
         return exchangeConnector.sellLimitOrder(sellAmount, sellingPrice)
-          .then(orderResponse => openOrdersWatch.addOpenOrder(orderResponse))
+          .then(sendOrderToWatch)
+          .catch(exchangeErrors('sell'))
       }
     }
   }
 
+  const exchangeErrors = type => err => {
+    if (err.statusCode === 409) {
+      orderLogger.info(`${type} order failed`)
+      orderLogger.log(err.body)
+      return
+    }
+    throw err
+  }
+
+  const sendOrderToWatch = orderResponse => openOrdersWatch.addOpenOrder(orderResponse)
   return {
     issueOrders: ([trends]) =>
       trends.latestPrice && (trends.isPriceSurging || trends.isUnderSellRatio)

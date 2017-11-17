@@ -1,5 +1,6 @@
 /* global describe before beforeEach it */
 const nock = require('nock')
+const should = require('chai').should()
 
 const { OrderLogger } = require('../../backend/utils/ordersHelper')
 const OrderIssuer = require('../../backend/trader/orderIssuer')
@@ -28,11 +29,14 @@ describe('Order issuer', () => {
   const logger = OrderLogger(console)
 
   const createOpenOrdersMock = () => {
+    let called = false
     const receivedOrders = []
     const addOpenOrder = order => {
+      called = true
       receivedOrders.push(order)
     }
-    return { addOpenOrder, receivedOrders }
+    const hasBeenCalled = () => called
+    return { addOpenOrder, receivedOrders, hasBeenCalled }
   }
 
   beforeEach(() => {
@@ -78,17 +82,17 @@ describe('Order issuer', () => {
         isUnderSellRatio: true
       }
       return issueOrders(zeroPrice)
-        .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
+        .then(() => openOrdersMock.hasBeenCalled().should.equal(false))
     })
 
     it('should NOT issue an order when latest price is missing', () => {
       const noPrice = { isPriceSurging: true, isUnderSellRatio: true }
       return issueOrders(noPrice)
-        .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
+        .then(() => openOrdersMock.hasBeenCalled().should.equal(false))
     })
   })
 
-  describe('buy strategy', () => {
+  describe('BUY strategy', () => {
     const surgingTrend = (latestPrice = 123) => { return { latestPrice, isPriceSurging: true } }
 
     const expectBuyCycle = (accountResponse, amount, price) => {
@@ -115,18 +119,51 @@ describe('Order issuer', () => {
     it('should NOT issue a buy order when available volume under lower volume limit', () => {
       expectGetAccount(createAccountResponse(testLowerVolumeLimit - 1))
       return issueOrders(surgingTrend(510300))
-        .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
+        .then(() => openOrdersMock.hasBeenCalled().should.equal(false))
     })
 
     it('should NOT issue a buy order when price not surging (and ignores missing latestPrice)', () => {
       const notSurgingTrend = { isPriceSurging: false }
 
       return issueOrders(notSurgingTrend)
-        .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
+        .then(() => openOrdersMock.hasBeenCalled().should.equal(false))
+    })
+
+    it('should ignore error when exchange response is 409 Conflict', () => {
+      const amount = 6040
+      const price = 50000
+      expectGetAccount(createAccountResponse(30202))
+      const buyScope = nock(testHost).post(`/${testClientId}/buy`, { amount, price })
+        .reply(409, { message: 'test buy order conflict' })
+
+      return issueOrders(surgingTrend(price))
+        .then(() => {
+          buyScope.isDone().should.equal(true)
+          openOrdersMock.hasBeenCalled().should.equal(false)
+        })
+    })
+
+    it('should rethrow error when exchange response 400 Bad Request', () => {
+      const amount = 6040
+      const price = 50000
+      expectGetAccount(createAccountResponse(30202))
+
+      const errorResponse = { message: 'test buy order client error' }
+      const buyScope = nock(testHost).post(`/${testClientId}/buy`, { amount, price })
+        .reply(400, errorResponse)
+
+      return issueOrders(surgingTrend(price))
+        .then(() => should.fail('expected exception not thrown!'))
+        .catch(err => {
+          buyScope.isDone().should.equal(true)
+          openOrdersMock.hasBeenCalled().should.equal(false)
+          err.statusCode.should.deep.equal(400)
+          err.body.should.deep.equal(errorResponse)
+        })
     })
   })
 
-  describe('sell strategy', () => {
+  describe('SELL strategy', () => {
     const underSellRatioTrend = (latestPrice = 123) => { return { latestPrice, isUnderSellRatio: true } }
 
     it('should issue a sell order when trend under sell ratio', () => {
@@ -147,14 +184,47 @@ describe('Order issuer', () => {
     it('should NOT issue a sell order when amount under lower amount limit', () => {
       expectGetAccount(createAccountResponse(0, testLowerAmountLimit - 1))
       return issueOrders(underSellRatioTrend())
-        .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
+        .then(() => openOrdersMock.hasBeenCalled().should.equal(false))
     })
 
     it('should NOT issue a sell order when trend is over sell ratio (and ignores missing latestPrice)', () => {
       const overSellRatioTrend = { isUnderSellRatio: false }
       expectGetAccount(createAccountResponse(0, 999))
       return issueOrders(overSellRatioTrend)
-        .then(() => openOrdersMock.receivedOrders.should.deep.equal([]))
+        .then(() => openOrdersMock.hasBeenCalled().should.equal(false))
+    })
+
+    it('should ignore error when exchange response is 409 Conflict', () => {
+      const amount = 2412
+      const price = 3252
+      expectGetAccount(createAccountResponse(0, amount))
+      const sellScope = nock(testHost).post(`/${testClientId}/sell`, { amount, price })
+        .reply(409, { message: 'test sell order conflict' })
+
+      return issueOrders(underSellRatioTrend(price))
+        .then(() => {
+          sellScope.isDone().should.equal(true)
+          openOrdersMock.hasBeenCalled().should.equal(false)
+        })
+    })
+
+    it('should rethrow error when exchange response 400 Bad Request', () => {
+      const amount = 2412
+      const price = 3252
+      expectGetAccount(createAccountResponse(0, amount))
+
+      const errorResponse = { message: 'test sell order client error' }
+      const sellScope = nock(testHost).post(`/${testClientId}/sell`, { amount, price })
+        .reply(400, errorResponse)
+
+      return issueOrders(underSellRatioTrend(price))
+        .then(() => should.fail('expected exception not thrown!'))
+        .catch(err => {
+          sellScope.isDone().should.equal(true)
+          openOrdersMock.hasBeenCalled().should.equal(false)
+          err.statusCode.should.deep.equal(400)
+          err.body.should.deep.equal(errorResponse)
+        })
     })
   })
 })
