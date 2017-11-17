@@ -18,7 +18,9 @@ const suppressRequestLog = [
   '/api/simex/transactions',
   '/api/invest/transactions',
   '/api/tickers/graph',
-  '/api/tickers/latest'
+  '/api/tickers/latest',
+  '/api/simex/[^/]*/account',
+  '/api/simex/[^/]*/open_orders'
 ]
 
 const methodsWithBody = ['POST', 'PUT']
@@ -33,7 +35,7 @@ const requestLogger = () => {
   const format = ':date[iso] [:clientIP] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent :errorBody'
   const skip = (req, res) =>
     process.env.TESTING !== undefined ||
-    suppressRequestLog.some(excludePath => req.originalUrl.startsWith(excludePath)) ||
+    suppressRequestLog.some(excludePath => req.originalUrl.match(excludePath)) ||
     res.statusCode === 304
 
   return morgan(format, { skip })
