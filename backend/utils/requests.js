@@ -16,7 +16,8 @@ const errorHandler = (extension = '') => err => {
     ? `${err.options.method} ${err.options.uri}`
     : err.message
   const message = `Request error ${extension}: [${errorMessage}]`
-  throw new RequestError(message, err, err.statusCode, err.response.body)
+  const body = err.response !== undefined ? err.response.body : '[undefined]'
+  throw new RequestError(message, err, err.statusCode, body)
 }
 
 const transform = body => cheerio.load(body)

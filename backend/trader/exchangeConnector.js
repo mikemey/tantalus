@@ -25,9 +25,9 @@ const ExchangeConnector = config => {
 
     getAccount: () => requests.getJson(accountUrl),
     getOpenOrders: () => requests.getJson(openOrderUrl),
-    buyLimitOrder: (amount, price) => requests.postJson(buyOrderUrl, { amount, price }),
-    sellLimitOrder: (amount, price) => requests.postJson(sellOrderUrl, { amount, price }),
-    cancelOrder: id => requests.postJson(cancelOrderUrl, { id })
+    buyLimitOrder: (amount, price) => requests.postJson(buyOrderUrl, { amount, price }, false),
+    sellLimitOrder: (amount, price) => requests.postJson(sellOrderUrl, { amount, price }, false),
+    cancelOrder: id => requests.postJson(cancelOrderUrl, { id }, false)
   }
 }
 
