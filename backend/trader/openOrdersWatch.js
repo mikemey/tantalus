@@ -14,8 +14,11 @@ const OpenOrdersWatch = (orderLogger, config, exchangeConnector) => {
 
   const checkOrderType = (newOrder, origin = 'local') => {
     if (!isBuyOrder(newOrder) && !isSellOrder(newOrder)) {
-      throw new Error(`unknown ${origin} order type: ${newOrder.type}`)
+      throw Error(`unknown ${origin} order type: ${newOrder.type}`)
     }
+    if (newOrder.id === undefined) throw Error(`${origin} order: ID is missing!`)
+    if (!newOrder.amount) throw Error(`${origin} order: Amount is missing or zero!`)
+    if (!newOrder.price) throw Error(`${origin} order: Price is missing or zero!`)
   }
 
   const checkExchangeOrders = exchangeOrders => {

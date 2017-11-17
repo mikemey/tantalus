@@ -49,14 +49,53 @@ describe('Open orders watch', () => {
 
   describe('orders safety checks', () => {
     it('throw error when local order type not recognised', () => {
-      expect(openOrdersWatch.addOpenOrder.bind(openOrdersWatch, openOrder(99, 3, 100, 200000)))
+      expect(() => openOrdersWatch.addOpenOrder(openOrder(99, 3, 100, 200000)))
         .to.throw(Error, 'unknown local order type: 3')
+    })
+
+    it('local order throws error when id is missing', () => {
+      expect(() => openOrdersWatch.addOpenOrder({ type: 0, amount: 123, price: 102 }))
+        .to.throw(Error, 'local order: ID is missing!')
+      expect(() => openOrdersWatch.addOpenOrder({ type: 1, amount: 123, price: 102 }))
+        .to.throw(Error, 'local order: ID is missing!')
+    })
+
+    it('local order throws error when amount is missing or zero', () => {
+      expect(() => openOrdersWatch.addOpenOrder({ id: 0, type: 0, price: 102 }))
+        .to.throw(Error, 'Amount is missing or zero!')
+      expect(() => openOrdersWatch.addOpenOrder({ id: 1, type: 0, amount: 0, price: 102 }))
+        .to.throw(Error, 'local order: Amount is missing or zero!')
+    })
+
+    it('local order throws error order price is missing or zero', () => {
+      expect(() => openOrdersWatch.addOpenOrder({ id: 1, type: 0, amount: 102 }))
+        .to.throw(Error, 'local order: Price is missing or zero!')
+      expect(() => openOrdersWatch.addOpenOrder({ id: 1, type: 0, amount: 102, price: 0 }))
+        .to.throw(Error, 'local order: Price is missing or zero!')
     })
 
     it('throw error when remote order type not recognised', () => {
       return resolveOpenOrders([openOrder(99, 'new', 200000, 100)], 0, 2000)
         .then(() => should.fail('expected exception not thrown'))
         .catch(err => err.message.should.equal('unknown exchange order type: new'))
+    })
+
+    it('exchange order throws error when id is missing', () => {
+      return resolveOpenOrders([{ type: 0, amount: 32, price: 102 }])
+        .then(() => should.fail('expected exception not thrown'))
+        .catch(err => err.message.should.equal('exchange order: ID is missing!'))
+    })
+
+    it('exchange order throws error when amount is zero', () => {
+      return resolveOpenOrders([{ id: 0, type: 0, amount: 0, price: 102 }])
+        .then(() => should.fail('expected exception not thrown'))
+        .catch(err => err.message.should.equal('exchange order: Amount is missing or zero!'))
+    })
+
+    it('exchange order throws error order price is missing', () => {
+      return resolveOpenOrders([{ id: 0, type: 0, amount: 1234 }])
+        .then(() => should.fail('expected exception not thrown'))
+        .catch(err => err.message.should.equal('exchange order: Price is missing or zero!'))
     })
   })
 
