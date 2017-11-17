@@ -88,5 +88,17 @@ describe('requests module', () => {
       return requests.postJson(indexUrl, postBody)
         .then(body => body.should.equal(boolResponse))
     })
+
+    it('should add statusCode + body to error when re-request disabled and 409 response', () => {
+      const errorResponse = { message: 'error message' }
+      nockPost(postBody).reply(409, errorResponse)
+      return requests.postJson(indexUrl, postBody, false)
+        .catch(err => {
+          err.name.should.equal(RequestError.name)
+          err.message.should.contain(indexUrl)
+          err.statusCode.should.equal(409)
+          err.body.should.deep.equal(errorResponse)
+        })
+    })
   })
 })

@@ -2,19 +2,21 @@ const rp = require('request-promise')
 const cheerio = require('cheerio')
 
 class RequestError {
-  constructor (message, err) {
+  constructor (message, cause, statusCode, body) {
     this.name = this.constructor.name
     this.message = message
-    this.cause = err
+    this.cause = cause
+    this.statusCode = statusCode
+    this.body = body
   }
 }
 
-const errorHandler = extension => err => {
+const errorHandler = (extension = '') => err => {
   const errorMessage = err.options
     ? `${err.options.method} ${err.options.uri}`
     : err.message
   const message = `Request error ${extension}: [${errorMessage}]`
-  throw new RequestError(message, err)
+  throw new RequestError(message, err, err.statusCode, err.response.body)
 }
 
 const transform = body => cheerio.load(body)
@@ -46,7 +48,11 @@ const retryRequest = request => {
 const getHtml = url => retryRequest(() => rp(transformOpts(url)))
 
 const getJson = url => retryRequest(() => rp(jsonOpts(url)))
-const postJson = (url, body) => retryRequest(() => rp(jsonOpts(url, 'POST', body)))
+
+const postJson = (url, body, rerequest = true) => rerequest
+  ? retryRequest(() => rp(jsonOpts(url, 'POST', body)))
+  : rp(jsonOpts(url, 'POST', body))
+    .catch(errorHandler())
 
 module.exports = {
   getHtml,
