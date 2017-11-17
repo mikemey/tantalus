@@ -102,6 +102,7 @@ const TradeAccount = (tantalusLogger, clientId) => {
       orderLogger.logCancelledOrder(order)
       return false
     })
+    if (!found) orderLogger.info(`cancel order: [${removeId}] not found!`)
     return found
   }
 

@@ -33,6 +33,8 @@ const OpenOrdersWatch = (orderLogger, config, exchangeConnector) => {
             localOpenOrders.delete(exchangeOrder.id)
             logPartiallyBoughtSoldOrder(localOrder, exchangeOrder)
           }
+        } else {
+          orderLogger.info(`cancelling order [${exchangeOrder.id}] unsuccessful!`)
         }
       })
   ))

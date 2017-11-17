@@ -14,19 +14,10 @@ const createSimexRouter = require('./simex')
 
 const TransactionsService = require('./transactions/transactionsService')
 
-const suppressRequestLog = [
-  '/api/simex',
-  '/api/invest/transactions',
-  '/api/tickers/graph',
-  '/api/tickers/latest'
-]
-
 const requestLogger = () => {
   morgan.token('clientIP', req => req.headers['x-forwarded-for'] || req.connection.remoteAddress)
   return morgan(':date[iso] [:clientIP] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent', {
-    skip: (req, res) =>
-      suppressRequestLog.some(excludePath => req.originalUrl.startsWith(excludePath)) ||
-      res.statusCode === 304
+    skip: (req, res) => res.statusCode === 304
   })
 }
 
