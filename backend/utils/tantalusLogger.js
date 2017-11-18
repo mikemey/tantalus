@@ -27,11 +27,11 @@ const pickColor = () => colors[Math.floor(Math.random() * colors.length)]
 
 const randomColorText = msg => xterm(pickColor())(msg)
 
-const TantalusLogger = (baseLogger, category, colorFunc) => {
+const TantalusLogger = (baseLogger, category, categoryColorFunc) => {
   const statics = category
     ? {
-      categoryTemplate: colorFunc
-        ? ` [${colorFunc(category)}]`
+      categoryTemplate: categoryColorFunc
+        ? ` [${categoryColorFunc(category)}]`
         : ` [${randomColorText(category)}]`,
       timeStampFormat: 'YYYY-MM-DD HH:mm:ss'
     }
