@@ -29,7 +29,7 @@ const TransactionRepo = () => {
 
   const readTransactions = (from, to) => transactionsCollection()
     .find({ date: { $gte: from, $lte: to } }, { _id: false })
-    .sort({ tid: -1 })
+    .sort({ tid: 1 })
     .toArray()
 
   return {

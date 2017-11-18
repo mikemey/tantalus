@@ -27,7 +27,7 @@ describe('Transaction repo', () => {
     )
 
     it('reads transactions slice in order', () => {
-      const expectedTxs = withoutId([dbTxs[1], dbTxs[3], dbTxs[5]])
+      const expectedTxs = withoutId([dbTxs[5], dbTxs[3], dbTxs[1]])
       return transactionsRepo.readTransactions(1103, 1401)
         .then(txs => txs.should.deep.equal(expectedTxs))
     })
