@@ -6,7 +6,7 @@ const TransactionSource = (baseLogger, transactionRepo) => {
 
   const data = {
     batchSeconds: 0,
-    startDate: 0,
+    nextStartDate: 0,
     endDate: 0
   }
 
@@ -17,25 +17,25 @@ const TransactionSource = (baseLogger, transactionRepo) => {
       transactionRepo.getEarliestTransaction(),
       transactionRepo.getLatestTransaction()
     ]).then(([earliest, latest]) => {
-      data.startDate = earliest.date
+      data.nextStartDate = earliest.date
       data.endDate = latest.date
-      logger.info(`using transactions from: ${timestamp(data.startDate)}, to: ${timestamp(data.endDate)}`)
+      logger.info(`using transactions from: ${timestamp(data.nextStartDate)}, to: ${timestamp(data.endDate)}`)
     })
   }
 
   const next = () => {
-    if (data.startDate > data.endDate) throw Error(`No more transactions available (latest date: ${data.endDate})!`)
-    const from = data.startDate
+    if (data.nextStartDate > data.endDate) throw Error(`No more transactions available (latest date: ${data.endDate})!`)
+    const from = data.nextStartDate
     const to = from + data.batchSeconds - 1
 
-    data.startDate = from + data.batchSeconds
+    data.nextStartDate = from + data.batchSeconds
     return transactionRepo.readTransactions(from, to)
       .then(transactions => {
         return { from, to, transactions }
       })
   }
 
-  const hasNext = () => data.startDate <= data.endDate
+  const hasNext = () => data.nextStartDate <= data.endDate
 
   return {
     init,
