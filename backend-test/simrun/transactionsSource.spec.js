@@ -10,14 +10,16 @@ describe('Transaction source', () => {
     { tid: 230000, date: 230 }
   ]
 
-  const firstSlice = [transactions[1], transactions[2], transactions[3]]
+  const firstSlice = [transactions[3], transactions[2], transactions[1]]
   const secondSlice = []
   const thirdSlice = [transactions[0]]
 
+  const transactionWith = date => { return { date } }
+
   const mockRepo = (earliestDate, latestDate) => {
     return {
-      getEarliestTransaction: () => Promise.resolve(earliestDate),
-      getLatestTransaction: () => Promise.resolve(latestDate),
+      getEarliestTransaction: () => Promise.resolve(transactionWith(earliestDate)),
+      getLatestTransaction: () => Promise.resolve(transactionWith(latestDate)),
       readTransactions: (from, to) => {
         if (from === 230 && to === 329) return Promise.resolve(firstSlice)
         if (from === 330 && to === 429) return Promise.resolve(secondSlice)
@@ -43,7 +45,7 @@ describe('Transaction source', () => {
   }
 
   it('returns slices', () => {
-    transactionsSource = TransactionsSource(mockRepo(230, 430))
+    transactionsSource = TransactionsSource(console, mockRepo(230, 430))
     const batchSeconds = 100
     return transactionsSource.init(batchSeconds)
       .then(expectHasNext())
@@ -54,7 +56,7 @@ describe('Transaction source', () => {
   })
 
   it('should throw error when next called after last slice', () => {
-    transactionsSource = TransactionsSource(mockRepo(400, 499))
+    transactionsSource = TransactionsSource(console, mockRepo(400, 499))
     return transactionsSource.init(100)
       .then(expectHasNext())
       .then(() => transactionsSource.next())

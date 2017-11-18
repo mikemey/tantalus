@@ -1,4 +1,9 @@
-const TransactionSource = transactionRepo => {
+const { timestamp } = require('./simrunUtils')
+const { TantalusLogger } = require('../utils/tantalusLogger')
+
+const TransactionSource = (baseLogger, transactionRepo) => {
+  const logger = TantalusLogger(baseLogger, 'TxsSource')
+
   const data = {
     batchSeconds: 0,
     startDate: 0,
@@ -7,12 +12,14 @@ const TransactionSource = transactionRepo => {
 
   const init = batchSeconds => {
     data.batchSeconds = batchSeconds
+    logger.info('retrieving earliest and latest date...')
     return Promise.all([
       transactionRepo.getEarliestTransaction(),
       transactionRepo.getLatestTransaction()
     ]).then(([earliest, latest]) => {
-      data.startDate = earliest
-      data.endDate = latest
+      data.startDate = earliest.date
+      data.endDate = latest.date
+      logger.info(`using transactions from: ${timestamp(data.startDate)}, to: ${timestamp(data.endDate)}`)
     })
   }
 
