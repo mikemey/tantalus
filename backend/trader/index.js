@@ -25,8 +25,8 @@ const createTraderJobs = () => {
 const shutdown = () => {
   if (job) job.cancel()
   stopTraderJobs()
-  process.exit(0)
   mainLogger.info('quit')
+  process.exit(0)
 }
 
 const stopTraderJobs = () => {
