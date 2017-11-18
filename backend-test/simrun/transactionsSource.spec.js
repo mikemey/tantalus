@@ -28,16 +28,25 @@ describe('Transaction source', () => {
     }
   }
 
+  let transactionsSource
+
+  const expectBatch = (from, to, transactions, hasNext = true) => batch => {
+    batch.should.deep.equal({ from, to, transactions })
+
+    transactionsSource.hasNext().should.equal(hasNext)
+    if (hasNext) return transactionsSource.next()
+  }
+
+  const expectHasNext = (hasNext = true) => batch => {
+    transactionsSource.hasNext().should.equal(hasNext)
+    return batch
+  }
+
   it('returns slices', () => {
+    transactionsSource = TransactionsSource(mockRepo(230, 430))
     const batchSeconds = 100
-
-    const expectBatch = (from, to, transactions, next = true) => batch => {
-      batch.should.deep.equal({ from, to, next, transactions })
-      if (next) return transactionsSource.next()
-    }
-
-    const transactionsSource = TransactionsSource(mockRepo(230, 430))
     return transactionsSource.init(batchSeconds)
+      .then(expectHasNext())
       .then(() => transactionsSource.next())
       .then(expectBatch(230, 329, firstSlice))
       .then(expectBatch(330, 429, secondSlice))
@@ -45,11 +54,12 @@ describe('Transaction source', () => {
   })
 
   it('should throw error when next called after last slice', () => {
-    const transactionsSource = TransactionsSource(mockRepo(400, 499))
+    transactionsSource = TransactionsSource(mockRepo(400, 499))
     return transactionsSource.init(100)
+      .then(expectHasNext())
       .then(() => transactionsSource.next())
-      .then(batch => {
-        batch.next.should.equal(false)
+      .then(() => {
+        transactionsSource.hasNext().should.equal(false)
         expect(() => transactionsSource.next())
           .to.throw(Error, 'No more transactions available (latest date: 499)!')
       })

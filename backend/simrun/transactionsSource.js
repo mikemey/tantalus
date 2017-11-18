@@ -22,16 +22,18 @@ const TransactionSource = transactionRepo => {
     const to = from + data.batchSeconds - 1
 
     data.startDate = from + data.batchSeconds
-    const next = data.startDate <= data.endDate
     return transactionRepo.readTransactions(from, to)
       .then(transactions => {
-        return { from, to, next, transactions }
+        return { from, to, transactions }
       })
   }
 
+  const hasNext = () => data.startDate <= data.endDate
+
   return {
     init,
-    next
+    next,
+    hasNext
   }
 }
 
