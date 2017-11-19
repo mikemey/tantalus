@@ -3,9 +3,14 @@ const ExchangeAccountAdapter = tradeAccount => {
     transactions: []
   }
 
+  const setTransactions = txs => {
+    data.transactions = txs
+    tradeAccount.transactionsUpdate(txs)
+  }
+
   return {
     getTransactions: () => Promise.resolve(data.transactions),
-    setTransactions: txs => { data.transactions = txs },
+    setTransactions,
     getAllAccounts: () => {
       throw Error('AccountAdapter: unexpected call to getAllAccounts()')
     },

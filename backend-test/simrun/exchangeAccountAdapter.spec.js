@@ -17,18 +17,13 @@ describe('Account adapter', () => {
       return adapter.getTransactions()
         .then(txs => txs.should.deep.equal([]))
     })
-
-    it('getTransactions returns transactions when set', () => {
-      adapter.setTransactions(testTxs)
-      return adapter.getTransactions()
-        .then(txs => txs.should.deep.equal(testTxs))
-    })
   })
 
   describe('forwards TradeAccount functions', () => {
     const createMockTradeAccount = () => {
       const account = { ladida: 123 }
       const openOrders = [{ bibi: 'babb' }]
+      let receivedTransactions, updateHasBeenCalled
 
       const testOrder = (ainc, pinc) => (amount, price) => {
         return {
@@ -37,9 +32,21 @@ describe('Account adapter', () => {
         }
       }
 
+      const transactionsUpdate = txUpdate => {
+        updateHasBeenCalled = true
+        receivedTransactions = txUpdate
+      }
+
+      const receivedTransactionsUpdate = () => {
+        if (updateHasBeenCalled) return receivedTransactions
+        throw Error('transactionsUpdate() was never called!')
+      }
+
       return {
         account,
         openOrders,
+        transactionsUpdate,
+        receivedTransactionsUpdate,
         getAccount: () => account,
         getOpenOrders: () => openOrders,
         newBuyOrder: testOrder(1, 2),
@@ -50,6 +57,17 @@ describe('Account adapter', () => {
 
     const mockTradeAccount = createMockTradeAccount()
     const adapter = ExchangeAccountAdapter(mockTradeAccount)
+
+    it('getTransactions returns transactions when set', () => {
+      adapter.setTransactions(testTxs)
+      return adapter.getTransactions()
+        .then(txs => txs.should.deep.equal(testTxs))
+    })
+
+    it('setTransactions', () => {
+      adapter.setTransactions(testTxs)
+      mockTradeAccount.receivedTransactionsUpdate().should.deep.equal(testTxs)
+    })
 
     it('getAccount', () => {
       return adapter.getAccount()
