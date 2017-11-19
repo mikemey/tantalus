@@ -1,4 +1,3 @@
-const { timestamp } = require('./simrunUtils')
 const { TantalusLogger } = require('../utils/tantalusLogger')
 
 const TransactionSource = (baseLogger, transactionRepo) => {
@@ -19,7 +18,9 @@ const TransactionSource = (baseLogger, transactionRepo) => {
     ]).then(([earliest, latest]) => {
       data.nextStartDate = earliest.date
       data.endDate = latest.date
-      logger.info(`using transactions from: ${timestamp(data.nextStartDate)}, to: ${timestamp(data.endDate)}`)
+      // data.nextStartDate = 1511096300
+      // data.endDate = 1511096750
+      logger.info(`DB batch: ${data.nextStartDate} -> ${data.endDate}`)
     })
   }
 
