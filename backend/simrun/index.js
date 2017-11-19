@@ -11,18 +11,29 @@ const simrunConfig = {
   mongodb: {
     url: 'mongodb://127.0.0.1:27017/tantalus'
   },
-  batchSeconds: 3600 * 12
+  batchSeconds: 3600,
+  transactionsUpdateSeconds: 10
 }
 
 const configGenConfig = {
-  timeslotSeconds: { start: 10, end: 120, step: 50 },
+  timeslotSeconds: { start: 50, end: 100, step: 50 },
   buying: {
-    ratio: { start: 2, end: 3, step: 0.5 },
-    useTimeslots: { start: 2, end: 5, step: 1 }
+    ratio: { start: 0.5, end: 0.5, step: 0.5 },
+    useTimeslots: { start: 2, end: 2, step: 1 }
   },
   selling: {
-    ratio: { start: -2, end: 0, step: 0.5 },
-    useTimeslots: { start: 2, end: 5, step: 1 }
+    ratio: { start: 0, end: 0, step: 0.5 },
+    useTimeslots: { start: 2, end: 2, step: 1 }
+  }
+}
+
+const tradingConfig = {
+  buying: {
+    volumeLimitPence: 100000,
+    lowerLimitPence: 5000
+  },
+  selling: {
+    lowerLimit_mmBtc: 80
   }
 }
 
@@ -49,22 +60,12 @@ const createTransactionsSource = () => mongo.initializeDirectConnection(simrunCo
   })
 
 const generateTraderConfigs = () => Promise
-  .resolve(TraderConfigsGenerator().generate(configGenConfig))
+  .resolve(TraderConfigsGenerator().generate(configGenConfig, tradingConfig))
 
 const runSimulation = (transactionsSource, traderConfigs) => {
-  return SimRunner(baseLogger, transactionsSource, traderConfigs)
+  return SimRunner(baseLogger, transactionsSource, traderConfigs, simrunConfig.transactionsUpdateSeconds)
     .run()
     .catch(errorHandler('Run simulation: ', true))
-}
-
-const logPromiseTime = (name, promiseFunc) => {
-  simLogger.info('start timing')
-  console.time(name)
-  return promiseFunc()
-    .then(result => {
-      console.timeEnd(name)
-      return result
-    })
 }
 
 const shutdown = () => {
@@ -84,10 +85,10 @@ process.on('SIGINT', shutdown)
 process.on('uncaughtException', errorHandler('uncaught exception: ', true))
 
 Promise.all([
-  logPromiseTime('TXSource', createTransactionsSource),
-  logPromiseTime('CFGgen', generateTraderConfigs)
+  createTransactionsSource(),
+  generateTraderConfigs()
 ]).then(([transactionsSource, traderConfigs]) =>
-  logPromiseTime('SimRun', runSimulation.bind(null, transactionsSource, traderConfigs))
+  runSimulation(transactionsSource, traderConfigs)
   )
   .catch(errorHandler('Setup simulation: ', true))
   .then(shutdown)
