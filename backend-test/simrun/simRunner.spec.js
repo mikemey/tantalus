@@ -22,7 +22,13 @@ describe('Sim Runner', () => {
 
     const setTransactions = txs => { received = txs }
     const getReceived = () => received
-    return { setTransactions, getReceived }
+    const getAccountSync = () => {
+      return {
+        clientId: 'test',
+        balances: { gbp_balance: 1, xbt_balance: 1 }
+      }
+    }
+    return { setTransactions, getReceived, getAccountSync }
   }
 
   const TraderMock = () => {

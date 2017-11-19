@@ -79,6 +79,7 @@ const TransactionPartitioner = (tradePairs, startDate, txsUpdateSeconds) => {
 const SimRunner = (baseLogger, transactionsSource, traderConfigs, txsUpdateSeconds) => {
   const runnerLog = TantalusLogger(baseLogger, 'SimRun')
   let partitioner
+  let lastTransactionPrice = 0
 
   const run = () => {
     runnerLog.info('creating traders...')
