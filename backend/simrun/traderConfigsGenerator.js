@@ -1,4 +1,5 @@
 const { cartesianProduct } = require('js-combinatorics')
+const deepAssign = require('assign-deep')
 
 const TraderConfigsGenerator = () => {
   const countDecimals = value => {
@@ -26,8 +27,8 @@ const TraderConfigsGenerator = () => {
       .map(createParameterRange)
   }
 
-  const createConfiguration = params => {
-    return {
+  const createConfiguration = (additionalConfig = {}) => params => {
+    return deepAssign({
       clientId: clientId(params),
       timeslotSeconds: params[0],
       buying: {
@@ -38,7 +39,7 @@ const TraderConfigsGenerator = () => {
         ratio: params[3],
         useTimeslots: params[4]
       }
-    }
+    }, additionalConfig)
   }
 
   const clientId = params => {
@@ -53,8 +54,8 @@ const TraderConfigsGenerator = () => {
   const padNumStart = (num, len) => num.toString().padStart(len)
 
   return {
-    generate: rangesConfig => cartesianProduct(...extractRanges(rangesConfig))
-      .map(createConfiguration)
+    generate: (rangesConfig, additionalConfig) => cartesianProduct(...extractRanges(rangesConfig))
+      .map(createConfiguration(additionalConfig))
   }
 }
 

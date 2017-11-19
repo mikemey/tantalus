@@ -106,6 +106,15 @@ describe('config permutations', () => {
     configs[2].clientId.should.equal('T( 300)_B( 3.4 / 5)_S(   0 / 3)')
   })
 
-  describe('configuration checks', () => {
+  it('should attach additional config', () => {
+    const additionalConfig = {
+      some: 'value',
+      buying: { another: 'also value' }
+    }
+    const configs = configPermutation(createRangeConfig({}), additionalConfig)
+    configs.should.have.length(1)
+    console.log(configs[0])
+    configs[0].some.should.equal(additionalConfig.some)
+    configs[0].buying.another.should.equal(additionalConfig.buying.another)
   })
 })
