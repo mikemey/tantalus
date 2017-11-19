@@ -4,9 +4,10 @@ const { TantalusLogger } = require('../utils/tantalusLogger')
 const ExchangeAccountAdapter = require('./exchangeAccountAdapter')
 const TradeAccount = require('../simex/tradeAccount')
 const TraderJob = require('../trader/traderJob')
+const { amountString, priceString, volumeString, roundVolume } = require('../utils/ordersHelper')
 
 const quietLogger = {
-  info: () => { },
+  info: console.info,
   error: console.error,
   log: console.log
 }
@@ -94,19 +95,34 @@ const SimRunner = (baseLogger, transactionsSource, traderConfigs, txsUpdateSecon
 
   const simulateNextBatch = tradePairs => {
     if (transactionsSource.hasNext()) {
-      runnerLog.info('next batch...')
+      runnerLog.info('next DB batch...')
       return transactionsSource.next()
         .then(({ from, to, transactions }) => {
-          runnerLog.info(`processing batch: ${timestamp(from)} -> ${timestamp(to)}`)
+          runnerLog.info(`processing DB batch: ${timestamp(from)} -> ${timestamp(to)}`)
           if (!partitioner) {
             partitioner = TransactionPartitioner(tradePairs, from, txsUpdateSeconds)
+          }
+          if (transactions.length) {
+            lastTransactionPrice = transactions[transactions.length - 1].price
           }
           return partitioner.runBatch(transactions)
             .then(() => simulateNextBatch(tradePairs))
         })
     }
-    runnerLog.info('no more batches')
+    runnerLog.info('no more batches, draining last transactions...')
     return partitioner.drainLastSlice()
+      .then(() => tradePairs.forEach(({ trader, exchangeAdapter }) => {
+        const account = exchangeAdapter.getAccountSync()
+
+        const amount = amountString(account.balances.xbt_balance)
+        const price = priceString(lastTransactionPrice)
+        const volume = volumeString(account.balances.gbp_balance)
+        const fullValue = account.balances.gbp_balance +
+          roundVolume(account.balances.xbt_balance, lastTransactionPrice)
+
+        runnerLog.info(`[${account.clientId}]:`)
+        runnerLog.info(`\t${volumeString(fullValue)} = ${volume} + ${amount} (${price})`)
+      }))
   }
 
   return {

@@ -61,6 +61,7 @@ module.exports = {
   floorAmount,
   floorPrice,
   amountString,
+  priceString,
   volumeString,
   isBuyOrder,
   isSellOrder,
