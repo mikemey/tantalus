@@ -1,6 +1,8 @@
 /* global describe before beforeEach it */
 const nock = require('nock')
-const should = require('chai').should()
+const chai = require('chai')
+const should = chai.should()
+const expect = chai.expect
 
 const { OrderLogger } = require('../../backend/utils/ordersHelper')
 const OrderIssuer = require('../../backend/trader/orderIssuer')
@@ -13,9 +15,12 @@ describe('Order issuer', () => {
   const testLowerVolumeLimit = 10000
   const testLowerAmountLimit = 500
 
-  const testConfig = {
+  const exchangeConfig = {
     clientId: testClientId,
-    exchangeHost: testHost,
+    exchangeHost: testHost
+  }
+
+  const orderIssuerConfig = {
     buying: {
       volumeLimitPence: testVolumeLimit,
       lowerLimitPence: testLowerVolumeLimit
@@ -41,8 +46,8 @@ describe('Order issuer', () => {
 
   beforeEach(() => {
     openOrdersMock = createOpenOrdersMock()
-    const exchange = ExchangeConnector(testConfig)
-    orderIssuer = OrderIssuer(logger, testConfig, openOrdersMock, exchange)
+    const exchange = ExchangeConnector(exchangeConfig)
+    orderIssuer = OrderIssuer(logger, orderIssuerConfig, openOrdersMock, exchange)
   })
 
   afterEach(() => nock.cleanAll())
@@ -73,6 +78,34 @@ describe('Order issuer', () => {
     .reply(200, buyResponse)
 
   const issueOrders = trends => orderIssuer.issueOrders([trends])
+
+  describe('config checks', () => {
+    it('buying volumeLimit', () => {
+      const orderIssuerConfig = {
+        buying: { lowerLimitPence: testLowerVolumeLimit },
+        selling: { lowerLimit_mmBtc: testLowerAmountLimit }
+      }
+      expect(() => OrderIssuer(logger, orderIssuerConfig, 'openOrdersMock', 'exchange'))
+        .to.throw(Error, 'Buy volume limit parameter missing!')
+    })
+
+    it('buying lowerLimit', () => {
+      const orderIssuerConfig = {
+        buying: { volumeLimitPence: testVolumeLimit },
+        selling: { lowerLimit_mmBtc: testLowerAmountLimit }
+      }
+      expect(() => OrderIssuer(logger, orderIssuerConfig, 'openOrdersMock', 'exchange'))
+        .to.throw(Error, 'Buy volume lower limit parameter missing!')
+    })
+
+    it('selling lowerLimit', () => {
+      const orderIssuerConfig = {
+        buying: { volumeLimitPence: testVolumeLimit, lowerLimitPence: testLowerVolumeLimit }
+      }
+      expect(() => OrderIssuer(logger, orderIssuerConfig, 'openOrdersMock', 'exchange'))
+        .to.throw(Error, 'Sell volume lower limit parameter missing!')
+    })
+  })
 
   describe('(latestPrice)', () => {
     it('should NOT issue an order when latest price is 0', () => {

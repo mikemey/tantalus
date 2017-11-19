@@ -1,6 +1,13 @@
 const { floorAmount } = require('../utils/ordersHelper')
 
+const checkConfig = config => {
+  if (!config.buying || !config.buying.volumeLimitPence) throw Error('Buy volume limit parameter missing!')
+  if (!config.buying || !config.buying.lowerLimitPence) throw Error('Buy volume lower limit parameter missing!')
+  if (!config.selling || !config.selling.lowerLimit_mmBtc) throw Error('Sell volume lower limit parameter missing!')
+}
+
 const OrderIssuer = (orderLogger, config, openOrdersWatch, exchangeConnector) => {
+  checkConfig(config)
   const amountLowerLimit = config.selling.lowerLimit_mmBtc
   const volumeUpperLimit = config.buying.volumeLimitPence
   const volumeLowerLimit = config.buying.lowerLimitPence
