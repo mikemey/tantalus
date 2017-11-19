@@ -25,8 +25,8 @@ const TraderJob = (baseLogger, config, exchangeConnector) => {
 
   const logBalance = () => exchangeConnector.getAccount()
     .then(account => {
-      const amount = account.balances.xbt_available
-      const volume = account.balances.gbp_available
+      const amount = account.balances.xbt_balance
+      const volume = account.balances.gbp_balance
       logger.info(`Balance: ${volumeString(volume)} - ${amountString(amount)}`)
     })
 
