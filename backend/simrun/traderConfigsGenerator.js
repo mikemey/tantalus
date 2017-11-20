@@ -54,8 +54,8 @@ const TraderConfigsGenerator = () => {
   const padNumStart = (num, len) => num.toString().padStart(len)
 
   return {
-    generate: (rangesConfig, additionalConfig) => cartesianProduct(...extractRanges(rangesConfig))
-      .map(createConfiguration(additionalConfig))
+    create: (rangesConfig, additionalConfig) => cartesianProduct(...extractRanges(rangesConfig))
+      .lazyMap(createConfiguration(additionalConfig))
   }
 }
 
