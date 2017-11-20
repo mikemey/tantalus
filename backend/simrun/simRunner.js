@@ -7,7 +7,7 @@ const TraderJob = require('../trader/traderJob')
 const { amountString, priceString, volumeString, roundVolume } = require('../utils/ordersHelper')
 
 const quietLogger = {
-  info: console.info,
+  info: () => { },
   error: console.error,
   log: console.log
 }
@@ -112,18 +112,23 @@ const SimRunner = (baseLogger, transactionsSource, traderConfigs, txsUpdateSecon
     }
     runnerLog.info('no more batches, draining last transactions...')
     return partitioner.drainLastSlice()
-      .then(() => tradePairs.forEach(({ trader, exchangeAdapter }) => {
-        const account = exchangeAdapter.getAccountSync()
+      .then(() => tradePairs
+        .map(({ trader, exchangeAdapter }) => {
+          const account = exchangeAdapter.getAccountSync()
+          const clientId = account.clientId
+          const amount = amountString(account.balances.xbt_balance)
+          const price = priceString(lastTransactionPrice)
+          const volume = volumeString(account.balances.gbp_balance)
+          const fullValue = account.balances.gbp_balance +
+            roundVolume(account.balances.xbt_balance, lastTransactionPrice)
 
-        const amount = amountString(account.balances.xbt_balance)
-        const price = priceString(lastTransactionPrice)
-        const volume = volumeString(account.balances.gbp_balance)
-        const fullValue = account.balances.gbp_balance +
-          roundVolume(account.balances.xbt_balance, lastTransactionPrice)
-
-        runnerLog.info(`[${account.clientId}]:`)
-        runnerLog.info(`\t${volumeString(fullValue)} = ${volume} + ${amount} (${price})`)
-      }))
+          return { clientId, amount, price, volume, fullValue }
+        })
+        .sort((accA, accB) => accA.fullValue - accB.fullValue)
+        .forEach(account => runnerLog.info(
+          `[${account.clientId}]: ${volumeString(account.fullValue)} ` +
+          `= ${account.volume} + ${account.amount} (${account.price})`
+        )))
   }
 
   return {
