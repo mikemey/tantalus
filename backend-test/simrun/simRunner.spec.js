@@ -17,65 +17,29 @@ describe('Sim Runner', () => {
     return { next, hasNext }
   }
 
-  const ExchangeAdapterMock = () => {
-    let received
-
-    const setTransactions = txs => { received = txs }
-    const getReceived = () => received
-    const getAccountSync = () => {
-      return {
-        clientId: 'test',
-        balances: { gbp_balance: 1, xbt_balance: 1 }
-      }
-    }
-    return { setTransactions, getReceived, getAccountSync }
-  }
-
-  const TraderMock = () => {
-    const exchangeAdapter = ExchangeAdapterMock()
-    const calledTicks = []
-
-    const tick = unixNow => {
-      calledTicks.push(unixNow)
-      switch (unixNow) {
-        case 199: exchangeAdapter.getReceived().should.deep.equal([firstBatch[0]])
-          break
-        case 299: exchangeAdapter.getReceived().should.deep.equal([
-          firstBatch[1], firstBatch[2], secondBatch[0]
-        ])
-          break
-        case 399:
-        case 499:
-          exchangeAdapter.getReceived().should.deep.equal([])
-          break
-        case 599: exchangeAdapter.getReceived().should.deep.equal([secondBatch[1]])
-          break
-        default: throw Error('unexpected unixNow: ' + unixNow)
-      }
-      return Promise.resolve()
-    }
-
-    return {
-      tick, exchangeAdapter, calledTicks
-    }
-  }
-
   it('runs batches of transactions against traders', () => {
-    const traderMock = TraderMock()
-
-    const mockTraderPairs = () => {
+    const mockPartitionExecutor = () => {
+      const receivedSlices = []
       return {
-        map: () => {
-          return [{ trader: traderMock, exchangeAdapter: traderMock.exchangeAdapter }]
-        }
+        drainTransactions: transactionSlice => {
+          receivedSlices.push(transactionSlice)
+          return Promise.resolve()
+        },
+        getReceived: () => receivedSlices
       }
     }
-
-    const simRunner = SimRunner(console, TransactionSourceMock(), mockTraderPairs(), txsUpdateSeconds)
+    const partitionExecutorMock = mockPartitionExecutor()
+    const simRunner = SimRunner(console, TransactionSourceMock(), partitionExecutorMock, txsUpdateSeconds)
 
     return simRunner.run()
       .then(() => {
-        traderMock.calledTicks.should.deep.equal([199, 299, 399, 499, 599])
+        partitionExecutorMock.getReceived().should.deep.equal([
+          { unixNow: 199, transactions: [firstBatch[0]] },
+          { unixNow: 299, transactions: [firstBatch[1], firstBatch[2], secondBatch[0]] },
+          { unixNow: 399, transactions: [] },
+          { unixNow: 499, transactions: [] },
+          { unixNow: 599, transactions: [secondBatch[1]] }
+        ])
       })
   })
 })

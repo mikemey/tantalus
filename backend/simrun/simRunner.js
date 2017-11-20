@@ -1,18 +1,7 @@
 const { timestamp } = require('./simrunUtils')
 const { TantalusLogger } = require('../utils/tantalusLogger')
 
-const ExchangeAccountAdapter = require('./exchangeAccountAdapter')
-const TradeAccount = require('../simex/tradeAccount')
-const TraderJob = require('../trader/traderJob')
-const { amountString, priceString, volumeString, roundVolume } = require('../utils/ordersHelper')
-
-const quietLogger = {
-  info: () => { },
-  error: console.error,
-  log: console.log
-}
-
-const TransactionPartitioner = (tradePairs, startDate, txsUpdateSeconds) => {
+const TransactionPartitioner = (baseLogger, partitionExecutor, startDate, txsUpdateSeconds) => {
   const data = {
     latestSliceTransactions: [],
     nextSliceStartDate: startDate + txsUpdateSeconds
@@ -24,7 +13,7 @@ const TransactionPartitioner = (tradePairs, startDate, txsUpdateSeconds) => {
     return Promise.resolve()
   }
 
-  const drainLastSlice = () => drainTransactions(
+  const drainLastSlice = () => partitionExecutor.drainTransactions(
     createNextTransactionsSlice()
   )
 
@@ -57,7 +46,7 @@ const TransactionPartitioner = (tradePairs, startDate, txsUpdateSeconds) => {
   }
 
   const sendToTraders = (slices, sliceIx) => {
-    return drainTransactions(slices[sliceIx])
+    return partitionExecutor.drainTransactions(slices[sliceIx])
       .then(() => {
         sliceIx += 1
         if (sliceIx < slices.length) {
@@ -66,73 +55,32 @@ const TransactionPartitioner = (tradePairs, startDate, txsUpdateSeconds) => {
       })
   }
 
-  const drainTransactions = slice => Promise.all(
-    tradePairs.map(({ trader, exchangeAdapter }) => {
-      exchangeAdapter.setTransactions(slice.transactions)
-      return trader.tick(slice.unixNow)
-    })
-  )
-
   return { runBatch, drainLastSlice }
 }
 
-const SimRunner = (baseLogger, transactionsSource, traderConfigs, txsUpdateSeconds) => {
+const SimRunner = (baseLogger, transactionsSource, partitionExecutor, txsUpdateSeconds) => {
   const runnerLog = TantalusLogger(baseLogger, 'SimRun')
   let partitioner
-  let lastTransactionPrice = 0
 
-  const run = () => {
-    runnerLog.info('creating traders...')
-    const tradePairs = traderConfigs.map(createTradePair)
-    return simulateNextBatch(tradePairs)
-  }
-
-  const createTradePair = config => {
-    const tradeAccount = TradeAccount(TantalusLogger(quietLogger), config.clientId)
-    const exchangeAdapter = ExchangeAccountAdapter(tradeAccount)
-    const trader = TraderJob(quietLogger, config, exchangeAdapter)
-    return { trader, exchangeAdapter }
-  }
-
-  const simulateNextBatch = tradePairs => {
+  const simulateNextBatch = () => {
     if (transactionsSource.hasNext()) {
       runnerLog.info('next DB batch...')
       return transactionsSource.next()
         .then(({ from, to, transactions }) => {
           runnerLog.info(`processing DB batch: ${timestamp(from)} -> ${timestamp(to)}`)
           if (!partitioner) {
-            partitioner = TransactionPartitioner(tradePairs, from, txsUpdateSeconds)
-          }
-          if (transactions.length) {
-            lastTransactionPrice = transactions[transactions.length - 1].price
+            partitioner = TransactionPartitioner(baseLogger, partitionExecutor, from, txsUpdateSeconds)
           }
           return partitioner.runBatch(transactions)
-            .then(() => simulateNextBatch(tradePairs))
+            .then(simulateNextBatch)
         })
     }
     runnerLog.info('no more batches, draining last transactions...')
     return partitioner.drainLastSlice()
-      .then(() => tradePairs
-        .map(({ trader, exchangeAdapter }) => {
-          const account = exchangeAdapter.getAccountSync()
-          const clientId = account.clientId
-          const amount = amountString(account.balances.xbt_balance)
-          const price = priceString(lastTransactionPrice)
-          const volume = volumeString(account.balances.gbp_balance)
-          const fullValue = account.balances.gbp_balance +
-            roundVolume(account.balances.xbt_balance, lastTransactionPrice)
-
-          return { clientId, amount, price, volume, fullValue }
-        })
-        .sort((accA, accB) => accA.fullValue - accB.fullValue)
-        .forEach(account => runnerLog.info(
-          `[${account.clientId}]: ${volumeString(account.fullValue)} ` +
-          `= ${account.volume} + ${account.amount} (${account.price})`
-        )))
   }
 
   return {
-    run
+    run: simulateNextBatch
   }
 }
 
