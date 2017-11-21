@@ -1,10 +1,18 @@
 const { timestamp } = require('./simrunUtils')
 const { TantalusLogger } = require('../utils/tantalusLogger')
 
-const TransactionPartitioner = (baseLogger, partitionExecutor, startDate, txsUpdateSeconds) => {
+const RANKING_LIMITS = 1000
+
+const TransactionPartitioner = (baseLogger, partitionExecutor, txsUpdateSeconds) => {
   const data = {
     latestSliceTransactions: [],
-    nextSliceStartDate: startDate + txsUpdateSeconds
+    nextSliceStartDate: 0
+  }
+
+  const isReady = () => data.nextSliceStartDate !== 0
+
+  const setStartDate = startDate => {
+    data.nextSliceStartDate = startDate + txsUpdateSeconds
   }
 
   const runBatch = transactions => {
@@ -55,12 +63,43 @@ const TransactionPartitioner = (baseLogger, partitionExecutor, startDate, txsUpd
       })
   }
 
-  return { runBatch, drainLastSlice }
+  return {
+    runBatch,
+    drainLastSlice,
+    isReady,
+    setStartDate
+  }
 }
 
 const SimRunner = (baseLogger, transactionsSource, partitionExecutor, txsUpdateSeconds) => {
   const runnerLog = TantalusLogger(baseLogger, 'SimRun')
-  let partitioner
+  const partitioner = TransactionPartitioner(baseLogger, partitionExecutor, txsUpdateSeconds)
+
+  const run = () => partitionExecutor
+    .startWorkers()
+    .then(simulateNextBatch)
+    .then(logWinnerLoserRankings)
+    .then(partitionExecutor.stopWorkers)
+
+  const logWinnerLoserRankings = () => partitionExecutor.getAllAccountsSorted()
+    .then(filterAccountsToLog)
+    .then(accounts =>
+      accounts.forEach(({ clientId, amount, price, volume, fullVolume }) => {
+        runnerLog.info(`[${clientId}]: ${fullVolume} = ${volume} + ${amount} (${price})`)
+      })
+    )
+
+  const filterAccountsToLog = accounts => {
+    const takeWinnersLosers = accounts => {
+      const winners = accounts.slice(0, RANKING_LIMITS)
+      const lastIx = accounts.length - 1
+      const losers = accounts.slice(lastIx - RANKING_LIMITS, lastIx)
+      return winners.concat(losers)
+    }
+    return accounts.length > (2 * RANKING_LIMITS)
+      ? takeWinnersLosers(accounts)
+      : accounts
+  }
 
   const simulateNextBatch = () => {
     if (transactionsSource.hasNext()) {
@@ -68,8 +107,8 @@ const SimRunner = (baseLogger, transactionsSource, partitionExecutor, txsUpdateS
       return transactionsSource.next()
         .then(({ from, to, transactions }) => {
           runnerLog.info(`processing DB batch: ${timestamp(from)} -> ${timestamp(to)}`)
-          if (!partitioner) {
-            partitioner = TransactionPartitioner(baseLogger, partitionExecutor, from, txsUpdateSeconds)
+          if (!partitioner.isReady()) {
+            partitioner.setStartDate(from)
           }
           return partitioner.runBatch(transactions)
             .then(simulateNextBatch)
@@ -80,7 +119,7 @@ const SimRunner = (baseLogger, transactionsSource, partitionExecutor, txsUpdateS
   }
 
   return {
-    run: simulateNextBatch
+    run
   }
 }
 
