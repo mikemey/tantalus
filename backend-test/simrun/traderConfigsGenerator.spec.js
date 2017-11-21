@@ -1,7 +1,7 @@
 const TraderConfigsGenerator = require('../../backend/simrun/traderConfigsGenerator')
 
 describe('config permutations', () => {
-  const configGenerator = TraderConfigsGenerator().create
+  const configsGenerator = TraderConfigsGenerator()
 
   const createRangeConfig = ({
     timeslotSeconds = { start: 200, end: 200, step: 10 },
@@ -27,13 +27,13 @@ describe('config permutations', () => {
     }
 
   it('should generate single config', () => {
-    const generator = configGenerator(createRangeConfig({}))
+    const generator = configsGenerator.createGenerator(createRangeConfig({}))
     generator.should.have.length(1)
     expectConfigEntryParameters(generator.next(), 200, 3.2, 4, -0.6, 3)
   })
 
   it('should produce cartesian product for one parameter array', () => {
-    const generator = configGenerator(createRangeConfig({
+    const generator = configsGenerator.createGenerator(createRangeConfig({
       timeslotSeconds: { start: 200, end: 210, step: 10 }
     }))
     generator.should.have.length(2)
@@ -42,7 +42,7 @@ describe('config permutations', () => {
   })
 
   it('should produce cartesian product for positive rational number', () => {
-    const generator = configGenerator(createRangeConfig({
+    const generator = configsGenerator.createGenerator(createRangeConfig({
       bRatioR: { start: 3.2, end: 4.3, step: 0.5 }
     }))
     generator.should.have.length(3)
@@ -52,7 +52,7 @@ describe('config permutations', () => {
   })
 
   it('should produce cartesian product for negative rational number', () => {
-    const generator = configGenerator(createRangeConfig({
+    const generator = configsGenerator.createGenerator(createRangeConfig({
       sRatioR: { start: -1, end: -0.8, step: 0.09 }
     }))
     generator.should.have.length(3)
@@ -62,7 +62,7 @@ describe('config permutations', () => {
   })
 
   it('should produce cartesian product for all parameter arrays', () => {
-    const generator = configGenerator(createRangeConfig({
+    const generator = configsGenerator.createGenerator(createRangeConfig({
       timeslotSeconds: { start: 200, end: 210, step: 10 },
       bRatioR: { start: 3.2, end: 3.9, step: 0.5 },
       bUseTimeslotsR: { start: 4, end: 5, step: 1 },
@@ -82,7 +82,7 @@ describe('config permutations', () => {
   })
 
   it('generate realistic example', () => {
-    const generator = configGenerator(createRangeConfig({
+    const generator = configsGenerator.createGenerator(createRangeConfig({
       timeslotSeconds: { start: 50, end: 500, step: 30 },
       bRatioR: { start: 2, end: 10, step: 0.5 },
       bUseTimeslotsR: { start: 2, end: 10, step: 1 },
@@ -93,7 +93,7 @@ describe('config permutations', () => {
   })
 
   it('should generate the clientIds', () => {
-    const generator = configGenerator(createRangeConfig({
+    const generator = configsGenerator.createGenerator(createRangeConfig({
       timeslotSeconds: { start: 300, end: 300, step: 10 },
       bRatioR: { start: 3.4, end: 3.4, step: 0.5 },
       bUseTimeslotsR: { start: 5, end: 5, step: 1 },
@@ -111,7 +111,8 @@ describe('config permutations', () => {
       some: 'value',
       buying: { another: 'also value' }
     }
-    const generator = configGenerator(createRangeConfig({}), additionalConfig)
+    configsGenerator.setDefaultConfig(additionalConfig)
+    const generator = configsGenerator.createGenerator(createRangeConfig({}))
     generator.should.have.length(1)
     const createdConfig = generator.next()
     createdConfig.some.should.equal(additionalConfig.some)
