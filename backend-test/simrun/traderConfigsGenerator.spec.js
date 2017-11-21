@@ -106,16 +106,18 @@ describe('config permutations', () => {
     generator.next().clientId.should.equal('T( 300)_B( 3.4 / 5)_S(   0 / 3)')
   })
 
-  it('should attach additional config', () => {
-    const additionalConfig = {
+  it('should attach common trader config', () => {
+    const commonConfig = {
       some: 'value',
       buying: { another: 'also value' }
     }
-    configsGenerator.setDefaultConfig(additionalConfig)
-    const generator = configsGenerator.createGenerator(createRangeConfig({}))
+    const rangeConfig = createRangeConfig({})
+    rangeConfig.commonTraderConfig = commonConfig
+
+    const generator = configsGenerator.createGenerator(rangeConfig)
     generator.should.have.length(1)
     const createdConfig = generator.next()
-    createdConfig.some.should.equal(additionalConfig.some)
-    createdConfig.buying.another.should.equal(additionalConfig.buying.another)
+    createdConfig.some.should.equal(commonConfig.some)
+    createdConfig.buying.another.should.equal(commonConfig.buying.another)
   })
 })

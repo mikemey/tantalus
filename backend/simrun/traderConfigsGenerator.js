@@ -2,10 +2,6 @@ const { cartesianProduct } = require('js-combinatorics')
 const deepAssign = require('assign-deep')
 
 const TraderConfigsGenerator = () => {
-  const data = {
-    additionalConfig: {}
-  }
-
   const countDecimals = value => {
     if (Math.floor(value) === value) return 0
     return value.toString().split('.')[1].length || 0
@@ -31,7 +27,7 @@ const TraderConfigsGenerator = () => {
       .map(createParameterRange)
   }
 
-  const createConfiguration = () => params => {
+  const createConfiguration = (additionalConfig = {}) => params => {
     return deepAssign({
       clientId: clientId(params),
       timeslotSeconds: params[0],
@@ -43,7 +39,7 @@ const TraderConfigsGenerator = () => {
         ratio: params[3],
         useTimeslots: params[4]
       }
-    }, data.additionalConfig)
+    }, additionalConfig)
   }
 
   const clientId = params => {
@@ -57,18 +53,13 @@ const TraderConfigsGenerator = () => {
 
   const padNumStart = (num, len) => num.toString().padStart(len)
 
-  const setDefaultConfig = additionalConfig => {
-    data.additionalConfig = additionalConfig
+  const createGenerator = rangesConfig => {
+    const commonTraderConfig = rangesConfig.commonTraderConfig
+    return cartesianProduct(...extractRanges(rangesConfig))
+      .lazyMap(createConfiguration(commonTraderConfig))
   }
 
-  const createGenerator = rangesConfig =>
-    cartesianProduct(...extractRanges(rangesConfig))
-      .lazyMap(createConfiguration())
-
-  return {
-    setDefaultConfig,
-    createGenerator
-  }
+  return { createGenerator }
 }
 
 module.exports = TraderConfigsGenerator
