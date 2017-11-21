@@ -2,8 +2,6 @@ const requests = require('../../backend/utils/requests')
 
 class PartitionWorkerMock {
   constructor () {
-    this.starIx = 0
-    this.endIx = 0
     this.sendResults = (action, results) => requests
       .postJson(`http://localhost:12345/${action}`, results)
   }
