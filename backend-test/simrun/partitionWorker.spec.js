@@ -63,7 +63,7 @@ describe('Partition worker', () => {
     }
   }
 
-  it.only('should run through full lifecycle', () => {
+  it('should run through full lifecycle', () => {
     const allTraderMocks = []
     const allClientIds = []
 
