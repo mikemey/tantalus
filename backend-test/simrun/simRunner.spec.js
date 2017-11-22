@@ -2,8 +2,8 @@ const SimRunner = require('../../backend/simrun/simRunner')
 
 describe('Sim Runner', () => {
   const txsUpdateSeconds = 100
-  const firstBatch = [{ date: 100, a: 2 }, { date: 200, a: 3 }, { date: 249, a: 4 }]
-  const secondBatch = [{ date: 299, a: 5 }, { date: 500, a: 6 }]
+  const firstBatch = [{ tid: 1001, date: 100 }, { tid: 2004, date: 200 }, { tid: 2495, date: 249 }]
+  const secondBatch = [{ tid: 2992, date: 299 }, { tid: 5008, date: 500 }]
 
   const TransactionSourceMock = () => {
     let batchIx = 0
@@ -68,12 +68,12 @@ describe('Sim Runner', () => {
     simRunner = SimRunner(console, TransactionSourceMock(), partitionExecutorMock, txsUpdateSeconds)
   })
 
-  it('runs batches of transactions against traders', () => {
+  it('runs batches of transactions against traders and sorts transactions latest -> earliest', () => {
     return simRunner.run()
       .then(() => {
         partitionExecutorMock.getReceivedTransactions().should.deep.equal([
           { unixNow: 199, transactions: [firstBatch[0]] },
-          { unixNow: 299, transactions: [firstBatch[1], firstBatch[2], secondBatch[0]] },
+          { unixNow: 299, transactions: [secondBatch[0], firstBatch[2], firstBatch[1]] },
           { unixNow: 399, transactions: [] },
           { unixNow: 499, transactions: [] },
           { unixNow: 599, transactions: [secondBatch[1]] }

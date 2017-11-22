@@ -47,6 +47,7 @@ const TransactionPartitioner = (baseLogger, partitionExecutor, txsUpdateSeconds)
     const newSlice = {
       unixNow: data.nextSliceStartDate - 1,
       transactions: data.latestSliceTransactions
+        .sort((a, b) => b.tid - a.tid)
     }
     data.nextSliceStartDate += txsUpdateSeconds
     data.latestSliceTransactions = []
