@@ -1,4 +1,5 @@
 /* global describe before beforeEach it */
+const sinon = require('sinon')
 const expect = require('chai').expect
 
 const { TantalusLogger } = require('../../backend/utils/tantalusLogger')
@@ -20,10 +21,8 @@ describe('Synced surge detector', () => {
   }
 
   const ExchangeMock = () => {
-    const data = { txs: [] }
     return {
-      getTransactions: () => data.transactions,
-      setTransactionsResponse: txs => { data.transactions = txs }
+      getTransactions: sinon.stub()
     }
   }
 
@@ -38,7 +37,7 @@ describe('Synced surge detector', () => {
     })
 
     const analyseTrends = (unixTime, transactions) => {
-      exchangeMock.setTransactionsResponse(transactions)
+      exchangeMock.getTransactions.returns(transactions)
       return surgeDetector.analyseTrends(unixTime)
     }
 
