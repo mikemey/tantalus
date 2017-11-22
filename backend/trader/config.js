@@ -34,6 +34,17 @@ const traderConfigs = [{ // =========================== T 200
     useTimeslots: 2
   }
 }, {
+  clientId: 'T( 50) B( 0.5 / 2) S(- 0.4 / 2)',
+  timeslotSeconds: 50,
+  buying: {
+    ratio: 0.5, // price change (£/Ƀ) per timeslotSeconds
+    useTimeslots: 2
+  },
+  selling: {
+    ratio: -0.4, // price change (£/Ƀ) per timeslotSeconds
+    useTimeslots: 2
+  }
+}, {
   clientId: 'T( 50) B( 1.0 / 3) S(- 0.4 / 2)',
   timeslotSeconds: 50,
   buying: {
