@@ -40,7 +40,7 @@ const executorConfig = {
   },
   batchSeconds: 3600 * 4,
   transactionsUpdateSeconds: 10,
-  partitionWorkerCount: 6,
+  partitionWorkerCount: 7,
   generatorConfig
 }
 
