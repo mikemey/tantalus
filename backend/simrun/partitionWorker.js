@@ -10,7 +10,7 @@ const TraderJob = require('../trader/traderJob')
 const baseLogger = console
 
 const quietLogger = {
-  info: () => { },
+  errorOnly: true,
   error: baseLogger.error,
   log: baseLogger.log
 }

@@ -27,7 +27,19 @@ const pickColor = () => colors[Math.floor(Math.random() * colors.length)]
 
 const randomColorText = msg => xterm(pickColor())(msg)
 
+const ErrorTantalusLogger = (baseLogger) => {
+  return {
+    baseLogger,
+    info: () => { },
+    error: baseLogger.error,
+    log: baseLogger.log,
+    aliveMessage: () => { }
+  }
+}
+
 const TantalusLogger = (baseLogger, category, categoryColorFunc) => {
+  if (baseLogger.errorOnly) return ErrorTantalusLogger(baseLogger)
+
   const statics = category
     ? {
       categoryTemplate: categoryColorFunc

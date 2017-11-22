@@ -28,7 +28,18 @@ const SELL_ORDER_TYPE = 1
 const isBuyOrder = order => order.type === BUY_ORDER_TYPE
 const isSellOrder = order => order.type === SELL_ORDER_TYPE
 
+const ErrorOrderLogger = baseLogger => {
+  return Object.assign({}, baseLogger, {
+    logNewOrder: () => { },
+    logCancelledOrder: () => { },
+    logOrderBought: () => { },
+    logOrderSold: () => { }
+  })
+}
+
 const OrderLogger = baseLogger => {
+  if (baseLogger.errorOnly) return ErrorOrderLogger(baseLogger)
+
   const logNewOrder = order => baseLogger.info(darkText(
     `${orderName(order)} [${order.id}] ${amountPriceString(order.amount, order.price)}`
   ))
