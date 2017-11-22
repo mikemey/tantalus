@@ -46,15 +46,15 @@ class PartitionWorker {
   drainTransactions (transactionsSlice) {
     const txs = transactionsSlice.transactions
     this.setLastTransactionsPrice(txs)
-    return Promise.all(this.traderPairs.map(({ trader, exchangeAdapter }) => {
+    this.traderPairs.map(({ trader, exchangeAdapter }) => {
       exchangeAdapter.setTransactions(txs)
-      return trader.tick(transactionsSlice.unixNow)
-    }))
+      trader.tick(transactionsSlice.unixNow)
+    })
   }
 
   setLastTransactionsPrice (transactions) {
     if (transactions.length) {
-      this.lastTransactionPrice = transactions[transactions.length - 1].price
+      this.lastTransactionPrice = transactions[0].price
     }
   }
 

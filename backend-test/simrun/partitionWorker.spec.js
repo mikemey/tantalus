@@ -1,7 +1,7 @@
 const PartitionWorker = require('../../backend/simrun/partitionWorker')
 
 describe('Partition worker', () => {
-  const slice = { unixNow: 100, transactions: [{ tid: 2, price: 400000 }, { tid: 3, price: 400000 }, { tid: 4, price: 500000 }] }
+  const slice = { unixNow: 100, transactions: [{ tid: 4, price: 500000 }, { tid: 3, price: 400000 }, { tid: 2, price: 400000 }] }
 
   const generatorConfig = {
     timeslotSeconds: { start: 100, end: 100, step: 50 },
@@ -57,7 +57,6 @@ describe('Partition worker', () => {
       } else {
         throw Error('unexpected unixNow: ' + unixNow)
       }
-      return Promise.resolve()
     }
 
     return {
@@ -108,14 +107,12 @@ describe('Partition worker', () => {
       'T( 100)_B(   1 / 1)_S(   1 / 5)'
     ])
 
-    return partitionWorker.drainTransactions(slice)
-      .then(() => {
-        partitionWorker.getAccounts().should.deep.equal([
-          expectedAccounts, expectedAccounts, expectedAccounts
-        ], 'getAccounts not as expected')
-        allTraderMocks.forEach(traderMock => {
-          traderMock.calledTicks.should.deep.equal([100], 'tradermocks not called')
-        })
-      })
+    partitionWorker.drainTransactions(slice)
+    partitionWorker.getAccounts().should.deep.equal([
+      expectedAccounts, expectedAccounts, expectedAccounts
+    ], 'getAccounts not as expected')
+    allTraderMocks.forEach(traderMock => {
+      traderMock.calledTicks.should.deep.equal([100], 'tradermocks not called')
+    })
   })
 })
