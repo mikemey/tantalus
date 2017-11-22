@@ -1,9 +1,7 @@
 const { timestamp } = require('./simrunUtils')
 const { TantalusLogger } = require('../utils/tantalusLogger')
 
-const RANKING_LIMITS = 1000
-
-const TransactionPartitioner = (baseLogger, partitionExecutor, txsUpdateSeconds) => {
+const TransactionPartitioner = (baseLogger, partitionExecutor, transactionsUpdateSeconds) => {
   const data = {
     latestSliceTransactions: [],
     nextSliceStartDate: 0
@@ -12,7 +10,7 @@ const TransactionPartitioner = (baseLogger, partitionExecutor, txsUpdateSeconds)
   const isReady = () => data.nextSliceStartDate !== 0
 
   const setStartDate = startDate => {
-    data.nextSliceStartDate = startDate + txsUpdateSeconds
+    data.nextSliceStartDate = startDate + transactionsUpdateSeconds
   }
 
   const runBatch = transactions => {
@@ -36,7 +34,7 @@ const TransactionPartitioner = (baseLogger, partitionExecutor, txsUpdateSeconds)
   }, [])
 
   const emptySlicesBetween = (txDate, simulatedNow) => {
-    const length = (txDate - simulatedNow) / txsUpdateSeconds
+    const length = (txDate - simulatedNow) / transactionsUpdateSeconds
     if (length >= 1) {
       return Array.from({ length }, (_0, _1) => createNextTransactionsSlice())
     }
@@ -49,7 +47,7 @@ const TransactionPartitioner = (baseLogger, partitionExecutor, txsUpdateSeconds)
       transactions: data.latestSliceTransactions
         .sort((a, b) => b.tid - a.tid)
     }
-    data.nextSliceStartDate += txsUpdateSeconds
+    data.nextSliceStartDate += transactionsUpdateSeconds
     data.latestSliceTransactions = []
     return newSlice
   }
@@ -72,9 +70,12 @@ const TransactionPartitioner = (baseLogger, partitionExecutor, txsUpdateSeconds)
   }
 }
 
-const SimRunner = (baseLogger, transactionsSource, partitionExecutor, txsUpdateSeconds) => {
+const SimRunner = (baseLogger, config, transactionsSource, partitionExecutor) => {
+  const transactionsUpdateSeconds = config.transactionsUpdateSeconds
+  const rankingLimit = config.rankingLimit
+
   const runnerLog = TantalusLogger(baseLogger, 'SimRun')
-  const partitioner = TransactionPartitioner(baseLogger, partitionExecutor, txsUpdateSeconds)
+  const partitioner = TransactionPartitioner(baseLogger, partitionExecutor, transactionsUpdateSeconds)
 
   const run = () => simulateNextBatch()
     .then(logWinnerLoserRankings)
@@ -89,12 +90,12 @@ const SimRunner = (baseLogger, transactionsSource, partitionExecutor, txsUpdateS
 
   const filterAccountsToLog = accounts => {
     const takeWinnersLosers = accounts => {
-      const winners = accounts.slice(0, RANKING_LIMITS)
+      const winners = accounts.slice(0, rankingLimit)
       const lastIx = accounts.length - 1
-      const losers = accounts.slice(lastIx - RANKING_LIMITS, lastIx)
+      const losers = accounts.slice(lastIx - rankingLimit, lastIx)
       return winners.concat(losers)
     }
-    return accounts.length > (2 * RANKING_LIMITS)
+    return accounts.length > (2 * rankingLimit)
       ? takeWinnersLosers(accounts)
       : accounts
   }

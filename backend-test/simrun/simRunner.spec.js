@@ -1,7 +1,11 @@
 const SimRunner = require('../../backend/simrun/simRunner')
 
 describe('Sim Runner', () => {
-  const txsUpdateSeconds = 100
+  const config = {
+    transactionsUpdateSeconds: 100,
+    rankingLimit: 10
+  }
+
   const firstBatch = [{ tid: 1001, date: 100 }, { tid: 2004, date: 200 }, { tid: 2495, date: 249 }]
   const secondBatch = [{ tid: 2992, date: 299 }, { tid: 5008, date: 500 }]
 
@@ -65,7 +69,7 @@ describe('Sim Runner', () => {
 
   beforeEach(() => {
     partitionExecutorMock = PartitionExecutorMock()
-    simRunner = SimRunner(console, TransactionSourceMock(), partitionExecutorMock, txsUpdateSeconds)
+    simRunner = SimRunner(console, config, TransactionSourceMock(), partitionExecutorMock)
   })
 
   it('runs batches of transactions against traders and sorts transactions latest -> earliest', () => {

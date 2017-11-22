@@ -30,7 +30,7 @@ const shutdownPartitionExecutor = () => {
 }
 
 const runSimulation = (transactionsSource, partitionExecutor, config) => {
-  return SimRunner(baseLogger, transactionsSource, partitionExecutor, config.transactionsUpdateSeconds)
+  return SimRunner(baseLogger, config, transactionsSource, partitionExecutor)
     .run()
     .catch(errorHandler('Run simulation: ', true))
 }

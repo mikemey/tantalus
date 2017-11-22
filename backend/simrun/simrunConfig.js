@@ -41,6 +41,7 @@ const executorConfig = {
   batchSeconds: 3600 * 4,
   transactionsUpdateSeconds: 10,
   partitionWorkerCount: 7,
+  rankingLimit: 100,
   generatorConfig
 }
 
