@@ -6,7 +6,7 @@ class PartitionWorkerMock {
       .postJson(`http://localhost:12345/${action}`, results)
   }
 
-  createTraders (logger, workerConfig) {
+  createTraders (workerConfig) {
     return this.sendResults('createTradersCalled', workerConfig)
   }
 

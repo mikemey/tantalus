@@ -7,10 +7,12 @@ const ExchangeAccountAdapter = require('./exchangeAccountAdapter')
 const TradeAccount = require('../simex/tradeAccount')
 const TraderJob = require('../trader/traderJob')
 
+const baseLogger = console
+
 const quietLogger = {
   info: () => { },
-  error: console.error,
-  log: console.log
+  error: baseLogger.error,
+  log: baseLogger.log
 }
 
 const createSimulatedTrader = config => {
@@ -25,14 +27,14 @@ class PartitionWorker {
     this.traderPairs = []
     this.lastTransactionPrice = 0
     this.simulatedTraderFunc = simulatedTraderFunc
+    this.logger = TantalusLogger(baseLogger, `WRK-${process.pid}`)
   }
 
-  createTraders (baseLogger, workerConfig) {
-    this.logger = TantalusLogger(baseLogger, `WRK-${process.pid}`)
+  createTraders (workerConfig) {
     const configsGenerator = TraderConfigsGenerator()
       .createGenerator(workerConfig.generatorConfig)
 
-    this.logger.info(`creating traders ix [${workerConfig.configsEndIx}] to [${workerConfig.configsStartIx}]`)
+    this.logger.info(`creating traders ix [${workerConfig.configsStartIx}] to [${workerConfig.configsEndIx}]`)
     const length = workerConfig.configsEndIx - workerConfig.configsStartIx + 1
     this.traderPairs = Array.from({ length }, (_, ix) => {
       const traderConfig = configsGenerator.nth(workerConfig.configsStartIx + ix)

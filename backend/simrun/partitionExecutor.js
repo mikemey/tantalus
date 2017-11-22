@@ -38,9 +38,10 @@ const PartitionExecutor = (executorConfig, baseLogger, workersModule = defaultWo
     return actorSystem.rootActor()
       .then(rootActor => Promise.all(workerConfigs.map(workerConfig => rootActor
         .createChild(workersModule, { mode: 'forked' })
-        .then(worker => worker
-          .sendAndReceive('createTraders', baseLogger, workerConfig)
-          .then(() => worker))
+        .then(worker => {
+          return worker.sendAndReceive('createTraders', workerConfig)
+            .then(() => worker)
+        })
       )))
       .then(createdWorkers => { workers = createdWorkers })
   }

@@ -99,7 +99,7 @@ describe('Partition worker', () => {
     }
 
     const partitionWorker = new PartitionWorker(createSimulatedMocks)
-    partitionWorker.createTraders(console, workerConfig)
+    partitionWorker.createTraders(workerConfig)
 
     allTraderMocks.should.have.length(3)
     allClientIds.should.deep.equal([
