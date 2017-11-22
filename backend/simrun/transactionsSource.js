@@ -19,8 +19,6 @@ const TransactionSource = (baseLogger, transactionRepo) => {
     ]).then(([earliest, latest]) => {
       data.nextStartDate = earliest.date
       data.endDate = latest.date
-      // data.nextStartDate = 1511096300
-      // data.endDate = 1511096900
       logger.info(`Total transactions period: ${data.nextStartDate} -> ${data.endDate}`)
       logger.info(`${timestamp(data.nextStartDate)} -> ${timestamp(data.endDate)}`)
     })
