@@ -1,33 +1,13 @@
 const mongo = require('../utils/mongoConnection')
 
 const { TantalusLogger, redText } = require('../utils/tantalusLogger')
-const TraderConfigsGenerator = require('./traderConfigsGenerator')
+const PartitionExecutor = require('./partitionExecutor')
 const TransactionRepo = require('../transactions/transactionsRepo')
 const TransactionsSource = require('./transactionsSource')
 
 const SimRunner = require('./simRunner')
 
-const simrunConfig = {
-  mongodb: {
-    url: 'mongodb://127.0.0.1:27017/tantalus'
-  },
-  batchSeconds: 3600,
-  transactionsUpdateSeconds: 10
-}
-
-const configGenConfig = {
-  timeslotSeconds: { start: 50, end: 100, step: 50 },
-  buying: {
-    ratio: { start: 0.5, end: 0.5, step: 0.5 },
-    useTimeslots: { start: 2, end: 2, step: 1 }
-  },
-  selling: {
-    ratio: { start: 0, end: 0, step: 0.5 },
-    useTimeslots: { start: 2, end: 2, step: 1 }
-  }
-}
-
-const tradingConfig = {
+const commonTraderConfig = {
   buying: {
     volumeLimitPence: 100000,
     lowerLimitPence: 5000
@@ -35,6 +15,19 @@ const tradingConfig = {
   selling: {
     lowerLimit_mmBtc: 80
   }
+}
+
+const generatorConfig = {
+  timeslotSeconds: { start: 50, end: 150, step: 50 },
+  buying: {
+    ratio: { start: 1, end: 1.5, step: 0.5 },
+    useTimeslots: { start: 2, end: 2, step: 1 }
+  },
+  selling: {
+    ratio: { start: -0.1, end: -0.1, step: 0.5 },
+    useTimeslots: { start: 2, end: 2, step: 1 }
+  },
+  commonTraderConfig
 }
 
 // const tooLarge = {
@@ -49,21 +42,30 @@ const tradingConfig = {
 //   }
 // }
 
+const executorConfig = {
+  mongodb: {
+    url: 'mongodb://127.0.0.1:27017/tantalus'
+  },
+  batchSeconds: 100,
+  transactionsUpdateSeconds: 10,
+  partitionWorkerCount: 3,
+  generatorConfig
+}
+
 const baseLogger = console
 const simLogger = TantalusLogger(baseLogger, 'SimMain', redText)
 
-const createTransactionsSource = () => mongo.initializeDirectConnection(simrunConfig, simLogger)
+const createTransactionsSource = config => mongo.initializeDirectConnection(config, simLogger)
   .then(() => {
     const transactionsSource = TransactionsSource(baseLogger, TransactionRepo())
-    return transactionsSource.init(simrunConfig.batchSeconds)
+    return transactionsSource.init(config.batchSeconds)
       .then(() => transactionsSource)
   })
 
-const generateTraderConfigs = () => Promise
-  .resolve(TraderConfigsGenerator().generate(configGenConfig, tradingConfig))
+const createPartitionExecutor = config => PartitionExecutor(config)
 
-const runSimulation = (transactionsSource, traderConfigs) => {
-  return SimRunner(baseLogger, transactionsSource, traderConfigs, simrunConfig.transactionsUpdateSeconds)
+const runSimulation = (transactionsSource, partitionExecutor, config) => {
+  return SimRunner(baseLogger, transactionsSource, partitionExecutor, config.transactionsUpdateSeconds)
     .run()
     .catch(errorHandler('Run simulation: ', true))
 }
@@ -85,10 +87,10 @@ process.on('SIGINT', shutdown)
 process.on('uncaughtException', errorHandler('uncaught exception: ', true))
 
 Promise.all([
-  createTransactionsSource(),
-  generateTraderConfigs()
-]).then(([transactionsSource, traderConfigs]) =>
-  runSimulation(transactionsSource, traderConfigs)
+  createTransactionsSource(executorConfig),
+  createPartitionExecutor(executorConfig)
+]).then(([transactionsSource, partitionExecutor]) =>
+  runSimulation(transactionsSource, partitionExecutor, executorConfig)
   )
   .catch(errorHandler('Setup simulation: ', true))
   .then(shutdown)
