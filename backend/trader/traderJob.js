@@ -23,6 +23,12 @@ const TraderJob = (baseLogger, config, exchangeConnector) => {
     logger.aliveMessage()
   ]).then(orderIssuer.issueOrders)
 
+  const syncedTick = unixNow => {
+    const trends = surgeDetector.analyseTrends(unixNow)
+    openOrdersWatch.resolveOpenOrders()
+    orderIssuer.issueOrders([trends])
+  }
+
   const logBalance = () => exchangeConnector.getAccount()
     .then(account => {
       const amount = account.balances.xbt_balance
@@ -34,7 +40,11 @@ const TraderJob = (baseLogger, config, exchangeConnector) => {
     logger.info('quit')
   }
 
-  return { tick, stop, logBalance }
+  return {
+    tick: config.syncedMode ? syncedTick : tick,
+    stop,
+    logBalance
+  }
 }
 
 module.exports = TraderJob
