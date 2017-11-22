@@ -47,7 +47,7 @@ const PartitionExecutor = (executorConfig, workersModule = defaultWorkerModule) 
   const getAllAccountsSorted = () => Promise.all(workers
     .map(worker => worker.sendAndReceive('getAccounts'))
   ).then(allAccounts => [].concat(...allAccounts)
-    .sort((accA, accB) => accB.fullVolume - accA.fullVolume)
+    .sort((accA, accB) => accB.fullValue - accA.fullValue)
     )
 
   const stopWorkers = () => actorSystem ? actorSystem.destroy() : Promise.resolve()

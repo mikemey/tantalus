@@ -16,8 +16,8 @@ class PartitionWorkerMock {
 
   getAccounts () {
     return [
-      { fullVolume: process.pid * 2 },
-      { fullVolume: process.pid }
+      { fullValue: process.pid * 2 },
+      { fullValue: process.pid }
     ]
   }
 }

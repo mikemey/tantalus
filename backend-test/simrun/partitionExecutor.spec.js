@@ -115,8 +115,8 @@ describe('Partition executor', () => {
       .then(results => {
         results.should.have.length(executorConfig.partitionWorkerCount * 2)
         results.reduce((previousVolume, current) => {
-          previousVolume.should.be.above(current.fullVolume)
-          return current.fullVolume
+          previousVolume.should.be.above(current.fullValue)
+          return current.fullValue
         }, Number.MAX_SAFE_INTEGER)
       })
   })
