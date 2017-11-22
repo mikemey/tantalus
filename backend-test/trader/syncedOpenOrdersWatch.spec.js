@@ -1,4 +1,6 @@
 /* global describe before beforeEach it */
+const sinon = require('sinon')
+
 const { OrderLogger } = require('../../backend/utils/ordersHelper')
 const OpenOrdersWatch = require('../../backend/trader/openOrdersWatch')
 
@@ -11,34 +13,9 @@ describe('Synced open orders watch', () => {
   }
 
   const SyncExchangeMock = () => {
-    const data = {
-      openOrders: [],
-      getOpenOrdersCalled: false,
-      receivedCancelIds: [],
-      cancelResponse: true
-    }
-
-    const setOpenOrdersResponse = oo => { data.openOrders = oo }
-    const getOpenOrders = () => {
-      data.getOpenOrdersCalled = true
-      return data.openOrders
-    }
-
-    const setCancelOrderResponse = response => { data.cancelResponse = response }
-    const cancelOrder = id => {
-      data.receivedCancelIds.push(id)
-      return data.cancelResponse
-    }
-    const getReceivedCancelIds = () => data.receivedCancelIds
-
     return {
-      getOpenOrders,
-      setOpenOrdersResponse,
-      getOpenOrdersCalled: () => data.getOpenOrdersCalled,
-
-      setCancelOrderResponse,
-      cancelOrder,
-      getReceivedCancelIds
+      getOpenOrders: sinon.stub(),
+      cancelOrder: sinon.stub()
     }
   }
 
@@ -57,35 +34,38 @@ describe('Synced open orders watch', () => {
   const sellOrder = (id, amount, price) => openOrder(id, 1, amount, price)
 
   const resolveOpenOrders = exchangeOpenOrders => {
-    exchangeMock.setOpenOrdersResponse(exchangeOpenOrders)
+    exchangeMock.getOpenOrders.returns(exchangeOpenOrders)
     openOrdersWatch.resolveOpenOrders()
-    exchangeMock.getOpenOrdersCalled().should.equal(true, 'getOpenOrders not called')
+    exchangeMock.getOpenOrders.called.should.equal(true, 'getOpenOrders not called')
   }
 
   describe('common scenarios', () => {
     it('should do nothing when no local or exchange orders', () => {
       resolveOpenOrders([])
-      exchangeMock.getReceivedCancelIds().should.deep.equal([])
+      exchangeMock.cancelOrder.called.should.equal(false)
     })
 
     it('should cancel order when order only in exchange (ie trader restarted)', () => {
       resolveOpenOrders([buyOrder(1234, 100, 100), sellOrder(5678, 100, 100)])
-      exchangeMock.getReceivedCancelIds().should.deep.equal([1234, 5678])
+
+      const cancelStub = exchangeMock.cancelOrder
+      sinon.assert.callOrder(cancelStub.withArgs(1234), cancelStub.withArgs(5678))
     })
 
     it('full cycle with partial amounts', () => {
+      const cancelStub = exchangeMock.cancelOrder
       openOrdersWatch.addOpenOrder(buyOrder(100, 2000, 500000))
 
       resolveOpenOrders([buyOrder(100, 199, 500000)])
-      exchangeMock.getReceivedCancelIds().should.deep.equal([100])
+      cancelStub.withArgs(100).called.should.equal(true)
 
       resolveOpenOrders([buyOrder(100, 199, 500000)])
-      exchangeMock.getReceivedCancelIds().should.deep.equal([100, 100])
+      cancelStub.withArgs(100).calledTwice.should.equal(true)
 
       openOrdersWatch.addOpenOrder(sellOrder(102, 1801, 500500))
 
       resolveOpenOrders([sellOrder(102, 1700, 500500)])
-      exchangeMock.getReceivedCancelIds().should.deep.equal([100, 100, 102])
+      cancelStub.withArgs(102).called.should.equal(true)
 
       openOrdersWatch.addOpenOrder(buyOrder(104, 298, 500800))
       openOrdersWatch.addOpenOrder(sellOrder(106, 1700, 501100))
@@ -94,7 +74,7 @@ describe('Synced open orders watch', () => {
 
       openOrdersWatch.addOpenOrder(sellOrder(108, 298, 501500))
       resolveOpenOrders([])
-      exchangeMock.getReceivedCancelIds().should.deep.equal([100, 100, 102])
+      cancelStub.callCount.should.equal(3)
     })
   })
 
@@ -102,7 +82,7 @@ describe('Synced open orders watch', () => {
     it('NOT cancelled when completely bought', () => {
       openOrdersWatch.addOpenOrder(buyOrder(123, 2000, 500000))
       resolveOpenOrders([])
-      exchangeMock.getReceivedCancelIds().should.deep.equal([])
+      exchangeMock.cancelOrder.called.should.equal(false)
     })
 
     it('cancels order when still open', () => {
@@ -110,21 +90,21 @@ describe('Synced open orders watch', () => {
       openOrdersWatch.addOpenOrder(order)
 
       resolveOpenOrders([order])
-      exchangeMock.getReceivedCancelIds().should.deep.equal([540])
+      exchangeMock.cancelOrder.withArgs(540).called.should.equal(true)
     })
 
     it('cancels order when partially bought', () => {
       openOrdersWatch.addOpenOrder(buyOrder(124, 1980, 505000))
       resolveOpenOrders([buyOrder(124, 481, 505000)])
-      exchangeMock.getReceivedCancelIds().should.deep.equal([124])
+      exchangeMock.cancelOrder.withArgs(124).called.should.equal(true)
     })
 
     it('ignores cancel order failed', () => {
-      exchangeMock.setCancelOrderResponse(false)
+      exchangeMock.cancelOrder.returns(false)
       openOrdersWatch.addOpenOrder(buyOrder(125, 2000, 500000))
 
       resolveOpenOrders([buyOrder(125, 500, 500000)])
-      exchangeMock.getReceivedCancelIds().should.deep.equal([125])
+      exchangeMock.cancelOrder.withArgs(125).called.should.equal(true)
     })
   })
 
@@ -132,7 +112,7 @@ describe('Synced open orders watch', () => {
     it('NOT cancelled when completely sold', () => {
       openOrdersWatch.addOpenOrder(sellOrder(555, 2000, 500000))
       resolveOpenOrders([])
-      exchangeMock.getReceivedCancelIds().should.deep.equal([])
+      exchangeMock.cancelOrder.called.should.equal(false)
     })
 
     it('cancels order when still open', () => {
@@ -140,22 +120,22 @@ describe('Synced open orders watch', () => {
       openOrdersWatch.addOpenOrder(order)
 
       resolveOpenOrders([order])
-      exchangeMock.getReceivedCancelIds().should.deep.equal([222])
+      exchangeMock.cancelOrder.withArgs(222).called.should.equal(true)
     })
 
     it('cancels order when partially sold', () => {
       openOrdersWatch.addOpenOrder(sellOrder(666, 2000, 550100))
 
       resolveOpenOrders([sellOrder(666, 1507, 550100)])
-      exchangeMock.getReceivedCancelIds().should.deep.equal([666])
+      exchangeMock.cancelOrder.withArgs(666).called.should.equal(true)
     })
 
     it('ignores cancel order failed', () => {
-      exchangeMock.setCancelOrderResponse(false)
+      exchangeMock.cancelOrder.returns(false)
       openOrdersWatch.addOpenOrder(sellOrder(777, 2000, 500000))
 
       resolveOpenOrders([sellOrder(777, 500000, 100)])
-      exchangeMock.getReceivedCancelIds().should.deep.equal([777])
+      exchangeMock.cancelOrder.withArgs(777).called.should.equal(true)
     })
   })
 })
