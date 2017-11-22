@@ -70,9 +70,10 @@ describe('Partition executor', () => {
     ])
   })
 
-  after(() => partitionExecutor.stopWorkers()
-    .then(() => partitionWorkerMockReceiver.stopServer())
-  )
+  after(() => Promise.all([
+    partitionExecutor.stopWorkers(),
+    partitionWorkerMockReceiver.stopServer()
+  ]))
 
   it('createWorkers should initialise workers with config indices', () => {
     const createdTradersCalled = partitionWorkerMockReceiver.getCreatedTradersCalled()
