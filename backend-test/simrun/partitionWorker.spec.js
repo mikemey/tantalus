@@ -1,7 +1,7 @@
 const PartitionWorker = require('../../backend/simrun/partitionWorker')
 
 describe('Partition worker', () => {
-  const slice = { unixNow: 100, transactions: [{ a: 2, price: 100 }, { a: 3, price: 100 }, { a: 4, price: 200 }] }
+  const slice = { unixNow: 100, transactions: [{ tid: 2, price: 400000 }, { tid: 3, price: 400000 }, { tid: 4, price: 500000 }] }
 
   const generatorConfig = {
     timeslotSeconds: { start: 100, end: 100, step: 50 },
@@ -24,14 +24,16 @@ describe('Partition worker', () => {
 
   const accountResponse = {
     clientId: 'test',
-    balances: { gbp_balance: 1000, xbt_balance: 312 }
+    balances: { gbp_balance: 1000, xbt_balance: 3120 }
   }
 
-  const expectedAccountResponse = {
+  const expectedAccounts = {
     clientId: 'test',
-    amount: 'Ƀ 0.0312',
-    price: '£/Ƀ 2',
-    volume: ''
+    amount: 'Ƀ 0.3120',
+    price: '£/Ƀ 5000',
+    volume: '£ 10.00',
+    fullValue: 157000,
+    fullVolume: '£ 1570.00'
   }
 
   const ExchangeAdapterMock = () => {
@@ -106,13 +108,14 @@ describe('Partition worker', () => {
       'T( 100)_B(   1 / 1)_S(   1 / 5)'
     ])
 
-    partitionWorker.getAccounts().should.deep.equal([
-      expectedAccountResponse, expectedAccountResponse, expectedAccountResponse
-    ])
-
     return partitionWorker.drainTransactions(slice)
-      .then(() => allTraderMocks.forEach(traderMock => {
-        traderMock.calledTicks.should.deep.equal([100])
-      }))
+      .then(() => {
+        partitionWorker.getAccounts().should.deep.equal([
+          expectedAccounts, expectedAccounts, expectedAccounts
+        ], 'getAccounts not as expected')
+        allTraderMocks.forEach(traderMock => {
+          traderMock.calledTicks.should.deep.equal([100], 'tradermocks not called')
+        })
+      })
   })
 })

@@ -1,4 +1,5 @@
 const { TantalusLogger } = require('../utils/tantalusLogger')
+const { roundVolume, amountString, priceString, volumeString } = require('../utils/ordersHelper')
 
 const TraderConfigsGenerator = require('./traderConfigsGenerator')
 
@@ -12,21 +13,6 @@ const quietLogger = {
   log: console.log
 }
 
-// let lastTransactionPrice = 0
-// const printBalance = () => doSome()
-//   .then(() => tradePairs
-//     .map(({ trader, exchangeAdapter }) => {
-//       const account = exchangeAdapter.getAccountSync()
-//       const clientId = account.clientId
-//       const amount = amountString(account.balances.xbt_balance)
-//       const price = priceString(lastTransactionPrice)
-//       const volume = volumeString(account.balances.gbp_balance)
-//       const fullValue = account.balances.gbp_balance + roundVolume(account.balances.xbt_balance, lastTransactionPrice)
-//       const fullVolume = volumeString(fullValue)
-
-//       return { clientId, amount, price, volume, fullValue, fullVolume }
-//     })
-
 const createSimulatedTrader = config => {
   const tradeAccount = TradeAccount(TantalusLogger(quietLogger), config.clientId)
   const exchangeAdapter = ExchangeAccountAdapter(tradeAccount)
@@ -37,6 +23,7 @@ const createSimulatedTrader = config => {
 class PartitionWorker {
   constructor (simulatedTraderFunc = createSimulatedTrader) {
     this.traderPairs = []
+    this.lastTransactionPrice = 0
     this.simulatedTraderFunc = simulatedTraderFunc
   }
 
@@ -52,11 +39,34 @@ class PartitionWorker {
   }
 
   drainTransactions (transactionsSlice) {
-    return Promise.resolve()
+    const txs = transactionsSlice.transactions
+    this.setLastTransactionsPrice(txs)
+    return Promise.all(this.traderPairs.map(({ trader, exchangeAdapter }) => {
+      exchangeAdapter.setTransactions(txs)
+      return trader.tick(transactionsSlice.unixNow)
+    }))
+  }
+
+  setLastTransactionsPrice (transactions) {
+    if (transactions.length) {
+      this.lastTransactionPrice = transactions[transactions.length - 1].price
+    }
   }
 
   getAccounts () {
-    return {}
+    return this.traderPairs.map(({ trader, exchangeAdapter }) => {
+      const account = exchangeAdapter.getAccountSync()
+      const clientId = account.clientId
+      const amount = amountString(account.balances.xbt_balance)
+      const price = priceString(this.lastTransactionPrice)
+      const volume = volumeString(account.balances.gbp_balance)
+
+      const fullValue = account.balances.gbp_balance +
+        roundVolume(account.balances.xbt_balance, this.lastTransactionPrice)
+      const fullVolume = volumeString(fullValue)
+
+      return { clientId, amount, price, volume, fullValue, fullVolume }
+    })
   }
 }
 
