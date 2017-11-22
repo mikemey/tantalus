@@ -1,4 +1,5 @@
 const { TantalusLogger } = require('../utils/tantalusLogger')
+const { timestamp } = require('./simrunUtils')
 
 const TransactionSource = (baseLogger, transactionRepo) => {
   const logger = TantalusLogger(baseLogger, 'TxsSource')
@@ -21,6 +22,7 @@ const TransactionSource = (baseLogger, transactionRepo) => {
       // data.nextStartDate = 1511096300
       // data.endDate = 1511096750
       logger.info(`DB batch: ${data.nextStartDate} -> ${data.endDate}`)
+      logger.info(`${timestamp(data.nextStartDate)} -> ${timestamp(data.endDate)}`)
     })
   }
 
