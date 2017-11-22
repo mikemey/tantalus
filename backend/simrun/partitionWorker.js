@@ -60,7 +60,7 @@ class PartitionWorker {
 
   getAccounts () {
     return this.traderPairs.map(({ trader, exchangeAdapter }) => {
-      const account = exchangeAdapter.getAccountSync()
+      const account = exchangeAdapter.getAccount()
       const clientId = account.clientId
       const amount = amountString(account.balances.xbt_balance)
       const price = priceString(this.lastTransactionPrice)

@@ -41,9 +41,9 @@ describe('Partition worker', () => {
 
     const setTransactions = txs => { received = txs }
     const getReceived = () => received
-    const getAccountSync = () => accountResponse
+    const getAccount = () => accountResponse
 
-    return { setTransactions, getReceived, getAccountSync }
+    return { setTransactions, getReceived, getAccount }
   }
 
   const TraderMock = () => {

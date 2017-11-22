@@ -9,17 +9,17 @@ const ExchangeAccountAdapter = tradeAccount => {
   }
 
   return {
-    getTransactions: () => Promise.resolve(data.transactions),
+    getTransactions: () => data.transactions,
     setTransactions,
     getAllAccounts: () => {
       throw Error('AccountAdapter: unexpected call to getAllAccounts()')
     },
-    getAccount: () => Promise.resolve(tradeAccount.getAccount()),
-    getAccountSync: () => tradeAccount.getAccount(),
-    getOpenOrders: () => Promise.resolve(tradeAccount.getOpenOrders()),
-    buyLimitOrder: (amount, price) => Promise.resolve(tradeAccount.newBuyOrder(amount, price)),
-    sellLimitOrder: (amount, price) => Promise.resolve(tradeAccount.newSellOrder(amount, price)),
-    cancelOrder: id => Promise.resolve(tradeAccount.cancelOrder(id))
+    getAccount: tradeAccount.getAccount,
+    getOpenOrders: tradeAccount.getOpenOrders,
+    buyLimitOrder: tradeAccount.newBuyOrder,
+    sellLimitOrder: tradeAccount.newSellOrder,
+    cancelOrder: tradeAccount.cancelOrder
   }
 }
+
 module.exports = ExchangeAccountAdapter
