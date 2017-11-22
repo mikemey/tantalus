@@ -59,17 +59,44 @@ const OpenOrdersWatch = (orderLogger, config, exchangeConnector) => {
         orderLogger.logOrderSold(localOrder.id, localOrder.amount, localOrder.price)
       }
     })
+  }
+
+  const clearLocalOpenOrders = () => {
     localOpenOrders.clear()
   }
 
   const resolveOpenOrders = () => exchangeConnector.getOpenOrders()
     .then(checkExchangeOrders)
     .then(cancelUnresolvedOrder)
-    .then(logFullyBoughtSoldOrder)
+    .then(() => {
+      logFullyBoughtSoldOrder()
+      clearLocalOpenOrders()
+    })
+
+  // ========= synced functions:
+  const syncedAddOpenOrder = newLocalOrder => {
+    localOpenOrders.set(newLocalOrder.id, newLocalOrder)
+  }
+
+  const syncedResolveOpenOrders = () => {
+    const openOrders = exchangeConnector.getOpenOrders()
+    syncedCancelUnresolvedOrder(openOrders)
+    clearLocalOpenOrders()
+  }
+
+  const syncedCancelUnresolvedOrder = exchangeOrders => exchangeOrders.map(exchangeOrder => {
+    const cancelSuccess = exchangeConnector.cancelOrder(exchangeOrder.id)
+    if (cancelSuccess) {
+      const localOrder = localOpenOrders.get(exchangeOrder.id)
+      if (localOrder) {
+        localOpenOrders.delete(exchangeOrder.id)
+      }
+    }
+  })
 
   return {
-    addOpenOrder,
-    resolveOpenOrders
+    addOpenOrder: config.syncedMode ? syncedAddOpenOrder : addOpenOrder,
+    resolveOpenOrders: config.syncedMode ? syncedResolveOpenOrders : resolveOpenOrders
   }
 }
 
