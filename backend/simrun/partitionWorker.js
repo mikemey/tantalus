@@ -27,15 +27,18 @@ class PartitionWorker {
     this.simulatedTraderFunc = simulatedTraderFunc
   }
 
-  createTraders (workerConfig) {
+  createTraders (baseLogger, workerConfig) {
+    this.logger = TantalusLogger(baseLogger, `WRK-${process.pid}`)
     const configsGenerator = TraderConfigsGenerator()
       .createGenerator(workerConfig.generatorConfig)
 
+    this.logger.info(`creating traders ix [${workerConfig.configsEndIx}] to [${workerConfig.configsStartIx}]`)
     const length = workerConfig.configsEndIx - workerConfig.configsStartIx + 1
     this.traderPairs = Array.from({ length }, (_, ix) => {
       const traderConfig = configsGenerator.nth(workerConfig.configsStartIx + ix)
       return this.simulatedTraderFunc(traderConfig)
     })
+    this.logger.info(`created ${this.traderPairs.length} traders`)
   }
 
   drainTransactions (transactionsSlice) {

@@ -62,7 +62,7 @@ describe('Partition executor', () => {
   let partitionExecutor, partitionWorkerMockReceiver
 
   before(() => {
-    partitionExecutor = PartitionExecutor(executorConfig, '/backend-test/simrun/partitionWorkerMock')
+    partitionExecutor = PartitionExecutor(executorConfig, console, '/backend-test/simrun/partitionWorkerMock')
     partitionWorkerMockReceiver = PartitionWorkerMockReceiver()
     return Promise.all([
       partitionExecutor.startWorkers(),

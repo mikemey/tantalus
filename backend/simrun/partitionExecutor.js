@@ -1,29 +1,34 @@
 const actors = require('comedy')
 
+const { TantalusLogger } = require('../utils/tantalusLogger')
 const TraderConfigsGenerator = require('./traderConfigsGenerator')
 
 const defaultWorkerModule = '/backend/simrun/partitionWorker'
 
-const createWorkerConfigs = executorConfig => {
-  const traderConfigsGen = TraderConfigsGenerator()
-    .createGenerator(executorConfig.generatorConfig)
-  const totalConfigsCount = traderConfigsGen.length
-  const workerCount = Math.min(totalConfigsCount, executorConfig.partitionWorkerCount)
-  const configSliceLen = totalConfigsCount / workerCount
+const PartitionExecutor = (executorConfig, baseLogger, workersModule = defaultWorkerModule) => {
+  const logger = TantalusLogger(baseLogger, 'EXEC')
 
-  return Array.from({ length: workerCount }, (_, ix) => {
-    const configsStartIx = Math.round(ix * configSliceLen)
-    const projectedEndIx = Math.round((ix + 1) * configSliceLen) - 1
-    const configsEndIx = Math.min(projectedEndIx, totalConfigsCount - 1)
-    return {
-      configsStartIx,
-      configsEndIx,
-      generatorConfig: executorConfig.generatorConfig
-    }
-  })
-}
+  const createWorkerConfigs = executorConfig => {
+    const traderConfigsGen = TraderConfigsGenerator()
+      .createGenerator(executorConfig.generatorConfig)
+    const totalConfigsCount = traderConfigsGen.length
+    const workerCount = Math.min(totalConfigsCount, executorConfig.partitionWorkerCount)
 
-const PartitionExecutor = (executorConfig, workersModule = defaultWorkerModule) => {
+    logger.info(`distributing ${totalConfigsCount} trader configs to ${workerCount} workers`)
+    const configSliceLen = totalConfigsCount / workerCount
+
+    return Array.from({ length: workerCount }, (_, ix) => {
+      const configsStartIx = Math.round(ix * configSliceLen)
+      const projectedEndIx = Math.round((ix + 1) * configSliceLen) - 1
+      const configsEndIx = Math.min(projectedEndIx, totalConfigsCount - 1)
+      return {
+        configsStartIx,
+        configsEndIx,
+        generatorConfig: executorConfig.generatorConfig
+      }
+    })
+  }
+
   const workerConfigs = createWorkerConfigs(executorConfig)
   let actorSystem, workers
 
@@ -34,7 +39,7 @@ const PartitionExecutor = (executorConfig, workersModule = defaultWorkerModule) 
       .then(rootActor => Promise.all(workerConfigs.map(workerConfig => rootActor
         .createChild(workersModule, { mode: 'forked' })
         .then(worker => worker
-          .sendAndReceive('createTraders', workerConfig)
+          .sendAndReceive('createTraders', baseLogger, workerConfig)
           .then(() => worker))
       )))
       .then(createdWorkers => { workers = createdWorkers })

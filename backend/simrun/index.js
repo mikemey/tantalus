@@ -18,14 +18,14 @@ const commonTraderConfig = {
 }
 
 const generatorConfig = {
-  timeslotSeconds: { start: 50, end: 150, step: 50 },
+  timeslotSeconds: { start: 50, end: 500, step: 50 },
   buying: {
-    ratio: { start: 1, end: 1.5, step: 0.5 },
-    useTimeslots: { start: 2, end: 2, step: 1 }
+    ratio: { start: 2, end: 7.5, step: 0.5 },
+    useTimeslots: { start: 2, end: 5, step: 1 }
   },
   selling: {
-    ratio: { start: -0.1, end: -0.1, step: 0.5 },
-    useTimeslots: { start: 2, end: 2, step: 1 }
+    ratio: { start: -5, end: 0.5, step: 0.5 },
+    useTimeslots: { start: 2, end: 5, step: 1 }
   },
   commonTraderConfig
 }
@@ -46,9 +46,9 @@ const executorConfig = {
   mongodb: {
     url: 'mongodb://127.0.0.1:27017/tantalus'
   },
-  batchSeconds: 100,
+  batchSeconds: 3600 * 4,
   transactionsUpdateSeconds: 10,
-  partitionWorkerCount: 3,
+  partitionWorkerCount: 5,
   generatorConfig
 }
 
@@ -62,7 +62,7 @@ const createTransactionsSource = config => mongo.initializeDirectConnection(conf
       .then(() => transactionsSource)
   })
 
-const createPartitionExecutor = config => PartitionExecutor(config)
+const createPartitionExecutor = config => PartitionExecutor(config, baseLogger)
 
 const runSimulation = (transactionsSource, partitionExecutor, config) => {
   return SimRunner(baseLogger, transactionsSource, partitionExecutor, config.transactionsUpdateSeconds)
