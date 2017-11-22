@@ -81,11 +81,11 @@ describe('Sim Runner', () => {
       })
   })
 
-  it('calls start/stop workers and getAllAccounts', () => {
+  it('calls getAllAccounts when done, but NOT start/stop workers', () => {
     return simRunner.run()
       .then(() => {
-        partitionExecutorMock.startWorkersCalled().should.equal(true)
-        partitionExecutorMock.stopWorkersCalled().should.equal(true)
+        partitionExecutorMock.startWorkersCalled().should.equal(false)
+        partitionExecutorMock.stopWorkersCalled().should.equal(false)
         partitionExecutorMock.getAllAccountsSortedCalled().should.equal(true)
       })
   })

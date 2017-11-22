@@ -18,7 +18,7 @@ const commonTraderConfig = {
 }
 
 const generatorConfig = {
-  timeslotSeconds: { start: 50, end: 500, step: 50 },
+  timeslotSeconds: { start: 50, end: 60, step: 50 },
   buying: {
     ratio: { start: 2, end: 7.5, step: 0.5 },
     useTimeslots: { start: 2, end: 5, step: 1 }
@@ -62,7 +62,16 @@ const createTransactionsSource = config => mongo.initializeDirectConnection(conf
       .then(() => transactionsSource)
   })
 
-const createPartitionExecutor = config => PartitionExecutor(config, baseLogger)
+let partitionExecutor
+
+const startupPartitionExecutor = config => {
+  partitionExecutor = PartitionExecutor(config, baseLogger)
+  return partitionExecutor.startWorkers()
+}
+
+const shutdownPartitionExecutor = () => {
+  if (partitionExecutor) return partitionExecutor.stopWorkers()
+}
 
 const runSimulation = (transactionsSource, partitionExecutor, config) => {
   return SimRunner(baseLogger, transactionsSource, partitionExecutor, config.transactionsUpdateSeconds)
@@ -88,9 +97,10 @@ process.on('uncaughtException', errorHandler('uncaught exception: ', true))
 
 Promise.all([
   createTransactionsSource(executorConfig),
-  createPartitionExecutor(executorConfig)
-]).then(([transactionsSource, partitionExecutor]) =>
+  startupPartitionExecutor(executorConfig)
+]).then(([transactionsSource, _]) =>
   runSimulation(transactionsSource, partitionExecutor, executorConfig)
   )
   .catch(errorHandler('Setup simulation: ', true))
+  .then(shutdownPartitionExecutor)
   .then(shutdown)

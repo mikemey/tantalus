@@ -75,11 +75,8 @@ const SimRunner = (baseLogger, transactionsSource, partitionExecutor, txsUpdateS
   const runnerLog = TantalusLogger(baseLogger, 'SimRun')
   const partitioner = TransactionPartitioner(baseLogger, partitionExecutor, txsUpdateSeconds)
 
-  const run = () => partitionExecutor
-    .startWorkers()
-    .then(simulateNextBatch)
+  const run = () => simulateNextBatch()
     .then(logWinnerLoserRankings)
-    .then(partitionExecutor.stopWorkers)
 
   const logWinnerLoserRankings = () => partitionExecutor.getAllAccountsSorted()
     .then(filterAccountsToLog)
