@@ -16,7 +16,7 @@ const quietLogger = {
 }
 
 const createSimulatedTrader = config => {
-  const tradeAccount = TradeAccount(TantalusLogger(quietLogger), config.clientId)
+  const tradeAccount = TradeAccount(quietLogger, config.clientId)
   const exchangeAdapter = ExchangeAccountAdapter(tradeAccount)
   const trader = TraderJob(quietLogger, config, exchangeAdapter)
   return { trader, exchangeAdapter }

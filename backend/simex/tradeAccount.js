@@ -12,8 +12,8 @@ const START_BALANCE_PENCE = 100000
 
 const randomStartId = () => Math.floor(Math.random() * 89 + 10) * 1000
 
-const TradeAccount = (tantalusLogger, clientId) => {
-  const orderLogger = OrderLogger(TantalusLogger(tantalusLogger.baseLogger, clientId))
+const TradeAccount = (baseLogger, clientId) => {
+  const orderLogger = OrderLogger(TantalusLogger(baseLogger, clientId))
 
   const stats = {
     clientId,

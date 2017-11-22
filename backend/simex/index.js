@@ -43,7 +43,7 @@ const createSimexRouter = (tantalusLogger, transactionService) => {
 
   const getOrCreateTradeAccount = clientId => {
     if (!data.tradeAccounts.has(clientId)) {
-      data.tradeAccounts.set(clientId, TradeAccount(tantalusLogger, clientId))
+      data.tradeAccounts.set(clientId, TradeAccount(tantalusLogger.baseLogger, clientId))
     }
     return data.tradeAccounts.get(clientId)
   }
