@@ -82,27 +82,34 @@ const SurgeDetector = (orderLogger, config, exchangeConnector) => {
       : (currentPrice - previousPrice) / slotDuration
   }
 
+  const calculateTrends = unixTime => transactions => {
+    const lastDateLimit = unixTime - (slotCount * slotDuration)
+    data.cachedTransactions = createNewTransactions(transactions, lastDateLimit)
+
+    const ratios = groupInTimeslots(data.cachedTransactions, unixTime)
+      .map(sumupAmountsAndVolumes)
+      .map(calculateRatios)
+      .slice(0, -1)
+
+    data.latestRatios = ratios
+    const isPriceSurging = ratios.length && ratios.slice(0, buySlotCount).every(ratio => ratio >= buyRatio)
+    const isUnderSellRatio = ratios.length && ratios.slice(0, sellSlotCount).every(ratio => ratio < sellRatio)
+
+    return {
+      latestPrice: data.latestPrice,
+      isPriceSurging,
+      isUnderSellRatio
+    }
+  }
+
+  const analyseTrends = unixTime => exchangeConnector.getTransactions()
+    .then(calculateTrends(unixTime))
+
+  const syncedAnalyseTrends = unixTime =>
+    calculateTrends(unixTime)(exchangeConnector.getTransactions())
+
   return {
-    analyseTrends: unixTime => exchangeConnector.getTransactions()
-      .then(transactions => {
-        const lastDateLimit = unixTime - (slotCount * slotDuration)
-        data.cachedTransactions = createNewTransactions(transactions, lastDateLimit)
-
-        const ratios = groupInTimeslots(data.cachedTransactions, unixTime)
-          .map(sumupAmountsAndVolumes)
-          .map(calculateRatios)
-          .slice(0, -1)
-
-        data.latestRatios = ratios
-        const isPriceSurging = ratios.length && ratios.slice(0, buySlotCount).every(ratio => ratio >= buyRatio)
-        const isUnderSellRatio = ratios.length && ratios.slice(0, sellSlotCount).every(ratio => ratio < sellRatio)
-
-        return {
-          latestPrice: data.latestPrice,
-          isPriceSurging,
-          isUnderSellRatio
-        }
-      }),
+    analyseTrends: config.syncedMode ? syncedAnalyseTrends : analyseTrends,
     getLatestRatios: () => data.latestRatios
   }
 }
