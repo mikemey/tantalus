@@ -20,7 +20,7 @@ const commonTraderConfig = {
 const generatorConfig = {
   timeslotSeconds: { start: 50, end: 60, step: 50 },
   buying: {
-    ratio: { start: 2, end: 7.5, step: 0.5 },
+    ratio: { start: 2, end: 4.5, step: 0.5 },
     useTimeslots: { start: 2, end: 5, step: 1 }
   },
   selling: {
@@ -79,7 +79,11 @@ const runSimulation = (transactionsSource, partitionExecutor, config) => {
     .catch(errorHandler('Run simulation: ', true))
 }
 
+const startTime = process.hrtime()
+
 const shutdown = () => {
+  baseLogger.info()
+  simLogger.info(`total runtime: ${process.hrtime(startTime)[0]}s`)
   simLogger.info('quit')
   process.exit(0)
 }
