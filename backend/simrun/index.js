@@ -4,12 +4,19 @@ const { TantalusLogger, redText } = require('../utils/tantalusLogger')
 const PartitionExecutor = require('./partitionExecutor')
 const TransactionRepo = require('../transactions/transactionsRepo')
 const TransactionsSource = require('./transactionsSource')
+const TraderConfigsGenerator = require('./traderConfigsGenerator')
 
 const SimRunner = require('./simRunner')
-const executorConfig = require('./simrunConfig')
+const { executorConfig, generatorConfig } = require('./simrunConfig')
 
 const baseLogger = console
 const simLogger = TantalusLogger(baseLogger, 'SimMain', redText)
+
+const initialGeneratedConfigs = generatorConfig => {
+  return TraderConfigsGenerator()
+    .createGenerator(generatorConfig)
+    .toArray()
+}
 
 const createTransactionsSource = config => mongo.initializeDirectConnection(config, simLogger)
   .then(() => {
@@ -29,9 +36,9 @@ const shutdownPartitionExecutor = () => {
   if (partitionExecutor) return partitionExecutor.shutdown()
 }
 
-const runSimulation = (transactionsSource, partitionExecutor, config) => {
+const runSimulation = (transactionsSource, partitionExecutor, executorConfig, traderConfigs) => {
   return SimRunner(baseLogger, transactionsSource, partitionExecutor)
-    .run(config)
+    .run(executorConfig, traderConfigs)
     .catch(errorHandler('Run simulation: ', true))
 }
 
@@ -56,10 +63,11 @@ process.on('SIGINT', shutdown)
 process.on('uncaughtException', errorHandler('uncaught exception: ', true))
 
 Promise.all([
+  initialGeneratedConfigs(generatorConfig),
   createTransactionsSource(executorConfig),
   startupPartitionExecutor()
-]).then(([transactionsSource, _]) =>
-  runSimulation(transactionsSource, partitionExecutor, executorConfig)
+]).then(([traderConfigs, transactionsSource, _]) =>
+  runSimulation(transactionsSource, partitionExecutor, executorConfig, traderConfigs)
   )
   .catch(errorHandler('Setup simulation: ', true))
   .then(shutdownPartitionExecutor)

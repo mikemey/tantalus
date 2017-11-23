@@ -43,23 +43,25 @@ const PartitionWorkerMockReceiver = () => {
 describe('Partition executor', function () {
   this.timeout(5000)
 
-  const generatorConfig = {
-    timeslotSeconds: { start: 100, end: 100, step: 50 },
-    buying: {
-      ratio: { start: 0, end: 3, step: 1 },
-      useTimeslots: { start: 0, end: 2, step: 1 }
-    },
-    selling: {
-      ratio: { start: 0, end: 0, step: 0.5 },
-      useTimeslots: { start: 5, end: 5, step: 1 }
-    },
-    commonTraderConfig: { common: 'trader config' }
+  const executorConfig = {
+    partitionWorkerCount: 5
   }
 
-  const executorConfig = {
-    partitionWorkerCount: 5,
-    generatorConfig
-  }
+  const traderConfigs = [
+    { a: 'ab' }, { a: 'cd' },
+    { a: 'ef' }, { a: 'gh' }, { a: 'ij' },
+    { a: 'kl' }, { a: 'mn' },
+    { a: 'op' }, { a: 'qr' }, { a: 'st' },
+    { a: 'uv' }, { a: 'wx' }
+  ]
+
+  const expectedTraderConfigs = [
+    { traderConfigs: [traderConfigs[0], traderConfigs[1]] },
+    { traderConfigs: [traderConfigs[2], traderConfigs[3], traderConfigs[4]] },
+    { traderConfigs: [traderConfigs[5], traderConfigs[6]] },
+    { traderConfigs: [traderConfigs[7], traderConfigs[8], traderConfigs[9]] },
+    { traderConfigs: [traderConfigs[10], traderConfigs[11]] }
+  ]
 
   let partitionExecutor, partitionWorkerMockReceiver
 
@@ -78,7 +80,7 @@ describe('Partition executor', function () {
   describe('one executioner for all tests', () => {
     before(() => {
       return startExecutorAndReceiver()
-        .then(() => partitionExecutor.configureWorkers(executorConfig))
+        .then(() => partitionExecutor.configureWorkers(executorConfig, traderConfigs))
     })
 
     after(stopExecutorAndReceiver)
@@ -86,23 +88,11 @@ describe('Partition executor', function () {
     it('createTraders should initialise workers with config indices', () => {
       const createdTradersCalled = partitionWorkerMockReceiver.getCreatedTradersCalled()
       createdTradersCalled.should.have.length(executorConfig.partitionWorkerCount)
-      createdTradersCalled.forEach(createdCall => {
-        createdCall.generatorConfig.should.deep.equal(generatorConfig)
-
-        const startIx = createdCall.configsStartIx
-        const endIx = createdCall.configsEndIx
-        switch (startIx) {
-          case 0:
-          case 5:
-          case 10:
-            endIx.should.equal(startIx + 1)
-            break
-          case 2:
-          case 7:
-            endIx.should.equal(startIx + 2)
-            break
-          default: throw Error('unexpected configStartIx: ' + startIx)
-        }
+      createdTradersCalled.forEach(call => {
+        const actualConfigs = JSON.stringify(call.traderConfigs)
+        expectedTraderConfigs.findIndex(expectedConfigs =>
+          actualConfigs === JSON.stringify(expectedConfigs.traderConfigs)
+        ).should.not.equal(-1, 'unexpected createTraders call: ' + actualConfigs)
       })
     })
 
@@ -118,13 +108,13 @@ describe('Partition executor', function () {
         })
     })
 
-    it('should forward result request', () => {
+    it('should get all accounts and sorts by fullVolume', () => {
       return partitionExecutor.getAllAccountsSorted()
         .then(results => {
           results.should.have.length(executorConfig.partitionWorkerCount * 2)
           results.reduce((previousVolume, current) => {
-            previousVolume.should.be.above(current.fullValue)
-            return current.fullValue
+            previousVolume.should.be.above(current.fullVolume)
+            return current.fullVolume
           }, Number.MAX_SAFE_INTEGER)
         })
     })
@@ -137,12 +127,12 @@ describe('Partition executor', function () {
     it('re-configuration of workers + traders', () => {
       const createdTradersCount = () => partitionWorkerMockReceiver.getCreatedTradersCalled().length
 
-      return partitionExecutor.configureWorkers(executorConfig)
+      return partitionExecutor.configureWorkers(executorConfig, traderConfigs)
         .then(() => {
           createdTradersCount().should.equal(5)
           const partitionWorkerCount = 3
           const newExecutorConfig = Object.assign({}, executorConfig, { partitionWorkerCount })
-          return partitionExecutor.configureWorkers(newExecutorConfig)
+          return partitionExecutor.configureWorkers(newExecutorConfig, traderConfigs)
         })
         .then(() => {
           createdTradersCount().should.equal(8)

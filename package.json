@@ -15,7 +15,6 @@
     "schedule": "node backend/schedule",
     "pretrader": "npm install",
     "trader": "node backend/trader",
-    "presimrun": "npm install",
     "simrun": "node backend/simrun",
     "pretest": "npm install",
     "test": "npm run lint -s && npm run be-test -s && npm run fe-test -s",

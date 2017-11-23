@@ -1,10 +1,12 @@
 const SimRunner = require('../../backend/simrun/simRunner')
 
 describe('Sim Runner', () => {
-  const testConfig = {
+  const testSimConfig = {
     transactionsUpdateSeconds: 100,
     rankingLimit: 10
   }
+
+  const testTraderConfigs = [{ a: 1 }, { b: 2 }, { c: 3 }]
 
   const firstBatch = [{ tid: 1001, date: 100 }, { tid: 2004, date: 200 }, { tid: 2495, date: 249 }]
   const secondBatch = [{ tid: 2992, date: 299 }, { tid: 5008, date: 500 }]
@@ -28,8 +30,9 @@ describe('Sim Runner', () => {
       getAllAccountsSortedCalled: false
     }
 
-    const configureWorkers = receivedConfig => {
-      receivedConfig.should.deep.equal(testConfig)
+    const configureWorkers = (receivedExecConfig, receivedTraderConfigs) => {
+      receivedExecConfig.should.deep.equal(testSimConfig)
+      receivedTraderConfigs.should.deep.equal(testTraderConfigs)
       data.configureWorkersCalled = true
       return Promise.resolve()
     }
@@ -71,7 +74,7 @@ describe('Sim Runner', () => {
   })
 
   it('runs batches of transactions against traders and sorts transactions latest -> earliest', () => {
-    return simRunner.run(testConfig)
+    return simRunner.run(testSimConfig, testTraderConfigs)
       .then(() => {
         partitionExecutorMock.getReceivedTransactions().should.deep.equal([
           { unixNow: 199, transactions: [firstBatch[0]] },
@@ -84,13 +87,13 @@ describe('Sim Runner', () => {
   })
 
   it('calls getAllAccounts when done', () => {
-    return simRunner.run(testConfig)
+    return simRunner.run(testSimConfig, testTraderConfigs)
       .then(() => partitionExecutorMock.getAllAccountsSortedCalled().should.equal(true))
   })
 
   it('should call configureWorkers with config object', () => {
     partitionExecutorMock.configureWorkersCalled().should.equal(false)
-    return simRunner.run(testConfig)
+    return simRunner.run(testSimConfig, testTraderConfigs)
       .then(() => partitionExecutorMock.configureWorkersCalled().should.equal(true))
   })
 })

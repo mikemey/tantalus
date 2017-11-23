@@ -73,11 +73,11 @@ const TransactionPartitioner = (baseLogger, partitionExecutor, transactionsUpdat
 const SimRunner = (baseLogger, transactionsSource, partitionExecutor) => {
   const runnerLog = TantalusLogger(baseLogger, 'SimRun')
 
-  const run = config => {
-    const partitioner = TransactionPartitioner(baseLogger, partitionExecutor, config.transactionsUpdateSeconds)
-    return partitionExecutor.configureWorkers(config)
+  const run = (simConfig, allTraderConfigs) => {
+    const partitioner = TransactionPartitioner(baseLogger, partitionExecutor, simConfig.transactionsUpdateSeconds)
+    return partitionExecutor.configureWorkers(simConfig, allTraderConfigs)
       .then(() => simulateNextBatch(partitioner))
-      .then(() => logWinnerLoserRankings(config.rankingLimit))
+      .then(() => logWinnerLoserRankings(simConfig.rankingLimit))
   }
 
   const simulateNextBatch = partitioner => {

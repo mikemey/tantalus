@@ -3,23 +3,23 @@ const PartitionWorker = require('../../backend/simrun/partitionWorker')
 describe('Partition worker', () => {
   const slice = { unixNow: 100, transactions: [{ tid: 4, price: 500000 }, { tid: 3, price: 400000 }, { tid: 2, price: 400000 }] }
 
-  const generatorConfig = {
-    timeslotSeconds: { start: 100, end: 100, step: 50 },
-    buying: {
-      ratio: { start: 0, end: 2, step: 1 },
-      useTimeslots: { start: 1, end: 1, step: 1 }
-    },
-    selling: {
-      ratio: { start: 0, end: 1, step: 1 },
-      useTimeslots: { start: 5, end: 5, step: 1 }
-    },
-    commonTraderConfig: { buying: { common: true } }
-  }
-
-  const workerConfig = {
-    configsStartIx: 2,
-    configsEndIx: 4,
-    generatorConfig
+  const workerConfigObject = {
+    traderConfigs: [{
+      clientId: 'A',
+      timeslotSeconds: 100,
+      buying: { ratio: 0, useTimeslots: 1 },
+      selling: { ratio: 0, useTimeslots: 5 }
+    }, {
+      clientId: 'B',
+      timeslotSeconds: 100,
+      buying: { ratio: 1, useTimeslots: 1 },
+      selling: { ratio: 0, useTimeslots: 5 }
+    }, {
+      clientId: 'C',
+      timeslotSeconds: 100,
+      buying: { ratio: 2, useTimeslots: 1 },
+      selling: { ratio: 0, useTimeslots: 5 }
+    }]
   }
 
   const accountResponse = {
@@ -29,11 +29,10 @@ describe('Partition worker', () => {
 
   const expectedAccounts = {
     clientId: 'test',
-    amount: 'Ƀ 0.3120',
-    price: '£/Ƀ 5000',
-    volume: '£ 10.00',
-    fullValue: 157000,
-    fullVolume: '£ 1570.00'
+    amount: 3120,
+    price: 500000,
+    volume: 1000,
+    fullVolume: 157000
   }
 
   const ExchangeAdapterMock = () => {
@@ -68,21 +67,10 @@ describe('Partition worker', () => {
     const allTraderMocks = []
     const allClientIds = []
 
+    let workerConfigIx = 0
+
     const createSimulatedMocks = config => {
-      config.buying.common.should.equal(true)
-      const firstIndicator = config.buying.ratio
-      const secondIndicator = config.selling.ratio
-
-      switch (firstIndicator) {
-        case 0: secondIndicator.should.equal(1)
-          break
-        case 1: secondIndicator.should.equal(1)
-          break
-        case 2: secondIndicator.should.equal(0)
-          break
-        default: throw Error('unexpeceted config indicator: ' + firstIndicator)
-      }
-
+      config.should.deep.equal(workerConfigObject.traderConfigs[workerConfigIx++])
       if (allClientIds.includes(config.clientId)) {
         throw Error('duplicate client: ' + config.clientId)
       }
@@ -98,14 +86,10 @@ describe('Partition worker', () => {
     }
 
     const partitionWorker = new PartitionWorker(createSimulatedMocks)
-    partitionWorker.createTraders(workerConfig)
+    partitionWorker.createTraders(workerConfigObject)
 
     allTraderMocks.should.have.length(3)
-    allClientIds.should.deep.equal([
-      'T( 100)_B(   2 / 1)_S(   0 / 5)',
-      'T( 100)_B(   0 / 1)_S(   1 / 5)',
-      'T( 100)_B(   1 / 1)_S(   1 / 5)'
-    ])
+    allClientIds.should.deep.equal(['A', 'B', 'C'])
 
     partitionWorker.drainTransactions(slice)
     partitionWorker.getAccounts().should.deep.equal([

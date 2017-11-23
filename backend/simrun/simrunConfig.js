@@ -10,14 +10,14 @@ const commonTraderConfig = {
 }
 
 const generatorConfig = {
-  timeslotSeconds: { start: 50, end: 800, step: 100 },
+  timeslotSeconds: { start: 300, end: 400, step: 100 },
   buying: {
-    ratio: { start: 2, end: 10, step: 1 },
-    useTimeslots: { start: 2, end: 5, step: 1 }
+    ratio: { start: 2, end: 4, step: 1 },
+    useTimeslots: { start: 2, end: 4, step: 1 }
   },
   selling: {
     ratio: { start: -3, end: -0.5, step: 0.75 },
-    useTimeslots: { start: 2, end: 5, step: 1 }
+    useTimeslots: { start: 2, end: 4, step: 1 }
   },
   commonTraderConfig
 }
@@ -28,9 +28,11 @@ const executorConfig = {
   },
   batchSeconds: 3600 * 4,
   transactionsUpdateSeconds: 10,
-  partitionWorkerCount: 7,
-  rankingLimit: 100,
-  generatorConfig
+  partitionWorkerCount: 3,
+  rankingLimit: 100
 }
 
-module.exports = executorConfig
+module.exports = {
+  executorConfig,
+  generatorConfig
+}

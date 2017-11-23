@@ -1,30 +1,8 @@
 const actors = require('comedy')
 
 const { TantalusLogger } = require('../utils/tantalusLogger')
-const TraderConfigsGenerator = require('./traderConfigsGenerator')
 
 const defaultWorkerModule = '/backend/simrun/partitionWorker'
-
-const createWorkerConfigs = (logger, executorConfig) => {
-  const traderConfigsGen = TraderConfigsGenerator()
-    .createGenerator(executorConfig.generatorConfig)
-  const totalConfigsCount = traderConfigsGen.length
-  const workerCount = Math.min(totalConfigsCount, executorConfig.partitionWorkerCount)
-
-  logger.info(`distributing ${totalConfigsCount} trader configs to ${workerCount} workers`)
-  const configSliceLen = totalConfigsCount / workerCount
-
-  return Array.from({ length: workerCount }, (_, ix) => {
-    const configsStartIx = Math.round(ix * configSliceLen)
-    const projectedEndIx = Math.round((ix + 1) * configSliceLen) - 1
-    const configsEndIx = Math.min(projectedEndIx, totalConfigsCount - 1)
-    return {
-      configsStartIx,
-      configsEndIx,
-      generatorConfig: executorConfig.generatorConfig
-    }
-  })
-}
 
 const PartitionExecutor = (baseLogger, workersModule = defaultWorkerModule) => {
   const logger = TantalusLogger(baseLogger, 'EXEC')
@@ -41,20 +19,34 @@ const PartitionExecutor = (baseLogger, workersModule = defaultWorkerModule) => {
 
   const shutdown = () => data.actorSystem ? data.actorSystem.destroy() : Promise.resolve()
 
-  const configureWorkers = executorConfig => {
+  const configureWorkers = (executorConfig, allTraderConfigs) => {
     return destroyExistingWorkers()
       .then(() => data.actorSystem.rootActor())
       .then(rootActor => {
-        const workerConfigs = createWorkerConfigs(logger, executorConfig)
-        return Promise.all(workerConfigs.map(createWorker(rootActor)))
+        const workerConfigObjects = splitTraderConfigs(allTraderConfigs, executorConfig.partitionWorkerCount)
+        return Promise.all(workerConfigObjects.map(createWorker(rootActor)))
       })
       .then(workers => { data.workers = workers })
   }
 
-  const createWorker = (rootActor) => config => {
+  const splitTraderConfigs = (traderConfigs, configuredWorkerCount) => {
+    const totalConfigsCount = traderConfigs.length
+    const workerCount = Math.min(totalConfigsCount, configuredWorkerCount)
+
+    logger.info(`distributing ${totalConfigsCount} trader configs to ${workerCount} workers`)
+    const configSliceLen = totalConfigsCount / workerCount
+
+    return Array.from({ length: workerCount }, (_, ix) => {
+      const startIx = Math.round(ix * configSliceLen)
+      const endIx = Math.round((ix + 1) * configSliceLen)
+      return { traderConfigs: traderConfigs.slice(startIx, endIx) }
+    })
+  }
+
+  const createWorker = (rootActor) => workerConfigObject => {
     return rootActor.createChild(workersModule, { mode: 'forked' })
       .then(worker => worker
-        .sendAndReceive('createTraders', config)
+        .sendAndReceive('createTraders', workerConfigObject)
         .then(() => worker)
       )
   }
@@ -69,7 +61,7 @@ const PartitionExecutor = (baseLogger, workersModule = defaultWorkerModule) => {
   const getAllAccountsSorted = () => Promise
     .all(data.workers.map(worker => worker.sendAndReceive('getAccounts')))
     .then(allAccounts => [].concat(...allAccounts)
-      .sort((accA, accB) => accB.fullValue - accA.fullValue)
+      .sort((accA, accB) => accB.fullVolume - accA.fullVolume)
     )
 
   return {
