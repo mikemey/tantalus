@@ -121,7 +121,7 @@ describe('SimEx router', () => {
       return getTransactions()
         .then(getAccount)
         .then(account => {
-          moment.utc().diff(account.startDate, 'seconds').should.equal(0)
+          moment.utc().diff(moment.unix(account.startDate), 'seconds').should.equal(0)
         })
     })
 

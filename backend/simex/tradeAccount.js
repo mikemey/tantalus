@@ -17,7 +17,7 @@ const TradeAccount = (baseLogger, clientId) => {
 
   const stats = {
     clientId,
-    startDate: moment.utc(),
+    startDate: moment.utc().unix(),
     requestCount: 0
   }
 
