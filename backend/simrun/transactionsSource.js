@@ -7,6 +7,7 @@ const TransactionSource = (baseLogger, transactionRepo) => {
   const data = {
     batchSeconds: 0,
     nextStartDate: 0,
+    startDate: 0,
     endDate: 0
   }
 
@@ -17,7 +18,7 @@ const TransactionSource = (baseLogger, transactionRepo) => {
       transactionRepo.getEarliestTransaction(),
       transactionRepo.getLatestTransaction()
     ]).then(([earliest, latest]) => {
-      data.nextStartDate = earliest.date
+      data.startDate = data.nextStartDate = earliest.date
       data.endDate = latest.date
       logger.info(`Total transactions period: ${data.nextStartDate} -> ${data.endDate}`)
       logger.info(`${timestamp(data.nextStartDate)} -> ${timestamp(data.endDate)}`)
@@ -41,7 +42,9 @@ const TransactionSource = (baseLogger, transactionRepo) => {
   return {
     init,
     next,
-    hasNext
+    hasNext,
+    getStartDate: () => data.startDate,
+    getEndDate: () => data.endDate
   }
 }
 

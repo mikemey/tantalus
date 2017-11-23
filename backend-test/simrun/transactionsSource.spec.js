@@ -3,6 +3,9 @@ const expect = require('chai').expect
 const TransactionsSource = require('../../backend/simrun/transactionsSource')
 
 describe('Transaction source', () => {
+  const transactionsEarliestDate = 230
+  const transactionsLatestDate = 430
+
   const transactions = [
     { tid: 300000, date: 430 },
     { tid: 280610, date: 280 },
@@ -45,7 +48,8 @@ describe('Transaction source', () => {
   }
 
   it('returns slices', () => {
-    transactionsSource = TransactionsSource(console, mockRepo(230, 430))
+    const repoMock = mockRepo(transactionsEarliestDate, transactionsLatestDate)
+    transactionsSource = TransactionsSource(console, repoMock)
     const batchSeconds = 100
     return transactionsSource.init(batchSeconds)
       .then(expectHasNext())
@@ -56,7 +60,8 @@ describe('Transaction source', () => {
   })
 
   it('should throw error when next called after last slice', () => {
-    transactionsSource = TransactionsSource(console, mockRepo(400, 499))
+    const repoMock = mockRepo(400, 499)
+    transactionsSource = TransactionsSource(console, repoMock)
     return transactionsSource.init(100)
       .then(expectHasNext())
       .then(() => transactionsSource.next())
@@ -64,6 +69,19 @@ describe('Transaction source', () => {
         transactionsSource.hasNext().should.equal(false)
         expect(() => transactionsSource.next())
           .to.throw(Error, 'No more transactions available (latest date: 499)!')
+      })
+  })
+
+  it('returns start + end dates of complete transaction period', () => {
+    const repoMock = mockRepo(transactionsEarliestDate, transactionsLatestDate)
+    transactionsSource = TransactionsSource(console, repoMock)
+    const batchSeconds = 100
+    return transactionsSource.init(batchSeconds)
+      .then(expectHasNext())
+      .then(() => transactionsSource.next())
+      .then(() => {
+        transactionsSource.getStartDate().should.equal(transactionsEarliestDate)
+        transactionsSource.getEndDate().should.equal(transactionsLatestDate)
       })
   })
 })
