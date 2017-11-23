@@ -29,6 +29,11 @@ describe('Transaction source', () => {
         if (from === 430 && to === 529) return Promise.resolve(thirdSlice)
         if (from === 400 && to === 499) return Promise.resolve(thirdSlice)
         throw Error(`readTransactions: unexpected parameters: from: ${from}, to ${to}`)
+      },
+      countTransactionsBetween: (from, to) => {
+        from.should.equal(earliestDate)
+        to.should.equal(latestDate)
+        return transactions.length
       }
     }
   }
@@ -82,6 +87,7 @@ describe('Transaction source', () => {
       .then(() => {
         transactionsSource.getStartDate().should.equal(transactionsEarliestDate)
         transactionsSource.getEndDate().should.equal(transactionsLatestDate)
+        transactionsSource.count().should.equal(transactions.length)
       })
   })
 })
