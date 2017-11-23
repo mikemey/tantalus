@@ -12,14 +12,13 @@ describe('Transaction repo', () => {
   }
 
   describe('with prepopulated data', () => {
-    const fromTime = 1000
     const dbTxs = [
-      dbTransaction(fromTime + 402),
-      dbTransaction(fromTime + 303),
-      dbTransaction(fromTime + 603),
-      dbTransaction(fromTime + 302),
-      dbTransaction(fromTime + 42),
-      dbTransaction(fromTime + 103)
+      dbTransaction(1402),
+      dbTransaction(1303),
+      dbTransaction(1603),
+      dbTransaction(1302),
+      dbTransaction(1042),
+      dbTransaction(1103)
     ]
 
     before(() => helpers.dropDatabase()
@@ -52,6 +51,11 @@ describe('Transaction repo', () => {
       const expectedTx = withoutId(dbTxs[2])
       return transactionsRepo.getLatestTransaction()
         .then(earliestTx => earliestTx.should.deep.equal(expectedTx))
+    })
+
+    it('counts transaction between dates (inclusive)', () => {
+      return transactionsRepo.countTransactionsBetween(1103, 1303)
+        .then(count => count.should.equal(3))
     })
   })
 

@@ -32,12 +32,16 @@ const TransactionRepo = () => {
     .sort({ tid: 1 })
     .toArray()
 
+  const countTransactionsBetween = (from, to) => transactionsCollection()
+    .count({ date: { $gte: from, $lte: to } })
+
   return {
     getLatestTransactionId,
     getEarliestTransaction,
     store,
     readTransactions,
-    getLatestTransaction
+    getLatestTransaction,
+    countTransactionsBetween
   }
 }
 
