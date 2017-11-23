@@ -4,7 +4,9 @@ const request = require('supertest')
 const helpers = require('../helpers')
 const { setupCSRFAgent } = require('../agents')
 
-describe('/api/users/register endpoint', () => {
+describe('/api/users/register endpoint', function () {
+  this.timeout(5000)
+
   let app, server
 
   before(() => helpers.startTestServer((_app, _server) => {

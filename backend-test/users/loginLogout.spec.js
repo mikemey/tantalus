@@ -2,7 +2,9 @@
 const helpers = require('../helpers')
 const { setupCSRFAgent } = require('../agents')
 
-describe('/api/users/login endpoint', () => {
+describe('/api/users/login endpoint', function () {
+  this.timeout(5000)
+
   let app, server
 
   before(() => helpers.startTestServer((_app, _server) => {
