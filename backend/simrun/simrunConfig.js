@@ -10,29 +10,17 @@ const commonTraderConfig = {
 }
 
 const generatorConfig = {
-  timeslotSeconds: { start: 50, end: 60, step: 50 },
+  timeslotSeconds: { start: 50, end: 800, step: 100 },
   buying: {
-    ratio: { start: 2, end: 4.5, step: 0.5 },
+    ratio: { start: 2, end: 10, step: 1 },
     useTimeslots: { start: 2, end: 5, step: 1 }
   },
   selling: {
-    ratio: { start: -5, end: 0.5, step: 0.5 },
+    ratio: { start: -3, end: -0.5, step: 0.75 },
     useTimeslots: { start: 2, end: 5, step: 1 }
   },
   commonTraderConfig
 }
-
-// const tooLarge = {
-//   timeslotSeconds: { start: 10, end: 820, step: 40 },
-//   buying: {
-//     ratio: { start: 2, end: 12, step: 0.5 },
-//     useTimeslots: { start: 2, end: 10, step: 1 }
-//   },
-//   selling: {
-//     ratio: { start: -5, end: 0, step: 0.5 },
-//     useTimeslots: { start: 2, end: 8, step: 1 }
-//   }
-// }
 
 const executorConfig = {
   mongodb: {
