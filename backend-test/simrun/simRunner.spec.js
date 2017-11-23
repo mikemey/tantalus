@@ -1,7 +1,7 @@
 const SimRunner = require('../../backend/simrun/simRunner')
 
 describe('Sim Runner', () => {
-  const config = {
+  const testConfig = {
     transactionsUpdateSeconds: 100,
     rankingLimit: 10
   }
@@ -24,13 +24,13 @@ describe('Sim Runner', () => {
   const PartitionExecutorMock = () => {
     const data = {
       receivedSlices: [],
-      startWorkersCalled: false,
-      stopWorkersCalled: false,
+      configureWorkersCalled: false,
       getAllAccountsSortedCalled: false
     }
 
-    const startWorkers = () => {
-      data.startWorkersCalled = true
+    const configureWorkers = receivedConfig => {
+      receivedConfig.should.deep.equal(testConfig)
+      data.configureWorkersCalled = true
       return Promise.resolve()
     }
 
@@ -47,20 +47,18 @@ describe('Sim Runner', () => {
       ])
     }
 
-    const stopWorkers = () => {
-      data.stopWorkersCalled = true
-      return Promise.resolve()
-    }
+    const unexpectedCall = () => { throw Error(`unexpected function call to [${this.name}]`) }
 
     return {
-      startWorkers,
-      stopWorkers,
+      init: unexpectedCall,
+      shutdown: unexpectedCall,
+
+      configureWorkers,
       drainTransactions,
       getAllAccountsSorted,
 
       getReceivedTransactions: () => data.receivedSlices,
-      startWorkersCalled: () => data.startWorkersCalled,
-      stopWorkersCalled: () => data.stopWorkersCalled,
+      configureWorkersCalled: () => data.configureWorkersCalled,
       getAllAccountsSortedCalled: () => data.getAllAccountsSortedCalled
     }
   }
@@ -69,11 +67,11 @@ describe('Sim Runner', () => {
 
   beforeEach(() => {
     partitionExecutorMock = PartitionExecutorMock()
-    simRunner = SimRunner(console, config, TransactionSourceMock(), partitionExecutorMock)
+    simRunner = SimRunner(console, TransactionSourceMock(), partitionExecutorMock)
   })
 
   it('runs batches of transactions against traders and sorts transactions latest -> earliest', () => {
-    return simRunner.run()
+    return simRunner.run(testConfig)
       .then(() => {
         partitionExecutorMock.getReceivedTransactions().should.deep.equal([
           { unixNow: 199, transactions: [firstBatch[0]] },
@@ -85,12 +83,14 @@ describe('Sim Runner', () => {
       })
   })
 
-  it('calls getAllAccounts when done, but NOT start/stop workers', () => {
-    return simRunner.run()
-      .then(() => {
-        partitionExecutorMock.startWorkersCalled().should.equal(false)
-        partitionExecutorMock.stopWorkersCalled().should.equal(false)
-        partitionExecutorMock.getAllAccountsSortedCalled().should.equal(true)
-      })
+  it('calls getAllAccounts when done', () => {
+    return simRunner.run(testConfig)
+      .then(() => partitionExecutorMock.getAllAccountsSortedCalled().should.equal(true))
+  })
+
+  it('should call configureWorkers with config object', () => {
+    partitionExecutorMock.configureWorkersCalled().should.equal(false)
+    return simRunner.run(testConfig)
+      .then(() => partitionExecutorMock.configureWorkersCalled().should.equal(true))
   })
 })

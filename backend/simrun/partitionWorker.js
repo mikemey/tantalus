@@ -36,6 +36,8 @@ class PartitionWorker {
 
     this.logger.info(`creating traders ix [${workerConfig.configsStartIx}] to [${workerConfig.configsEndIx}]`)
     const length = workerConfig.configsEndIx - workerConfig.configsStartIx + 1
+
+    this.lastTransactionPrice = 0
     this.traderPairs = Array.from({ length }, (_, ix) => {
       const traderConfig = configsGenerator.nth(workerConfig.configsStartIx + ix)
       return this.simulatedTraderFunc(traderConfig)

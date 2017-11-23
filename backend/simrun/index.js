@@ -20,18 +20,18 @@ const createTransactionsSource = config => mongo.initializeDirectConnection(conf
 
 let partitionExecutor
 
-const startupPartitionExecutor = config => {
-  partitionExecutor = PartitionExecutor(config, baseLogger)
-  return partitionExecutor.startWorkers()
+const startupPartitionExecutor = () => {
+  partitionExecutor = PartitionExecutor(baseLogger)
+  partitionExecutor.init()
 }
 
 const shutdownPartitionExecutor = () => {
-  if (partitionExecutor) return partitionExecutor.stopWorkers()
+  if (partitionExecutor) return partitionExecutor.shutdown()
 }
 
 const runSimulation = (transactionsSource, partitionExecutor, config) => {
-  return SimRunner(baseLogger, config, transactionsSource, partitionExecutor)
-    .run()
+  return SimRunner(baseLogger, transactionsSource, partitionExecutor)
+    .run(config)
     .catch(errorHandler('Run simulation: ', true))
 }
 
@@ -57,7 +57,7 @@ process.on('uncaughtException', errorHandler('uncaught exception: ', true))
 
 Promise.all([
   createTransactionsSource(executorConfig),
-  startupPartitionExecutor(executorConfig)
+  startupPartitionExecutor()
 ]).then(([transactionsSource, _]) =>
   runSimulation(transactionsSource, partitionExecutor, executorConfig)
   )

@@ -70,37 +70,17 @@ const TransactionPartitioner = (baseLogger, partitionExecutor, transactionsUpdat
   }
 }
 
-const SimRunner = (baseLogger, config, transactionsSource, partitionExecutor) => {
-  const transactionsUpdateSeconds = config.transactionsUpdateSeconds
-  const rankingLimit = config.rankingLimit
-
+const SimRunner = (baseLogger, transactionsSource, partitionExecutor) => {
   const runnerLog = TantalusLogger(baseLogger, 'SimRun')
-  const partitioner = TransactionPartitioner(baseLogger, partitionExecutor, transactionsUpdateSeconds)
 
-  const run = () => simulateNextBatch()
-    .then(logWinnerLoserRankings)
-
-  const logWinnerLoserRankings = () => partitionExecutor.getAllAccountsSorted()
-    .then(filterAccountsToLog)
-    .then(accounts =>
-      accounts.forEach(({ clientId, amount, price, volume, fullVolume }) => {
-        runnerLog.info(`[${clientId}]: ${fullVolume} = ${volume} + ${amount} (${price})`)
-      })
-    )
-
-  const filterAccountsToLog = accounts => {
-    const takeWinnersLosers = accounts => {
-      const winners = accounts.slice(0, rankingLimit)
-      const lastIx = accounts.length - 1
-      const losers = accounts.slice(lastIx - rankingLimit, lastIx)
-      return winners.concat(losers)
-    }
-    return accounts.length > (2 * rankingLimit)
-      ? takeWinnersLosers(accounts)
-      : accounts
+  const run = config => {
+    const partitioner = TransactionPartitioner(baseLogger, partitionExecutor, config.transactionsUpdateSeconds)
+    return partitionExecutor.configureWorkers(config)
+      .then(() => simulateNextBatch(partitioner))
+      .then(() => logWinnerLoserRankings(config.rankingLimit))
   }
 
-  const simulateNextBatch = () => {
+  const simulateNextBatch = partitioner => {
     if (transactionsSource.hasNext()) {
       runnerLog.info('next DB batch...')
       return transactionsSource.next()
@@ -110,11 +90,31 @@ const SimRunner = (baseLogger, config, transactionsSource, partitionExecutor) =>
             partitioner.setStartDate(from)
           }
           return partitioner.runBatch(transactions)
-            .then(simulateNextBatch)
+            .then(() => simulateNextBatch(partitioner))
         })
     }
     runnerLog.info('no more batches, draining last transactions...')
     return partitioner.drainLastSlice()
+  }
+
+  const logWinnerLoserRankings = rankingLimit => partitionExecutor.getAllAccountsSorted()
+    .then(filterAccountsToLog(rankingLimit))
+    .then(accounts =>
+      accounts.forEach(({ clientId, amount, price, volume, fullVolume }) => {
+        runnerLog.info(`[${clientId}]: ${fullVolume} = ${volume} + ${amount} (${price})`)
+      })
+    )
+
+  const filterAccountsToLog = rankingLimit => accounts => {
+    const takeWinnersLosers = accounts => {
+      const winners = accounts.slice(0, rankingLimit)
+      const lastIx = accounts.length - 1
+      const losers = accounts.slice(lastIx - rankingLimit, lastIx)
+      return winners.concat(losers)
+    }
+    return accounts.length > (2 * rankingLimit)
+      ? takeWinnersLosers(accounts)
+      : accounts
   }
 
   return {

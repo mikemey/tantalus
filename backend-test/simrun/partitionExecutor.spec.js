@@ -40,7 +40,9 @@ const PartitionWorkerMockReceiver = () => {
   }
 }
 
-describe('Partition executor', () => {
+describe('Partition executor', function () {
+  this.timeout(5000)
+
   const generatorConfig = {
     timeslotSeconds: { start: 100, end: 100, step: 50 },
     buying: {
@@ -61,63 +63,90 @@ describe('Partition executor', () => {
 
   let partitionExecutor, partitionWorkerMockReceiver
 
-  before(() => {
-    partitionExecutor = PartitionExecutor(executorConfig, console, '/backend-test/simrun/partitionWorkerMock')
+  const startExecutorAndReceiver = () => {
+    partitionExecutor = PartitionExecutor(console, '/backend-test/simrun/partitionWorkerMock')
+    partitionExecutor.init()
     partitionWorkerMockReceiver = PartitionWorkerMockReceiver()
-    return Promise.all([
-      partitionExecutor.startWorkers(),
-      partitionWorkerMockReceiver.startServer()
-    ])
-  })
+    return partitionWorkerMockReceiver.startServer()
+  }
 
-  after(() => Promise.all([
-    partitionExecutor.stopWorkers(),
-    partitionWorkerMockReceiver.stopServer()
-  ]))
+  const stopExecutorAndReceiver = () => Promise.all([
+    partitionExecutor && partitionExecutor.shutdown(),
+    partitionExecutor && partitionWorkerMockReceiver.stopServer()
+  ])
 
-  it('createWorkers should initialise workers with config indices', () => {
-    const createdTradersCalled = partitionWorkerMockReceiver.getCreatedTradersCalled()
-    createdTradersCalled.should.have.length(executorConfig.partitionWorkerCount)
-    createdTradersCalled.forEach(createdCall => {
-      createdCall.generatorConfig.should.deep.equal(generatorConfig)
+  describe('one executioner for all tests', () => {
+    before(() => {
+      return startExecutorAndReceiver()
+        .then(() => partitionExecutor.configureWorkers(executorConfig))
+    })
 
-      const startIx = createdCall.configsStartIx
-      const endIx = createdCall.configsEndIx
-      switch (startIx) {
-        case 0:
-        case 5:
-        case 10:
-          endIx.should.equal(startIx + 1)
-          break
-        case 2:
-        case 7:
-          endIx.should.equal(startIx + 2)
-          break
-        default: throw Error('unexpected configStartIx: ' + startIx)
-      }
+    after(stopExecutorAndReceiver)
+
+    it('createTraders should initialise workers with config indices', () => {
+      const createdTradersCalled = partitionWorkerMockReceiver.getCreatedTradersCalled()
+      createdTradersCalled.should.have.length(executorConfig.partitionWorkerCount)
+      createdTradersCalled.forEach(createdCall => {
+        createdCall.generatorConfig.should.deep.equal(generatorConfig)
+
+        const startIx = createdCall.configsStartIx
+        const endIx = createdCall.configsEndIx
+        switch (startIx) {
+          case 0:
+          case 5:
+          case 10:
+            endIx.should.equal(startIx + 1)
+            break
+          case 2:
+          case 7:
+            endIx.should.equal(startIx + 2)
+            break
+          default: throw Error('unexpected configStartIx: ' + startIx)
+        }
+      })
+    })
+
+    it('should forward slices to traders', () => {
+      const slice = { unixNow: 100, transactions: [{ a: 2 }, { a: 3 }, { a: 4 }] }
+
+      return partitionExecutor.drainTransactions(slice)
+        .then(() => {
+          const drainTransactionsCalled = partitionWorkerMockReceiver.getDrainTransactionsCalled()
+          drainTransactionsCalled.should.have.length(executorConfig.partitionWorkerCount)
+          drainTransactionsCalled
+            .forEach(drainCalled => drainCalled.should.deep.equal(slice))
+        })
+    })
+
+    it('should forward result request', () => {
+      return partitionExecutor.getAllAccountsSorted()
+        .then(results => {
+          results.should.have.length(executorConfig.partitionWorkerCount * 2)
+          results.reduce((previousVolume, current) => {
+            previousVolume.should.be.above(current.fullValue)
+            return current.fullValue
+          }, Number.MAX_SAFE_INTEGER)
+        })
     })
   })
 
-  it('should forward slices to traders', () => {
-    const slice = { unixNow: 100, transactions: [{ a: 2 }, { a: 3 }, { a: 4 }] }
+  describe('one executioner per test', () => {
+    beforeEach(startExecutorAndReceiver)
+    afterEach(stopExecutorAndReceiver)
 
-    return partitionExecutor.drainTransactions(slice)
-      .then(() => {
-        const drainTransactionsCalled = partitionWorkerMockReceiver.getDrainTransactionsCalled()
-        drainTransactionsCalled.should.have.length(executorConfig.partitionWorkerCount)
-        drainTransactionsCalled
-          .forEach(drainCalled => drainCalled.should.deep.equal(slice))
-      })
-  })
+    it('re-configuration of workers + traders', () => {
+      const createdTradersCount = () => partitionWorkerMockReceiver.getCreatedTradersCalled().length
 
-  it('should forward result request', () => {
-    return partitionExecutor.getAllAccountsSorted()
-      .then(results => {
-        results.should.have.length(executorConfig.partitionWorkerCount * 2)
-        results.reduce((previousVolume, current) => {
-          previousVolume.should.be.above(current.fullValue)
-          return current.fullValue
-        }, Number.MAX_SAFE_INTEGER)
-      })
+      return partitionExecutor.configureWorkers(executorConfig)
+        .then(() => {
+          createdTradersCount().should.equal(5)
+          const partitionWorkerCount = 3
+          const newExecutorConfig = Object.assign({}, executorConfig, { partitionWorkerCount })
+          return partitionExecutor.configureWorkers(newExecutorConfig)
+        })
+        .then(() => {
+          createdTradersCount().should.equal(8)
+        })
+    })
   })
 })
