@@ -1,15 +1,15 @@
 const deepAssign = require('assign-deep')
 
 const traderConfigs = [{ // =========================== T 200
-  clientId: 'T(200) B(15.0 / 4) S(- 0.6 / 3)',
-  timeslotSeconds: 200,
+  clientId: 'T( 300)_B(   3 / 3)_S(  -2 / 5)',
+  timeslotSeconds: 300,
   buying: {
-    ratio: 15.0, // price change (£/Ƀ) per timeslotSeconds
-    useTimeslots: 4
+    ratio: 3.0, // price change (£/Ƀ) per timeslotSeconds
+    useTimeslots: 3
   },
   selling: {
-    ratio: -0.6, // price change (£/Ƀ) per timeslotSeconds
-    useTimeslots: 3
+    ratio: -2, // price change (£/Ƀ) per timeslotSeconds
+    useTimeslots: 5
   }
 }, {
   clientId: 'T( 50) B( 1.5 / 3) S(- 0.4 / 2)',
@@ -56,37 +56,37 @@ const traderConfigs = [{ // =========================== T 200
     useTimeslots: 2
   }
 }, {
-  clientId: 'T(200) B(12.5 / 4) S(- 0.1 / 3)',
-  timeslotSeconds: 200,
+  clientId: 'T( 400)_B(   4 / 2)_S(-1.25 / 4)',
+  timeslotSeconds: 400,
   buying: {
-    ratio: 12.5, // price change (£/Ƀ) per timeslotSeconds
-    useTimeslots: 4
+    ratio: 4, // price change (£/Ƀ) per timeslotSeconds
+    useTimeslots: 2
   },
   selling: {
-    ratio: -0.1, // price change (£/Ƀ) per timeslotSeconds
-    useTimeslots: 3
+    ratio: -1.25, // price change (£/Ƀ) per timeslotSeconds
+    useTimeslots: 4
   }
 }, {
-  clientId: 'T(200) B(10.0 / 4) S(  0.0 / 3)',
-  timeslotSeconds: 200,
+  clientId: 'T( 400)_B(   2 / 5)_S(-3.5 / 5)',
+  timeslotSeconds: 400,
   buying: {
-    ratio: 10.0, // price change (£/Ƀ) per timeslotSeconds
-    useTimeslots: 4
+    ratio: 2.0, // price change (£/Ƀ) per timeslotSeconds
+    useTimeslots: 5
   },
   selling: {
-    ratio: 0, // price change (£/Ƀ) per timeslotSeconds
-    useTimeslots: 3
+    ratio: -3.5, // price change (£/Ƀ) per timeslotSeconds
+    useTimeslots: 5
   }
 }, {
-  clientId: 'T(200) B( 7.0 / 4) S(- 0.1 / 3)',
-  timeslotSeconds: 200,
+  clientId: 'T( 400)_B(   2 / 5)_S(-3.5 / 4)',
+  timeslotSeconds: 400,
   buying: {
-    ratio: 7.0, // price change (£/Ƀ) per timeslotSeconds
-    useTimeslots: 4
+    ratio: 2.0, // price change (£/Ƀ) per timeslotSeconds
+    useTimeslots: 5
   },
   selling: {
-    ratio: -0.1, // price change (£/Ƀ) per timeslotSeconds
-    useTimeslots: 3
+    ratio: -3.5, // price change (£/Ƀ) per timeslotSeconds
+    useTimeslots: 4
   }
 }, { // ================================================ T 150
   clientId: 'T(150) B( 7.0 / 5) S(- 0.1 / 3)',
@@ -187,27 +187,27 @@ const traderConfigs = [{ // =========================== T 200
     ratio: -0.5, // price change (£/Ƀ) per timeslotSeconds
     useTimeslots: 2
   }
-}, { // ================================================ T 300
-  clientId: 'T(300) B(10.0 / 4) S(- 0.3 / 3)',
-  timeslotSeconds: 300,
+}, {
+  clientId: 'T( 400)_B(   4 / 3)_S(-3.5 / 5)',
+  timeslotSeconds: 400,
   buying: {
-    ratio: 10.0, // price change (£/Ƀ) per timeslotSeconds
-    useTimeslots: 4
+    ratio: 4.0, // price change (£/Ƀ) per timeslotSeconds
+    useTimeslots: 3
   },
   selling: {
-    ratio: -0.3, // price change (£/Ƀ) per timeslotSeconds
-    useTimeslots: 3
+    ratio: -3.5, // price change (£/Ƀ) per timeslotSeconds
+    useTimeslots: 5
   }
 }, {
-  clientId: 'T(300) B( 7.0 / 4) S(- 0.3 / 3)',
-  timeslotSeconds: 300,
+  clientId: 'T( 400)_B(   2 / 4)_S(-3.5 / 5)',
+  timeslotSeconds: 400,
   buying: {
-    ratio: 7.0, // price change (£/Ƀ) per timeslotSeconds
+    ratio: 2.0, // price change (£/Ƀ) per timeslotSeconds
     useTimeslots: 4
   },
   selling: {
-    ratio: -0.3, // price change (£/Ƀ) per timeslotSeconds
-    useTimeslots: 3
+    ratio: -3.5, // price change (£/Ƀ) per timeslotSeconds
+    useTimeslots: 5
   }
 }, {
   clientId: 'T(300) B( 5.0 / 4) S(- 0.3 / 3)',
@@ -232,15 +232,15 @@ const traderConfigs = [{ // =========================== T 200
     useTimeslots: 3
   }
 }, {
-  clientId: 'T(300) B( 7.0 / 3) S(- 1.0 / 2)',
+  clientId: 'T( 300)_B(   3 / 3)_S(-0.5 / 5)',
   timeslotSeconds: 300,
   buying: {
-    ratio: 7.0, // price change (£/Ƀ) per timeslotSeconds
+    ratio: 3.0, // price change (£/Ƀ) per timeslotSeconds
     useTimeslots: 3
   },
   selling: {
-    ratio: -0.50, // price change (£/Ƀ) per timeslotSeconds
-    useTimeslots: 2
+    ratio: -0.5, // price change (£/Ƀ) per timeslotSeconds
+    useTimeslots: 5
   }
 }, {
   clientId: 'T(200) B( 5.0 / 3) S(- 0.1 / 2)',
