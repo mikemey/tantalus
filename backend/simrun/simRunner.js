@@ -82,10 +82,12 @@ const SimRunner = (baseLogger, transactionsSource, partitionExecutor) => {
 
   const simulateNextBatch = partitioner => {
     if (transactionsSource.hasNext()) {
-      runnerLog.info('next DB batch...')
       return transactionsSource.next()
-        .then(({ from, to, transactions }) => {
-          runnerLog.info(`processing DB batch: ${timestamp(from)} -> ${timestamp(to)}`)
+        .then(({ batchNum, from, to, transactions }) => {
+          const num = batchNum.toString().padStart(transactionsSource.batchCount().toString().length)
+          runnerLog.info('processing batch ' +
+            `[${num}/${transactionsSource.batchCount()}]: ${timestamp(from)} -> ${timestamp(to)}`
+          )
           if (!partitioner.isReady()) {
             partitioner.setStartDate(from)
           }

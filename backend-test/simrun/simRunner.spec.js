@@ -14,13 +14,15 @@ describe('Sim Runner', () => {
   const TransactionSourceMock = () => {
     let batchIx = 0
     let batches = [
-      { from: 100, to: 249, transactions: firstBatch },
-      { from: 250, to: 599, transactions: secondBatch }
+      { batchNum: 1, from: 100, to: 249, transactions: firstBatch },
+      { batchNum: 2, from: 250, to: 599, transactions: secondBatch }
     ]
 
     const hasNext = () => batchIx < batches.length
     const next = () => Promise.resolve(batches[batchIx++])
-    return { next, hasNext }
+    const transactionCount = () => firstBatch.length + secondBatch.length
+    const batchCount = () => batches.length
+    return { next, hasNext, transactionCount, batchCount }
   }
 
   const PartitionExecutorMock = () => {

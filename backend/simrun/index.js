@@ -21,7 +21,7 @@ const initialGeneratedConfigs = generatorConfig => {
 const createTransactionsSource = config => mongo.initializeDirectConnection(config, simLogger)
   .then(() => {
     const transactionsSource = TransactionsSource(baseLogger, TransactionRepo())
-    return transactionsSource.init(config.batchSeconds)
+    return transactionsSource.reset(config.batchSeconds)
       .then(() => transactionsSource)
   })
 
