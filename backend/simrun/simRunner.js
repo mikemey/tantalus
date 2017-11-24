@@ -1,7 +1,7 @@
 const { timestamp } = require('./simrunUtils')
 const { TantalusLogger } = require('../utils/tantalusLogger')
 
-const TransactionPartitioner = (baseLogger, partitionExecutor, transactionsUpdateSeconds) => {
+const TransactionPartitioner = (partitionExecutor, transactionsUpdateSeconds) => {
   const data = {
     latestSliceTransactions: [],
     nextSliceStartDate: 0
@@ -74,7 +74,7 @@ const SimRunner = (baseLogger, transactionsSource, partitionExecutor) => {
   const runnerLog = TantalusLogger(baseLogger, 'SimRun')
 
   const run = (simConfig, allTraderConfigs) => {
-    const partitioner = TransactionPartitioner(baseLogger, partitionExecutor, simConfig.transactionsUpdateSeconds)
+    const partitioner = TransactionPartitioner(partitionExecutor, simConfig.transactionsUpdateSeconds)
     return partitionExecutor.configureWorkers(simConfig, allTraderConfigs)
       .then(() => simulateNextBatch(partitioner))
       .then(() => logWinnerLoserRankings(simConfig.rankingLimit))
