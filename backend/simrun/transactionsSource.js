@@ -37,8 +37,7 @@ const TransactionSource = (baseLogger, transactionRepo) => {
       data.transactionCount = txsCount
       logger.info(`Transactions count : ${data.transactionCount}`)
       logger.info(`Transactions period: ${data.nextStartDate} -> ${data.endDate}`)
-      logger.info(`${timestamp(data.nextStartDate)} -> ${timestamp(data.endDate)}`)
-      logger.info(`Batch count : ${data.batchCount}`)
+      logger.info(`Transactions period: ${timestamp(data.nextStartDate)} -> ${timestamp(data.endDate)}`)
     })
   }
 
