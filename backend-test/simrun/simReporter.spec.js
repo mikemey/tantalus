@@ -8,7 +8,8 @@ describe('Sim Reporting', () => {
     batchSeconds: 3600,
     partitionWorkerCount: 4,
     version: 'simulation/trader version ID',
-    startInvestment: 100000
+    startInvestment: 100000,
+    rankingLimit: 3
   }
 
   const expectedSimrunReport = {
@@ -63,14 +64,14 @@ describe('Sim Reporting', () => {
   const mockPartitionExecutor = MockPartitionExecutor()
 
   const storeResults = (config = simConfig) => {
-    return SimReporter(config)
+    return SimReporter(console, config)
       .storeSimulationResults(simStartHrtime, simEndHrtime,
       mockTxSource, mockPartitionExecutor, expectedSimrunReport.traderCount)
   }
 
   describe('input checks', () => {
     const expectError = (name, failingConfig) => {
-      expect(() => SimReporter(failingConfig))
+      expect(() => SimReporter(console, failingConfig))
         .to.throw(Error, `${name} not configured!`)
     }
 
@@ -78,7 +79,8 @@ describe('Sim Reporting', () => {
       return expectError('batchSeconds', {
         partitionWorkerCount: 4,
         version: 'failing config',
-        startInvestment: 100000
+        startInvestment: 100000,
+        rankingLimit: 3
       })
     })
 
@@ -86,7 +88,8 @@ describe('Sim Reporting', () => {
       return expectError('partitionWorkerCount', {
         batchSeconds: 3600,
         version: 'failing config',
-        startInvestment: 100000
+        startInvestment: 100000,
+        rankingLimit: 3
       })
     })
 
@@ -94,7 +97,8 @@ describe('Sim Reporting', () => {
       return expectError('version', {
         batchSeconds: 3600,
         partitionWorkerCount: 4,
-        startInvestment: 100000
+        startInvestment: 100000,
+        rankingLimit: 3
       })
     })
 
@@ -102,7 +106,17 @@ describe('Sim Reporting', () => {
       return expectError('startInvestment', {
         batchSeconds: 3600,
         partitionWorkerCount: 4,
-        version: 'failing config'
+        version: 'failing config',
+        rankingLimit: 3
+      })
+    })
+
+    it('throws error when no rankingLimit configured', () => {
+      return expectError('rankingLimit', {
+        batchSeconds: 3600,
+        partitionWorkerCount: 4,
+        version: 'failing config',
+        startInvestment: 100000
       })
     })
   })

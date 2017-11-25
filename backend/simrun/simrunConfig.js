@@ -16,7 +16,7 @@ const generatorConfig = {
     useTimeslots: { start: 4, end: 5, step: 1 }
   },
   selling: {
-    ratio: { start: -3.5, end: -0.5, step: 0.75 },
+    ratio: { start: -3.5, end: -0.5, step: 0.7 },
     useTimeslots: { start: 4, end: 5, step: 1 }
   },
   commonTraderConfig
@@ -30,7 +30,7 @@ const executorConfig = {
   batchSeconds: 3600 * 4,
   transactionsUpdateSeconds: 10,
   partitionWorkerCount: 4,
-  rankingLimit: 100,
+  rankingLimit: 50,
   startInvestment: commonTraderConfig.buying.volumeLimitPence
 }
 

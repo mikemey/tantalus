@@ -98,27 +98,6 @@ const SimRunner = (baseLogger, transactionsSource, partitionExecutor) => {
     return partitioner.drainLastSlice()
   }
 
-  // eslint-disable-next-line no-unused-vars
-  const logWinnerLoserRankings = rankingLimit => partitionExecutor.getAllAccountsSorted()
-    .then(filterAccountsToLog(rankingLimit))
-    .then(accounts =>
-      accounts.forEach(({ clientId, amount, price, volume, fullVolume }) => {
-        runnerLog.info(`[${clientId}]: ${fullVolume} = ${volume} + ${amount} (${price})`)
-      })
-    )
-
-  const filterAccountsToLog = rankingLimit => accounts => {
-    const takeWinnersLosers = accounts => {
-      const winners = accounts.slice(0, rankingLimit)
-      const lastIx = accounts.length - 1
-      const losers = accounts.slice(lastIx - rankingLimit, lastIx)
-      return winners.concat(losers)
-    }
-    return accounts.length > (2 * rankingLimit)
-      ? takeWinnersLosers(accounts)
-      : accounts
-  }
-
   return {
     run
   }

@@ -1,4 +1,6 @@
 const mongo = require('../utils/mongoConnection')
+const { TantalusLogger } = require('../utils/tantalusLogger')
+const { amountString, priceString, volumeString } = require('../utils/ordersHelper')
 
 const SimRepo = () => {
   const simulationReportsCollection = () => mongo.db.collection(mongo.simulationReportsCollectionName)
@@ -11,6 +13,7 @@ const SimRepo = () => {
 
   const storeTraderReports = traderReports =>
     traderReportsCollection().bulkWrite(storeTraderReportOps(traderReports))
+      .then(() => traderReports)
 
   const storeTraderReportOps = traderReports => traderReports.map(traderReport => {
     return {
@@ -35,22 +38,28 @@ const checkConfig = config => {
   if (!config.batchSeconds) throwError('batchSeconds')
   if (!config.startInvestment) throwError('startInvestment')
   if (!config.partitionWorkerCount) throwError('partitionWorkerCount')
+  if (!config.rankingLimit) throwError('rankingLimit')
 }
 
 const throwError = name => {
   throw Error(`${name} not configured!`)
 }
 
-const SimReporter = (simConfig) => {
+const SimReporter = (baseLogger, simConfig) => {
   checkConfig(simConfig)
+  const logger = TantalusLogger(baseLogger, 'Report')
   const simrepo = SimRepo()
 
   const storeSimulationResults = (startHrtime, endHrtime, transactionSource, partitionExecutor, traderCount) => {
     const simReport = createSimReport(startHrtime, endHrtime, transactionSource, traderCount)
+
     return simrepo.storeSimulationReport(simReport)
       .then(() => createTraderReports(simReport, partitionExecutor))
       .then(simrepo.storeTraderReports)
-      .then(() => simReport)
+      .then(traderReports => {
+        logSimulationResults(simReport, traderReports)
+        return simReport
+      })
   }
 
   const createSimReport = (startHrtime, endHrtime, transactionSource, traderCount) => {
@@ -100,6 +109,26 @@ const SimReporter = (simConfig) => {
           }
         }
       }))
+  }
+
+  const logSimulationResults = (simReport, traderReports) => {
+    topTraders(traderReports).forEach(report => {
+      const clientId = report.clientId
+      const amount = amountString(report.run.amount)
+      const volume = volumeString(report.run.volume)
+      const fullVolume = volumeString(report.run.fullVolume)
+      const investDiff = volumeString(report.run.investDiff)
+      const price = priceString(simReport.transactions.endPrice)
+
+      logger.info(`[${clientId}]: ${fullVolume} (${investDiff}) = ${volume} + ${amount} (${price})`)
+    })
+  }
+
+  const topTraders = tradeReports => {
+    const sorted = tradeReports.sort((repA, repB) => repB.run.fullVolume - repA.run.fullVolume)
+    return tradeReports.length > simConfig.rankingLimit
+      ? sorted.slice(0, simConfig.rankingLimit)
+      : sorted
   }
 
   return { storeSimulationResults }

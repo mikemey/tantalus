@@ -21,7 +21,7 @@ const initialGeneratedConfigs = generatorConfig => {
 
 const createDatabaseDependents = config => mongo.initializeDirectConnection(config, simLogger)
   .then(() => {
-    const reporter = SimReporter(config)
+    const reporter = SimReporter(baseLogger, config)
     const transactionsSource = TransactionsSource(baseLogger, TransactionRepo())
     return transactionsSource.reset(config.batchSeconds)
       .then(() => {
