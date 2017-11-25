@@ -58,17 +58,19 @@ const PartitionExecutor = (baseLogger, workersModule = defaultWorkerModule) => {
   const drainTransactions = slice => Promise
     .all(data.workers.map(worker => worker.sendAndReceive('drainTransactions', slice)))
 
-  const getAllAccountsSorted = () => Promise
+  const getAllAccounts = () => Promise
     .all(data.workers.map(worker => worker.sendAndReceive('getAccounts')))
-    .then(allAccounts => [].concat(...allAccounts)
-      .sort((accA, accB) => accB.fullVolume - accA.fullVolume)
-    )
+    .then(allAccounts => [].concat(...allAccounts))
+
+  const getAllAccountsSorted = () => getAllAccounts()
+    .then(allAccounts => allAccounts.sort((accA, accB) => accB.fullVolume - accA.fullVolume))
 
   return {
     init,
     configureWorkers,
     shutdown,
     drainTransactions,
+    getAllAccounts,
     getAllAccountsSorted
   }
 }

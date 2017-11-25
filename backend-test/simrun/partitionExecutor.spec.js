@@ -40,7 +40,7 @@ const PartitionWorkerMockReceiver = () => {
   }
 }
 
-describe('Partition executor', function () {
+describe.only('Partition executor', function () {
   this.timeout(5000)
 
   const executorConfig = {
@@ -108,7 +108,14 @@ describe('Partition executor', function () {
         })
     })
 
-    it('should get all accounts and sorts by fullVolume', () => {
+    it('should get all accounts (unsorted)', () => {
+      return partitionExecutor.getAllAccounts()
+        .then(results => {
+          results.should.have.length(executorConfig.partitionWorkerCount * 2)
+        })
+    })
+
+    it('should get all accounts sorted by fullVolume', () => {
       return partitionExecutor.getAllAccountsSorted()
         .then(results => {
           results.should.have.length(executorConfig.partitionWorkerCount * 2)
