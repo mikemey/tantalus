@@ -6,17 +6,14 @@ describe('Partition worker', () => {
   const workerConfigObject = {
     traderConfigs: [{
       clientId: 'A',
-      timeslotSeconds: 100,
       buying: { ratio: 0, useTimeslots: 1 },
       selling: { ratio: 0, useTimeslots: 5 }
     }, {
       clientId: 'B',
-      timeslotSeconds: 100,
       buying: { ratio: 1, useTimeslots: 1 },
       selling: { ratio: 0, useTimeslots: 5 }
     }, {
       clientId: 'C',
-      timeslotSeconds: 100,
       buying: { ratio: 2, useTimeslots: 1 },
       selling: { ratio: 0, useTimeslots: 5 }
     }]
@@ -98,5 +95,25 @@ describe('Partition worker', () => {
     allTraderMocks.forEach(traderMock => {
       traderMock.calledTicks.should.deep.equal([100], 'tradermocks not called')
     })
+  })
+
+  it('should configure "real" tradeAccount', () => {
+    const workerConfigObject = {
+      traderConfigs: [{
+        clientId: 'A',
+        timeslotSeconds: 100,
+        buying: { volumeLimitPence: 818181, lowerLimitPence: 20, useTimeslots: 2 },
+        selling: { lowerLimit_mmBtc: 10, useTimeslots: 2 }
+      }]
+    }
+    const partitionWorker = new PartitionWorker()
+    partitionWorker.createTraders(workerConfigObject)
+    partitionWorker.getAccounts().should.deep.equal([{
+      clientId: 'A',
+      amount: 0,
+      price: 0,
+      volume: 818181,
+      fullVolume: 818181
+    }], 'getAccounts not as expected')
   })
 })

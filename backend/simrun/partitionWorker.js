@@ -14,7 +14,7 @@ const quietLogger = {
 }
 
 const createSimulatedTrader = config => {
-  const tradeAccount = TradeAccount(quietLogger, config.clientId)
+  const tradeAccount = TradeAccount(quietLogger, config.clientId, config.buying.volumeLimitPence)
   const exchangeAdapter = ExchangeAccountAdapter(tradeAccount)
   const trader = TraderJob(quietLogger, config, exchangeAdapter)
   return { trader, exchangeAdapter }
@@ -36,16 +36,12 @@ class PartitionWorker {
 
   drainTransactions (transactionsSlice) {
     const txs = transactionsSlice.transactions
-    this.setLastTransactionsPrice(txs)
-    this.traderPairs.map(({ trader, exchangeAdapter }) => {
-      exchangeAdapter.setTransactions(txs)
-      trader.tick(transactionsSlice.unixNow)
-    })
-  }
-
-  setLastTransactionsPrice (transactions) {
-    if (transactions.length) {
-      this.lastTransactionPrice = transactions[0].price
+    if (txs.length) {
+      this.lastTransactionPrice = txs[0].price
+      this.traderPairs.map(({ trader, exchangeAdapter }) => {
+        exchangeAdapter.setTransactions(txs)
+        trader.tick(transactionsSlice.unixNow)
+      })
     }
   }
 
