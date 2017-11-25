@@ -40,7 +40,7 @@ const PartitionWorkerMockReceiver = () => {
   }
 }
 
-describe.only('Partition executor', function () {
+describe('Partition executor', function () {
   this.timeout(5000)
 
   const executorConfig = {
