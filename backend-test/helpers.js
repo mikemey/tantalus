@@ -91,6 +91,9 @@ const insertAccounts = accounts => insertData(accountCollectionName, accounts)
 const getTransactions = () => getData(mongo.transactionCollectionName)
 const insertTransactions = transactions => insertData(mongo.transactionCollectionName, transactions)
 
+const getSimulationReports = () => getData(mongo.simulationReportsCollectionName)
+const getTraderReports = () => getData(mongo.traderReportsCollectionName)
+
 const copyWithoutIDField = (obj, defaultId = '_id') => obj.map
   ? obj.map(copyObjectWithoutField(defaultId))
   : copyObjectWithoutField(defaultId)(obj)
@@ -117,5 +120,8 @@ module.exports = {
   copyWithoutIDField,
 
   getTransactions,
-  insertTransactions
+  insertTransactions,
+
+  getSimulationReports,
+  getTraderReports
 }

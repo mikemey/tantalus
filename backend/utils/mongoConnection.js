@@ -6,6 +6,8 @@ mongoose.Promise = Promise
 const tickersCollectionName = 'tickers'
 const graphsCollectionName = 'graphs'
 const transactionCollectionName = 'transactions'
+const simulationReportsCollectionName = 'simulationreports'
+const traderReportsCollectionName = 'traderreports'
 
 const defaultIndexOptions = { background: true, unique: true }
 
@@ -21,6 +23,10 @@ const ALL_INDEX_SPECS = [{
   collection: transactionCollectionName,
   fields: { tid: 1 },
   options: { name: 'ix_tid' }
+}, {
+  collection: traderReportsCollectionName,
+  fields: { clientId: 1 },
+  options: { name: 'ix_clientid' }
 }]
 
 const ensureAllIndices = db =>
@@ -62,5 +68,7 @@ module.exports = {
   mongoose,
   tickersCollectionName,
   graphsCollectionName,
-  transactionCollectionName
+  transactionCollectionName,
+  simulationReportsCollectionName,
+  traderReportsCollectionName
 }

@@ -77,7 +77,6 @@ const SimRunner = (baseLogger, transactionsSource, partitionExecutor) => {
     const partitioner = TransactionPartitioner(partitionExecutor, simConfig.transactionsUpdateSeconds)
     return partitionExecutor.configureWorkers(simConfig, allTraderConfigs)
       .then(() => simulateNextBatch(partitioner))
-      .then(() => logWinnerLoserRankings(simConfig.rankingLimit))
   }
 
   const simulateNextBatch = partitioner => {
@@ -99,6 +98,7 @@ const SimRunner = (baseLogger, transactionsSource, partitionExecutor) => {
     return partitioner.drainLastSlice()
   }
 
+  // eslint-disable-next-line no-unused-vars
   const logWinnerLoserRankings = rankingLimit => partitionExecutor.getAllAccountsSorted()
     .then(filterAccountsToLog(rankingLimit))
     .then(accounts =>

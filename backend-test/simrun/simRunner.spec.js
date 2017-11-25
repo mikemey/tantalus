@@ -28,8 +28,7 @@ describe('Sim Runner', () => {
   const PartitionExecutorMock = () => {
     const data = {
       receivedSlices: [],
-      configureWorkersCalled: false,
-      getAllAccountsSortedCalled: false
+      configureWorkersCalled: false
     }
 
     const configureWorkers = (receivedExecConfig, receivedTraderConfigs) => {
@@ -44,14 +43,6 @@ describe('Sim Runner', () => {
       return Promise.resolve()
     }
 
-    const getAllAccountsSorted = () => {
-      data.getAllAccountsSortedCalled = true
-      return Promise.resolve([
-        { clientId: 'trader1', amount: 'Ƀ 0.1230', price: '£/Ƀ 5854', volume: '£ 2321.21', fullVolume: '£ 2902.23' },
-        { clientId: 'trader2', amount: 'abcd', price: 'efgh', volume: 'ijkl', fullVolume: 'mnop' }
-      ])
-    }
-
     const unexpectedCall = () => { throw Error(`unexpected function call to [${this.name}]`) }
 
     return {
@@ -60,11 +51,9 @@ describe('Sim Runner', () => {
 
       configureWorkers,
       drainTransactions,
-      getAllAccountsSorted,
 
       getReceivedTransactions: () => data.receivedSlices,
-      configureWorkersCalled: () => data.configureWorkersCalled,
-      getAllAccountsSortedCalled: () => data.getAllAccountsSortedCalled
+      configureWorkersCalled: () => data.configureWorkersCalled
     }
   }
 
@@ -86,11 +75,6 @@ describe('Sim Runner', () => {
           { unixNow: 599, transactions: [secondBatch[1]] }
         ])
       })
-  })
-
-  it('calls getAllAccounts when done', () => {
-    return simRunner.run(testSimConfig, testTraderConfigs)
-      .then(() => partitionExecutorMock.getAllAccountsSortedCalled().should.equal(true))
   })
 
   it('should call configureWorkers with config object', () => {

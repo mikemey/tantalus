@@ -6,8 +6,9 @@ const TransactionRepo = require('../transactions/transactionsRepo')
 const TransactionsSource = require('./transactionsSource')
 const TraderConfigsGenerator = require('./traderConfigsGenerator')
 
-const SimRunner = require('./simRunner')
 const { executorConfig, generatorConfig } = require('./simrunConfig')
+const SimRunner = require('./simRunner')
+const SimReporter = require('./simReporter')
 
 const baseLogger = console
 const simLogger = TantalusLogger(baseLogger, 'SimMain', redText)
@@ -18,11 +19,14 @@ const initialGeneratedConfigs = generatorConfig => {
     .toArray()
 }
 
-const createTransactionsSource = config => mongo.initializeDirectConnection(config, simLogger)
+const createDatabaseDependents = config => mongo.initializeDirectConnection(config, simLogger)
   .then(() => {
+    const reporter = SimReporter(config)
     const transactionsSource = TransactionsSource(baseLogger, TransactionRepo())
     return transactionsSource.reset(config.batchSeconds)
-      .then(() => transactionsSource)
+      .then(() => {
+        return { transactionsSource, reporter }
+      })
   })
 
 let partitionExecutor
@@ -36,17 +40,19 @@ const shutdownPartitionExecutor = () => {
   if (partitionExecutor) return partitionExecutor.shutdown()
 }
 
-const runSimulation = (transactionsSource, partitionExecutor, executorConfig, traderConfigs) => {
+const startTime = process.hrtime()
+
+const runSimulation = (reporter, transactionsSource, partitionExecutor, executorConfig, traderConfigs) => {
   return SimRunner(baseLogger, transactionsSource, partitionExecutor)
     .run(executorConfig, traderConfigs)
+    .then(() => reporter
+      .storeSimulationResults(startTime, process.hrtime(), transactionsSource, partitionExecutor, traderConfigs.length)
+    )
     .catch(errorHandler('Run simulation: ', true))
 }
 
-const startTime = process.hrtime()
-
 const shutdown = () => {
   baseLogger.info()
-  simLogger.info(`total runtime: ${process.hrtime(startTime)[0]}s`)
   simLogger.info('quit')
   process.exit(0)
 }
@@ -63,12 +69,14 @@ process.on('SIGINT', shutdown)
 process.on('uncaughtException', errorHandler('uncaught exception: ', true))
 
 Promise.all([
+  startupPartitionExecutor(),
   initialGeneratedConfigs(generatorConfig),
-  createTransactionsSource(executorConfig),
-  startupPartitionExecutor()
-]).then(([traderConfigs, transactionsSource, _]) =>
-  runSimulation(transactionsSource, partitionExecutor, executorConfig, traderConfigs)
-  )
+  createDatabaseDependents(executorConfig)
+]).then(([_, traderConfigs, dbworker]) => {
+  const transactionsSource = dbworker.transactionsSource
+  const reporter = dbworker.reporter
+  return runSimulation(reporter, transactionsSource, partitionExecutor, executorConfig, traderConfigs)
+})
   .catch(errorHandler('Setup simulation: ', true))
   .then(shutdownPartitionExecutor)
   .then(shutdown)
