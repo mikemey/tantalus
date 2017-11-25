@@ -5,7 +5,7 @@ const expect = require('chai').expect
 const TradeAccount = require('../../backend/simex/tradeAccount')
 
 describe('Trade account', () => {
-  const testId = 3242
+  const testClientId = 3242
   let transactionId = 1000
 
   const transaction = (amount, price) => {
@@ -43,7 +43,7 @@ describe('Trade account', () => {
   let tradeAccount, setupOrders
 
   beforeEach(() => {
-    tradeAccount = TradeAccount(console, testId)
+    tradeAccount = TradeAccount(console, testClientId)
     setupOrders = []
   })
 
@@ -52,9 +52,19 @@ describe('Trade account', () => {
     .filter(oo => undefined === setupOrders.find(so => so.id === oo.id))
 
   describe('buy orders', () => {
-    it('start amounts', () => {
+    it('trader stats and start balances', () => {
+      const account = tradeAccount.getAccount()
+      account.clientId.should.equal(testClientId)
       tradeAccount.getAccount().balances.should.deep.equal({
         gbp_balance: 100000, gbp_available: 100000, gbp_reserved: 0,
+        xbt_balance: 0, xbt_available: 0, xbt_reserved: 0
+      })
+    })
+
+    it('overwrites start balance', () => {
+      tradeAccount = TradeAccount(console, testClientId, 500)
+      tradeAccount.getAccount().balances.should.deep.equal({
+        gbp_balance: 500, gbp_available: 500, gbp_reserved: 0,
         xbt_balance: 0, xbt_available: 0, xbt_reserved: 0
       })
     })
