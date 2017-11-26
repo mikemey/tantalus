@@ -50,15 +50,16 @@ const SimReporter = (baseLogger, simConfig) => {
   const logger = TantalusLogger(baseLogger, 'Report')
   const simrepo = SimRepo()
 
-  const storeSimulationResults = (startHrtime, endHrtime, transactionSource, partitionExecutor, traderCount) => {
+  const storeSimulationResults = (startHrtime, endHrtime, transactionSource, allAccounts, traderCount) => {
     const simReport = createSimReport(startHrtime, endHrtime, transactionSource, traderCount)
 
     return simrepo.storeSimulationReport(simReport)
-      .then(() => createTraderReports(simReport, partitionExecutor))
-      .then(simrepo.storeTraderReports)
-      .then(traderReports => {
-        logSimulationResults(simReport, traderReports)
-        return simReport
+      .then(() => {
+        const traderReports = createTraderReports(simReport, allAccounts)
+        return Promise.all([
+          simrepo.storeTraderReports(traderReports),
+          logSimulationResults(simReport, traderReports)
+        ]).then(() => simReport)
       })
   }
 
@@ -89,26 +90,22 @@ const SimReporter = (baseLogger, simConfig) => {
     }
   }
 
-  const createTraderReports = (simReport, partitionExecutor) => {
-    return partitionExecutor.getAllAccounts()
-      .then(accounts => accounts.map(account => {
-        const investDiff = account.fullVolume - simReport.staticInvestment
-        const absoluteDiff = account.fullVolume - simReport.startInvestment
-
-        return {
-          clientId: account.clientId,
-          run: {
-            simrunid: simReport._id,
-            startDate: simReport.startDate,
-            version: simConfig.version,
-            amount: account.amount,
-            volume: account.volume,
-            fullVolume: account.fullVolume,
-            investDiff,
-            absoluteDiff
-          }
+  const createTraderReports = (simReport, allAccounts) => {
+    return allAccounts.map(account => {
+      return {
+        clientId: account.clientId,
+        run: {
+          simrunid: simReport._id,
+          startDate: simReport.startDate,
+          version: simConfig.version,
+          amount: account.amount,
+          volume: account.volume,
+          fullVolume: account.fullVolume,
+          investDiff: account.fullVolume - simReport.staticInvestment,
+          absoluteDiff: account.fullVolume - simReport.startInvestment
         }
-      }))
+      }
+    })
   }
 
   const logSimulationResults = (simReport, traderReports) => {

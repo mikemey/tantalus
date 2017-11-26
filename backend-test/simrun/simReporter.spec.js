@@ -44,29 +44,19 @@ describe('Sim Reporting', () => {
     }
   }
 
-  const partitionerAccountResponse = [
+  const allAccounts = [
     { clientId: 'A', amount: 12345, volume: 30000, fullVolume: 110110 },
     { clientId: 'B', amount: 6789, volume: 40000, fullVolume: 107300 }
   ]
-
-  const MockPartitionExecutor = () => {
-    let accounts
-    return {
-      getAllAccounts: () => Promise.resolve(accounts),
-      setAllAccountsResponse: acc => { accounts = acc }
-    }
-  }
 
   const simStartHrtime = [expectedSimrunReport.startDate, 0]
   const simEndHrtime = [expectedSimrunReport.endDate, 0]
 
   const mockTxSource = MockTransactionsSource()
-  const mockPartitionExecutor = MockPartitionExecutor()
 
-  const storeResults = (config = simConfig) => {
-    return SimReporter(console, config)
-      .storeSimulationResults(simStartHrtime, simEndHrtime,
-      mockTxSource, mockPartitionExecutor, expectedSimrunReport.traderCount)
+  const storeResults = (accounts = allAccounts) => {
+    return SimReporter(console, simConfig)
+      .storeSimulationResults(simStartHrtime, simEndHrtime, mockTxSource, accounts, expectedSimrunReport.traderCount)
   }
 
   describe('input checks', () => {
@@ -122,10 +112,7 @@ describe('Sim Reporting', () => {
   })
 
   describe('simulation report', () => {
-    beforeEach(() => {
-      mockPartitionExecutor.setAllAccountsResponse(partitionerAccountResponse)
-      return dropDatabase()
-    })
+    beforeEach(dropDatabase)
 
     it('stores report', () => {
       return storeResults()
@@ -154,9 +141,9 @@ describe('Sim Reporting', () => {
         simrunid: simulationId,
         startDate: expectedSimrunReport.startDate,
         version: simConfig.version,
-        amount: partitionerAccountResponse[0].amount,
-        volume: partitionerAccountResponse[0].volume,
-        fullVolume: partitionerAccountResponse[0].fullVolume,
+        amount: allAccounts[0].amount,
+        volume: allAccounts[0].volume,
+        fullVolume: allAccounts[0].fullVolume,
         investDiff: 2800,
         absoluteDiff: 10110
       }
@@ -167,9 +154,9 @@ describe('Sim Reporting', () => {
         simrunid: simulationId,
         startDate: expectedSimrunReport.startDate,
         version: simConfig.version,
-        amount: partitionerAccountResponse[1].amount,
-        volume: partitionerAccountResponse[1].volume,
-        fullVolume: partitionerAccountResponse[1].fullVolume,
+        amount: allAccounts[1].amount,
+        volume: allAccounts[1].volume,
+        fullVolume: allAccounts[1].fullVolume,
         investDiff: -10,
         absoluteDiff: 7300
       }
@@ -182,7 +169,6 @@ describe('Sim Reporting', () => {
     }
 
     it('stores new report', () => {
-      mockPartitionExecutor.setAllAccountsResponse(partitionerAccountResponse)
       let simulationId
       return storeResults()
         .then(storedSimulation => { simulationId = storedSimulation._id })
@@ -196,18 +182,14 @@ describe('Sim Reporting', () => {
     })
 
     it('should update existing trader report', () => {
-      const secondAccountResponse = [
+      const secondAllAccounts = [
         { clientId: 'B', amount: 12345, volume: 30000, fullVolume: 122340 }
       ]
 
-      mockPartitionExecutor.setAllAccountsResponse(partitionerAccountResponse)
       let firstSimulationId, secondSimulationId
       return storeResults()
         .then(storedSimulation => { firstSimulationId = storedSimulation._id })
-        .then(() => {
-          mockPartitionExecutor.setAllAccountsResponse(secondAccountResponse)
-          return storeResults()
-        })
+        .then(() => storeResults(secondAllAccounts))
         .then(storedSimulation => { secondSimulationId = storedSimulation._id })
         .then(getTraderReports)
         .then(traderReports => {
@@ -218,9 +200,9 @@ describe('Sim Reporting', () => {
             simrunid: secondSimulationId,
             startDate: expectedSimrunReport.startDate,
             version: simConfig.version,
-            amount: secondAccountResponse[0].amount,
-            volume: secondAccountResponse[0].volume,
-            fullVolume: secondAccountResponse[0].fullVolume,
+            amount: secondAllAccounts[0].amount,
+            volume: secondAllAccounts[0].volume,
+            fullVolume: secondAllAccounts[0].fullVolume,
             investDiff: 15030,
             absoluteDiff: 22340
           }
