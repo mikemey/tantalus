@@ -114,17 +114,6 @@ describe('Partition executor', function () {
           results.should.have.length(executorConfig.partitionWorkerCount * 2)
         })
     })
-
-    it('should get all accounts sorted by fullVolume', () => {
-      return partitionExecutor.getAllAccountsSorted()
-        .then(results => {
-          results.should.have.length(executorConfig.partitionWorkerCount * 2)
-          results.reduce((previousVolume, current) => {
-            previousVolume.should.be.above(current.fullVolume)
-            return current.fullVolume
-          }, Number.MAX_SAFE_INTEGER)
-        })
-    })
   })
 
   describe('one executioner per test', () => {

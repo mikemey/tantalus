@@ -62,16 +62,12 @@ const PartitionExecutor = (baseLogger, workersModule = defaultWorkerModule) => {
     .all(data.workers.map(worker => worker.sendAndReceive('getAccounts')))
     .then(allAccounts => [].concat(...allAccounts))
 
-  const getAllAccountsSorted = () => getAllAccounts()
-    .then(allAccounts => allAccounts.sort((accA, accB) => accB.fullVolume - accA.fullVolume))
-
   return {
     init,
     configureWorkers,
     shutdown,
     drainTransactions,
-    getAllAccounts,
-    getAllAccountsSorted
+    getAllAccounts
   }
 }
 
