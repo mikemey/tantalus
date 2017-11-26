@@ -17,7 +17,7 @@ const options = action => {
 
 const requestAction = action => rp(options(action))
   .then(result => {
-    console.log('')
+    console.log('') // newline before promise output
     return result
   })
 
