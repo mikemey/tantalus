@@ -65,7 +65,7 @@ describe('Sim Runner', () => {
   })
 
   it('runs batches of transactions against traders and sorts transactions latest -> earliest', () => {
-    return simRunner.run(testSimConfig, testTraderConfigs)
+    return simRunner.run(testSimConfig, testTraderConfigs, 'test-iter [ 1/10]')
       .then(() => {
         partitionExecutorMock.getReceivedTransactions().should.deep.equal([
           { unixNow: 199, transactions: [firstBatch[0]] },
