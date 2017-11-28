@@ -5,10 +5,17 @@ const chartCtrlName = 'ChartController'
 const SUPPORTED_TICKERS = [
   'coinfloor bid',
   'coinfloor ask',
-  'lakebtc bid',
-  'lakebtc ask',
   'coindesk'
 ]
+
+const FORCE_TIME = {
+  '100min': 'minute',
+  '1d': 'hour',
+  '1w': 'day',
+  '1m': 'day',
+  '3m': 'day',
+  '1y': 'month'
+}
 
 angular.module('tantalus.ticker')
   .component('tickerChart', {
@@ -21,9 +28,9 @@ angular.module('tantalus.ticker')
       const chartColors = {
         green: 'rgb(18, 107, 62)',
         lightgreen: 'rgb(67, 156, 111)',
+        grey: 'rgb(181, 183, 187)',
         orange: 'rgb(255, 159, 64)',
         yellow: 'rgb(255, 205, 86)',
-        grey: 'rgb(181, 183, 187)',
         blue: 'rgb(39, 101, 223)',
         lightblue: 'rgb(54, 162, 235)',
         lightturq: 'rgb(1, 127, 133)',
@@ -54,6 +61,7 @@ angular.module('tantalus.ticker')
             xAxes: [{
               type: 'time',
               time: {
+                unit: '',
                 displayFormats: {
                   minute: 'H:mm',
                   hour: 'H:mm',
@@ -96,9 +104,11 @@ angular.module('tantalus.ticker')
       $scope.model = {
         tickerChart,
         data: tickerChart.data,
+        xAxesTime: tickerChart.options.scales.xAxes[0].time,
         chartFill: getFillQuery() === true,
         activeButtons: []
       }
+
       const updateActiveButton = period => {
         $scope.model.activeButtons = $('.toggle-group').toArray()
           .map(el => el.getAttribute('ng-click').includes(period))
@@ -113,6 +123,10 @@ angular.module('tantalus.ticker')
         updateFillQuery($scope.model.chartFill)
         updateDatasetFillings()
         $scope.model.tickerChart.update(0)
+      }
+
+      const updateChartTime = period => {
+        $scope.model.xAxesTime.unit = FORCE_TIME[period]
       }
 
       const enhanceGraphData = datasets => datasets
@@ -133,11 +147,10 @@ angular.module('tantalus.ticker')
             updateDatasetFillings()
             updateActiveButton(period)
             updatePeriodQuery(period)
+            updateChartTime(period)
             $scope.model.tickerChart.update(0)
           }
         })
-
-      updateHiddenLineQuery('lakebtc ask', true)
 
       const loadGraphData = () => {
         const initialPeriod = getPeriodQuery() || '1d'
