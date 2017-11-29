@@ -90,52 +90,54 @@ describe('Trader config permutator', () => {
       const crossoverRate = 0.3
 
       const genAlgoConfig = {
-        genAlgo: {
-          iterations,
-          selectionCutoff: 0.8,
-          crossoverRate,
-          mutationRate,
-          mutationStepsMaxima: {
-            ts: 2,
-            bratio: 2,
-            bslots: 2,
-            sratio: 2,
-            sslots: 2
+        iterations,
+        selectionCutoff: 0.8,
+        crossoverRate,
+        mutationRate,
+        mutationBoundaries: {
+          ts: { start: 100, step: 50, mutationMax: 400 },
+          bratio: { step: 0.5, mutationMax: 1 },
+          bslots: { start: 2, step: 1, mutationMax: 2 },
+          sratio: { step: 0.5, mutationMax: 1 },
+          sslots: { start: 2, step: 1, mutationMax: 2 }
+        },
+        problemSpaceRanges: {
+          timeslotSeconds: { start: 400, end: 400, step: 100 },
+          buying: {
+            ratio: { start: 2, end: 4, step: 1 },
+            useTimeslots: { start: 4, end: 5, step: 1 }
           },
-          problemSpaceBoundaries: {
-            ts: { start: 100, step: 50 },
-            bratio: { step: 0.5 },
-            bslots: { start: 2, step: 1 },
-            sratio: { step: 0.5 },
-            sslots: { start: 2, step: 1 }
+          selling: {
+            ratio: { start: -3.5, end: -0.5, step: 1 },
+            useTimeslots: { start: 4, end: 5, step: 1 }
           },
           commonTraderConfig: { all: 'shoud have this' }
         }
       }
 
       const testRandom = () => {
-        let randomCallCount = 0
+        let numberCallCount = 0
 
         const number = max => {
-          randomCallCount++
+          numberCallCount++
           // parent selection:
-          if (randomCallCount === 1) { max.should.equal(4); return 3 } // picked rank 4
-          if (randomCallCount === 2) { max.should.equal(3); return 1 } // picked rank 2
-          if (randomCallCount === 3) { max.should.equal(2); return 0 } // picked rank 1
-          if (randomCallCount === 4) { max.should.equal(1); return 0 } // picked rank 3
+          if (numberCallCount === 1) { max.should.equal(4); return 3 } // picked rank 4
+          if (numberCallCount === 2) { max.should.equal(3); return 1 } // picked rank 2
+          if (numberCallCount === 3) { max.should.equal(2); return 0 } // picked rank 1
+          if (numberCallCount === 4) { max.should.equal(1); return 0 } // picked rank 3
 
           // first child field mutation selection:
-          if (randomCallCount === 5) { max.should.equal(5); return 0 } // timeslotSeconds field
-          if (randomCallCount === 7) { max.should.equal(2); return 0 } // should keep full problem space minimum
+          if (numberCallCount === 5) { max.should.equal(5); return 0 } // timeslotSeconds field
+          if (numberCallCount === 6) { max.should.equal(401); return 400 } // should stay within problem space minimum boundary
 
           // second child field mutation selection:
-          if (randomCallCount === 7) { max.should.equal(3); return 0 } // selling ratio field
-          if (randomCallCount === 8) { max.should.equal(2); return 1 } // should keep full problem space maximum
+          if (numberCallCount === 7) { max.should.equal(5); return 3 } // selling ratio field
+          if (numberCallCount === 8) { max.should.equal(2); return 1 }
 
           // random immigrants selections
-          if (randomCallCount === 8) { max.should.equal(23205); return 40 }
+          if (numberCallCount === 9) { max.should.equal(48); return 40 }
 
-          should.fail(`unexpected call to random: input max ${max}, call # ${randomCallCount}`)
+          should.fail(`unexpected call to random: input max ${max}, call # ${numberCallCount}`)
         }
 
         let triggerCallCount = 0
@@ -156,52 +158,68 @@ describe('Trader config permutator', () => {
           if (triggerCallCount === 9) { ratio.should.equal(crossoverRate); return true }
           if (triggerCallCount === 10) { ratio.should.equal(crossoverRate); return true }
 
-          // mutation cycle:
+          // mutate children:
           if (triggerCallCount === 11) { ratio.should.equal(mutationRate); return true }
           if (triggerCallCount === 12) { ratio.should.equal(mutationRate); return true }
           if (triggerCallCount === 13) { ratio.should.equal(mutationRate); return false }
           if (triggerCallCount === 14) { ratio.should.equal(mutationRate); return false }
 
-          // first child field mutation:
-          if (triggerCallCount === 15) { ratio.should.equal(0.5); return false } // timeslotSeconds field +/- selection
-          // second child field mutation:
-          if (triggerCallCount === 16) { ratio.should.equal(0.5); return true } // selling ratio field +/- selection
-
           should.fail(`unexpected call to trigger: input ratio ${ratio}, call # ${triggerCallCount}`)
         }
 
+        let plusMinusCallCount = 0
+        const plusMinus = () => {
+          plusMinusCallCount++
+
+          // first child field mutation:
+          if (plusMinusCallCount === 1) return -1  // timeslotSeconds +/- selection
+          // second child field mutation:
+          if (plusMinusCallCount === 2) return 1  // selling ratio +/- selection
+
+          should.fail(`unexpected call to plusMinus: call # ${triggerCallCount}`)
+        }
+
         return {
-          number, trigger
+          number, trigger, plusMinus,
+          getNumberCount: () => numberCallCount,
+          getTriggerCount: () => triggerCallCount,
+          getPlusMinusCount: () => plusMinusCallCount
         }
       }
 
       const deterministicChildren = [{
-        clientId: 'T( 100)_B(   4 / 4)_S(- 2.5 / 4)', timeslotSeconds: 100, // rank 4
+        clientId: 'T( 100)_B(   4 / 4)_S( -2.5 / 4)', timeslotSeconds: 100, // child 4/2
         buying: { ratio: 4.0, useTimeslots: 4 },
         selling: { ratio: -2.5, useTimeslots: 4 }
       }, {
-        clientId: 'T( 650)_B(   4 / 3)_S(- 2.5 / 4)', timeslotSeconds: 650, // rank 2
+        clientId: 'T( 650)_B(   4 / 3)_S( -1.5 / 4)', timeslotSeconds: 650, //  child 4/2
         buying: { ratio: 4.0, useTimeslots: 3 },
-        selling: { ratio: -2.5, useTimeslots: 4 }
+        selling: { ratio: -1.5, useTimeslots: 4 }
       }, {
-        clientId: 'T( 450)_B(   9 / 4)_S(- 2.5 / 2)', timeslotSeconds: 450, // rank 1
+        clientId: 'T( 450)_B(   9 / 4)_S( -2.5 / 2)', timeslotSeconds: 450, //  child 1/3
         buying: { ratio: 9, useTimeslots: 4 },
         selling: { ratio: -2.5, useTimeslots: 2 }
       }, {
-        clientId: 'T( 450)_B(   9 / 4)_S(- 0.5 / 2)', timeslotSeconds: 450, // rank 3
+        clientId: 'T( 450)_B(   9 / 4)_S( -0.5 / 2)', timeslotSeconds: 450, // child 1/3
         buying: { ratio: 9, useTimeslots: 4 },
         selling: { ratio: -0.5, useTimeslots: 2 }
       }, {
-        clientId: 'random immigrant'
+        clientId: 'T( 400)_B(   3 / 5)_S( -1.5 / 5)', timeslotSeconds: 400, // random immigrant
+        buying: { ratio: 3, useTimeslots: 5 },
+        selling: { ratio: -1.5, useTimeslots: 5 }
       }]
 
       const expectedDeterministicChildren = deterministicChildren
-        .map(config => Object.assign(config, genAlgoConfig.genAlgo.commonTraderConfig))
+        .map(config => Object.assign(config, genAlgoConfig.problemSpaceRanges.commonTraderConfig))
 
-      const permutator = TraderConfigPermutator(genAlgoConfig, testRandom())
+      const random = testRandom()
+      const permutator = TraderConfigPermutator(genAlgoConfig, random)
       const nextGenerationConfigs = permutator.nextGeneration(accountsResults, traderConfigs)
 
       nextGenerationConfigs.should.deep.equal(expectedDeterministicChildren)
+      random.getNumberCount().should.equal(9)
+      random.getTriggerCount().should.equal(14)
+      random.getPlusMinusCount().should.equal(2)
     })
   })
 })
