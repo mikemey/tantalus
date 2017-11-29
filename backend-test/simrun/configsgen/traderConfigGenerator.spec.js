@@ -1,6 +1,6 @@
 const TraderConfigGenerator = require('../../../backend/simrun/configsgen/traderConfigGenerator')
 
-describe('config permutations', () => {
+describe('config generator', () => {
   const configsGenerator = TraderConfigGenerator()
 
   const createRangeConfig = ({
@@ -101,9 +101,9 @@ describe('config permutations', () => {
       sUseTimeslotsR: { start: 3, end: 3, step: 1 }
     }))
     generator.should.have.length(3)
-    generator.next().clientId.should.equal('T( 300)_B( 3.4 / 5)_S(-0.2 / 3)')
-    generator.next().clientId.should.equal('T( 300)_B( 3.4 / 5)_S(-0.1 / 3)')
-    generator.next().clientId.should.equal('T( 300)_B( 3.4 / 5)_S(   0 / 3)')
+    generator.next().clientId.should.equal('T( 300)_B( 3.4 / 5)_S( -0.2 / 3)')
+    generator.next().clientId.should.equal('T( 300)_B( 3.4 / 5)_S( -0.1 / 3)')
+    generator.next().clientId.should.equal('T( 300)_B( 3.4 / 5)_S(    0 / 3)')
   })
 
   it('should attach common trader config', () => {
