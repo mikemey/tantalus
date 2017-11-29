@@ -1,6 +1,8 @@
 const { cartesianProduct } = require('js-combinatorics')
 const deepAssign = require('assign-deep')
 
+const { clientId } = require('./traderConfigUtils')
+
 const TraderConfigsGenerator = () => {
   const countDecimals = value => {
     if (Math.floor(value) === value) return 0
@@ -29,7 +31,7 @@ const TraderConfigsGenerator = () => {
 
   const createConfiguration = (additionalConfig = {}) => params => {
     return deepAssign({
-      clientId: clientId(params),
+      clientId: clientId(params[0], params[1], params[2], params[3], params[4]),
       timeslotSeconds: params[0],
       buying: {
         ratio: params[1],
@@ -41,17 +43,6 @@ const TraderConfigsGenerator = () => {
       }
     }, additionalConfig)
   }
-
-  const clientId = params => {
-    const ts = padNumStart(params[0], 4)
-    const br = padNumStart(params[1], 4)
-    const bs = padNumStart(params[2], 2)
-    const sr = padNumStart(params[3], 4)
-    const ss = padNumStart(params[4], 2)
-    return `T(${ts})_B(${br} /${bs})_S(${sr} /${ss})`
-  }
-
-  const padNumStart = (num, len) => num.toString().padStart(len)
 
   const createGenerator = rangesConfig => {
     const commonTraderConfig = rangesConfig.commonTraderConfig

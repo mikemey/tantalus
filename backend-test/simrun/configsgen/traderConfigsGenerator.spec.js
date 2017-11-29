@@ -1,4 +1,4 @@
-const TraderConfigsGenerator = require('../../backend/simrun/traderConfigsGenerator')
+const TraderConfigsGenerator = require('../../../backend/simrun/configsgen/traderConfigsGenerator')
 
 describe('config permutations', () => {
   const configsGenerator = TraderConfigsGenerator()
