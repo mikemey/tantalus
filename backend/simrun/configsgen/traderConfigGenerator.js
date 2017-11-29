@@ -3,7 +3,7 @@ const deepAssign = require('assign-deep')
 
 const { clientId } = require('./traderConfigUtils')
 
-const TraderConfigsGenerator = () => {
+const TraderConfigGenerator = () => {
   const countDecimals = value => {
     if (Math.floor(value) === value) return 0
     return value.toString().split('.')[1].length || 0
@@ -53,4 +53,4 @@ const TraderConfigsGenerator = () => {
   return { createGenerator }
 }
 
-module.exports = TraderConfigsGenerator
+module.exports = TraderConfigGenerator

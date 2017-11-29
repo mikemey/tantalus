@@ -1,7 +1,7 @@
-const TraderConfigsGenerator = require('../../../backend/simrun/configsgen/traderConfigsGenerator')
+const TraderConfigGenerator = require('../../../backend/simrun/configsgen/traderConfigGenerator')
 
 describe('config permutations', () => {
-  const configsGenerator = TraderConfigsGenerator()
+  const configsGenerator = TraderConfigGenerator()
 
   const createRangeConfig = ({
     timeslotSeconds = { start: 200, end: 200, step: 10 },

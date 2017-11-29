@@ -1,7 +1,7 @@
 const deepAssign = require('assign-deep')
 
 const { clientId } = require('./traderConfigUtils')
-const TraderConfigsGenerator = require('./traderConfigsGenerator')
+const TraderConfigGenerator = require('./traderConfigGenerator')
 
 const PermutatorRandom = () => {
   const number = () => {
@@ -19,7 +19,7 @@ const PermutatorRandom = () => {
 
 const TraderConfigPermutator = (genAlgoConfig, random = PermutatorRandom()) => {
   const problemSpace = genAlgoConfig.problemSpaceRanges
-  const traderConfigsGenerator = TraderConfigsGenerator()
+  const traderConfigGenerator = TraderConfigGenerator()
     .createGenerator(problemSpace)
 
   const iterations = genAlgoConfig.iterations
@@ -166,9 +166,9 @@ const TraderConfigPermutator = (genAlgoConfig, random = PermutatorRandom()) => {
   }
 
   const diversityImmigration = count => {
-    const totalCount = traderConfigsGenerator.length
+    const totalCount = traderConfigGenerator.length
     return Array.from({ length: count }, (_, ix) => {
-      return traderConfigsGenerator.nth(random.number(totalCount))
+      return traderConfigGenerator.nth(random.number(totalCount))
     })
   }
 
