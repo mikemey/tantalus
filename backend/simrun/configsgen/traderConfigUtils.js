@@ -10,5 +10,6 @@ const clientId = (timeslotSecs, buyRatio, buySlots, sellRatio, sellSlots) => {
 const padNumStart = (num, len) => num.toString().padStart(len)
 
 module.exports = {
-  clientId
+  clientId,
+  padNumStart
 }

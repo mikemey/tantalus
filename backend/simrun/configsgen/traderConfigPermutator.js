@@ -1,38 +1,57 @@
 const deepAssign = require('assign-deep')
 
-const { clientId } = require('./traderConfigUtils')
+const { clientId, padNumStart } = require('./traderConfigUtils')
 const TraderConfigGenerator = require('./traderConfigGenerator')
 
 const PermutatorRandom = () => {
-  const number = () => {
+  const number = maxExclusive => Math.floor(Math.random() * maxExclusive)
 
-  }
-  const trigger = () => {
+  const trigger = ratio => Math.random() > ratio
+  const plusMinus = () => Math.random() > 0.5 ? 1 : -1
 
-  }
-  const plusMinus = () => {
-  }
   return {
     number, trigger, plusMinus
   }
 }
 
-const TraderConfigPermutator = (genAlgoConfig, random = PermutatorRandom()) => {
-  const problemSpace = genAlgoConfig.problemSpaceRanges
-  const traderConfigGenerator = TraderConfigGenerator()
-    .createGenerator(problemSpace)
+const checkGenAlgoConfig = config => {
+  if (!config.problemSpaceRanges) throwError('problemSpaceRanges')
+  if (!config.iterations) throwError('iterations')
+  if (!config.selectionCutoff) throwError('selectionCutoff')
+  if (!config.crossoverRate) throwError('crossoverRate')
+  if (!config.mutationRate) throwError('mutationRate')
+  if (!config.mutationBoundaries) throwError('mutationBoundaries')
+}
 
-  const iterations = genAlgoConfig.iterations
+const throwError = name => {
+  throw Error(`${name} not configured!`)
+}
+
+const TraderConfigPermutator = (genAlgoConfig, random = PermutatorRandom()) => {
+  checkGenAlgoConfig(genAlgoConfig)
+
+  const problemSpace = genAlgoConfig.problemSpaceRanges
+  const traderConfigGenerator = TraderConfigGenerator().createGenerator(problemSpace)
+
   const selectionCutoff = genAlgoConfig.selectionCutoff
   const crossoverRate = genAlgoConfig.crossoverRate
   const mutationRate = genAlgoConfig.mutationRate
   const boundaries = genAlgoConfig.mutationBoundaries
 
-  const hasNext = () => { }
+  const iterations = genAlgoConfig.iterations
+  const iterationDigits = iterations.toString().length
 
-  const currentIteration = () => { }
+  const data = {
+    currentIteration: 1
+  }
+
+  const currentIteration = () => `${padNumStart(data.currentIteration, iterationDigits)}/${iterations}`
+
+  const hasNext = () => data.currentIteration <= iterations
 
   const nextGeneration = (accounts, traderConfigs) => {
+    data.currentIteration++
+
     const parentPopulation = extractParentPopulation(accounts, traderConfigs)
     const nextGenConfigs = pairupParents(parentPopulation)
       .reduce(breedNextGeneration, [])
@@ -128,28 +147,35 @@ const TraderConfigPermutator = (genAlgoConfig, random = PermutatorRandom()) => {
   const crossoverGene = (p1Gene, p2Gene) => {
     return [p2Gene, p1Gene]
   }
+
   const averageGene = (gene, parentA, parentB) => {
     const weightedAllele =
       (parentA[gene] * parentA.fitness + parentB[gene] * parentB.fitness) /
       (parentA.fitness + parentB.fitness)
 
-    const step = boundaries[gene].step
-    const weightedAlleleStep = step * Math.round(weightedAllele / step)
+    const weightedAlleleStep = snapAlleleToSteps(gene, weightedAllele)
     return [weightedAlleleStep, weightedAlleleStep]
+  }
+
+  const snapAlleleToSteps = (gene, allele) => {
+    const step = boundaries[gene].step
+    return step * Math.round(allele / step)
   }
 
   const mutateAlleles = chromosome => {
     if (random.trigger(mutationRate)) {
       const mutateGene = genes[random.number(genes.length)]
 
-      const alleleMutationMax = boundaries[mutateGene].mutationMax + 1
+      const alleleMutationStepsMax = boundaries[mutateGene].mutationStepsMax + 1
       const alleleMutationMin = boundaries[mutateGene].start !== undefined
         ? boundaries[mutateGene].start : Number.MIN_SAFE_INTEGER
 
-      chromosome[mutateGene] = Math.max(
-        alleleMutationMin,
-        chromosome[mutateGene] + random.plusMinus() * random.number(alleleMutationMax)
+      const mutation = snapAlleleToSteps(mutateGene,
+        chromosome[mutateGene] +
+        random.plusMinus() * random.number(alleleMutationStepsMax) * boundaries[mutateGene].step
       )
+
+      chromosome[mutateGene] = Math.max(alleleMutationMin, mutation)
     }
     return chromosome
   }
