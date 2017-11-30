@@ -1,9 +1,9 @@
 /* global describe before beforeEach it */
 const moment = require('moment')
 
-const requests = require('../backend/utils/requests')
-const ExchangeConnector = require('../backend/trader/exchangeConnector')
-const { amountString, volumeString } = require('../backend/utils/ordersHelper')
+const requests = require('../utils/requests')
+const ExchangeConnector = require('../trader/exchangeConnector')
+const { amountString, volumeString } = require('../utils/ordersHelper')
 
 const helpers = require('./helpers')
 
