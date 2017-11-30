@@ -31,7 +31,6 @@ class PartitionWorker {
   createTraders (workerConfigObject) {
     this.lastTransactionPrice = 0
     this.traderPairs = workerConfigObject.traderConfigs.map(this.simulatedTraderFunc)
-    this.logger.info(`created ${this.traderPairs.length} traders`)
   }
 
   drainTransactions (transactionsSlice) {

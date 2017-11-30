@@ -84,7 +84,7 @@ const SimRunner = (baseLogger, transactionsSource, partitionExecutor) => {
       return transactionsSource.next()
         .then(({ batchNum, from, to, transactions }) => {
           const num = batchNum.toString().padStart(transactionsSource.batchCount().toString().length)
-          runnerLog.info(iterationProgress + ' processing batch ' +
+          runnerLog.info(`iteration [${iterationProgress}], batch ` +
             `[${num}/${transactionsSource.batchCount()}]: ${timestamp(from)} -> ${timestamp(to)}`
           )
           if (!partitioner.isReady()) {
