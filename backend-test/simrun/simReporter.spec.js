@@ -130,7 +130,9 @@ describe('Sim Reporting', () => {
     const expectedRunA = simulationReportId => {
       return {
         simulationId,
+        simulationId,
         simulationReportId,
+        iteration: expectedSimrunReport.iteration,
         startDate: expectedSimrunReport.startDate,
         amount: allAccounts[0].amount,
         volume: allAccounts[0].volume,
@@ -144,6 +146,7 @@ describe('Sim Reporting', () => {
       return {
         simulationId,
         simulationReportId,
+        iteration: expectedSimrunReport.iteration,
         startDate: expectedSimrunReport.startDate,
         amount: allAccounts[1].amount,
         volume: allAccounts[1].volume,
@@ -190,6 +193,7 @@ describe('Sim Reporting', () => {
           const expectedSecondRunB = {
             simulationId,
             simulationReportId: secondSimulationReportId,
+            iteration: expectedSimrunReport.iteration,
             startDate: expectedSimrunReport.startDate,
             amount: secondAllAccounts[0].amount,
             volume: secondAllAccounts[0].volume,

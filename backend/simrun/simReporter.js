@@ -104,6 +104,7 @@ const SimReporter = (baseLogger, simConfig) => {
         run: {
           simulationId: simReport.simulationId,
           simulationReportId: simReport._id,
+          iteration: simReport.iteration,
           startDate: simReport.startDate,
           amount: account.amount,
           volume: account.volume,
