@@ -14,6 +14,7 @@ describe('Sim Reporting', () => {
 
   const expectedSimrunReport = {
     version: simConfig.version,
+    iteration: 232,
     startDate: 1010101,
     endDate: 1020101,
     workerCount: simConfig.partitionWorkerCount,
@@ -55,8 +56,10 @@ describe('Sim Reporting', () => {
   const mockTxSource = MockTransactionsSource()
 
   const storeResults = (accounts = allAccounts) => {
-    return SimReporter(console, simConfig)
-      .storeSimulationResults(simStartHrtime, simEndHrtime, mockTxSource, accounts, expectedSimrunReport.traderCount)
+    return SimReporter(console, simConfig).storeSimulationResults(
+      simStartHrtime, simEndHrtime,
+      mockTxSource, accounts,
+      expectedSimrunReport.traderCount, expectedSimrunReport.iteration)
   }
 
   describe('input checks', () => {
@@ -68,7 +71,6 @@ describe('Sim Reporting', () => {
     it('throws error when no batchSeconds configured', () => {
       return expectError('batchSeconds', {
         partitionWorkerCount: 4,
-        version: 'failing config',
         startInvestment: 100000,
         rankingLimit: 3
       })
@@ -77,16 +79,6 @@ describe('Sim Reporting', () => {
     it('throws error when no partitionWorkerCount configured', () => {
       return expectError('partitionWorkerCount', {
         batchSeconds: 3600,
-        version: 'failing config',
-        startInvestment: 100000,
-        rankingLimit: 3
-      })
-    })
-
-    it('throws error when no version configured', () => {
-      return expectError('version', {
-        batchSeconds: 3600,
-        partitionWorkerCount: 4,
         startInvestment: 100000,
         rankingLimit: 3
       })
@@ -105,7 +97,6 @@ describe('Sim Reporting', () => {
       return expectError('rankingLimit', {
         batchSeconds: 3600,
         partitionWorkerCount: 4,
-        version: 'failing config',
         startInvestment: 100000
       })
     })
@@ -140,7 +131,6 @@ describe('Sim Reporting', () => {
       return {
         simrunid: simulationId,
         startDate: expectedSimrunReport.startDate,
-        version: simConfig.version,
         amount: allAccounts[0].amount,
         volume: allAccounts[0].volume,
         fullVolume: allAccounts[0].fullVolume,
@@ -153,7 +143,6 @@ describe('Sim Reporting', () => {
       return {
         simrunid: simulationId,
         startDate: expectedSimrunReport.startDate,
-        version: simConfig.version,
         amount: allAccounts[1].amount,
         volume: allAccounts[1].volume,
         fullVolume: allAccounts[1].fullVolume,
@@ -199,7 +188,6 @@ describe('Sim Reporting', () => {
           const expectedSecondRunB = {
             simrunid: secondSimulationId,
             startDate: expectedSimrunReport.startDate,
-            version: simConfig.version,
             amount: secondAllAccounts[0].amount,
             volume: secondAllAccounts[0].volume,
             fullVolume: secondAllAccounts[0].fullVolume,

@@ -34,7 +34,6 @@ const SimRepo = () => {
 }
 
 const checkConfig = config => {
-  if (!config.version) throwError('version')
   if (!config.batchSeconds) throwError('batchSeconds')
   if (!config.startInvestment) throwError('startInvestment')
   if (!config.partitionWorkerCount) throwError('partitionWorkerCount')
@@ -50,8 +49,8 @@ const SimReporter = (baseLogger, simConfig) => {
   const logger = TantalusLogger(baseLogger, 'Report')
   const simrepo = SimRepo()
 
-  const storeSimulationResults = (startHrtime, endHrtime, transactionSource, allAccounts, traderCount) => {
-    const simReport = createSimReport(startHrtime, endHrtime, transactionSource, traderCount)
+  const storeSimulationResults = (startHrtime, endHrtime, transactionSource, allAccounts, traderCount, iteration) => {
+    const simReport = createSimReport(startHrtime, endHrtime, transactionSource, traderCount, iteration)
 
     return simrepo.storeSimulationReport(simReport)
       .then(() => {
@@ -63,13 +62,14 @@ const SimReporter = (baseLogger, simConfig) => {
       })
   }
 
-  const createSimReport = (startHrtime, endHrtime, transactionSource, traderCount) => {
+  const createSimReport = (startHrtime, endHrtime, transactionSource, traderCount, iteration) => {
     const startPrice = transactionSource.getStartPrice()
     const endPrice = transactionSource.getEndPrice()
     const staticInvestment = Math.round(simConfig.startInvestment / startPrice * endPrice)
     const startInvestment = simConfig.startInvestment
     return {
       version: simConfig.version,
+      iteration,
       startDate: startHrtime[0],
       endDate: endHrtime[0],
       workerCount: simConfig.partitionWorkerCount,
@@ -97,7 +97,6 @@ const SimReporter = (baseLogger, simConfig) => {
         run: {
           simrunid: simReport._id,
           startDate: simReport.startDate,
-          version: simConfig.version,
           amount: account.amount,
           volume: account.volume,
           fullVolume: account.fullVolume,
