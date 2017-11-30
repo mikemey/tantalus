@@ -1,7 +1,12 @@
 const expect = require('chai').expect
-const { dropDatabase, copyWithoutIDField, getSimulationReports, getTraderReports } = require('../helpers')
+const {
+  dropDatabase,
+  copyWithoutIDField,
+  getSimulationReports,
+  getTraderReports
+} = require('../utils-test/helpers')
 
-const SimReporter = require('../../backend/simrun/simReporter')
+const SimReporter = require('../simulation/simReporter')
 
 describe('Sim Reporting', () => {
   const simulationId = 'full simulation run ID'

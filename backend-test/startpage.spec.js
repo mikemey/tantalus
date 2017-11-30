@@ -2,7 +2,7 @@
 const request = require('supertest')
 const cheerio = require('cheerio')
 
-const helpers = require('./helpers')
+const helpers = require('../utils-test/helpers')
 
 describe('Start page', () => {
   let app, server

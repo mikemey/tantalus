@@ -2,7 +2,7 @@ const chai = require('chai')
 const expect = chai.expect
 const should = chai.should
 
-const TraderConfigPermutator = require('../../../backend/simrun/configsgen/traderConfigPermutator')
+const TraderConfigPermutator = require('../../simulation/configsgen/traderConfigPermutator')
 
 describe('Trader config permutator', () => {
   describe('iterations information', () => {

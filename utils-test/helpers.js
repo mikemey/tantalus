@@ -1,6 +1,6 @@
 const createServer = require('../backend/app')
-const mongo = require('../backend/utils/mongoConnection')
-const { TantalusLogger } = require('../backend/utils/tantalusLogger')
+const mongo = require('../utils/mongoConnection')
+const { TantalusLogger } = require('../utils/tantalusLogger')
 
 const accountCollectionName = 'accounts'
 const defaultTestConfig = {

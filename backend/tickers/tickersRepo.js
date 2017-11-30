@@ -1,4 +1,4 @@
-const mongo = require('../utils/mongoConnection')
+const mongo = require('../../utils/mongoConnection')
 
 const TickerRepo = () => {
   const tickerCollection = () => mongo.db.collection(mongo.tickersCollectionName)

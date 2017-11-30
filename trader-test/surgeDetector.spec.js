@@ -3,9 +3,9 @@ const nock = require('nock')
 
 const expect = require('chai').expect
 
-const { TantalusLogger } = require('../../backend/utils/tantalusLogger')
-const ExchangeConnector = require('../../backend/trader/exchangeConnector')
-const SurgeDetector = require('../../backend/trader/surgeDetector')
+const { TantalusLogger } = require('../utils/tantalusLogger')
+const ExchangeConnector = require('../trader/exchangeConnector')
+const SurgeDetector = require('../trader/surgeDetector')
 
 describe('Surge detector', () => {
   const testHost = 'http://localhost:14149'

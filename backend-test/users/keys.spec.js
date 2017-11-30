@@ -1,7 +1,7 @@
 /* global describe before beforeEach it */
 const request = require('supertest')
 
-const helpers = require('../helpers')
+const helpers = require('../../utils-test/helpers')
 
 describe('/api/users/keys endpoint', () => {
   let app, server

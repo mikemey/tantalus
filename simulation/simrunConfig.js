@@ -10,7 +10,7 @@ const commonTraderConfig = {
 }
 
 const initialGeneratorRanges = {
-  timeslotSeconds: { start: 50, end: 650, step: 150 },
+  timeslotSeconds: { start: 50, end: 650, step: 50 },
   buying: {
     ratio: { start: 2, end: 8, step: 2 },
     useTimeslots: { start: 2, end: 8, step: 2 }
@@ -25,24 +25,24 @@ const initialGeneratorRanges = {
 const genAlgoConfig = {
   iterations: 10,
   selectionCutoff: 0.7,
-  crossoverRate: 0.4,
+  crossoverRate: 0.05,
   mutationRate: 0.015,
   mutationBoundaries: {
-    ts: { start: 10, step: 10, mutationStepsMax: 5 },
-    bratio: { step: 0.2, mutationStepsMax: 3 },
+    ts: { start: 20, step: 20, mutationStepsMax: 5 },
+    bratio: { step: 0.4, mutationStepsMax: 3 },
     bslots: { start: 2, step: 1, mutationStepsMax: 2 },
-    sratio: { step: 0.2, mutationStepsMax: 3 },
+    sratio: { step: 0.4, mutationStepsMax: 3 },
     sslots: { start: 2, step: 1, mutationStepsMax: 2 }
   },
   problemSpaceRanges: {
-    timeslotSeconds: { start: 10, end: 2000, step: 10 },
+    timeslotSeconds: { start: 20, end: 1500, step: 20 },
     buying: {
-      ratio: { start: 0.0, end: 20, step: 0.2 },
-      useTimeslots: { start: 2, end: 200, step: 1 }
+      ratio: { start: 0.0, end: 20, step: 0.4 },
+      useTimeslots: { start: 2, end: 20, step: 1 }
     },
     selling: {
-      ratio: { start: -20.0, end: 0, step: 0.2 },
-      useTimeslots: { start: 2, end: 200, step: 1 }
+      ratio: { start: -20.0, end: 0, step: 0.4 },
+      useTimeslots: { start: 2, end: 20, step: 1 }
     },
     commonTraderConfig
   }

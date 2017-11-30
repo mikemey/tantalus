@@ -1,5 +1,5 @@
 /* global describe before beforeEach it */
-const helpers = require('../helpers')
+const helpers = require('../../utils-test/helpers')
 const { Account } = require('../../backend/users/userModel')
 
 describe('Account DAO', function () {

@@ -1,8 +1,8 @@
 /* global describe before beforeEach it */
 const sinon = require('sinon')
 
-const { OrderLogger } = require('../../backend/utils/ordersHelper')
-const OpenOrdersWatch = require('../../backend/trader/openOrdersWatch')
+const { OrderLogger } = require('../utils/ordersHelper')
+const OpenOrdersWatch = require('../trader/openOrdersWatch')
 
 describe('Synced open orders watch', () => {
   const testId = 234

@@ -1,7 +1,7 @@
 const schedule = require('node-schedule')
 const moment = require('moment')
 
-const requests = require('../utils/requests')
+const requests = require('../../utils/requests')
 const TransactionRepo = require('./transactionsRepo')
 
 const TransactionsService = (tantalusLogger, config) => {

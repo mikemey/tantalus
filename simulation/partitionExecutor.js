@@ -2,7 +2,7 @@ const actors = require('comedy')
 
 const { TantalusLogger } = require('../utils/tantalusLogger')
 
-const defaultWorkerModule = '/backend/simrun/partitionWorker'
+const defaultWorkerModule = '/simulation/partitionWorker'
 
 const PartitionExecutor = (baseLogger, workersModule = defaultWorkerModule) => {
   const logger = TantalusLogger(baseLogger, 'Exec')

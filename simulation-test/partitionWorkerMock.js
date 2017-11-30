@@ -1,4 +1,4 @@
-const requests = require('../../backend/utils/requests')
+const requests = require('../utils/requests')
 
 class PartitionWorkerMock {
   constructor () {

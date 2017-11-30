@@ -1,6 +1,6 @@
 const expect = require('chai').expect
 
-const ExchangeAccountAdapter = require('../../backend/simrun/exchangeAccountAdapter')
+const ExchangeAccountAdapter = require('../simulation/exchangeAccountAdapter')
 
 describe('Account adapter', () => {
   const testTxs = [{ abc: 'def' }, { ghi: 'jkl' }]

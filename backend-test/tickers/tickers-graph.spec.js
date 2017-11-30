@@ -1,7 +1,7 @@
 /* global describe before beforeEach it */
 const request = require('supertest')
 
-const helpers = require('../helpers')
+const helpers = require('../../utils-test/helpers')
 const { supportedPeriods } = require('../../backend/tickers/graphPeriods')
 
 describe('GET /api/tickers/graph endpoint', () => {

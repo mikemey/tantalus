@@ -4,9 +4,9 @@ const chai = require('chai')
 const should = chai.should()
 const expect = chai.expect
 
-const { OrderLogger } = require('../../backend/utils/ordersHelper')
-const OrderIssuer = require('../../backend/trader/orderIssuer')
-const ExchangeConnector = require('../../backend/trader/exchangeConnector')
+const { OrderLogger } = require('../utils/ordersHelper')
+const OrderIssuer = require('../trader/orderIssuer')
+const ExchangeConnector = require('../trader/exchangeConnector')
 
 describe('Order issuer', () => {
   const testHost = 'http://localhost:14147'

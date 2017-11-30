@@ -1,4 +1,4 @@
-const { mongoose } = require('../utils/mongoConnection')
+const { mongoose } = require('../../utils/mongoConnection')
 
 const passportLocalMongoose = require('passport-local-mongoose')
 

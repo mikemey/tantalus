@@ -3,8 +3,8 @@ const sinon = require('sinon')
 const chai = require('chai')
 const expect = chai.expect
 
-const { OrderLogger } = require('../../backend/utils/ordersHelper')
-const OrderIssuer = require('../../backend/trader/orderIssuer')
+const { OrderLogger } = require('../utils/ordersHelper')
+const OrderIssuer = require('../trader/orderIssuer')
 
 describe('Synced order issuer', () => {
   const testVolumeLimit = 100000

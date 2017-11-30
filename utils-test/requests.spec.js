@@ -1,7 +1,7 @@
 /* global describe before beforeEach it */
 const nock = require('nock')
 
-const requests = require('../../backend/utils/requests')
+const requests = require('../utils/requests')
 const RequestError = requests.RequestError
 
 describe('requests module', () => {

@@ -6,7 +6,7 @@ const SimRunner = require('./simRunner')
 const SimReporter = require('./simReporter')
 
 const PartitionExecutor = require('./partitionExecutor')
-const TransactionRepo = require('../transactions/transactionsRepo')
+const TransactionRepo = require('../backend/transactions/transactionsRepo')
 const TransactionsSource = require('./transactionsSource')
 
 const TraderConfigGenerator = require('./configsgen/traderConfigGenerator')
@@ -99,5 +99,5 @@ if (simulationId !== undefined) {
   simulation(simulationId)
 } else {
   simLogger.error('Simulation ID not set')
-  simLogger.error('Usage:  npm run simrun <simulationId>')
+  simLogger.error('Usage:  npm run simulation <simulationId>')
 }

@@ -1,6 +1,6 @@
 const expect = require('chai').expect
 
-const TransactionsSource = require('../../backend/simrun/transactionsSource')
+const TransactionsSource = require('../simulation/transactionsSource')
 
 describe('Transaction source', () => {
   const transactionsEarliestDate = 230

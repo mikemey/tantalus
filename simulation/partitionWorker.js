@@ -2,7 +2,7 @@ const { TantalusLogger } = require('../utils/tantalusLogger')
 const { roundVolume } = require('../utils/ordersHelper')
 
 const ExchangeAccountAdapter = require('./exchangeAccountAdapter')
-const TradeAccount = require('../simex/tradeAccount')
+const TradeAccount = require('../backend/simex/tradeAccount')
 const TraderJob = require('../trader/traderJob')
 
 const baseLogger = console

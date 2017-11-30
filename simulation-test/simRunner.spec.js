@@ -1,4 +1,4 @@
-const SimRunner = require('../../backend/simrun/simRunner')
+const SimRunner = require('../simulation/simRunner')
 
 describe('Sim Runner', () => {
   const testSimConfig = {

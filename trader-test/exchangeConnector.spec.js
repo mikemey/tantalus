@@ -4,7 +4,7 @@ const chai = require('chai')
 const should = chai.should()
 const expect = chai.expect
 
-const ExchangeConnector = require('../../backend/trader/exchangeConnector')
+const ExchangeConnector = require('../trader/exchangeConnector')
 
 describe('Exchange connector', () => {
   const testHost = 'http://localhost:14145'

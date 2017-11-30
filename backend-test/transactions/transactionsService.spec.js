@@ -2,7 +2,7 @@
 const nock = require('nock')
 const moment = require('moment')
 
-const helpers = require('../helpers')
+const helpers = require('../../utils-test/helpers')
 const TransactionsService = require('../../backend/transactions/transactionsService')
 
 describe('Transaction service', () => {

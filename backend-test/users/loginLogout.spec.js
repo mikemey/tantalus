@@ -1,5 +1,5 @@
 /* global describe before beforeEach it */
-const helpers = require('../helpers')
+const helpers = require('../../utils-test/helpers')
 const { setupCSRFAgent } = require('../agents')
 
 describe('/api/users/login endpoint', function () {

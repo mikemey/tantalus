@@ -1,7 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 
-const PartitionExecutor = require('../../backend/simrun/partitionExecutor')
+const PartitionExecutor = require('../simulation/partitionExecutor')
 
 const PartitionWorkerMockReceiver = () => {
   const data = {
@@ -66,7 +66,7 @@ describe('Partition executor', function () {
   let partitionExecutor, partitionWorkerMockReceiver
 
   const startExecutorAndReceiver = () => {
-    partitionExecutor = PartitionExecutor(console, '/backend-test/simrun/partitionWorkerMock')
+    partitionExecutor = PartitionExecutor(console, '/simulation-test/partitionWorkerMock')
     partitionExecutor.init()
     partitionWorkerMockReceiver = PartitionWorkerMockReceiver()
     return partitionWorkerMockReceiver.startServer()

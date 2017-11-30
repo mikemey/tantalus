@@ -1,7 +1,7 @@
 /* global describe before beforeEach it */
 const moment = require('moment')
 
-const helpers = require('../helpers')
+const helpers = require('../../utils-test/helpers')
 const GraphService = require('../../backend/schedule/graphService')
 const { _1w, _1y } = require('../../backend/tickers/graphPeriods')
 

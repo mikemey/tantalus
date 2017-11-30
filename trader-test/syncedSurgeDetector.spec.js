@@ -2,8 +2,8 @@
 const sinon = require('sinon')
 const expect = require('chai').expect
 
-const { TantalusLogger } = require('../../backend/utils/tantalusLogger')
-const SurgeDetector = require('../../backend/trader/surgeDetector')
+const { TantalusLogger } = require('../utils/tantalusLogger')
+const SurgeDetector = require('../trader/surgeDetector')
 
 describe('Synced surge detector', () => {
   const surgeConfig = {

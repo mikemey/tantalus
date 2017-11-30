@@ -4,7 +4,7 @@ const morgan = require('morgan')
 
 const pjson = require('../package.json')
 
-const mongoConnection = require('./utils/mongoConnection')
+const mongoConnection = require('../utils/mongoConnection')
 const security = require('./utils/security')
 
 const createTickersRouter = require('./tickers')

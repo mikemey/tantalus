@@ -1,6 +1,6 @@
 /* global describe before beforeEach it */
 
-const helpers = require('../helpers')
+const helpers = require('../../utils-test/helpers')
 const withoutId = helpers.copyWithoutIDField
 const TransactionsRepo = require('../../backend/transactions/transactionsRepo')
 

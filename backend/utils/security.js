@@ -4,7 +4,7 @@ const session = require('express-session')
 const cookieParser = require('cookie-parser')
 
 const MongoStore = require('connect-mongo')(session)
-const mongoose = require('./mongoConnection').mongoose
+const mongoose = require('../../utils/mongoConnection').mongoose
 
 const { Account } = require('../users/userModel')
 const passport = require('passport')

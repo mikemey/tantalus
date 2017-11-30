@@ -8,7 +8,7 @@ const chai = require('chai')
 chai.use(require('chai-string'))
 
 const createSimexRouter = require('../../backend/simex')
-const { TantalusLogger } = require('../../backend/utils/tantalusLogger')
+const { TantalusLogger } = require('../../utils/tantalusLogger')
 
 describe('SimEx router', () => {
   const API_PREFIX = '/api/simex'

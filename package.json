@@ -14,16 +14,14 @@
     "preschedule": "npm install",
     "schedule": "node backend/schedule",
     "pretrader": "npm install",
-    "trader": "node backend/trader",
-    "simrun": "node backend/simrun",
+    "trader": "node trader",
+    "simulation": "node simulation",
     "pretest": "npm install",
-    "test": "npm run lint -s && npm run be-test -s && npm run fe-test -s",
-    "be-test": "mocha 'backend-test/**/**.spec.js'",
-    "be-watch": "nodemon -x 'npm run be-test -s' --ignore '**.log'",
+    "test": "npm run lint -s && npm run all-test -s && npm run fe-test -s",
+    "all-test": "mocha 'backend-test/**/**.spec.js' 'simulation-test/**/**.spec.js' 'trader-test/**/**.spec.js' 'utils-test/**/**.spec.js'",
+    "all-watch": "nodemon -x 'npm run be-test -s' --ignore '**.log'",
     "fe-test": "karma start karma.conf.js",
-    "fe-watch": "nodemon -x 'npm run fe-test -s' --ignore '**.log'",
-    "tx-test": "mocha 'backend-test/trader/**.spec.js' 'backend-test/simex/**.spec.js' 'backend-test/transactions/**.spec.js' 'backend-test/simrun/**.spec.js'",
-    "tx-watch": "nodemon -x 'npm run tx-test -s' --ignore '**.log'"
+    "fe-watch": "nodemon -x 'npm run fe-test -s' --ignore '**.log'"
   },
   "repository": {
     "type": "git",
