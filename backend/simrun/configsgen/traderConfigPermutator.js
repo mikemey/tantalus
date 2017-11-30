@@ -1,6 +1,6 @@
 const deepAssign = require('assign-deep')
 
-const { clientId, padNumStart } = require('./traderConfigUtils')
+const { clientId, padNumStart, countDecimals } = require('./traderConfigUtils')
 const TraderConfigGenerator = require('./traderConfigGenerator')
 
 const PermutatorRandom = () => {
@@ -154,13 +154,19 @@ const TraderConfigPermutator = (genAlgoConfig, random = PermutatorRandom()) => {
       (parentA[gene] * parentA.fitness + parentB[gene] * parentB.fitness) /
       (parentA.fitness + parentB.fitness)
 
-    const weightedAlleleStep = snapAlleleToSteps(gene, weightedAllele)
-    return [weightedAlleleStep, weightedAlleleStep]
+    const steppedWeightedAllele = snapAlleleToSteps(gene, weightedAllele)
+    return [steppedWeightedAllele, steppedWeightedAllele]
   }
 
   const snapAlleleToSteps = (gene, allele) => {
     const step = boundaries[gene].step
-    return step * Math.round(allele / step)
+    const steppedAllele = step * Math.round(allele / step)
+    return roundToStepDecimals(steppedAllele, step)
+  }
+
+  const roundToStepDecimals = (allele, step) => {
+    const multipier = Math.pow(10, countDecimals(step))
+    return Math.round(allele * multipier) / multipier
   }
 
   const mutateAlleles = chromosome => {

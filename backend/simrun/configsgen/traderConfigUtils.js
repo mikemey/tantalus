@@ -9,7 +9,13 @@ const clientId = (timeslotSecs, buyRatio, buySlots, sellRatio, sellSlots) => {
 
 const padNumStart = (num, len) => num.toString().padStart(len)
 
+const countDecimals = value => {
+  if (Math.floor(value) === value) return 0
+  return value.toString().split('.')[1].length || 0
+}
+
 module.exports = {
   clientId,
-  padNumStart
+  padNumStart,
+  countDecimals
 }

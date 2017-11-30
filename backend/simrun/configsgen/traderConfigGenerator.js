@@ -1,14 +1,9 @@
 const { cartesianProduct } = require('js-combinatorics')
 const deepAssign = require('assign-deep')
 
-const { clientId } = require('./traderConfigUtils')
+const { clientId, countDecimals } = require('./traderConfigUtils')
 
 const TraderConfigGenerator = () => {
-  const countDecimals = value => {
-    if (Math.floor(value) === value) return 0
-    return value.toString().split('.')[1].length || 0
-  }
-
   const createParameterRange = rangeConfig => {
     const multipier = Math.pow(10, countDecimals(rangeConfig.step))
     const start = rangeConfig.start * multipier
