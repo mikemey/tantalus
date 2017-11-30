@@ -15,9 +15,9 @@ const TraderConfigPermutator = require('./configsgen/traderConfigPermutator')
 const baseLogger = console
 const simLogger = TantalusLogger(baseLogger, 'SimMain', redText)
 
-const initialGeneratedConfigs = generatorConfig => {
+const initialGeneratedConfigs = () => {
   return TraderConfigGenerator()
-    .createGenerator(generatorConfig)
+    .createGenerator(initialGeneratorRanges)
     .toArray()
 }
 
@@ -86,7 +86,7 @@ process.on('uncaughtException', errorHandler('uncaught exception: ', true))
 
 Promise.all([
   startupPartitionExecutor(),
-  initialGeneratedConfigs(initialGeneratorRanges),
+  initialGeneratedConfigs(),
   createDatabaseDependents()
 ]).then(([_, traderConfigs, dbworker]) => {
   const transactionsSource = dbworker.transactionsSource
