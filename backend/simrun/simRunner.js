@@ -73,28 +73,28 @@ const TransactionPartitioner = (partitionExecutor, transactionsUpdateSeconds) =>
 const SimRunner = (baseLogger, transactionsSource, partitionExecutor) => {
   const runnerLog = TantalusLogger(baseLogger, 'SimRun')
 
-  const run = (simConfig, allTraderConfigs, iteration) => {
+  const run = (simConfig, allTraderConfigs, iterationProgress) => {
     const partitioner = TransactionPartitioner(partitionExecutor, simConfig.transactionsUpdateSeconds)
     return partitionExecutor.configureWorkers(simConfig, allTraderConfigs)
-      .then(() => simulateNextBatch(partitioner, iteration))
+      .then(() => simulateNextBatch(partitioner, iterationProgress))
   }
 
-  const simulateNextBatch = (partitioner, iteration) => {
+  const simulateNextBatch = (partitioner, iterationProgress) => {
     if (transactionsSource.hasNext()) {
       return transactionsSource.next()
         .then(({ batchNum, from, to, transactions }) => {
           const num = batchNum.toString().padStart(transactionsSource.batchCount().toString().length)
-          runnerLog.info(iteration + ' processing batch ' +
+          runnerLog.info(iterationProgress + ' processing batch ' +
             `[${num}/${transactionsSource.batchCount()}]: ${timestamp(from)} -> ${timestamp(to)}`
           )
           if (!partitioner.isReady()) {
             partitioner.setStartDate(from)
           }
           return partitioner.runBatch(transactions)
-            .then(() => simulateNextBatch(partitioner, iteration))
+            .then(() => simulateNextBatch(partitioner, iterationProgress))
         })
     }
-    runnerLog.info(iteration + ' no more batches, draining last transactions...')
+    runnerLog.info(iterationProgress + ' no more batches, draining last transactions...')
     return partitioner.drainLastSlice()
   }
 
