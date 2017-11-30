@@ -4,16 +4,16 @@ const { dropDatabase, copyWithoutIDField, getSimulationReports, getTraderReports
 const SimReporter = require('../../backend/simrun/simReporter')
 
 describe('Sim Reporting', () => {
+  const fullSimId = 'full simulation run ID'
   const simConfig = {
     batchSeconds: 3600,
     partitionWorkerCount: 4,
-    version: 'simulation/trader version ID',
     startInvestment: 100000,
     rankingLimit: 3
   }
 
   const expectedSimrunReport = {
-    version: simConfig.version,
+    fullSimId,
     iteration: 232,
     startDate: 1010101,
     endDate: 1020101,
@@ -57,7 +57,7 @@ describe('Sim Reporting', () => {
 
   const storeResults = (accounts = allAccounts) => {
     return SimReporter(console, simConfig).storeSimulationResults(
-      simStartHrtime, simEndHrtime,
+      fullSimId, simStartHrtime, simEndHrtime,
       mockTxSource, accounts,
       expectedSimrunReport.traderCount, expectedSimrunReport.iteration)
   }
@@ -88,7 +88,7 @@ describe('Sim Reporting', () => {
       return expectError('startInvestment', {
         batchSeconds: 3600,
         partitionWorkerCount: 4,
-        version: 'failing config',
+        simrunId: 'failing config',
         rankingLimit: 3
       })
     })
@@ -129,6 +129,7 @@ describe('Sim Reporting', () => {
 
     const expectedRunA = simulationId => {
       return {
+        fullSimId,
         simrunid: simulationId,
         startDate: expectedSimrunReport.startDate,
         amount: allAccounts[0].amount,
@@ -141,6 +142,7 @@ describe('Sim Reporting', () => {
 
     const expectedFirstRunB = simulationId => {
       return {
+        fullSimId,
         simrunid: simulationId,
         startDate: expectedSimrunReport.startDate,
         amount: allAccounts[1].amount,
@@ -186,6 +188,7 @@ describe('Sim Reporting', () => {
           traderReports[0].runs.should.have.length(1)
 
           const expectedSecondRunB = {
+            fullSimId,
             simrunid: secondSimulationId,
             startDate: expectedSimrunReport.startDate,
             amount: secondAllAccounts[0].amount,
