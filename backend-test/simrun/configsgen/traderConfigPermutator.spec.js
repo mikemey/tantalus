@@ -29,7 +29,8 @@ describe('Trader config permutator', () => {
       }
 
       const permutator = TraderConfigPermutator(genAlgoConfig)
-      permutator.currentIteration().should.equal(' 1/10')
+      permutator.currentIteration().should.equal(1)
+      permutator.progressString().should.equal(' 1/10')
       permutator.hasNext().should.equal(true)
     })
 

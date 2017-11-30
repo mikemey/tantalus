@@ -45,7 +45,8 @@ const TraderConfigPermutator = (genAlgoConfig, random = PermutatorRandom()) => {
     currentIteration: 1
   }
 
-  const currentIteration = () => `${padNumStart(data.currentIteration, iterationDigits)}/${iterations}`
+  const currentIteration = () => data.currentIteration
+  const progressString = () => `${padNumStart(data.currentIteration, iterationDigits)}/${iterations}`
 
   const hasNext = () => data.currentIteration <= iterations
 
@@ -201,6 +202,7 @@ const TraderConfigPermutator = (genAlgoConfig, random = PermutatorRandom()) => {
   return {
     hasNext,
     currentIteration,
+    progressString,
     nextGeneration
   }
 }
