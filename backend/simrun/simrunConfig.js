@@ -49,7 +49,6 @@ const genAlgoConfig = {
 }
 
 const executorConfig = {
-  version: 'v2.5.0',
   mongodb: {
     url: 'mongodb://127.0.0.1:27017/tantalus'
   },

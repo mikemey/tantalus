@@ -42,9 +42,9 @@ const shutdownPartitionExecutor = () => {
   if (partitionExecutor) return partitionExecutor.shutdown()
 }
 
-const runSimulation = (reporter, transactionsSource, partitionExecutor, initialTraderConfigs) => {
+const runSimulation = (simulationId, reporter, transactionsSource, partitionExecutor, initialTraderConfigs) => {
   const simRunner = SimRunner(baseLogger, transactionsSource, partitionExecutor)
-  const permutator = TraderConfigPermutator(genAlgoConfig)
+  const permutator = TraderConfigPermutator(baseLogger, genAlgoConfig)
 
   const runIteration = traderConfigs => {
     const startTime = process.hrtime()
@@ -54,7 +54,7 @@ const runSimulation = (reporter, transactionsSource, partitionExecutor, initialT
       .then(partitionExecutor.getAllAccounts)
       .then(allAccounts =>
         reporter.storeSimulationResults(
-          startTime, process.hrtime(),
+          simulationId, startTime, process.hrtime(),
           transactionsSource, allAccounts,
           traderConfigs.length, permutator.currentIteration()
         ).then(() => permutator.hasNext()
@@ -80,18 +80,27 @@ const errorHandler = (prefix, stop) => err => {
   if (stop) shutdown()
 }
 
-process.on('SIGTERM', shutdown)
-process.on('SIGINT', shutdown)
-process.on('uncaughtException', errorHandler('uncaught exception: ', true))
-
-Promise.all([
+const simulation = simulationId => Promise.all([
   startupPartitionExecutor(),
   initialGeneratedConfigs(),
   createDatabaseDependents()
 ]).then(([_, traderConfigs, dbworker]) => {
   const transactionsSource = dbworker.transactionsSource
   const reporter = dbworker.reporter
-  return runSimulation(reporter, transactionsSource, partitionExecutor, traderConfigs)
+  return runSimulation(simulationId, reporter, transactionsSource, partitionExecutor, traderConfigs)
 }).catch(errorHandler('Setup simulation: ', true))
   .then(shutdownPartitionExecutor)
   .then(shutdown)
+
+process.on('SIGTERM', shutdown)
+process.on('SIGINT', shutdown)
+process.on('uncaughtException', errorHandler('uncaught exception: ', true))
+
+const simulationId = process.argv[2]
+if (simulationId !== undefined) {
+  simLogger.info(`Simulation ID: ${simulationId}`)
+  simulation(simulationId)
+} else {
+  simLogger.error('Simulation ID not set')
+  simLogger.error('Usage:  npm run simrun <simulationId>')
+}

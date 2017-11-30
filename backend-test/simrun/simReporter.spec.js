@@ -4,7 +4,7 @@ const { dropDatabase, copyWithoutIDField, getSimulationReports, getTraderReports
 const SimReporter = require('../../backend/simrun/simReporter')
 
 describe('Sim Reporting', () => {
-  const fullSimId = 'full simulation run ID'
+  const simulationId = 'full simulation run ID'
   const simConfig = {
     batchSeconds: 3600,
     partitionWorkerCount: 4,
@@ -13,7 +13,7 @@ describe('Sim Reporting', () => {
   }
 
   const expectedSimrunReport = {
-    fullSimId,
+    simulationId,
     iteration: 232,
     startDate: 1010101,
     endDate: 1020101,
@@ -57,7 +57,7 @@ describe('Sim Reporting', () => {
 
   const storeResults = (accounts = allAccounts) => {
     return SimReporter(console, simConfig).storeSimulationResults(
-      fullSimId, simStartHrtime, simEndHrtime,
+      simulationId, simStartHrtime, simEndHrtime,
       mockTxSource, accounts,
       expectedSimrunReport.traderCount, expectedSimrunReport.iteration)
   }
@@ -88,7 +88,7 @@ describe('Sim Reporting', () => {
       return expectError('startInvestment', {
         batchSeconds: 3600,
         partitionWorkerCount: 4,
-        simrunId: 'failing config',
+        simulationReportId: 'failing config',
         rankingLimit: 3
       })
     })
@@ -127,10 +127,10 @@ describe('Sim Reporting', () => {
   describe('trader reports', () => {
     beforeEach(dropDatabase)
 
-    const expectedRunA = simulationId => {
+    const expectedRunA = simulationReportId => {
       return {
-        fullSimId,
-        simrunid: simulationId,
+        simulationId,
+        simulationReportId,
         startDate: expectedSimrunReport.startDate,
         amount: allAccounts[0].amount,
         volume: allAccounts[0].volume,
@@ -140,10 +140,10 @@ describe('Sim Reporting', () => {
       }
     }
 
-    const expectedFirstRunB = simulationId => {
+    const expectedFirstRunB = simulationReportId => {
       return {
-        fullSimId,
-        simrunid: simulationId,
+        simulationId,
+        simulationReportId,
         startDate: expectedSimrunReport.startDate,
         amount: allAccounts[1].amount,
         volume: allAccounts[1].volume,
@@ -160,15 +160,15 @@ describe('Sim Reporting', () => {
     }
 
     it('stores new report', () => {
-      let simulationId
+      let simulationReportId
       return storeResults()
-        .then(storedSimulation => { simulationId = storedSimulation._id })
+        .then(storedSimulation => { simulationReportId = storedSimulation._id })
         .then(getTraderReports)
         .then(traderReports => {
           traderReports.should.have.length(2)
 
-          expectReport(traderReports[0], 'A', [expectedRunA(simulationId)])
-          expectReport(traderReports[1], 'B', [expectedFirstRunB(simulationId)])
+          expectReport(traderReports[0], 'A', [expectedRunA(simulationReportId)])
+          expectReport(traderReports[1], 'B', [expectedFirstRunB(simulationReportId)])
         })
     })
 
@@ -177,19 +177,19 @@ describe('Sim Reporting', () => {
         { clientId: 'B', amount: 12345, volume: 30000, fullVolume: 122340 }
       ]
 
-      let firstSimulationId, secondSimulationId
+      let firstSimulationId, secondSimulationReportId
       return storeResults()
         .then(storedSimulation => { firstSimulationId = storedSimulation._id })
         .then(() => storeResults(secondAllAccounts))
-        .then(storedSimulation => { secondSimulationId = storedSimulation._id })
+        .then(storedSimulation => { secondSimulationReportId = storedSimulation._id })
         .then(getTraderReports)
         .then(traderReports => {
           traderReports.should.have.length(2)
           traderReports[0].runs.should.have.length(1)
 
           const expectedSecondRunB = {
-            fullSimId,
-            simrunid: secondSimulationId,
+            simulationId,
+            simulationReportId: secondSimulationReportId,
             startDate: expectedSimrunReport.startDate,
             amount: secondAllAccounts[0].amount,
             volume: secondAllAccounts[0].volume,

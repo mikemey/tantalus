@@ -50,11 +50,11 @@ const SimReporter = (baseLogger, simConfig) => {
   const simrepo = SimRepo()
 
   const storeSimulationResults = (
-    fullSimId, startHrtime, endHrtime,
+    simulationId, startHrtime, endHrtime,
     transactionSource, allAccounts, traderCount, iteration
   ) => {
     const simReport = createSimulationReport(
-      fullSimId, startHrtime, endHrtime, transactionSource, traderCount, iteration
+      simulationId, startHrtime, endHrtime, transactionSource, traderCount, iteration
     )
 
     return simrepo.storeSimulationReport(simReport)
@@ -68,14 +68,14 @@ const SimReporter = (baseLogger, simConfig) => {
   }
 
   const createSimulationReport = (
-    fullSimId, startHrtime, endHrtime, transactionSource, traderCount, iteration
+    simulationId, startHrtime, endHrtime, transactionSource, traderCount, iteration
   ) => {
     const startPrice = transactionSource.getStartPrice()
     const endPrice = transactionSource.getEndPrice()
     const staticInvestment = Math.round(simConfig.startInvestment / startPrice * endPrice)
     const startInvestment = simConfig.startInvestment
     return {
-      fullSimId,
+      simulationId,
       iteration,
       startDate: startHrtime[0],
       endDate: endHrtime[0],
@@ -102,8 +102,8 @@ const SimReporter = (baseLogger, simConfig) => {
       return {
         clientId: account.clientId,
         run: {
-          fullSimId: simReport.fullSimId,
-          simrunid: simReport._id,
+          simulationId: simReport.simulationId,
+          simulationReportId: simReport._id,
           startDate: simReport.startDate,
           amount: account.amount,
           volume: account.volume,
