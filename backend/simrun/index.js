@@ -55,7 +55,7 @@ const runSimulation = (reporter, transactionsSource, partitionExecutor, initialT
       .then(allAccounts =>
         reporter.storeSimulationResults(
           startTime, process.hrtime(),
-          transactionsSource, partitionExecutor,
+          transactionsSource, allAccounts,
           traderConfigs.length, permutator.currentIteration()
         ).then(() => permutator.hasNext()
           ? runIteration(permutator.nextGeneration(allAccounts, traderConfigs))
