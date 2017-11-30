@@ -28,7 +28,7 @@ describe('Trader config permutator', () => {
         }
       }
 
-      const permutator = TraderConfigPermutator(genAlgoConfig)
+      const permutator = TraderConfigPermutator(console, genAlgoConfig)
       permutator.currentIteration().should.equal(1)
       permutator.progressString().should.equal(' 1/10')
       permutator.hasNext().should.equal(true)
@@ -43,7 +43,7 @@ describe('Trader config permutator', () => {
         problemSpaceRanges: {}
       }
 
-      expect(() => TraderConfigPermutator(genAlgoConfig))
+      expect(() => TraderConfigPermutator(console, genAlgoConfig))
         .to.throw(Error, 'iterations not configured!')
     })
   })
@@ -208,7 +208,7 @@ describe('Trader config permutator', () => {
 
     it('generate new generation', () => {
       const random = testRandom()
-      const permutator = TraderConfigPermutator(genAlgoConfig, random)
+      const permutator = TraderConfigPermutator(console, genAlgoConfig, random)
       const nextGenerationConfigs = permutator.nextGeneration(accountsResults, traderConfigs)
 
       nextGenerationConfigs.should.deep.equal(expectedDeterministicChildren)

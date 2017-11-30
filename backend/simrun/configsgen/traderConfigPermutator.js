@@ -1,5 +1,8 @@
 const deepAssign = require('assign-deep')
 
+const { TantalusLogger } = require('../../utils/tantalusLogger')
+const { volumeString } = require('../../utils/ordersHelper')
+
 const { clientId, padNumStart, countDecimals } = require('./traderConfigUtils')
 const TraderConfigGenerator = require('./traderConfigGenerator')
 
@@ -27,8 +30,9 @@ const throwError = name => {
   throw Error(`${name} not configured!`)
 }
 
-const TraderConfigPermutator = (genAlgoConfig, random = PermutatorRandom()) => {
+const TraderConfigPermutator = (baseLogger, genAlgoConfig, random = PermutatorRandom()) => {
   checkGenAlgoConfig(genAlgoConfig)
+  const logger = TantalusLogger(baseLogger, 'GenAlgo')
 
   const problemSpace = genAlgoConfig.problemSpaceRanges
   const traderConfigGenerator = TraderConfigGenerator().createGenerator(problemSpace)
@@ -48,12 +52,14 @@ const TraderConfigPermutator = (genAlgoConfig, random = PermutatorRandom()) => {
   const currentIteration = () => data.currentIteration
   const progressString = () => `${padNumStart(data.currentIteration, iterationDigits)}/${iterations}`
 
-  const hasNext = () => data.currentIteration <= iterations
+  const hasNext = () => data.currentIteration < iterations
 
   const nextGeneration = (accounts, traderConfigs) => {
     data.currentIteration++
 
     const parentPopulation = extractParentPopulation(accounts, traderConfigs)
+    logTotalFitnessOf(parentPopulation)
+
     const nextGenConfigs = pairupParents(parentPopulation)
       .reduce(breedNextGeneration, [])
       .map(mutateAlleles)
@@ -61,7 +67,11 @@ const TraderConfigPermutator = (genAlgoConfig, random = PermutatorRandom()) => {
       .map(expandTraderConfigs)
       .map(addCommonTraderConfig)
 
-    return nextGenConfigs.concat(diversityImmigration(traderConfigs.length - nextGenConfigs.length))
+    const diversity = diversityImmigration(traderConfigs.length - nextGenConfigs.length)
+
+    const nextGen = nextGenConfigs.concat(diversity)
+    logger.info(`next generation configs: ${nextGen.length}`)
+    return nextGen
   }
 
   const genes = ['ts', 'bratio', 'bslots', 'sratio', 'sslots']
@@ -82,6 +92,14 @@ const TraderConfigPermutator = (genAlgoConfig, random = PermutatorRandom()) => {
       sratio: traderConfig.selling.ratio,
       sslots: traderConfig.selling.useTimeslots
     }
+  }
+
+  const logTotalFitnessOf = parentPopulation => {
+    const totalFitness = parentPopulation.reduce((total, trader) => {
+      total += trader.fitness
+      return total
+    }, 0)
+    logger.info(`parents total fitness: ${volumeString(totalFitness)}`)
   }
 
   const expandTraderConfigs = flatTraderConfig => {
