@@ -12,7 +12,7 @@ const createUsersRouter = require('./users')
 const createInvestRouter = require('./invest')
 const createSimexRouter = require('./simex')
 
-const TransactionsService = require('./transactions/transactionsService')
+const TransactionsService = require('../transactions/transactionsService')
 
 const suppressRequestLog = [
   '/api/simex/transactions',

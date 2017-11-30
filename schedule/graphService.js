@@ -1,7 +1,7 @@
 const moment = require('moment')
 
 const ScheduleRepo = require('./scheduleRepo')
-const { supportedPeriods, cutoffDate } = require('../tickers/graphPeriods')
+const { supportedPeriods, cutoffDate } = require('../backend/tickers/graphPeriods')
 
 const NOT_AVAIL = 'N/A'
 const LIMIT_RESULTS = 100

@@ -6,7 +6,7 @@ const SimRunner = require('./simRunner')
 const SimReporter = require('./simReporter')
 
 const PartitionExecutor = require('./partitionExecutor')
-const TransactionRepo = require('../backend/transactions/transactionsRepo')
+const TransactionRepo = require('../transactions/transactionsRepo')
 const TransactionsSource = require('./transactionsSource')
 
 const TraderConfigGenerator = require('./configsgen/traderConfigGenerator')

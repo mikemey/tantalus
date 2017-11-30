@@ -3,8 +3,8 @@ const nock = require('nock')
 const fs = require('fs')
 const moment = require('moment')
 
-const helpers = require('../../utils-test/helpers')
-const LatestTickerService = require('../../backend/schedule/latestTickerService')
+const helpers = require('../utils-test/helpers')
+const LatestTickerService = require('../schedule/latestTickerService')
 
 const lakebtcResponse = fs.readFileSync('backend-test/example_responses/lakebtc.json', 'utf8')
 const coinfloorResponse = fs.readFileSync('backend-test/example_responses/coinfloor.json', 'utf8')

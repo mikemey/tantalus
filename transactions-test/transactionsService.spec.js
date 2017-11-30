@@ -2,8 +2,8 @@
 const nock = require('nock')
 const moment = require('moment')
 
-const helpers = require('../../utils-test/helpers')
-const TransactionsService = require('../../backend/transactions/transactionsService')
+const helpers = require('../utils-test/helpers')
+const TransactionsService = require('../transactions/transactionsService')
 
 describe('Transaction service', () => {
   const testHost = 'http://localhost:14150'

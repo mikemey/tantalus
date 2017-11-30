@@ -1,8 +1,8 @@
 const schedule = require('node-schedule')
 
-const mongoConnection = require('../../utils/mongoConnection')
+const mongoConnection = require('../utils/mongoConnection')
 const config = require('../config').config
-const { TantalusLogger } = require('../../utils/tantalusLogger')
+const { TantalusLogger } = require('../utils/tantalusLogger')
 
 const LatestTickerService = require('./latestTickerService')
 const GraphService = require('./graphService')
