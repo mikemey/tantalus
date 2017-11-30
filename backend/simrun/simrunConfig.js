@@ -56,7 +56,7 @@ const executorConfig = {
   batchSeconds: 3600 * 4,
   transactionsUpdateSeconds: 10,
   partitionWorkerCount: 7,
-  rankingLimit: 50,
+  rankingLimit: 3,
   startInvestment: commonTraderConfig.buying.volumeLimitPence
 }
 

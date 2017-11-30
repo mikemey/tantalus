@@ -49,8 +49,10 @@ const SimReporter = (baseLogger, simConfig) => {
   const logger = TantalusLogger(baseLogger, 'Report')
   const simrepo = SimRepo()
 
-  const storeSimulationResults = (startHrtime, endHrtime, transactionSource, allAccounts, traderCount, iteration) => {
-    const simReport = createSimReport(startHrtime, endHrtime, transactionSource, traderCount, iteration)
+  const storeSimulationResults = (
+    startHrtime, endHrtime, transactionSource, allAccounts, traderCount, iteration
+  ) => {
+    const simReport = createSimulationReport(startHrtime, endHrtime, transactionSource, traderCount, iteration)
 
     return simrepo.storeSimulationReport(simReport)
       .then(() => {
@@ -62,7 +64,9 @@ const SimReporter = (baseLogger, simConfig) => {
       })
   }
 
-  const createSimReport = (startHrtime, endHrtime, transactionSource, traderCount, iteration) => {
+  const createSimulationReport = (
+    startHrtime, endHrtime, transactionSource, traderCount, iteration
+  ) => {
     const startPrice = transactionSource.getStartPrice()
     const endPrice = transactionSource.getEndPrice()
     const staticInvestment = Math.round(simConfig.startInvestment / startPrice * endPrice)
@@ -73,7 +77,7 @@ const SimReporter = (baseLogger, simConfig) => {
       startDate: startHrtime[0],
       endDate: endHrtime[0],
       workerCount: simConfig.partitionWorkerCount,
-      traderCount: traderCount,
+      traderCount,
       staticInvestment,
       startInvestment,
       transactions: {
@@ -107,8 +111,8 @@ const SimReporter = (baseLogger, simConfig) => {
     })
   }
 
-  const logSimulationResults = (simReport, traderReports) => {
-    topTraders(traderReports).forEach(report => {
+  const logSimulationResults = (simReport, traderReports) => topTraders(traderReports)
+    .forEach(report => {
       const clientId = report.clientId
       const amount = amountString(report.run.amount)
       const volume = volumeString(report.run.volume)
@@ -118,7 +122,6 @@ const SimReporter = (baseLogger, simConfig) => {
 
       logger.info(`[${clientId}]: ${fullVolume} (${investDiff}) = ${volume} + ${amount} (${price})`)
     })
-  }
 
   const topTraders = tradeReports => {
     const sorted = tradeReports.sort((repA, repB) => repB.run.fullVolume - repA.run.fullVolume)
