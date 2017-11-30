@@ -25,10 +25,7 @@ const createDatabaseDependents = () => mongo.initializeDirectConnection(executor
   .then(() => {
     const reporter = SimReporter(baseLogger, executorConfig)
     const transactionsSource = TransactionsSource(baseLogger, TransactionRepo())
-    return transactionsSource.reset(executorConfig.batchSeconds)
-      .then(() => {
-        return { transactionsSource, reporter }
-      })
+    return { transactionsSource, reporter }
   })
 
 let partitionExecutor
