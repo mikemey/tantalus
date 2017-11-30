@@ -25,7 +25,7 @@ class PartitionWorker {
     this.traderPairs = []
     this.lastTransactionPrice = 0
     this.simulatedTraderFunc = simulatedTraderFunc
-    this.logger = TantalusLogger(baseLogger, `WRK-${process.pid}`)
+    this.logger = TantalusLogger(baseLogger, `worker-${process.pid}`)
   }
 
   createTraders (workerConfigObject) {

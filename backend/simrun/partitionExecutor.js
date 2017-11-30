@@ -5,7 +5,7 @@ const { TantalusLogger } = require('../utils/tantalusLogger')
 const defaultWorkerModule = '/backend/simrun/partitionWorker'
 
 const PartitionExecutor = (baseLogger, workersModule = defaultWorkerModule) => {
-  const logger = TantalusLogger(baseLogger, 'EXEC')
+  const logger = TantalusLogger(baseLogger, 'Exec')
 
   const data = {
     actorSystem: null,
