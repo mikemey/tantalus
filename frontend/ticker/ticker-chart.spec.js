@@ -24,7 +24,7 @@ describe('ticker chart component', () => {
       { x: '2017-08-02T00:26:00.256Z', y: 3454.12 }
     ]
   }, {
-    label: 'lakebtc bid',
+    label: 'lakebtc bid', // also ignored
     data: [
       { x: '2017-08-05T00:26:00.256Z', y: 3856.08 },
       { x: '2017-08-02T00:26:00.256Z', y: 3490 }
@@ -48,14 +48,6 @@ describe('ticker chart component', () => {
     borderColor: 'rgb(18, 107, 62)',
     data: [
       { x: '2017-08-02T00:26:00.256Z', y: 3454.12 }
-    ]
-  }), datasetOptions({
-    label: 'lakebtc bid',
-    backgroundColor: 'rgba(67, 156, 111, 0.5)',
-    borderColor: 'rgb(67, 156, 111)',
-    data: [
-      { x: '2017-08-05T00:26:00.256Z', y: 3856.08 },
-      { x: '2017-08-02T00:26:00.256Z', y: 3490 }
     ]
   })]
 
