@@ -23,10 +23,6 @@ const ALL_INDEX_SPECS = [{
   collection: transactionCollectionName,
   fields: { tid: 1 },
   options: { name: 'ix_tid' }
-}, {
-  collection: traderReportsCollectionName,
-  fields: { clientId: 1 },
-  options: { name: 'ix_clientid' }
 }]
 
 const ensureAllIndices = db =>

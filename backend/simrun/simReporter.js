@@ -11,21 +11,7 @@ const SimRepo = () => {
       if (result.insertedCount !== 1) throw Error('insert simulation failed: ' + result.message)
     })
 
-  const storeTraderReports = traderReports =>
-    traderReportsCollection().bulkWrite(storeTraderReportOps(traderReports))
-      .then(() => traderReports)
-
-  const storeTraderReportOps = traderReports => traderReports.map(traderReport => {
-    return {
-      updateOne: {
-        filter: { clientId: traderReport.clientId },
-        update: {
-          $push: { runs: traderReport.run }
-        },
-        upsert: true
-      }
-    }
-  })
+  const storeTraderReports = traderReports => traderReportsCollection().insertMany(traderReports)
 
   return {
     storeSimulationReport,
@@ -101,17 +87,13 @@ const SimReporter = (baseLogger, simConfig) => {
     return allAccounts.map(account => {
       return {
         clientId: account.clientId,
-        run: {
-          simulationId: simReport.simulationId,
-          simulationReportId: simReport._id,
-          iteration: simReport.iteration,
-          startDate: simReport.startDate,
-          amount: account.amount,
-          volume: account.volume,
-          fullVolume: account.fullVolume,
-          investDiff: account.fullVolume - simReport.staticInvestment,
-          absoluteDiff: account.fullVolume - simReport.startInvestment
-        }
+        simulationId: simReport.simulationId,
+        iteration: simReport.iteration,
+        amount: account.amount,
+        volume: account.volume,
+        fullVolume: account.fullVolume,
+        investDiff: account.fullVolume - simReport.staticInvestment,
+        absoluteDiff: account.fullVolume - simReport.startInvestment
       }
     })
   }
@@ -119,17 +101,17 @@ const SimReporter = (baseLogger, simConfig) => {
   const logSimulationResults = (simReport, traderReports) => topTraders(traderReports)
     .forEach(report => {
       const clientId = report.clientId
-      const amount = amountString(report.run.amount)
-      const volume = volumeString(report.run.volume)
-      const fullVolume = volumeString(report.run.fullVolume)
-      const investDiff = volumeString(report.run.investDiff)
+      const amount = amountString(report.amount)
+      const volume = volumeString(report.volume)
+      const fullVolume = volumeString(report.fullVolume)
+      const investDiff = volumeString(report.investDiff)
       const price = priceString(simReport.transactions.endPrice)
 
       logger.info(`[${clientId}]: ${fullVolume} (${investDiff}) = ${volume} + ${amount} (${price})`)
     })
 
   const topTraders = tradeReports => {
-    const sorted = tradeReports.sort((repA, repB) => repB.run.fullVolume - repA.run.fullVolume)
+    const sorted = tradeReports.sort((repA, repB) => repB.fullVolume - repA.fullVolume)
     return tradeReports.length > simConfig.rankingLimit
       ? sorted.slice(0, simConfig.rankingLimit)
       : sorted
