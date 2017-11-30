@@ -1,29 +1,31 @@
 const mongo = require('../utils/mongoConnection')
 
 const { TantalusLogger, redText } = require('../utils/tantalusLogger')
+const { executorConfig, initialGeneratorRanges, genAlgoConfig } = require('./simrunConfig')
+const SimRunner = require('./simRunner')
+const SimReporter = require('./simReporter')
+
 const PartitionExecutor = require('./partitionExecutor')
 const TransactionRepo = require('../transactions/transactionsRepo')
 const TransactionsSource = require('./transactionsSource')
-const TraderConfigsGenerator = require('./traderConfigsGenerator')
 
-const { executorConfig, generatorConfig } = require('./simrunConfig')
-const SimRunner = require('./simRunner')
-const SimReporter = require('./simReporter')
+const TraderConfigGenerator = require('./configsgen/traderConfigGenerator')
+const TraderConfigPermutator = require('./configsgen/traderConfigPermutator')
 
 const baseLogger = console
 const simLogger = TantalusLogger(baseLogger, 'SimMain', redText)
 
 const initialGeneratedConfigs = generatorConfig => {
-  return TraderConfigsGenerator()
+  return TraderConfigGenerator()
     .createGenerator(generatorConfig)
     .toArray()
 }
 
-const createDatabaseDependents = config => mongo.initializeDirectConnection(config, simLogger)
+const createDatabaseDependents = () => mongo.initializeDirectConnection(executorConfig, simLogger)
   .then(() => {
-    const reporter = SimReporter(baseLogger, config)
+    const reporter = SimReporter(baseLogger, executorConfig)
     const transactionsSource = TransactionsSource(baseLogger, TransactionRepo())
-    return transactionsSource.reset(config.batchSeconds)
+    return transactionsSource.reset(executorConfig.batchSeconds)
       .then(() => {
         return { transactionsSource, reporter }
       })
@@ -40,15 +42,29 @@ const shutdownPartitionExecutor = () => {
   if (partitionExecutor) return partitionExecutor.shutdown()
 }
 
-const startTime = process.hrtime()
+const runSimulation = (reporter, transactionsSource, partitionExecutor, initialTraderConfigs) => {
+  const simRunner = SimRunner(baseLogger, transactionsSource, partitionExecutor)
+  const permutator = TraderConfigPermutator(genAlgoConfig)
 
-const runSimulation = (reporter, transactionsSource, partitionExecutor, executorConfig, traderConfigs) => {
-  return SimRunner(baseLogger, transactionsSource, partitionExecutor)
-    .run(executorConfig, traderConfigs)
-    .then(() => reporter
-      .storeSimulationResults(startTime, process.hrtime(), transactionsSource, partitionExecutor, traderConfigs.length)
-    )
-    .catch(errorHandler('Run simulation: ', true))
+  const runIteration = traderConfigs => {
+    const startTime = process.hrtime()
+
+    return transactionsSource.reset(executorConfig.batchSeconds)
+      .then(() => simRunner.run(executorConfig, traderConfigs, permutator.progressString()))
+      .then(partitionExecutor.getAllAccounts)
+      .then(allAccounts =>
+        reporter.storeSimulationResults(
+          startTime, process.hrtime(),
+          transactionsSource, partitionExecutor,
+          traderConfigs.length, permutator.currentIteration()
+        ).then(() => permutator.hasNext()
+          ? runIteration(permutator.nextGeneration(allAccounts, traderConfigs))
+          : Promise.resolve())
+      )
+      .catch(errorHandler('Run simulation: ', true))
+  }
+
+  return runIteration(initialTraderConfigs)
 }
 
 const shutdown = () => {
@@ -70,13 +86,12 @@ process.on('uncaughtException', errorHandler('uncaught exception: ', true))
 
 Promise.all([
   startupPartitionExecutor(),
-  initialGeneratedConfigs(generatorConfig),
-  createDatabaseDependents(executorConfig)
+  initialGeneratedConfigs(initialGeneratorRanges),
+  createDatabaseDependents()
 ]).then(([_, traderConfigs, dbworker]) => {
   const transactionsSource = dbworker.transactionsSource
   const reporter = dbworker.reporter
-  return runSimulation(reporter, transactionsSource, partitionExecutor, executorConfig, traderConfigs)
-})
-  .catch(errorHandler('Setup simulation: ', true))
+  return runSimulation(reporter, transactionsSource, partitionExecutor, traderConfigs)
+}).catch(errorHandler('Setup simulation: ', true))
   .then(shutdownPartitionExecutor)
   .then(shutdown)
