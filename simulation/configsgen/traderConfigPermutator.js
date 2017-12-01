@@ -32,7 +32,7 @@ const throwError = name => {
 
 const TraderConfigPermutator = (baseLogger, genAlgoConfig, random = PermutatorRandom()) => {
   checkGenAlgoConfig(genAlgoConfig)
-  const logger = TantalusLogger(baseLogger, 'GenAlgo')
+  const logger = TantalusLogger(baseLogger, 'CfgPermut')
 
   const problemSpace = genAlgoConfig.problemSpaceRanges
   const traderConfigGenerator = TraderConfigGenerator().createGenerator(problemSpace)
@@ -92,6 +92,10 @@ const TraderConfigPermutator = (baseLogger, genAlgoConfig, random = PermutatorRa
       sratio: traderConfig.selling.ratio,
       sslots: traderConfig.selling.useTimeslots
     }
+  }
+
+  const logLastParentsFitness = (accounts, traderConfigs) => {
+    logTotalFitnessOf(extractParentPopulation(accounts, traderConfigs))
   }
 
   const logTotalFitnessOf = parentPopulation => {
@@ -227,7 +231,8 @@ const TraderConfigPermutator = (baseLogger, genAlgoConfig, random = PermutatorRa
     hasNext,
     currentIteration,
     progressString,
-    nextGeneration
+    nextGeneration,
+    logLastParentsFitness
   }
 }
 
