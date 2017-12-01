@@ -10,7 +10,7 @@ const helpers = require('./helpers')
 xdescribe('exploring', () => {
   const log = console.log
 
-  describe('lakebtc', () => {
+  xdescribe('lakebtc', () => {
     it('orders', () => requests
       .getJson('https://api.LakeBTC.com/api_v2/bcorderbook?symbol=btcgbp')
       .then(body => {
@@ -30,7 +30,7 @@ xdescribe('exploring', () => {
       }))
   })
 
-  describe('migrating data', () => {
+  xdescribe('migrating data', () => {
     xit('insert', () => {
       const tickerData = [{
         created: new Date(),
@@ -58,26 +58,26 @@ xdescribe('exploring', () => {
         actualTicker.tickers.should.deep.equal(expectedTicker)
       })
     })
-  })
 
-  it('mongo queries', () => {
-    const db = {}
-    const ISODate = {}
+    xit('mongo queries', () => {
+      const db = {}
+      const ISODate = {}
 
-    // -------------------
-    db.tickers.find(
-      { created: { $gte: new ISODate('2017-08-02T05:26:00Z') } },
-      { _id: false, created: true, tickers: true }
-    ).sort({ created: -1 })
-    // -------------------
-    db.tickers.aggregate([{
-      $sort: { created: -1 }
-    }, {
-      $group: {
-        _id: { $dayOfYear: '$created' },
-        closing: { $first: '$tickers' }
-      }
-    }])
+      // -------------------
+      db.tickers.find(
+        { created: { $gte: new ISODate('2017-08-02T05:26:00Z') } },
+        { _id: false, created: true, tickers: true }
+      ).sort({ created: -1 })
+      // -------------------
+      db.tickers.aggregate([{
+        $sort: { created: -1 }
+      }, {
+        $group: {
+          _id: { $dayOfYear: '$created' },
+          closing: { $first: '$tickers' }
+        }
+      }])
+    })
   })
 
   it('should print colors', () => {
@@ -86,7 +86,7 @@ xdescribe('exploring', () => {
       .forEach(c => colormsg(`THIS is color # ${c}`, c))
   })
 
-  describe('Simex queries', () => {
+  xdescribe('Simex queries', () => {
     const config = {
       exchangeHost: 'https://msm-itc.com/api/simex',
       clientId: 'haumea'
@@ -120,5 +120,102 @@ xdescribe('exploring', () => {
           transactions.map(transactionCsv).forEach(x => console.log(x))
         })
     })
+  })
+
+  const fs = require('fs')
+
+  const output = simulationId => {
+    const filename = `sim_${simulationId}.csv`
+    if (fs.existsSync(filename)) {
+      fs.truncateSync(filename, 0)
+    }
+    return msg => fs.appendFileSync(filename, `${msg}\n`)
+  }
+
+  xdescribe('simulation reports', () => {
+    const mongo = require('../utils/mongoConnection')
+
+    let _db
+    const simReportColl = () => _db.collection(mongo.simulationReportsCollectionName)
+    const traderReportColl = () => _db.collection(mongo.traderReportsCollectionName)
+
+    before(() => helpers.mongodb().then(db => { _db = db }))
+
+    it.only('export as csv', () => {
+      const simulationId = 'sec'
+
+      const getSimReports = simReportColl().find({ simulationId }).toArray()
+      const getTraderReports = traderReportColl().find({ simulationId }).toArray()
+      return Promise.all([
+        getSimReports,
+        getTraderReports
+      ]).then(([simReports, traderReports]) => {
+        const simreport = simReports[0]
+        const write = output(simreport.simulationId)
+        // const write = console.log
+
+        // write(`SimulationId,${simreport.simulationId}`)
+        // write(`static investment,"${(simreport.staticInvestment / 100).toFixed(2)}"`)
+
+        const createIterationBuckets = traderReports => traderReports
+          .sort((r1, r2) => r1.iteration - r2.iteration || r2.fullVolume - r1.fullVolume)
+          .reduce((iterations, report) => {
+            const bucket = iterations[report.iteration] || []
+            bucket.push(report)
+            if (bucket.length === 1) {
+              iterations[report.iteration] = bucket
+            }
+            return iterations
+          }, [])
+          .slice(1)
+
+        const iterationBuckets = createIterationBuckets(traderReports)
+
+        const staticHeaders = ['rank']
+        const rankColumnIx = 0
+        const dataColumnOffset = staticHeaders.length
+
+        const headers = staticHeaders.concat(...iterationBuckets.map((_, ix) => {
+          const it = ix + 1
+          return [`vol it_${it}`]
+          // return [`vol it_${it}`, `cid it_${it}`, `invD it_${it}`]
+        }))
+
+        const csvdata = []
+        iterationBuckets.forEach((itBucket, itBucketIx) => {
+          const it = itBucketIx + 1
+          console.log('writing iteration: ' + it)
+          itBucket.slice(0, 100).forEach((report, rowIx) => {
+            if (csvdata[rowIx] === undefined) csvdata[rowIx] = []
+            csvdata[rowIx][rankColumnIx] = rowIx + 1
+
+            const itColumnOffset = dataColumnOffset + itBucketIx * 3
+            csvdata[rowIx][itColumnOffset] = (report.investDiff / 100).toFixed(2)
+            // csvdata[rowIx][itColumnOffset + 1] = report.clientId
+            // csvdata[rowIx][itColumnOffset + 2] = (report.investDiff / 100).toFixed(2)
+          })
+        })
+
+        const rowToString = row => row.reduce((fullString, cell) => {
+          fullString += `"${cell}",`
+          return fullString
+        }, '')
+
+        write(rowToString(headers))
+        csvdata.map(rowToString).forEach(write)
+      })
+    })
+
+    // {
+    //   "_id" : ObjectId("5a20884160973d122c8649a6"),
+    //   "clientId" : "T( 100)_B(   2 / 2)_S(   -6 / 2)",
+    //   "simulationId" : "sec",
+    //   "iteration" : 1,
+    //   "amount" : 0,
+    //   "volume" : 18977,
+    //   "fullVolume" : 18977,
+    //   "investDiff" : -123254,
+    //   "absoluteDiff" : -81023
+
   })
 })

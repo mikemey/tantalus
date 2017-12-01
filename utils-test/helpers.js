@@ -106,6 +106,7 @@ const copyObjectWithoutField = deleteField => obj => {
 
 module.exports = {
   startTestServer,
+  mongodb,
   connectMongoose,
   closeMongoose,
   dropDatabase,
