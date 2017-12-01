@@ -1,23 +1,10 @@
-const mongo = require('../utils/mongoConnection')
-const { TantalusLogger } = require('../utils/tantalusLogger')
-const { amountString, priceString, volumeString } = require('../utils/ordersHelper')
+const { TantalusLogger } = require('../../utils/tantalusLogger')
+const { amountString, priceString, volumeString } = require('../../utils/ordersHelper')
 
-const SimRepo = () => {
-  const simulationReportsCollection = () => mongo.db.collection(mongo.simulationReportsCollectionName)
-  const traderReportsCollection = () => mongo.db.collection(mongo.traderReportsCollectionName)
+const SimRepo = require('./simRepo')
 
-  const storeSimulationReport = simReport => simulationReportsCollection().insertOne(simReport)
-    .then(result => {
-      if (result.insertedCount !== 1) throw Error('insert simulation failed: ' + result.message)
-    })
-
-  const storeTraderReports = traderReports => traderReportsCollection().insertMany(traderReports)
-
-  return {
-    storeSimulationReport,
-    storeTraderReports
-  }
-}
+const TransactionRepo = require('../../transactions/transactionsRepo')
+const TransactionsSource = require('../transactiontrader/txSource')
 
 const checkConfig = config => {
   if (!config.batchSeconds) throwError('batchSeconds')
@@ -35,29 +22,41 @@ const SimReporter = (baseLogger, simConfig) => {
   const logger = TantalusLogger(baseLogger, 'Report')
   const simrepo = SimRepo()
 
-  const storeSimulationResults = (
-    simulationId, startHrtime, endHrtime,
-    transactionSource, allAccounts, traderCount, iteration
-  ) => {
-    const simReport = createSimulationReport(
-      simulationId, startHrtime, endHrtime, transactionSource, traderCount, iteration
-    )
+  let staticReportData
 
-    return simrepo.storeSimulationReport(simReport)
-      .then(() => {
-        const traderReports = createTraderReports(simReport, allAccounts)
-        return Promise.all([
-          simrepo.storeTraderReports(traderReports),
-          logSimulationResults(simReport, traderReports)
-        ]).then(() => simReport)
-      })
+  const getStaticReportData = () => staticReportData
+    ? Promise.resolve(staticReportData)
+    : loadStaticReportData()
+
+  const loadStaticReportData = () => {
+    staticReportData = TransactionsSource(baseLogger, TransactionRepo())
+    return staticReportData.reset(simConfig.batchSeconds)
+      .then(() => staticReportData)
   }
 
+  const storeSimulationResults = (
+    simulationId, startHrtime, endHrtime,
+    allAccounts, traderCount, iteration
+  ) => getStaticReportData()
+    .then(staticReportData => {
+      const simReport = createSimulationReport(
+        simulationId, startHrtime, endHrtime, staticReportData, traderCount, iteration
+      )
+      return simrepo.storeSimulationReport(simReport)
+        .then(() => {
+          const traderReports = createTraderReports(simReport, allAccounts)
+          return Promise.all([
+            simrepo.storeTraderReports(traderReports),
+            logSimulationResults(simReport, traderReports)
+          ]).then(() => simReport)
+        })
+    })
+
   const createSimulationReport = (
-    simulationId, startHrtime, endHrtime, transactionSource, traderCount, iteration
+    simulationId, startHrtime, endHrtime, staticReportData, traderCount, iteration
   ) => {
-    const startPrice = transactionSource.getStartPrice()
-    const endPrice = transactionSource.getEndPrice()
+    const startPrice = staticReportData.getStartPrice()
+    const endPrice = staticReportData.getEndPrice()
     const staticInvestment = Math.round(simConfig.startInvestment / startPrice * endPrice)
     const startInvestment = simConfig.startInvestment
     return {
@@ -70,14 +69,14 @@ const SimReporter = (baseLogger, simConfig) => {
       staticInvestment,
       startInvestment,
       transactions: {
-        count: transactionSource.transactionCount(),
-        startDate: transactionSource.getStartDate(),
-        endDate: transactionSource.getEndDate(),
+        count: staticReportData.transactionCount(),
+        startDate: staticReportData.getStartDate(),
+        endDate: staticReportData.getEndDate(),
         startPrice,
         endPrice
       },
       batches: {
-        count: transactionSource.batchCount(),
+        count: staticReportData.batchCount(),
         duration: simConfig.batchSeconds
       }
     }

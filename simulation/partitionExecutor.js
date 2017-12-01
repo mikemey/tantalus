@@ -2,7 +2,7 @@ const actors = require('comedy')
 
 const { TantalusLogger } = require('../utils/tantalusLogger')
 
-const defaultWorkerModule = '/simulation/partitionWorker'
+const defaultWorkerModule = '/simulation/transactiontrader/partitionWorker'
 
 const PartitionExecutor = (baseLogger, workersModule = defaultWorkerModule) => {
   const logger = TantalusLogger(baseLogger, 'Exec')
@@ -26,7 +26,10 @@ const PartitionExecutor = (baseLogger, workersModule = defaultWorkerModule) => {
         const workerConfigObjects = splitTraderConfigs(allTraderConfigs, executorConfig.partitionWorkerCount)
         return Promise.all(workerConfigObjects.map(createWorker(rootActor)))
       })
-      .then(workers => { data.workers = workers })
+      .then(workers => {
+        logger.info(`created ${workers.length} workers`)
+        data.workers = workers
+      })
   }
 
   const splitTraderConfigs = (traderConfigs, configuredWorkerCount) => {
@@ -55,8 +58,8 @@ const PartitionExecutor = (baseLogger, workersModule = defaultWorkerModule) => {
     .all(data.workers.map(worker => worker.destroy()))
     .then(() => { data.workers = [] })
 
-  const drainTransactions = slice => Promise
-    .all(data.workers.map(worker => worker.sendAndReceive('drainTransactions', slice)))
+  const runIteration = iterationProgress => Promise
+    .all(data.workers.map(worker => worker.sendAndReceive('runIteration', iterationProgress)))
 
   const getAllAccounts = () => Promise
     .all(data.workers.map(worker => worker.sendAndReceive('getAccounts')))
@@ -66,7 +69,7 @@ const PartitionExecutor = (baseLogger, workersModule = defaultWorkerModule) => {
     init,
     configureWorkers,
     shutdown,
-    drainTransactions,
+    runIteration,
     getAllAccounts
   }
 }

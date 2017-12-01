@@ -2,12 +2,9 @@ const mongo = require('../utils/mongoConnection')
 
 const { TantalusLogger, redText } = require('../utils/tantalusLogger')
 const { executorConfig, initialGeneratorRanges, genAlgoConfig } = require('./simrunConfig')
-const SimRunner = require('./simRunner')
-const SimReporter = require('./simReporter')
+const SimReporter = require('./reporter/simReporter')
 
 const PartitionExecutor = require('./partitionExecutor')
-const TransactionRepo = require('../transactions/transactionsRepo')
-const TransactionsSource = require('./transactionsSource')
 
 const TraderConfigGenerator = require('./configsgen/traderConfigGenerator')
 const TraderConfigPermutator = require('./configsgen/traderConfigPermutator')
@@ -21,12 +18,9 @@ const initialGeneratedConfigs = () => {
     .toArray()
 }
 
-const createDatabaseDependents = () => mongo.initializeDirectConnection(executorConfig, simLogger)
-  .then(() => {
-    const reporter = SimReporter(baseLogger, executorConfig)
-    const transactionsSource = TransactionsSource(baseLogger, TransactionRepo())
-    return { transactionsSource, reporter }
-  })
+const createSimReporter = () => mongo
+  .initializeDirectConnection(executorConfig, simLogger)
+  .then(() => SimReporter(baseLogger, executorConfig))
 
 let partitionExecutor
 
@@ -39,21 +33,18 @@ const shutdownPartitionExecutor = () => {
   if (partitionExecutor) return partitionExecutor.shutdown()
 }
 
-const runSimulation = (simulationId, reporter, transactionsSource, partitionExecutor, initialTraderConfigs) => {
-  const simRunner = SimRunner(baseLogger, transactionsSource, partitionExecutor)
+const runSimulation = (simulationId, reporter, partitionExecutor, initialTraderConfigs) => {
   const permutator = TraderConfigPermutator(baseLogger, genAlgoConfig)
 
   const runIteration = traderConfigs => {
     const startTime = process.hrtime()
-
-    return transactionsSource.reset(executorConfig.batchSeconds)
-      .then(() => simRunner.run(executorConfig, traderConfigs, permutator.progressString()))
+    return partitionExecutor.configureWorkers(executorConfig, traderConfigs)
+      .then(() => partitionExecutor.runIteration(permutator.progressString()))
       .then(partitionExecutor.getAllAccounts)
       .then(allAccounts =>
         reporter.storeSimulationResults(
           simulationId, startTime, process.hrtime(),
-          transactionsSource, allAccounts,
-          traderConfigs.length, permutator.currentIteration()
+          allAccounts, traderConfigs.length, permutator.currentIteration()
         ).then(() => permutator.hasNext()
           ? runIteration(permutator.nextGeneration(allAccounts, traderConfigs))
           : permutator.logLastParentsFitness(allAccounts, traderConfigs))
@@ -80,11 +71,9 @@ const errorHandler = (prefix, stop) => err => {
 const simulation = simulationId => Promise.all([
   startupPartitionExecutor(),
   initialGeneratedConfigs(),
-  createDatabaseDependents()
-]).then(([_, traderConfigs, dbworker]) => {
-  const transactionsSource = dbworker.transactionsSource
-  const reporter = dbworker.reporter
-  return runSimulation(simulationId, reporter, transactionsSource, partitionExecutor, traderConfigs)
+  createSimReporter()
+]).then(([_, traderConfigs, reporter]) => {
+  return runSimulation(simulationId, reporter, partitionExecutor, traderConfigs)
 }).catch(errorHandler('Setup simulation: ', true))
   .then(shutdownPartitionExecutor)
   .then(shutdown)

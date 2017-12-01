@@ -10,14 +10,14 @@ const commonTraderConfig = {
 }
 
 const initialGeneratorRanges = {
-  timeslotSeconds: { start: 100, end: 500, step: 40 },
+  timeslotSeconds: { start: 100, end: 180, step: 40 },
   buying: {
-    ratio: { start: 2, end: 6, step: 2 },
-    useTimeslots: { start: 2, end: 6, step: 2 }
+    ratio: { start: 2, end: 2, step: 2 },
+    useTimeslots: { start: 2, end: 2, step: 2 }
   },
   selling: {
-    ratio: { start: -6, end: -2, step: 2 },
-    useTimeslots: { start: 2, end: 6, step: 2 }
+    ratio: { start: -2, end: -2, step: 2 },
+    useTimeslots: { start: 2, end: 2, step: 2 }
   },
   commonTraderConfig
 }
@@ -54,7 +54,7 @@ const executorConfig = {
   },
   batchSeconds: 3600 * 10,
   transactionsUpdateSeconds: 10,
-  partitionWorkerCount: 7,
+  partitionWorkerCount: 1,
   rankingLimit: 3,
   startInvestment: commonTraderConfig.buying.volumeLimitPence
 }
