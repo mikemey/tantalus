@@ -4,7 +4,7 @@ const { amountString, priceString, volumeString } = require('../../utils/ordersH
 const SimRepo = require('./simRepo')
 
 const TransactionRepo = require('../../transactions/transactionsRepo')
-const TransactionsSource = require('../transactiontrader/txSource')
+const TransactionsSource = require('../txtrader/txSource')
 
 const checkConfig = config => {
   if (!config.batchSeconds) throwError('batchSeconds')
