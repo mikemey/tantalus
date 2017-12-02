@@ -1,12 +1,13 @@
-const SimulatedTrader = require('./simulatedTrader')
+const SlotsAverager = require('./slicing/slotsAverager')
 
-const TransactionSlicer = (logger, workerConfigObject, transactionsUpdateSeconds) => {
+const TransactionSlicer = (logger, workerConfigObject, transactionsUpdateSeconds, createSlotsAverager = SlotsAverager) => {
+  const services = {
+    // simulatedTraders: workerConfigObject.traderConfigs.map(createSimulatedTrader),
+    slotsAverager: createSlotsAverager()
+  }
   const data = {
     latestSliceTransactions: [],
-    nextSliceStartDate: 0,
-    simulatedTraders: workerConfigObject.traderConfigs.map(cfg => SimulatedTrader(cfg)),
-
-    transactionsOfInterest: []
+    nextSliceStartDate: 0
   }
 
   const isReady = () => data.nextSliceStartDate !== 0
