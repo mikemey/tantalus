@@ -1,4 +1,4 @@
-const PartitionWorker = require('../simulation/partitionWorker')
+const PartitionWorker = require('../../simulation/txtrader/partitionWorker')
 
 describe('Partition worker', () => {
   const slice = { unixNow: 100, transactions: [{ tid: 4, price: 500000 }, { tid: 3, price: 400000 }, { tid: 2, price: 400000 }] }

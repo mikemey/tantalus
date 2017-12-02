@@ -7,7 +7,7 @@ const PartitionWorkerMockReceiver = () => {
   const data = {
     server: null,
     createdTradersCalled: [],
-    drainTransactionsCalled: []
+    runIterationCalled: []
   }
 
   const createTradersCalled = (req, res) => {
@@ -15,8 +15,8 @@ const PartitionWorkerMockReceiver = () => {
     return res.status(200).send()
   }
 
-  const drainTransactionsCalled = (req, res) => {
-    data.drainTransactionsCalled.push(req.body)
+  const runIterationCalled = (req, res) => {
+    data.runIterationCalled.push(req.body)
     return res.status(200).send()
   }
 
@@ -24,7 +24,7 @@ const PartitionWorkerMockReceiver = () => {
     const app = express()
     app.use(bodyParser.json())
     app.post('/createTradersCalled', createTradersCalled)
-    app.post('/drainTransactionsCalled', drainTransactionsCalled)
+    app.post('/runIterationCalled', runIterationCalled)
     data.server = app.listen(12345, resolve)
   })
 
@@ -36,7 +36,7 @@ const PartitionWorkerMockReceiver = () => {
     startServer,
     stopServer,
     getCreatedTradersCalled: () => data.createdTradersCalled,
-    getDrainTransactionsCalled: () => data.drainTransactionsCalled
+    getRunIterationCalled: () => data.runIterationCalled
   }
 }
 
@@ -97,14 +97,14 @@ describe('Partition executor', function () {
     })
 
     it('should forward slices to traders', () => {
-      const slice = { unixNow: 100, transactions: [{ a: 2 }, { a: 3 }, { a: 4 }] }
+      const iterationProgress = { bla: 'balbalbal' }
 
-      return partitionExecutor.drainTransactions(slice)
+      return partitionExecutor.runIteration(iterationProgress)
         .then(() => {
-          const drainTransactionsCalled = partitionWorkerMockReceiver.getDrainTransactionsCalled()
+          const drainTransactionsCalled = partitionWorkerMockReceiver.getRunIterationCalled()
           drainTransactionsCalled.should.have.length(executorConfig.partitionWorkerCount)
           drainTransactionsCalled
-            .forEach(drainCalled => drainCalled.should.deep.equal(slice))
+            .forEach(drainCalled => drainCalled.should.deep.equal(iterationProgress))
         })
     })
 

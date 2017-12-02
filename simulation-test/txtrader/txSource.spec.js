@@ -1,6 +1,6 @@
 const expect = require('chai').expect
 
-const TransactionsSource = require('../simulation/transactionsSource')
+const TransactionsSource = require('../../simulation/txtrader/txSource')
 
 describe('Transaction source', () => {
   const transactionsEarliestDate = 230

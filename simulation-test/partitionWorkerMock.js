@@ -10,8 +10,8 @@ class PartitionWorkerMock {
     return this.sendResults('createTradersCalled', workerConfig)
   }
 
-  drainTransactions (transactionsSlice) {
-    return this.sendResults('drainTransactionsCalled', transactionsSlice)
+  runIteration (iterationProgress) {
+    return this.sendResults('runIterationCalled', iterationProgress)
   }
 
   getAccounts () {
