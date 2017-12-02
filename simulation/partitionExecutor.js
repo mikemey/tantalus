@@ -23,7 +23,7 @@ const PartitionExecutor = (baseLogger, workersModule = defaultWorkerModule) => {
     return destroyExistingWorkers()
       .then(() => data.actorSystem.rootActor())
       .then(rootActor => {
-        const workerConfigObjects = splitTraderConfigs(allTraderConfigs, executorConfig.partitionWorkerCount)
+        const workerConfigObjects = createWorkerConfigs(allTraderConfigs, executorConfig.partitionWorkerCount)
         return Promise.all(workerConfigObjects.map(createWorker(rootActor)))
       })
       .then(workers => {
@@ -32,7 +32,7 @@ const PartitionExecutor = (baseLogger, workersModule = defaultWorkerModule) => {
       })
   }
 
-  const splitTraderConfigs = (traderConfigs, configuredWorkerCount) => {
+  const createWorkerConfigs = (traderConfigs, configuredWorkerCount) => {
     const totalConfigsCount = traderConfigs.length
     const workerCount = Math.min(totalConfigsCount, configuredWorkerCount)
 
