@@ -4,7 +4,9 @@ const TransactionSlicer = (logger, workerConfigObject, transactionsUpdateSeconds
   const data = {
     latestSliceTransactions: [],
     nextSliceStartDate: 0,
-    simulatedTraders: workerConfigObject.traderConfigs.map(cfg => SimulatedTrader(cfg))
+    simulatedTraders: workerConfigObject.traderConfigs.map(cfg => SimulatedTrader(cfg)),
+
+    transactionsOfInterest: []
   }
 
   const isReady = () => data.nextSliceStartDate !== 0
@@ -14,7 +16,6 @@ const TransactionSlicer = (logger, workerConfigObject, transactionsUpdateSeconds
   }
 
   const runBatch = transactions => {
-
     const slices = sliceTransactions(transactions)
     if (slices.length) sendSlicesToTraders(slices)
   }

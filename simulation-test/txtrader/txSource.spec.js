@@ -29,7 +29,7 @@ describe('Transaction source', () => {
       readTransactions: (from, to) => {
         if (from === 230 && to === 329) return Promise.resolve(firstSlice)
         if (from === 330 && to === 429) return Promise.resolve(secondSlice)
-        if (from === 430 && to === 529) return Promise.resolve(thirdSlice) // returns slices test
+        if (from === 430 && to === 431) return Promise.resolve(thirdSlice) // returns slices test
         if (from === 400 && to === 499) return Promise.resolve(thirdSlice) // throw error test
         if (from === 230 && to === 430) return Promise.resolve(oneSlice) // resets batchNum test
         throw Error(`readTransactions: unexpected parameters: from: ${from}, to ${to}`)
@@ -64,7 +64,7 @@ describe('Transaction source', () => {
       .then(() => transactionsSource.next())
       .then(expectBatch(1, 230, 329, firstSlice))
       .then(expectBatch(2, 330, 429, secondSlice))
-      .then(expectBatch(3, 430, 529, thirdSlice, false))
+      .then(expectBatch(3, 430, 431, thirdSlice, false))
   })
 
   it('should throw error when next called after last slice', () => {
