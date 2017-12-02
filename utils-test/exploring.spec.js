@@ -139,9 +139,47 @@ xdescribe('exploring', () => {
     const simReportColl = () => _db.collection(mongo.simulationReportsCollectionName)
     const traderReportColl = () => _db.collection(mongo.traderReportsCollectionName)
 
-    before(() => helpers.mongodb().then(db => { _db = db }))
+    const testConfig = {
+      mongodb: { url: 'mongodb://127.0.0.1:27017/tantalus' }
+    }
+    before(() => mongo.initializeDirectConnection(testConfig, console).then(db => { _db = db }))
 
-    it.only('export as csv', () => {
+    it('analyze clientIds', () => {
+      const simulationId = 'sec'
+
+      return traderReportColl().find({ simulationId }, { clientId: 1, _id: 0 }).toArray()
+        .then(reports => {
+          const batchLengths = reports.map(report => report.clientId.slice(2, 6))
+
+          const maxBatchLength = batchLengths.reduce((prev, curr) => Math.max(prev, curr), 0)
+          // record => {
+          console.log('reports: ' + batchLengths.length)
+          console.log('maxBatchLength: ' + maxBatchLength)
+          const counters = new Array(maxBatchLength + 1).fill(0)
+          batchLengths.forEach(bl => counters[Number(bl)]++)
+
+          counters.forEach((counter, ix) => {
+            if (counter > 0) console.log(`batch length: ${ix} - count ${counter}`)
+          })
+          console.log('distinct batch lengths: ' + counters.filter(c => c).length)
+
+          // reports.forEach(report => console.log(report.clientId.slice(2, 6)))
+          // let clientIdCounts = []
+        })
+    })
+
+    // {
+    //   "_id" : ObjectId("5a20884160973d122c8649a6"),
+    //   "clientId" : "T( 100)_B(   2 / 2)_S(   -6 / 2)",
+    //   "simulationId" : "sec",
+    //   "iteration" : 1,
+    //   "amount" : 0,
+    //   "volume" : 18977,
+    //   "fullVolume" : 18977,
+    //   "investDiff" : -123254,
+    //   "absoluteDiff" : -81023
+
+    it('export as csv', () => {
       const simulationId = 'sec'
 
       const getSimReports = simReportColl().find({ simulationId }).toArray()
@@ -205,17 +243,5 @@ xdescribe('exploring', () => {
         csvdata.map(rowToString).forEach(write)
       })
     })
-
-    // {
-    //   "_id" : ObjectId("5a20884160973d122c8649a6"),
-    //   "clientId" : "T( 100)_B(   2 / 2)_S(   -6 / 2)",
-    //   "simulationId" : "sec",
-    //   "iteration" : 1,
-    //   "amount" : 0,
-    //   "volume" : 18977,
-    //   "fullVolume" : 18977,
-    //   "investDiff" : -123254,
-    //   "absoluteDiff" : -81023
-
   })
 })
