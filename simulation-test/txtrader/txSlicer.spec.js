@@ -1,4 +1,5 @@
 const sinon = require('sinon')
+require('chai').should()
 const TransactionSlicer = require('../../simulation/txtrader/txSlicer')
 
 describe('Transaction slicer', () => {
@@ -59,8 +60,10 @@ describe('Transaction slicer', () => {
       addBatchUpdate: sinon.stub(),
       getTransactionUpdate: sinon.stub()
     }
-    const createTxWindowMock = config => {
+    const createTxWindowMock = (config, txUpdateSeconds) => {
       config.should.deep.equal(workerConfigs)
+      txUpdateSeconds.should.deep.equal(testUpdateSeconds)
+
       return txWindowMock
     }
 
@@ -78,10 +81,10 @@ describe('Transaction slicer', () => {
 
     txWindowMock.addBatchUpdate.withArgs(230, 777, dbBatch1).returns(230)
     txWindowMock.addBatchUpdate.withArgs(888, 999, dbBatch2).returns(999999)
-    txWindowMock.getTransactionUpdate.withArgs(230).returns(transactionWindows[0])
-    txWindowMock.getTransactionUpdate.withArgs(330).returns(transactionWindows[1])
-    txWindowMock.getTransactionUpdate.withArgs(430).returns(transactionWindows[2])
-    txWindowMock.getTransactionUpdate.withArgs(530).returns(transactionWindows[3])
+    txWindowMock.getTransactionUpdate.onCall(0).returns(transactionWindows[0])
+    txWindowMock.getTransactionUpdate.onCall(1).returns(transactionWindows[1])
+    txWindowMock.getTransactionUpdate.onCall(2).returns(transactionWindows[2])
+    txWindowMock.getTransactionUpdate.onCall(3).returns(transactionWindows[3])
 
     slotsAnalyzer.buildSlotsRatios.withArgs().returns(expectedSlotsRatiosObject)
 
@@ -90,10 +93,7 @@ describe('Transaction slicer', () => {
 
     slicer.runBatch(230, 777, dbBatch1)
     txWindowMock.addBatchUpdate.withArgs(230, 777, dbBatch1).called.should.equal(true)
-    sinon.assert.callOrder(
-      txWindowMock.getTransactionUpdate.withArgs(230),
-      txWindowMock.getTransactionUpdate.withArgs(330)
-    )
+    txWindowMock.getTransactionUpdate.callCount.should.equal(2)
     sinon.assert.callOrder(
       slotsAnalyzer.buildSlotsRatios.withArgs(transactionWindows[0].txsWindow),
       slotsAnalyzer.buildSlotsRatios.withArgs(transactionWindows[1].txsWindow)
@@ -105,13 +105,13 @@ describe('Transaction slicer', () => {
 
     slicer.runBatch(888, 999, dbBatch2)
     txWindowMock.addBatchUpdate.withArgs(888, 999, dbBatch2).called.should.equal(true)
-    txWindowMock.getTransactionUpdate.withArgs(430).called.should.equal(true)
+    txWindowMock.getTransactionUpdate.callCount.should.equal(3)
     slotsAnalyzer.buildSlotsRatios.withArgs(transactionWindows[2].txsWindow).called.should.equal(true)
     sliceDistributor.distribute.withArgs(transactionWindows[2].txsUpdate, expectedSlotsRatiosObject)
       .called.should.equal(true)
 
     slicer.drainLastSlice()
-    txWindowMock.getTransactionUpdate.withArgs(530).called.should.equal(true)
+    txWindowMock.getTransactionUpdate.callCount.should.equal(4)
     slotsAnalyzer.buildSlotsRatios.withArgs(transactionWindows[3].txsWindow).called.should.equal(true)
     sliceDistributor.distribute.withArgs(transactionWindows[3].txsUpdate, expectedSlotsRatiosObject)
       .called.should.equal(true)
