@@ -1,5 +1,4 @@
 const commonTraderConfig = {
-  syncedMode: true,
   buying: {
     volumeLimitPence: 100000,
     lowerLimitPence: 5000

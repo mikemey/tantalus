@@ -1,8 +1,8 @@
 
 const SimulatedTrader = traderConfig => {
-  const data = {
-    previousUnix: 0
-  }
+  // const data = {
+  //   previousUnix: 0
+  // }
 
   const runTick = (unixNow, transactions) => {
     console.log('simulating runtime: ' + unixNow)
@@ -26,7 +26,6 @@ const SimulatedTrader = traderConfig => {
   //     })
   //   }
   // }
-
 
   return {
     runTick

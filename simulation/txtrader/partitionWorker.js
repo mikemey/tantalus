@@ -52,11 +52,8 @@ class PartitionWorker {
             this.logger.info(`${itString} batch ` +
               `[${num}/${this.txsrc.batchCount()}]: ${timestamp(from)} -> ${timestamp(to)}`
             )
-            if (!this.txSlicer.isReady()) {
-              this.txSlicer.setStartDate(from)
-            }
             this.lastTransactionPrice = transactions[transactions.length - 1].price
-            this.txSlicer.runBatch(transactions)
+            this.txSlicer.runBatch(from, to, transactions)
             return runIterationPromise()
           })
       }
