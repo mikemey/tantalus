@@ -1,3 +1,4 @@
+const SimulatedTrader = require('./simulatedTrader')
 const TransactionWindow = require('./slicing/txWindow')
 const SlotsAnalyzer = require('./slicing/slotsAnalyzer')
 const SliceDistributor = require('./slicing/sliceDistributor')
@@ -6,11 +7,12 @@ const TransactionSlicer = (
   logger, workerConfigObject, transactionsUpdateSeconds,
   createTxWindow = TransactionWindow,
   createSlotsAnalyzer = SlotsAnalyzer,
-  createSliceDistributor = SliceDistributor
+  createSliceDistributor = SliceDistributor,
+  createTraderFunc = SimulatedTrader
 ) => {
   const txWindow = createTxWindow(workerConfigObject, transactionsUpdateSeconds)
   const slotsAnalyzer = createSlotsAnalyzer(workerConfigObject)
-  const sliceDistributor = createSliceDistributor(workerConfigObject)
+  const sliceDistributor = createSliceDistributor(workerConfigObject, createTraderFunc)
 
   const runBatch = (fromDate, toDate, transactions) => {
     txWindow.addBatchUpdate(fromDate, toDate, transactions)

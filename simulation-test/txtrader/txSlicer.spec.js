@@ -70,9 +70,11 @@ describe('Transaction slicer', () => {
       return slotsAnalyzer
     }
 
+    const testCreateTraderFunc = () => { }
     const sliceDistributor = { distribute: sinon.stub() }
-    const createSliceDistributor = config => {
+    const createSliceDistributor = (config, createTraderFunc) => {
       config.should.deep.equal(workerConfigs)
+      createTraderFunc.should.equal(testCreateTraderFunc)
       return sliceDistributor
     }
 
@@ -94,7 +96,7 @@ describe('Transaction slicer', () => {
     }
 
     const slicer = TransactionSlicer(console, workerConfigs, testUpdateSeconds,
-      createTxWindowMock, createSlotsAnalyzer, createSliceDistributor)
+      createTxWindowMock, createSlotsAnalyzer, createSliceDistributor, testCreateTraderFunc)
 
     slicer.runBatch(230, 777, dbBatch1)
     txWindowMock.addBatchUpdate.withArgs(230, 777, dbBatch1).called.should.equal(true)
