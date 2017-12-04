@@ -15,22 +15,36 @@ describe('Transaction slicer', () => {
 
   const dbBatch2 = [{ tid: 529000, date: 529 }]
 
+  const expectedIndices = ix => {
+    const mockDateIndices = new Map()
+    mockDateIndices.set(ix, ix)
+    return mockDateIndices
+  }
+
   const transactionWindows = [{
     nextUpdateFull: true,
     txsUpdate: [{ tid: 230000 }, { tid: 280610 }, { tid: 280302 }],
-    txsWindow: [{ tid: 280302 }, { tid: 280610 }, { tid: 230000 }]
+    slotsWindow: [{ tid: 280302 }, { tid: 280610 }, { tid: 230000 }],
+    slotEndDate: 329,
+    slotsIndices: expectedIndices(0)
   }, {
     nextUpdateFull: false,
     txsUpdate: [],
-    txsWindow: [{ tid: 280302 }, { tid: 280610 }, { tid: 230000 }]
+    slotsWindow: [{ tid: 280302 }, { tid: 280610 }, { tid: 230000 }],
+    slotEndDate: 429,
+    slotsIndices: expectedIndices(1)
   }, {
     nextUpdateFull: false,
     txsUpdate: [{ tid: 430000 }, { tid: 529000 }],
-    txsWindow: [{ tid: 529000 }, { tid: 430000 }, { tid: 280302 }, { tid: 280610 }, { tid: 230000 }]
+    slotsWindow: [{ tid: 529000 }, { tid: 430000 }, { tid: 280302 }, { tid: 280610 }, { tid: 230000 }],
+    slotEndDate: 529,
+    slotsIndices: expectedIndices(2)
   }, {
     nextUpdateFull: false,
     txsUpdate: [],
-    txsWindow: [{ tid: 529000 }, { tid: 430000 }, { tid: 280302 }, { tid: 280610 }, { tid: 230000 }]
+    slotsWindow: [{ tid: 529000 }, { tid: 430000 }, { tid: 280302 }, { tid: 280610 }, { tid: 230000 }],
+    slotEndDate: 629,
+    slotsIndices: expectedIndices(3)
   }]
 
   const expectedSlotsRatiosObject = {
@@ -71,6 +85,14 @@ describe('Transaction slicer', () => {
 
     slotsAnalyzer.buildSlotsRatios.withArgs().returns(expectedSlotsRatiosObject)
 
+    const buildSlotsRatiosWindow = txWindowIx => {
+      return slotsAnalyzer.buildSlotsRatios.withArgs(
+        transactionWindows[txWindowIx].slotsWindow,
+        transactionWindows[txWindowIx].slotsIndices,
+        transactionWindows[txWindowIx].slotEndDate
+      )
+    }
+
     const slicer = TransactionSlicer(console, workerConfigs, testUpdateSeconds,
       createTxWindowMock, createSlotsAnalyzer, createSliceDistributor)
 
@@ -78,8 +100,8 @@ describe('Transaction slicer', () => {
     txWindowMock.addBatchUpdate.withArgs(230, 777, dbBatch1).called.should.equal(true)
     txWindowMock.nextTransactionUpdate.callCount.should.equal(2)
     sinon.assert.callOrder(
-      slotsAnalyzer.buildSlotsRatios.withArgs(transactionWindows[0].txsWindow),
-      slotsAnalyzer.buildSlotsRatios.withArgs(transactionWindows[1].txsWindow)
+      buildSlotsRatiosWindow(0),
+      buildSlotsRatiosWindow(1)
     )
     sinon.assert.callOrder(
       sliceDistributor.distribute.withArgs(transactionWindows[0].txsUpdate, expectedSlotsRatiosObject),
@@ -89,13 +111,13 @@ describe('Transaction slicer', () => {
     slicer.runBatch(888, 999, dbBatch2)
     txWindowMock.addBatchUpdate.withArgs(888, 999, dbBatch2).called.should.equal(true)
     txWindowMock.nextTransactionUpdate.callCount.should.equal(3)
-    slotsAnalyzer.buildSlotsRatios.withArgs(transactionWindows[2].txsWindow).called.should.equal(true)
+    buildSlotsRatiosWindow(2).called.should.equal(true)
     sliceDistributor.distribute.withArgs(transactionWindows[2].txsUpdate, expectedSlotsRatiosObject)
       .called.should.equal(true)
 
     slicer.drainLastSlice()
     txWindowMock.nextTransactionUpdate.callCount.should.equal(4)
-    slotsAnalyzer.buildSlotsRatios.withArgs(transactionWindows[3].txsWindow).called.should.equal(true)
+    buildSlotsRatiosWindow(3).called.should.equal(true)
     sliceDistributor.distribute.withArgs(transactionWindows[3].txsUpdate, expectedSlotsRatiosObject)
       .called.should.equal(true)
   })

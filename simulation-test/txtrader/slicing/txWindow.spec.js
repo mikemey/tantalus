@@ -7,14 +7,14 @@ describe('Transaction Window', () => {
   const workerConfigs = {
     traderConfigs: [{
       clientId: 'A',
-      timeslotSeconds: 150,
+      timeslotSeconds: 200,
       buying: { ratio: 0, useTimeslots: 1 },
       selling: { ratio: 0, useTimeslots: 2 }
     }, {
       clientId: 'B',
       timeslotSeconds: 100,
       buying: { ratio: 1, useTimeslots: 3 },
-      selling: { ratio: 0, useTimeslots: 4 }
+      selling: { ratio: 0, useTimeslots: 3 }
     }]
   }
 
@@ -38,30 +38,60 @@ describe('Transaction Window', () => {
     { tid: 730200, date: 730 }
   ]
 
+  const createSlotsIndices = indicesArray => {
+    const dateIndices = new Map()
+    indicesArray.forEach(indexEntry => dateIndices.set(indexEntry[0], indexEntry[1]))
+    return dateIndices
+  }
+
   const expected = [{
-    nextUpdateFull: true, // current unixDate 329
+    nextUpdateFull: true,
     txsUpdate: [dbBatch1[0], dbBatch1[1], dbBatch1[2]],
-    slotsWindow: [dbBatch1[2], dbBatch1[1], dbBatch1[0]]
+    slotsWindow: [dbBatch1[0], dbBatch1[1], dbBatch1[2]],
+    slotEndDate: 329,
+    slotsIndices: createSlotsIndices([
+      [-71, 0], [29, 0], [129, 0], [229, 0], [329, 3]
+    ])
   }, {
-    nextUpdateFull: false, // current unixDate 429
+    nextUpdateFull: false,
     txsUpdate: [],
-    slotsWindow: [dbBatch1[2], dbBatch1[1], dbBatch1[0]]
+    slotsWindow: [dbBatch1[0], dbBatch1[1], dbBatch1[2]],
+    slotEndDate: 429,
+    slotsIndices: createSlotsIndices([
+      [29, 0], [129, 0], [229, 0], [329, 3], [429, 3]
+    ])
   }, {
-    nextUpdateFull: false, // current unixDate 529
+    nextUpdateFull: false,
     txsUpdate: [dbBatch1[3], dbBatch2[0]],
-    slotsWindow: [dbBatch2[0], dbBatch1[3], dbBatch1[2], dbBatch1[1], dbBatch1[0]]
+    slotsWindow: [dbBatch1[0], dbBatch1[1], dbBatch1[2], dbBatch1[3], dbBatch2[0]],
+    slotEndDate: 529,
+    slotsIndices: createSlotsIndices([
+      [129, 0], [229, 0], [329, 3], [429, 3], [529, 5]
+    ])
   }, {
-    nextUpdateFull: false, // current unixDate 629
+    nextUpdateFull: false,
     txsUpdate: [],
-    slotsWindow: [dbBatch2[0], dbBatch1[3], dbBatch1[2], dbBatch1[1], dbBatch1[0]]
+    slotsWindow: [dbBatch1[0], dbBatch1[1], dbBatch1[2], dbBatch1[3], dbBatch2[0]],
+    slotEndDate: 629,
+    slotsIndices: createSlotsIndices([
+      [229, 0], [329, 3], [429, 3], [529, 5], [629, 5]
+    ])
   }, {
-    nextUpdateFull: false, // current unixDate 729
+    nextUpdateFull: false,
     txsUpdate: [dbBatch3[0], dbBatch3[1]],
-    slotsWindow: [dbBatch3[1], dbBatch3[0], dbBatch2[0], dbBatch1[3]]
+    slotsWindow: [dbBatch1[3], dbBatch2[0], dbBatch3[0], dbBatch3[1]],
+    slotEndDate: 729,
+    slotsIndices: createSlotsIndices([
+      [329, 0], [429, 0], [529, 2], [629, 2], [729, 4]
+    ])
   }, {
-    nextUpdateFull: false, // current unixDate 829
+    nextUpdateFull: false,
     txsUpdate: [dbBatch4[0]],
-    slotsWindow: [dbBatch4[0], dbBatch3[1], dbBatch3[0], dbBatch2[0], dbBatch1[3]]
+    slotsWindow: [dbBatch1[3], dbBatch2[0], dbBatch3[0], dbBatch3[1], dbBatch4[0]],
+    slotEndDate: 829,
+    slotsIndices: createSlotsIndices([
+      [429, 0], [529, 2], [629, 2], [729, 4]
+    ])
   }]
 
   it('should return tx windows', () => {
@@ -73,18 +103,18 @@ describe('Transaction Window', () => {
     txWindow.nextTransactionUpdate().should.deep.equal(expected[2])
     txWindow.addBatchUpdate(550, 728, dbBatch3)
     txWindow.nextTransactionUpdate().should.deep.equal(expected[3])
-    txWindow.nextTransactionUpdate().should.deep.equal(expected[4])
     txWindow.addBatchUpdate(729, 800, dbBatch4)
+    txWindow.nextTransactionUpdate().should.deep.equal(expected[4])
     txWindow.nextTransactionUpdate().should.deep.equal(expected[5])
   })
 
-  it('throws exception when maximum slots window is NOT divisible by transactionsUpdateSeconds', () => {
+  it('throws exception when timeslotSeconds is NOT divisible by transactionsUpdateSeconds', () => {
     const workerConfigs = {
       traderConfigs: [{
         clientId: 'A',
-        timeslotSeconds: 125,
+        timeslotSeconds: 150,
         buying: { ratio: 0, useTimeslots: 1 },
-        selling: { ratio: 0, useTimeslots: 5 }
+        selling: { ratio: 0, useTimeslots: 2 }
       }, {
         clientId: 'B',
         timeslotSeconds: 100,
@@ -93,6 +123,6 @@ describe('Transaction Window', () => {
       }]
     }
     expect(() => TransactionWindow(workerConfigs, testUpdateSeconds))
-      .to.throw(Error, 'transactionUpdateSeconds (100) is not a divisor of maximum slots window size (625)')
+      .to.throw(Error, 'transactionUpdateSeconds (100) is not a divisor of timeslotSeconds (150)')
   })
 })

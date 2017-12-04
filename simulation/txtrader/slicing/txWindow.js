@@ -6,15 +6,17 @@ const calculateMaxTime = workerConfigObject => {
   }, 0)
 }
 
-const checkWindowSizes = (transactionsUpdateSeconds, maxHistory) => {
-  if ((maxHistory % transactionsUpdateSeconds) !== 0) {
-    throw new Error(`transactionUpdateSeconds (${transactionsUpdateSeconds}) is not a divisor of maximum slots window size (${maxHistory})`)
-  }
+const checkWindowSizes = (workerConfigObject, transactionsUpdateSeconds) => {
+  workerConfigObject.traderConfigs.forEach(cfg => {
+    if ((cfg.timeslotSeconds % transactionsUpdateSeconds) !== 0) {
+      throw new Error(`transactionUpdateSeconds (${transactionsUpdateSeconds}) is not a divisor of timeslotSeconds (${cfg.timeslotSeconds})`)
+    }
+  })
 }
 
 const TransactionWindow = (workerConfigObject, transactionsUpdateSeconds) => {
+  checkWindowSizes(workerConfigObject, transactionsUpdateSeconds)
   const maxHistory = calculateMaxTime(workerConfigObject)
-  checkWindowSizes(transactionsUpdateSeconds, maxHistory)
 
   const data = {
     currentSliceEndDate: 0,
@@ -62,15 +64,31 @@ const TransactionWindow = (workerConfigObject, transactionsUpdateSeconds) => {
 
     const slotsStartIx = data.dateIndices.get(data.currentSliceEndDate - maxHistory) || 0
     const slotsEndIx = updateEndIx
-    const slotsWindow = data.transactions.slice(slotsStartIx, slotsEndIx).reverse()
+    const slotsWindow = data.transactions.slice(slotsStartIx, slotsEndIx)
+
+    const slotEndDate = data.currentSliceEndDate
+    const slotsIndices = createSlotsIndices(slotEndDate)
 
     data.currentSliceEndDate = data.currentSliceEndDate + transactionsUpdateSeconds
     const nextUpdateFull = data.dateIndices.has(data.currentSliceEndDate)
+
     return {
       nextUpdateFull,
       txsUpdate,
-      slotsWindow
+      slotsWindow,
+      slotEndDate,
+      slotsIndices
     }
+  }
+
+  const createSlotsIndices = endDate => {
+    const slotsIndices = new Map()
+    const startDate = endDate - maxHistory
+    for (let slotEndDate = endDate; slotEndDate >= startDate; slotEndDate -= transactionsUpdateSeconds) {
+      const txIx = data.dateIndices.get(slotEndDate)
+      if (txIx !== undefined) slotsIndices.set(slotEndDate, txIx)
+    }
+    return slotsIndices
   }
 
   return {
