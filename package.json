@@ -16,12 +16,14 @@
     "pretrader": "npm install",
     "trader": "node trader",
     "simulation": "node simulation",
-    "pretest": "npm install",
-    "test": "npm run lint -s && npm run all-test -s && npm run fe-test -s",
+    "simulation-test": "mocha 'simulation-test/**/**.spec.js' 'transactions-test/**/**.spec.js' 'utils-test/**/**.spec.js'",
+    "simulation-watch": "nodemon -x 'npm run simulation-test -s' --ignore '**.log'",
     "all-test": "mocha 'backend-test/**/**.spec.js' 'simulation-test/**/**.spec.js' 'trader-test/**/**.spec.js' 'transactions-test/**/**.spec.js' 'schedule-test/**/**.spec.js' 'utils-test/**/**.spec.js'",
     "all-watch": "nodemon -x 'npm run all-test -s' --ignore '**.log'",
     "fe-test": "karma start karma.conf.js",
-    "fe-watch": "nodemon -x 'npm run fe-test -s' --ignore '**.log'"
+    "fe-watch": "nodemon -x 'npm run fe-test -s' --ignore '**.log'",
+    "pretest": "npm install",
+    "test": "npm run lint -s && npm run all-test -s && npm run fe-test -s"
   },
   "repository": {
     "type": "git",
