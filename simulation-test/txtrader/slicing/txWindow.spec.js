@@ -6,12 +6,10 @@ describe('Transaction Window', () => {
   const testUpdateSeconds = 100
   const workerConfigs = {
     traderConfigs: [{
-      clientId: 'A',
       timeslotSeconds: 200,
-      buying: { ratio: 0, useTimeslots: 1 },
+      buying: { ratio: 0, useTimeslots: 2 },
       selling: { ratio: 0, useTimeslots: 2 }
     }, {
-      clientId: 'B',
       timeslotSeconds: 100,
       buying: { ratio: 1, useTimeslots: 3 },
       selling: { ratio: 0, useTimeslots: 3 }
@@ -47,7 +45,7 @@ describe('Transaction Window', () => {
   const expected = [{
     nextUpdateFull: true,
     txsUpdate: [dbBatch1[0], dbBatch1[1], dbBatch1[2]],
-    slotsWindow: [dbBatch1[0], dbBatch1[1], dbBatch1[2]],
+    transactions: [dbBatch1[0], dbBatch1[1], dbBatch1[2], dbBatch1[3]],
     slotEndDate: 329,
     slotsIndices: createSlotsIndices([
       [-71, 0], [29, 0], [129, 0], [229, 0], [329, 3]
@@ -55,7 +53,7 @@ describe('Transaction Window', () => {
   }, {
     nextUpdateFull: false,
     txsUpdate: [],
-    slotsWindow: [dbBatch1[0], dbBatch1[1], dbBatch1[2]],
+    transactions: [dbBatch1[0], dbBatch1[1], dbBatch1[2], dbBatch1[3]],
     slotEndDate: 429,
     slotsIndices: createSlotsIndices([
       [29, 0], [129, 0], [229, 0], [329, 3], [429, 3]
@@ -63,7 +61,7 @@ describe('Transaction Window', () => {
   }, {
     nextUpdateFull: false,
     txsUpdate: [dbBatch1[3], dbBatch2[0]],
-    slotsWindow: [dbBatch1[0], dbBatch1[1], dbBatch1[2], dbBatch1[3], dbBatch2[0]],
+    transactions: [dbBatch1[0], dbBatch1[1], dbBatch1[2], dbBatch1[3], dbBatch2[0]],
     slotEndDate: 529,
     slotsIndices: createSlotsIndices([
       [129, 0], [229, 0], [329, 3], [429, 3], [529, 5]
@@ -71,7 +69,10 @@ describe('Transaction Window', () => {
   }, {
     nextUpdateFull: false,
     txsUpdate: [],
-    slotsWindow: [dbBatch1[0], dbBatch1[1], dbBatch1[2], dbBatch1[3], dbBatch2[0]],
+    transactions: [
+      dbBatch1[0], dbBatch1[1], dbBatch1[2], dbBatch1[3],
+      dbBatch2[0], dbBatch3[0], dbBatch3[1]
+    ],
     slotEndDate: 629,
     slotsIndices: createSlotsIndices([
       [229, 0], [329, 3], [429, 3], [529, 5], [629, 5]
@@ -79,7 +80,10 @@ describe('Transaction Window', () => {
   }, {
     nextUpdateFull: false,
     txsUpdate: [dbBatch3[0], dbBatch3[1]],
-    slotsWindow: [dbBatch1[3], dbBatch2[0], dbBatch3[0], dbBatch3[1]],
+    transactions: [
+      dbBatch1[3],
+      dbBatch2[0], dbBatch3[0], dbBatch3[1], dbBatch4[0]
+    ],
     slotEndDate: 729,
     slotsIndices: createSlotsIndices([
       [329, 0], [429, 0], [529, 2], [629, 2], [729, 4]
@@ -87,10 +91,13 @@ describe('Transaction Window', () => {
   }, {
     nextUpdateFull: false,
     txsUpdate: [dbBatch4[0]],
-    slotsWindow: [dbBatch1[3], dbBatch2[0], dbBatch3[0], dbBatch3[1], dbBatch4[0]],
+    transactions: [
+      dbBatch1[3],
+      dbBatch2[0], dbBatch3[0], dbBatch3[1], dbBatch4[0]
+    ],
     slotEndDate: 829,
     slotsIndices: createSlotsIndices([
-      [429, 0], [529, 2], [629, 2], [729, 4]
+      [429, 0], [529, 2], [629, 2], [729, 4], [829, 5]
     ])
   }]
 
@@ -111,12 +118,10 @@ describe('Transaction Window', () => {
   it('throws exception when timeslotSeconds is NOT divisible by transactionsUpdateSeconds', () => {
     const workerConfigs = {
       traderConfigs: [{
-        clientId: 'A',
         timeslotSeconds: 150,
         buying: { ratio: 0, useTimeslots: 1 },
         selling: { ratio: 0, useTimeslots: 2 }
       }, {
-        clientId: 'B',
         timeslotSeconds: 100,
         buying: { ratio: 1, useTimeslots: 3 },
         selling: { ratio: 0, useTimeslots: 4 }

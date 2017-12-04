@@ -19,7 +19,7 @@ const TransactionSlicer = (
 
   const iterateSlices = () => {
     const nextTxs = txWindow.nextTransactionUpdate()
-    const slotsRatios = slotsAnalyzer.buildSlotsRatios(nextTxs.slotsWindow, nextTxs.slotsIndices, nextTxs.slotEndDate)
+    const slotsRatios = slotsAnalyzer.buildSlotsRatios(nextTxs.transactions, nextTxs.slotsIndices, nextTxs.slotEndDate)
     sliceDistributor.distribute(nextTxs.txsUpdate, slotsRatios)
     if (nextTxs.nextUpdateFull) return iterateSlices()
   }

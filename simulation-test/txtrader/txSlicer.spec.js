@@ -24,25 +24,25 @@ describe('Transaction slicer', () => {
   const transactionWindows = [{
     nextUpdateFull: true,
     txsUpdate: [{ tid: 230000 }, { tid: 280610 }, { tid: 280302 }],
-    slotsWindow: [{ tid: 280302 }, { tid: 280610 }, { tid: 230000 }],
+    transactions: [{ tid: 280302 }, { tid: 280610 }, { tid: 230000 }],
     slotEndDate: 329,
     slotsIndices: expectedIndices(0)
   }, {
     nextUpdateFull: false,
     txsUpdate: [],
-    slotsWindow: [{ tid: 280302 }, { tid: 280610 }, { tid: 230000 }],
+    transactions: [{ tid: 280302 }, { tid: 280610 }, { tid: 230000 }],
     slotEndDate: 429,
     slotsIndices: expectedIndices(1)
   }, {
     nextUpdateFull: false,
     txsUpdate: [{ tid: 430000 }, { tid: 529000 }],
-    slotsWindow: [{ tid: 529000 }, { tid: 430000 }, { tid: 280302 }, { tid: 280610 }, { tid: 230000 }],
+    transactions: [{ tid: 529000 }, { tid: 430000 }, { tid: 280302 }, { tid: 280610 }, { tid: 230000 }],
     slotEndDate: 529,
     slotsIndices: expectedIndices(2)
   }, {
     nextUpdateFull: false,
     txsUpdate: [],
-    slotsWindow: [{ tid: 529000 }, { tid: 430000 }, { tid: 280302 }, { tid: 280610 }, { tid: 230000 }],
+    transactions: [{ tid: 529000 }, { tid: 430000 }, { tid: 280302 }, { tid: 280610 }, { tid: 230000 }],
     slotEndDate: 629,
     slotsIndices: expectedIndices(3)
   }]
@@ -87,7 +87,7 @@ describe('Transaction slicer', () => {
 
     const buildSlotsRatiosWindow = txWindowIx => {
       return slotsAnalyzer.buildSlotsRatios.withArgs(
-        transactionWindows[txWindowIx].slotsWindow,
+        transactionWindows[txWindowIx].transactions,
         transactionWindows[txWindowIx].slotsIndices,
         transactionWindows[txWindowIx].slotEndDate
       )

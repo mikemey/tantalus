@@ -62,10 +62,6 @@ const TransactionWindow = (workerConfigObject, transactionsUpdateSeconds) => {
     const updateEndIx = data.dateIndices.get(data.currentSliceEndDate)
     const txsUpdate = data.transactions.slice(updateStartIx, updateEndIx)
 
-    const slotsStartIx = data.dateIndices.get(data.currentSliceEndDate - maxHistory) || 0
-    const slotsEndIx = updateEndIx
-    const slotsWindow = data.transactions.slice(slotsStartIx, slotsEndIx)
-
     const slotEndDate = data.currentSliceEndDate
     const slotsIndices = createSlotsIndices(slotEndDate)
 
@@ -75,7 +71,7 @@ const TransactionWindow = (workerConfigObject, transactionsUpdateSeconds) => {
     return {
       nextUpdateFull,
       txsUpdate,
-      slotsWindow,
+      transactions: data.transactions,
       slotEndDate,
       slotsIndices
     }
@@ -84,9 +80,11 @@ const TransactionWindow = (workerConfigObject, transactionsUpdateSeconds) => {
   const createSlotsIndices = endDate => {
     const slotsIndices = new Map()
     const startDate = endDate - maxHistory
+    let txIx
     for (let slotEndDate = endDate; slotEndDate >= startDate; slotEndDate -= transactionsUpdateSeconds) {
-      const txIx = data.dateIndices.get(slotEndDate)
-      if (txIx !== undefined) slotsIndices.set(slotEndDate, txIx)
+      txIx = data.dateIndices.get(slotEndDate)
+      if (txIx === undefined) txIx = data.transactions.length
+      slotsIndices.set(slotEndDate, txIx)
     }
     return slotsIndices
   }

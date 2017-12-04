@@ -1,3 +1,4 @@
+const expect = require('chai').expect
 
 const SlotsAnalyzer = require('../../../simulation/txtrader/slicing/slotsAnalyzer')
 
@@ -12,16 +13,16 @@ describe('Slots analyzer', () => {
     const workerConfigs = {
       traderConfigs: [{
         timeslotSeconds: 100,
-        buying: { ratio: 0, useTimeslots: 3 },
-        selling: { ratio: 0, useTimeslots: 3 }
+        buying: { ratio: 0, useTimeslots: 2 },
+        selling: { ratio: 0, useTimeslots: 2 }
       }, {
         timeslotSeconds: 200,
         buying: { ratio: 1, useTimeslots: 2 },
         selling: { ratio: 0, useTimeslots: 2 }
       }, {
         timeslotSeconds: 100,
-        buying: { ratio: 1, useTimeslots: 2 },
-        selling: { ratio: 0, useTimeslots: 2 }
+        buying: { ratio: 1, useTimeslots: 3 },
+        selling: { ratio: 0, useTimeslots: 3 }
       }]
     }
 
@@ -29,7 +30,7 @@ describe('Slots analyzer', () => {
 
     it('creates slots averages of first slice', () => {
       const data = {
-        slotsWindow: [
+        transactions: [
           { date: 230, price: 5, amount: 3 },
           { date: 280, price: 7, amount: 4 },
           { date: 280, price: 8, amount: 6 }
@@ -41,15 +42,15 @@ describe('Slots analyzer', () => {
       }
 
       const expectedRatios = {
-        100: [0, 0, 0],
+        100: [0, 0],
         200: [0]
       }
-      analyzer.buildSlotsRatios(data.slotsWindow, data.slotsIndices, data.slotEndDate).should.deep.equal(expectedRatios)
+      analyzer.buildSlotsRatios(data.transactions, data.slotsIndices, data.slotEndDate).should.deep.equal(expectedRatios)
     })
 
     it('creates slots averages of second slice', () => {
       const data = {
-        slotsWindow: [
+        transactions: [
           { date: 230, price: 5, amount: 3 },
           { date: 280, price: 7, amount: 4 },
           { date: 280, price: 8, amount: 6 }
@@ -64,17 +65,17 @@ describe('Slots analyzer', () => {
         100: [0, 0],
         200: [0]
       }
-      analyzer.buildSlotsRatios(data.slotsWindow, data.slotsIndices, data.slotEndDate).should.deep.equal(expectedRatios)
+      analyzer.buildSlotsRatios(data.transactions, data.slotsIndices, data.slotEndDate).should.deep.equal(expectedRatios)
     })
 
     it('creates slots averages of third slice', () => {
       const data = {
-        slotsWindow: [
-          { date: 230, price: 5, amount: 3 },
-          { date: 280, price: 7, amount: 4 },
-          { date: 280, price: 8, amount: 6 },
-          { date: 430, price: 9, amount: 4 },
-          { date: 529, price: 7, amount: 1 }
+        transactions: [
+          { date: 230, price: 500, amount: 3 },
+          { date: 280, price: 700, amount: 4 },
+          { date: 280, price: 800, amount: 6 },
+          { date: 430, price: 900, amount: 4 },
+          { date: 529, price: 700, amount: 1 }
         ],
         slotEndDate: 529,
         slotsIndices: createIndexMap([
@@ -83,15 +84,15 @@ describe('Slots analyzer', () => {
       }
 
       const expectedRatios = {
-        100: [1.6, 0],
-        200: [0]
+        100: [0, 0],
+        200: [0.8]
       }
-      analyzer.buildSlotsRatios(data.slotsWindow, data.slotsIndices, data.slotEndDate).should.deep.equal(expectedRatios)
+      analyzer.buildSlotsRatios(data.transactions, data.slotsIndices, data.slotEndDate).should.deep.equal(expectedRatios)
     })
 
     it('creates slots averages of full slice', () => {
       const data = {
-        slotsWindow: [
+        transactions: [
           { date: 230, price: 500, amount: 3 },
           { date: 280, price: 700, amount: 4 },
           { date: 280, price: 800, amount: 6 },
@@ -109,16 +110,44 @@ describe('Slots analyzer', () => {
 
       const expectedRatios = {
         100: [-3.375, 1.875],
-        200: [0.75476]
+        200: [0.7547619047619049]
       }
-      analyzer.buildSlotsRatios(data.slotsWindow, data.slotsIndices, data.slotEndDate).should.deep.equal(expectedRatios)
+      analyzer.buildSlotsRatios(data.transactions, data.slotsIndices, data.slotEndDate).should.deep.equal(expectedRatios)
     })
   })
 
   it('should reject useTimeslots configuration < 2', () => {
-    'hello'.shoul.equal('not yet implemented')
+    const workerConfigs = {
+      traderConfigs: [{
+        timeslotSeconds: 100,
+        buying: { ratio: 0, useTimeslots: 1 },
+        selling: { ratio: 0, useTimeslots: 2 }
+      }]
+    }
+    expect(() => SlotsAnalyzer(workerConfigs))
+      .to.throw(Error, 'useTimeslots less than 2, was: 1')
   })
-  it('should reject zero or missing timeslotSeconds configuration', () => {
-    'hello'.shoul.equal('not yet implemented')
+
+  it('should reject zero timeslotSeconds configuration', () => {
+    const workerConfigs = {
+      traderConfigs: [{
+        timeslotSeconds: 0,
+        buying: { ratio: 0, useTimeslots: 2 },
+        selling: { ratio: 0, useTimeslots: 2 }
+      }]
+    }
+    expect(() => SlotsAnalyzer(workerConfigs))
+      .to.throw(Error, 'timeslotSeconds not configured!')
+  })
+
+  it('should reject  missing timeslotSeconds configuration', () => {
+    const workerConfigs = {
+      traderConfigs: [{
+        buying: { ratio: 0, useTimeslots: 2 },
+        selling: { ratio: 0, useTimeslots: 2 }
+      }]
+    }
+    expect(() => SlotsAnalyzer(workerConfigs))
+      .to.throw(Error, 'timeslotSeconds not configured!')
   })
 })
