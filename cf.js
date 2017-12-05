@@ -36,7 +36,7 @@ const balance = () => {
 const openOrders = () => {
   requestAction('open_orders')
     .then(orders => orders
-      .sort((oA, oB) => oA.price - oB.price)
+      .sort((oA, oB) => oB.price - oA.price)
       .forEach(order => {
         const amount = amountStr(order.amount)
         const price = priceStr(order.price)
