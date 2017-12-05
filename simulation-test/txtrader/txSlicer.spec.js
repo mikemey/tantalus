@@ -52,32 +52,35 @@ describe('Transaction slicer', () => {
     300: [{ whatever: 'comes back' }]
   }
 
+  const txWindowMock = {
+    addBatchUpdate: sinon.stub(),
+    nextTransactionUpdate: sinon.stub()
+  }
+  const createTxWindowMock = (config, txUpdateSeconds) => {
+    config.should.deep.equal(workerConfigs)
+    txUpdateSeconds.should.deep.equal(testUpdateSeconds)
+
+    return txWindowMock
+  }
+
+  const slotsAnalyzer = { buildSlotsRatios: sinon.stub() }
+  const createSlotsAnalyzer = config => {
+    config.should.deep.equal(workerConfigs)
+    return slotsAnalyzer
+  }
+
+  const testCreateTraderFunc = () => { }
+  const sliceDistributor = {
+    distribute: sinon.stub(),
+    getBalances: sinon.stub()
+  }
+  const createSliceDistributor = (config, createTraderFunc) => {
+    config.should.deep.equal(workerConfigs)
+    createTraderFunc.should.equal(testCreateTraderFunc)
+    return sliceDistributor
+  }
+
   it('builds slots averages', () => {
-    const txWindowMock = {
-      addBatchUpdate: sinon.stub(),
-      nextTransactionUpdate: sinon.stub()
-    }
-    const createTxWindowMock = (config, txUpdateSeconds) => {
-      config.should.deep.equal(workerConfigs)
-      txUpdateSeconds.should.deep.equal(testUpdateSeconds)
-
-      return txWindowMock
-    }
-
-    const slotsAnalyzer = { buildSlotsRatios: sinon.stub() }
-    const createSlotsAnalyzer = config => {
-      config.should.deep.equal(workerConfigs)
-      return slotsAnalyzer
-    }
-
-    const testCreateTraderFunc = () => { }
-    const sliceDistributor = { distribute: sinon.stub() }
-    const createSliceDistributor = (config, createTraderFunc) => {
-      config.should.deep.equal(workerConfigs)
-      createTraderFunc.should.equal(testCreateTraderFunc)
-      return sliceDistributor
-    }
-
     txWindowMock.addBatchUpdate.withArgs(230, 777, dbBatch1).returns(230)
     txWindowMock.addBatchUpdate.withArgs(888, 999, dbBatch2).returns(999999)
     txWindowMock.nextTransactionUpdate.onCall(0).returns(transactionWindows[0])
@@ -122,5 +125,15 @@ describe('Transaction slicer', () => {
     buildSlotsRatiosWindow(3).called.should.equal(true)
     sliceDistributor.distribute.withArgs(transactionWindows[3].txsUpdate, expectedSlotsRatiosObject)
       .called.should.equal(true)
+  })
+
+  it('should forward accounts', () => {
+    const testAccounts = [{ abc: 'def' }]
+    sliceDistributor.getBalances.returns(testAccounts)
+
+    const slicer = TransactionSlicer(console, workerConfigs, testUpdateSeconds,
+      createTxWindowMock, createSlotsAnalyzer, createSliceDistributor, testCreateTraderFunc)
+
+    slicer.getBalances().should.deep.equal(testAccounts)
   })
 })

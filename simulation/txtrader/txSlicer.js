@@ -26,9 +26,12 @@ const TransactionSlicer = (
     if (nextTxs.nextUpdateFull) return iterateSlices()
   }
 
+  const getBalances = () => sliceDistributor.getBalances()
+
   return {
     runBatch,
-    drainLastSlice: iterateSlices
+    drainLastSlice: iterateSlices,
+    getBalances
   }
 }
 
