@@ -27,19 +27,25 @@ describe('Slice distributor', () => {
     200: [0.8]
   }
 
-  it('distribute slices', () => {
-    const traderMocks = []
+  let traderMocks = []
+  let traderConfigIx = 0
 
-    let traderConfigIx = 0
-    const createTraderMock = config => {
-      config.should.deep.equal(workerConfigs.traderConfigs[traderConfigIx++])
-      const mock = {
-        nextTick: sinon.stub()
-      }
-      traderMocks.push(mock)
-      return mock
+  beforeEach(() => {
+    traderMocks = []
+    traderConfigIx = 0
+  })
+
+  const createTraderMock = config => {
+    config.should.deep.equal(workerConfigs.traderConfigs[traderConfigIx++])
+    const mock = {
+      nextTick: sinon.stub(),
+      getBalance: sinon.stub()
     }
+    traderMocks.push(mock)
+    return mock
+  }
 
+  it('distribute slices', () => {
     const sliceDistributor = SliceDistributor(workerConfigs, createTraderMock)
     sliceDistributor.distribute(txsUpdate, slotsRatios)
     traderMocks.should.have.length(3)
@@ -59,6 +65,21 @@ describe('Slice distributor', () => {
       }]
     }
     expect(() => SliceDistributor(wrongConfig, () => { }))
-    .to.throw(Error, 'timeslotSeconds not configured!')
+      .to.throw(Error, 'timeslotSeconds not configured!')
+  })
+
+  it('should forward accounts', () => {
+    const testAccounts = [
+      { clientId: 'A', bla: 'bla bla' },
+      { clientId: 'B', bla: 'bla bla' },
+      { clientId: 'C', bla: 'bla bla' }
+    ]
+    const sliceDistributor = SliceDistributor(workerConfigs, createTraderMock)
+
+    testAccounts.forEach((testAccount, ix) => {
+      traderMocks[ix].getBalance.returns(testAccount)
+    })
+
+    sliceDistributor.getBalances().should.deep.equal(testAccounts)
   })
 })

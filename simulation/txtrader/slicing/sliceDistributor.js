@@ -21,8 +21,11 @@ const SliceDistributor = (workerConfigs, createTrader) => {
     })
   }
 
+  const getBalances = () => [...traderMap.keys()].map(trader => trader.getBalance())
+
   return {
-    distribute
+    distribute,
+    getBalances
   }
 }
 
