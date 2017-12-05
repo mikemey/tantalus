@@ -35,6 +35,8 @@ const ensureAllIndices = db =>
   ).then(() => db)
 
 const initializeDirectConnection = (config, logger) => {
+  if (module.exports.db !== undefined) return Promise.resolve()
+
   const mongoUrl = config.mongodb.url
   logger.info(`Connecting to DB: '${mongoUrl}'`)
   return MongoClient.connect(mongoUrl)
