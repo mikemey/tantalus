@@ -1,119 +1,91 @@
+const sinon = require('sinon')
 const PartitionWorker = require('../../simulation/txtrader/partitionWorker')
 
-xdescribe('Partition worker', () => {
-  const slice = { unixNow: 100, transactions: [{ tid: 4, price: 500000 }, { tid: 3, price: 400000 }, { tid: 2, price: 400000 }] }
+describe('Partition worker', () => {
+  let partitionWorker, txSourceMock, txSlicerMock
 
-  const workerConfigObject = {
-    traderConfigs: [{
-      clientId: 'A',
-      buying: { ratio: 0, useTimeslots: 1 },
-      selling: { ratio: 0, useTimeslots: 5 }
-    }, {
-      clientId: 'B',
-      buying: { ratio: 1, useTimeslots: 1 },
-      selling: { ratio: 0, useTimeslots: 5 }
-    }, {
-      clientId: 'C',
-      buying: { ratio: 2, useTimeslots: 1 },
-      selling: { ratio: 0, useTimeslots: 5 }
-    }]
-  }
-
-  const accountResponse = {
-    clientId: 'test',
-    balances: { gbp_balance: 1000, xbt_balance: 3120 }
-  }
-
-  const expectedAccounts = {
-    clientId: 'test',
-    amount: 3120,
-    price: 500000,
-    volume: 1000,
-    fullVolume: 157000
-  }
-
-  const ExchangeAdapterMock = () => {
-    let received
-
-    const setTransactions = txs => { received = txs }
-    const getReceived = () => received
-    const getAccount = () => accountResponse
-
-    return { setTransactions, getReceived, getAccount }
-  }
-
-  const TraderMock = () => {
-    const exchangeAdapter = ExchangeAdapterMock()
-    const calledTicks = []
-
-    const tick = unixNow => {
-      calledTicks.push(unixNow)
-      if (unixNow === 100) {
-        exchangeAdapter.getReceived().should.deep.equal(slice.transactions)
-      } else {
-        throw Error('unexpected unixNow: ' + unixNow)
-      }
+  beforeEach(() => {
+    txSourceMock = {
+      reset: sinon.stub(),
+      next: sinon.stub(),
+      hasNext: sinon.stub(),
+      batchCount: () => 5
     }
 
-    return {
-      tick, exchangeAdapter, calledTicks
-    }
-  }
-
-  it('should run through full lifecycle', () => {
-    const allTraderMocks = []
-    const allClientIds = []
-
-    let workerConfigIx = 0
-
-    const createSimulatedMocks = config => {
-      config.should.deep.equal(workerConfigObject.traderConfigs[workerConfigIx++])
-      if (allClientIds.includes(config.clientId)) {
-        throw Error('duplicate client: ' + config.clientId)
-      }
-
-      const traderMock = TraderMock()
-      allClientIds.push(config.clientId)
-      allTraderMocks.push(traderMock)
-
-      return {
-        trader: traderMock,
-        exchangeAdapter: traderMock.exchangeAdapter
-      }
+    txSlicerMock = {
+      runBatch: sinon.stub(),
+      drainLastSlice: sinon.stub(),
+      getBalances: sinon.stub()
     }
 
-    const partitionWorker = new PartitionWorker(createSimulatedMocks)
-    partitionWorker.createTraders(workerConfigObject)
-
-    allTraderMocks.should.have.length(3)
-    allClientIds.should.deep.equal(['A', 'B', 'C'])
-
-    partitionWorker.drainTransactions(slice)
-    partitionWorker.getAccounts().should.deep.equal([
-      expectedAccounts, expectedAccounts, expectedAccounts
-    ], 'getAccounts not as expected')
-    allTraderMocks.forEach(traderMock => {
-      traderMock.calledTicks.should.deep.equal([100], 'tradermocks not called')
-    })
+    partitionWorker = new PartitionWorker(() => txSourceMock, () => txSlicerMock)
+    return partitionWorker.createTraders({})
   })
 
-  it('should configure "real" tradeAccount', () => {
+  it('setup TxSlicer and TxSource', () => {
+    txSourceMock.reset.called.should.equal(true)
+  })
+
+  it('should run through batch iterations', () => {
+    txSourceMock.hasNext.onCall(0).returns(true)
+    txSourceMock.hasNext.onCall(1).returns(true)
+    txSourceMock.hasNext.onCall(2).returns(false)
+
+    const testBatch = {
+      batchNum: 2, from: 100, to: 200, transactions: [{ abc: 'def' }]
+    }
+    txSourceMock.next.returns(Promise.resolve(testBatch))
+
+    return partitionWorker.runIteration(2)
+      .then(() => {
+        txSlicerMock.runBatch.withArgs(testBatch.from, testBatch.to, testBatch.transactions)
+          .callCount.should.equal(2)
+        txSlicerMock.drainLastSlice.withArgs().callCount.should.equal(1)
+      })
+  })
+
+  it('getAccounts should calculate accounts fullVolume', () => {
+    const accountResponse = [
+      { latestPrice: 45000, gbp_balance: 500, xbt_balance: 2000, clientId: 'A' },
+      { latestPrice: 50000, gbp_balance: 500, xbt_balance: 0, clientId: 'B' },
+      { latestPrice: 50000, gbp_balance: 0, xbt_balance: 2000, clientId: 'C' }
+    ]
+
+    const expectedAccounts = [
+      { clientId: 'A', volume: 500, amount: 2000, fullVolume: 9500, price: 45000 },
+      { clientId: 'B', volume: 500, amount: 0, fullVolume: 500, price: 50000 },
+      { clientId: 'C', volume: 0, amount: 2000, fullVolume: 10000, price: 50000 }
+    ]
+
+    txSlicerMock.getBalances.returns(accountResponse)
+    partitionWorker.getAccounts().should.deep.equal(expectedAccounts)
+  })
+
+  it('should configure real partition', () => {
     const workerConfigObject = {
       traderConfigs: [{
         clientId: 'A',
         timeslotSeconds: 100,
-        buying: { volumeLimitPence: 818181, lowerLimitPence: 20, useTimeslots: 2 },
-        selling: { lowerLimit_mmBtc: 10, useTimeslots: 2 }
+        buying: {
+          ratio: 2.3, useTimeslots: 2,
+          volumeLimitPence: 818181, lowerLimitPence: 20
+        },
+        selling: {
+          ratio: -0.3, useTimeslots: 2,
+          lowerLimit_mmBtc: 10
+        }
       }]
     }
     const partitionWorker = new PartitionWorker()
-    partitionWorker.createTraders(workerConfigObject)
-    partitionWorker.getAccounts().should.deep.equal([{
-      clientId: 'A',
-      amount: 0,
-      price: 0,
-      volume: 818181,
-      fullVolume: 818181
-    }], 'getAccounts not as expected')
+    return partitionWorker.createTraders(workerConfigObject)
+      .then(() => {
+        partitionWorker.getAccounts().should.deep.equal([{
+          clientId: 'A',
+          amount: 0,
+          price: 0,
+          volume: 818181,
+          fullVolume: 818181
+        }], 'getAccounts not as expected')
+      })
   })
 })
