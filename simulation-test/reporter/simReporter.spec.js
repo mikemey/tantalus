@@ -4,9 +4,9 @@ const {
   copyWithoutIDField,
   getSimulationReports,
   getTraderReports
-} = require('../utils-test/helpers')
+} = require('../../utils-test/helpers')
 
-const SimReporter = require('../simulation/simReporter')
+const SimReporter = require('../../simulation/reporter/simReporter')
 
 describe('Sim Reporting', () => {
   const simulationId = 'full simulation run ID'
@@ -40,7 +40,14 @@ describe('Sim Reporting', () => {
   }
 
   const MockTransactionsSource = () => {
+    let resetCalled = false
     return {
+      reset: batchSeconds => {
+        resetCalled = true
+        batchSeconds.should.equal(simConfig.batchSeconds)
+        return Promise.resolve()
+      },
+      resetCalled: () => resetCalled,
       getStartDate: () => expectedSimrunReport.transactions.startDate,
       getStartPrice: () => expectedSimrunReport.transactions.startPrice,
       getEndDate: () => expectedSimrunReport.transactions.endDate,
@@ -50,6 +57,9 @@ describe('Sim Reporting', () => {
     }
   }
 
+  const txMock = MockTransactionsSource()
+  const createTxMock = () => txMock
+
   const allAccounts = [
     { clientId: 'A', amount: 12345, volume: 30000, fullVolume: 110110 },
     { clientId: 'B', amount: 6789, volume: 40000, fullVolume: 107300 }
@@ -58,54 +68,12 @@ describe('Sim Reporting', () => {
   const simStartHrtime = [expectedSimrunReport.startDate, 0]
   const simEndHrtime = [expectedSimrunReport.endDate, 0]
 
-  const mockTxSource = MockTransactionsSource()
-
   const storeResults = (accounts = allAccounts) => {
-    return SimReporter(console, simConfig).storeSimulationResults(
+    const reporter = SimReporter(console, simConfig, createTxMock)
+    return reporter.storeSimulationResults(
       simulationId, simStartHrtime, simEndHrtime,
-      mockTxSource, accounts,
-      expectedSimrunReport.traderCount, expectedSimrunReport.iteration)
+      accounts, expectedSimrunReport.traderCount, expectedSimrunReport.iteration)
   }
-
-  describe('input checks', () => {
-    const expectError = (name, failingConfig) => {
-      expect(() => SimReporter(console, failingConfig))
-        .to.throw(Error, `${name} not configured!`)
-    }
-
-    it('throws error when no batchSeconds configured', () => {
-      return expectError('batchSeconds', {
-        partitionWorkerCount: 4,
-        startInvestment: 100000,
-        rankingLimit: 3
-      })
-    })
-
-    it('throws error when no partitionWorkerCount configured', () => {
-      return expectError('partitionWorkerCount', {
-        batchSeconds: 3600,
-        startInvestment: 100000,
-        rankingLimit: 3
-      })
-    })
-
-    it('throws error when no startInvestment configured', () => {
-      return expectError('startInvestment', {
-        batchSeconds: 3600,
-        partitionWorkerCount: 4,
-        simulationReportId: 'failing config',
-        rankingLimit: 3
-      })
-    })
-
-    it('throws error when no rankingLimit configured', () => {
-      return expectError('rankingLimit', {
-        batchSeconds: 3600,
-        partitionWorkerCount: 4,
-        startInvestment: 100000
-      })
-    })
-  })
 
   describe('simulation report', () => {
     beforeEach(dropDatabase)
@@ -115,6 +83,8 @@ describe('Sim Reporting', () => {
         .then(getSimulationReports)
         .then(simulations => {
           simulations.should.have.length(1)
+
+          txMock.resetCalled().should.equal(true)
           copyWithoutIDField(simulations[0]).should.deep.equal(expectedSimrunReport)
         })
     })
@@ -199,6 +169,46 @@ describe('Sim Reporting', () => {
           expectReport(traderReports[1], expectedFirstRunB('B'))
           expectReport(traderReports[2], expectedSecondRunB)
         })
+    })
+  })
+
+  describe('input checks', () => {
+    const expectError = (name, failingConfig) => {
+      expect(() => SimReporter(console, failingConfig))
+        .to.throw(Error, `${name} not configured!`)
+    }
+
+    it('throws error when no batchSeconds configured', () => {
+      return expectError('batchSeconds', {
+        partitionWorkerCount: 4,
+        startInvestment: 100000,
+        rankingLimit: 3
+      })
+    })
+
+    it('throws error when no partitionWorkerCount configured', () => {
+      return expectError('partitionWorkerCount', {
+        batchSeconds: 3600,
+        startInvestment: 100000,
+        rankingLimit: 3
+      })
+    })
+
+    it('throws error when no startInvestment configured', () => {
+      return expectError('startInvestment', {
+        batchSeconds: 3600,
+        partitionWorkerCount: 4,
+        simulationReportId: 'failing config',
+        rankingLimit: 3
+      })
+    })
+
+    it('throws error when no rankingLimit configured', () => {
+      return expectError('rankingLimit', {
+        batchSeconds: 3600,
+        partitionWorkerCount: 4,
+        startInvestment: 100000
+      })
     })
   })
 })
