@@ -16,23 +16,23 @@ describe('Transaction Window', () => {
     }]
   }
 
-  const dbBatch1 = [
+  const dbBatch0 = [
     { tid: 230000, date: 230 },
     { tid: 280302, date: 280 },
     { tid: 280610, date: 280 },
     { tid: 430000, date: 430 }
   ]
 
-  const dbBatch2 = [
+  const dbBatch1 = [
     { tid: 529000, date: 529 }
   ]
 
-  const dbBatch3 = [
+  const dbBatch2 = [
     { tid: 630100, date: 630 },
     { tid: 630200, date: 630 }
   ]
 
-  const dbBatch4 = [
+  const dbBatch3 = [
     { tid: 730200, date: 730 }
   ]
 
@@ -44,8 +44,8 @@ describe('Transaction Window', () => {
 
   const expected = [{
     nextUpdateFull: true,
-    txsUpdate: [dbBatch1[0], dbBatch1[1], dbBatch1[2]],
-    transactions: [dbBatch1[0], dbBatch1[1], dbBatch1[2], dbBatch1[3]],
+    txsUpdate: [dbBatch0[0], dbBatch0[1], dbBatch0[2]],
+    transactions: [dbBatch0[0], dbBatch0[1], dbBatch0[2], dbBatch0[3]],
     slotEndDate: 329,
     slotsIndices: createSlotsIndices([
       [-71, 0], [29, 0], [129, 0], [229, 0], [329, 3]
@@ -53,15 +53,15 @@ describe('Transaction Window', () => {
   }, {
     nextUpdateFull: false,
     txsUpdate: [],
-    transactions: [dbBatch1[0], dbBatch1[1], dbBatch1[2], dbBatch1[3]],
+    transactions: [dbBatch0[0], dbBatch0[1], dbBatch0[2], dbBatch0[3]],
     slotEndDate: 429,
     slotsIndices: createSlotsIndices([
       [29, 0], [129, 0], [229, 0], [329, 3], [429, 3]
     ])
   }, {
     nextUpdateFull: false,
-    txsUpdate: [dbBatch1[3], dbBatch2[0]],
-    transactions: [dbBatch1[0], dbBatch1[1], dbBatch1[2], dbBatch1[3], dbBatch2[0]],
+    txsUpdate: [dbBatch0[3], dbBatch1[0]],
+    transactions: [dbBatch0[0], dbBatch0[1], dbBatch0[2], dbBatch0[3], dbBatch1[0]],
     slotEndDate: 529,
     slotsIndices: createSlotsIndices([
       [129, 0], [229, 0], [329, 3], [429, 3], [529, 5]
@@ -70,8 +70,8 @@ describe('Transaction Window', () => {
     nextUpdateFull: false,
     txsUpdate: [],
     transactions: [
-      dbBatch1[0], dbBatch1[1], dbBatch1[2], dbBatch1[3],
-      dbBatch2[0], dbBatch3[0], dbBatch3[1]
+      dbBatch0[0], dbBatch0[1], dbBatch0[2], dbBatch0[3],
+      dbBatch1[0], dbBatch2[0], dbBatch2[1]
     ],
     slotEndDate: 629,
     slotsIndices: createSlotsIndices([
@@ -79,10 +79,10 @@ describe('Transaction Window', () => {
     ])
   }, {
     nextUpdateFull: false,
-    txsUpdate: [dbBatch3[0], dbBatch3[1]],
+    txsUpdate: [dbBatch2[0], dbBatch2[1]],
     transactions: [
-      dbBatch1[3],
-      dbBatch2[0], dbBatch3[0], dbBatch3[1], dbBatch4[0]
+      dbBatch0[3],
+      dbBatch1[0], dbBatch2[0], dbBatch2[1], dbBatch3[0]
     ],
     slotEndDate: 729,
     slotsIndices: createSlotsIndices([
@@ -90,10 +90,10 @@ describe('Transaction Window', () => {
     ])
   }, {
     nextUpdateFull: false,
-    txsUpdate: [dbBatch4[0]],
+    txsUpdate: [dbBatch3[0]],
     transactions: [
-      dbBatch1[3],
-      dbBatch2[0], dbBatch3[0], dbBatch3[1], dbBatch4[0]
+      dbBatch0[3],
+      dbBatch1[0], dbBatch2[0], dbBatch2[1], dbBatch3[0]
     ],
     slotEndDate: 829,
     slotsIndices: createSlotsIndices([
@@ -103,14 +103,14 @@ describe('Transaction Window', () => {
 
   it('should return tx windows', () => {
     const txWindow = TransactionWindow(workerConfigs, testUpdateSeconds)
-    txWindow.addBatchUpdate(230, 430, dbBatch1)
+    txWindow.addBatchUpdate(230, 430, dbBatch0)
     txWindow.nextTransactionUpdate().should.deep.equal(expected[0])
     txWindow.nextTransactionUpdate().should.deep.equal(expected[1])
-    txWindow.addBatchUpdate(450, 549, dbBatch2)
+    txWindow.addBatchUpdate(450, 549, dbBatch1)
     txWindow.nextTransactionUpdate().should.deep.equal(expected[2])
-    txWindow.addBatchUpdate(550, 728, dbBatch3)
+    txWindow.addBatchUpdate(550, 728, dbBatch2)
     txWindow.nextTransactionUpdate().should.deep.equal(expected[3])
-    txWindow.addBatchUpdate(729, 800, dbBatch4)
+    txWindow.addBatchUpdate(729, 800, dbBatch3)
     txWindow.nextTransactionUpdate().should.deep.equal(expected[4])
     txWindow.nextTransactionUpdate().should.deep.equal(expected[5])
   })
