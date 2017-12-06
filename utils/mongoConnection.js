@@ -9,6 +9,17 @@ const transactionCollectionName = 'transactions'
 const simulationReportsCollectionName = 'simulationreports'
 const traderReportsCollectionName = 'traderreports'
 
+const PRODUCTION_ENV = 'PROD'
+
+class MongoConnectionError extends Error {
+  // eslint-disable-next-line space-before-function-paren
+  constructor(message) {
+    super(message)
+    this.name = this.constructor.name
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
 const defaultIndexOptions = { background: true, unique: true }
 
 const ALL_INDEX_SPECS = [{
@@ -35,10 +46,9 @@ const ensureAllIndices = db =>
   ).then(() => db)
 
 const initializeDirectConnection = (config, logger) => {
-  if (module.exports.db !== undefined) return Promise.resolve()
-
   const mongoUrl = config.mongodb.url
-  logger.info(`Connecting to DB: '${mongoUrl}'`)
+  checkProductionEnvironment(logger, mongoUrl)
+
   return MongoClient.connect(mongoUrl)
     .then(ensureAllIndices)
     .then(db => {
@@ -50,7 +60,18 @@ const initializeDirectConnection = (config, logger) => {
       logger.error(`No connection to DB: ${mongoUrl}`, error)
       module.exports.db = null
       module.exports.error = error
+      throw error
     })
+}
+
+const checkProductionEnvironment = (logger, mongoUrl) => {
+  if (mongoUrl.endsWith('tantalus')) {
+    if (process.env.NODE_ENV !== PRODUCTION_ENV) {
+      const msg = `Access to production database with invalid NODE_ENV: ${process.env.NODE_ENV}`
+      logger.error(msg)
+      throw new MongoConnectionError(msg)
+    }
+  }
 }
 
 const initializeMongooseConnection = config =>
