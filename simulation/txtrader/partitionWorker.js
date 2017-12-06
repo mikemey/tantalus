@@ -46,7 +46,6 @@ class PartitionWorker {
     const batchCount = this.txsrc.batchCount()
     const runIterationPromise = () => {
       if (this.txsrc.hasNext()) {
-        this.logger.info('reading transactions...')
         return this.txsrc.next()
           .then(({ batchNum, from, to, transactions }) => {
             const num = batchNum.toString().padStart(batchCount.toString().length)
