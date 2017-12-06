@@ -10,23 +10,21 @@ describe('Slots analyzer', () => {
   }
 
   describe('with valid worker configs', () => {
-    const workerConfigs = {
-      traderConfigs: [{
-        timeslotSeconds: 100,
-        buying: { ratio: 0, useTimeslots: 2 },
-        selling: { ratio: 0, useTimeslots: 2 }
-      }, {
-        timeslotSeconds: 200,
-        buying: { ratio: 1, useTimeslots: 2 },
-        selling: { ratio: 0, useTimeslots: 2 }
-      }, {
-        timeslotSeconds: 100,
-        buying: { ratio: 1, useTimeslots: 3 },
-        selling: { ratio: 0, useTimeslots: 3 }
-      }]
-    }
+    const traderConfigs = [{
+      timeslotSeconds: 100,
+      buying: { ratio: 0, useTimeslots: 2 },
+      selling: { ratio: 0, useTimeslots: 2 }
+    }, {
+      timeslotSeconds: 200,
+      buying: { ratio: 1, useTimeslots: 2 },
+      selling: { ratio: 0, useTimeslots: 2 }
+    }, {
+      timeslotSeconds: 100,
+      buying: { ratio: 1, useTimeslots: 3 },
+      selling: { ratio: 0, useTimeslots: 3 }
+    }]
 
-    const analyzer = SlotsAnalyzer(workerConfigs)
+    const analyzer = SlotsAnalyzer(traderConfigs)
 
     it('creates slots averages of first slice', () => {
       const data = {
@@ -117,37 +115,34 @@ describe('Slots analyzer', () => {
   })
 
   it('should reject useTimeslots configuration < 2', () => {
-    const workerConfigs = {
-      traderConfigs: [{
-        timeslotSeconds: 100,
-        buying: { ratio: 0, useTimeslots: 1 },
-        selling: { ratio: 0, useTimeslots: 2 }
-      }]
-    }
-    expect(() => SlotsAnalyzer(workerConfigs))
+    const traderConfigs = [{
+      timeslotSeconds: 100,
+      buying: { ratio: 0, useTimeslots: 1 },
+      selling: { ratio: 0, useTimeslots: 2 }
+    }]
+
+    expect(() => SlotsAnalyzer(traderConfigs))
       .to.throw(Error, 'useTimeslots less than 2, was: 1')
   })
 
   it('should reject zero timeslotSeconds configuration', () => {
-    const workerConfigs = {
-      traderConfigs: [{
-        timeslotSeconds: 0,
-        buying: { ratio: 0, useTimeslots: 2 },
-        selling: { ratio: 0, useTimeslots: 2 }
-      }]
-    }
-    expect(() => SlotsAnalyzer(workerConfigs))
+    const traderConfigs = [{
+      timeslotSeconds: 0,
+      buying: { ratio: 0, useTimeslots: 2 },
+      selling: { ratio: 0, useTimeslots: 2 }
+    }]
+
+    expect(() => SlotsAnalyzer(traderConfigs))
       .to.throw(Error, 'timeslotSeconds not configured!')
   })
 
   it('should reject  missing timeslotSeconds configuration', () => {
-    const workerConfigs = {
-      traderConfigs: [{
-        buying: { ratio: 0, useTimeslots: 2 },
-        selling: { ratio: 0, useTimeslots: 2 }
-      }]
-    }
-    expect(() => SlotsAnalyzer(workerConfigs))
+    const traderConfigs = [{
+      buying: { ratio: 0, useTimeslots: 2 },
+      selling: { ratio: 0, useTimeslots: 2 }
+    }]
+
+    expect(() => SlotsAnalyzer(traderConfigs))
       .to.throw(Error, 'timeslotSeconds not configured!')
   })
 })

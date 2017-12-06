@@ -12,8 +12,8 @@ const checkConfig = cfg => {
   if (!cfg.timeslotSeconds) throw Error('timeslotSeconds not configured!')
 }
 
-const SliceDistributor = (workerConfigs, createTrader) => {
-  const traderMap = createTraderMap(workerConfigs.traderConfigs, createTrader)
+const SliceDistributor = (traderConfigs, createTrader) => {
+  const traderMap = createTraderMap(traderConfigs, createTrader)
 
   const distribute = (txsUpdate, slotRatios) => {
     traderMap.forEach((tssecs, trader) => {

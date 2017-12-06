@@ -4,7 +4,7 @@ const TransactionSlicer = require('../../simulation/txtrader/txSlicer')
 
 describe('Transaction slicer', () => {
   const testUpdateSeconds = 100
-  const workerConfigs = { some: 'values see txSlicer.spec' }
+  const traderConfigs = [{ some: 'values' }]
 
   const dbBatch1 = [
     { tid: 230000, date: 230 },
@@ -57,7 +57,7 @@ describe('Transaction slicer', () => {
     nextTransactionUpdate: sinon.stub()
   }
   const createTxWindowMock = (config, txUpdateSeconds) => {
-    config.should.deep.equal(workerConfigs)
+    config.should.deep.equal(traderConfigs)
     txUpdateSeconds.should.deep.equal(testUpdateSeconds)
 
     return txWindowMock
@@ -65,7 +65,7 @@ describe('Transaction slicer', () => {
 
   const slotsAnalyzer = { buildSlotsRatios: sinon.stub() }
   const createSlotsAnalyzer = config => {
-    config.should.deep.equal(workerConfigs)
+    config.should.deep.equal(traderConfigs)
     return slotsAnalyzer
   }
 
@@ -75,7 +75,7 @@ describe('Transaction slicer', () => {
     getBalances: sinon.stub()
   }
   const createSliceDistributor = (config, createTraderFunc) => {
-    config.should.deep.equal(workerConfigs)
+    config.should.deep.equal(traderConfigs)
     createTraderFunc.should.equal(testCreateTraderFunc)
     return sliceDistributor
   }
@@ -98,7 +98,7 @@ describe('Transaction slicer', () => {
       )
     }
 
-    const slicer = TransactionSlicer(console, workerConfigs, testUpdateSeconds,
+    const slicer = TransactionSlicer(console, traderConfigs, testUpdateSeconds,
       createTxWindowMock, createSlotsAnalyzer, createSliceDistributor, testCreateTraderFunc)
 
     slicer.runBatch(230, 777, dbBatch1)
@@ -131,7 +131,7 @@ describe('Transaction slicer', () => {
     const testAccounts = [{ abc: 'def' }]
     sliceDistributor.getBalances.returns(testAccounts)
 
-    const slicer = TransactionSlicer(console, workerConfigs, testUpdateSeconds,
+    const slicer = TransactionSlicer(console, traderConfigs, testUpdateSeconds,
       createTxWindowMock, createSlotsAnalyzer, createSliceDistributor, testCreateTraderFunc)
 
     slicer.getBalances().should.deep.equal(testAccounts)

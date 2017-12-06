@@ -4,17 +4,15 @@ const TransactionWindow = require('../../../simulation/txtrader/slicing/txWindow
 
 describe('Transaction Window', () => {
   const testUpdateSeconds = 100
-  const workerConfigs = {
-    traderConfigs: [{
-      timeslotSeconds: 200,
-      buying: { ratio: 0, useTimeslots: 2 },
-      selling: { ratio: 0, useTimeslots: 2 }
-    }, {
-      timeslotSeconds: 100,
-      buying: { ratio: 1, useTimeslots: 3 },
-      selling: { ratio: 0, useTimeslots: 3 }
-    }]
-  }
+  const traderConfigs = [{
+    timeslotSeconds: 200,
+    buying: { ratio: 0, useTimeslots: 2 },
+    selling: { ratio: 0, useTimeslots: 2 }
+  }, {
+    timeslotSeconds: 100,
+    buying: { ratio: 1, useTimeslots: 3 },
+    selling: { ratio: 0, useTimeslots: 3 }
+  }]
 
   const dbBatch0 = [
     { tid: 230000, date: 230 },
@@ -102,7 +100,7 @@ describe('Transaction Window', () => {
   }]
 
   it('should return tx windows', () => {
-    const txWindow = TransactionWindow(workerConfigs, testUpdateSeconds)
+    const txWindow = TransactionWindow(traderConfigs, testUpdateSeconds)
     txWindow.addBatchUpdate(230, 430, dbBatch0)
     txWindow.nextTransactionUpdate().should.deep.equal(expected[0])
     txWindow.nextTransactionUpdate().should.deep.equal(expected[1])
@@ -116,18 +114,17 @@ describe('Transaction Window', () => {
   })
 
   it('throws exception when timeslotSeconds is NOT divisible by transactionsUpdateSeconds', () => {
-    const workerConfigs = {
-      traderConfigs: [{
-        timeslotSeconds: 150,
-        buying: { ratio: 0, useTimeslots: 1 },
-        selling: { ratio: 0, useTimeslots: 2 }
-      }, {
-        timeslotSeconds: 100,
-        buying: { ratio: 1, useTimeslots: 3 },
-        selling: { ratio: 0, useTimeslots: 4 }
-      }]
-    }
-    expect(() => TransactionWindow(workerConfigs, testUpdateSeconds))
+    const traderConfigs = [{
+      timeslotSeconds: 150,
+      buying: { ratio: 0, useTimeslots: 1 },
+      selling: { ratio: 0, useTimeslots: 2 }
+    }, {
+      timeslotSeconds: 100,
+      buying: { ratio: 1, useTimeslots: 3 },
+      selling: { ratio: 0, useTimeslots: 4 }
+    }]
+
+    expect(() => TransactionWindow(traderConfigs, testUpdateSeconds))
       .to.throw(Error, 'transactionUpdateSeconds (100) is not a divisor of timeslotSeconds (150)')
   })
 })

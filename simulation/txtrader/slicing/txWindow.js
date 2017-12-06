@@ -1,22 +1,22 @@
 
-const calculateMaxTime = workerConfigObject => {
-  return workerConfigObject.traderConfigs.reduce((max, config) => {
+const calculateMaxTime = traderConfigs => {
+  return traderConfigs.reduce((max, config) => {
     const maxTimeslots = Math.max(config.buying.useTimeslots, config.selling.useTimeslots)
     return Math.max(max, maxTimeslots * config.timeslotSeconds)
   }, 0)
 }
 
-const checkWindowSizes = (workerConfigObject, transactionsUpdateSeconds) => {
-  workerConfigObject.traderConfigs.forEach(cfg => {
+const checkWindowSizes = (traderConfigs, transactionsUpdateSeconds) => {
+  traderConfigs.forEach(cfg => {
     if ((cfg.timeslotSeconds % transactionsUpdateSeconds) !== 0) {
       throw new Error(`transactionUpdateSeconds (${transactionsUpdateSeconds}) is not a divisor of timeslotSeconds (${cfg.timeslotSeconds})`)
     }
   })
 }
 
-const TransactionWindow = (workerConfigObject, transactionsUpdateSeconds) => {
-  checkWindowSizes(workerConfigObject, transactionsUpdateSeconds)
-  const maxHistory = calculateMaxTime(workerConfigObject)
+const TransactionWindow = (traderConfigs, transactionsUpdateSeconds) => {
+  checkWindowSizes(traderConfigs, transactionsUpdateSeconds)
+  const maxHistory = calculateMaxTime(traderConfigs)
 
   const data = {
     currentSliceEndDate: 0,

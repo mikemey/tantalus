@@ -47,8 +47,8 @@ const averageWindowTransactions = (transactions, slotsIndices, slotStartDate, sl
   return totalVolume === 0 ? 0 : totalVolume / totalAmount
 }
 
-const createRatioBuilders = workerConfigs => {
-  const configTimeslotGroups = workerConfigs.traderConfigs.reduce((cfgGroups, cfg) => {
+const createRatioBuilders = traderConfigs => {
+  const configTimeslotGroups = traderConfigs.reduce((cfgGroups, cfg) => {
     checkConfig(cfg)
     const tssecs = cfg.timeslotSeconds
     if (!cfgGroups.has(tssecs)) {
@@ -83,8 +83,8 @@ const findMaxUseTimeslots = configs => {
   }, 0)
 }
 
-const SlotsAnalyzer = workerConfigs => {
-  const ratioBuilders = createRatioBuilders(workerConfigs)
+const SlotsAnalyzer = traderConfigs => {
+  const ratioBuilders = createRatioBuilders(traderConfigs)
 
   const buildSlotsRatios = (transactions, slotsIndices, slotEndDate) => {
     const slotsRatios = {}
