@@ -160,6 +160,35 @@ describe('Simulated trader', () => {
       ], [0, 0])
       trader.getBalance().should.deep.equal(startBalance(50000))
     })
+
+    it('should handle edge cases in trade volume', () => {
+      const testConfig = {
+        clientId: 'T( 100)_B(   2 / 2)_S(   -6 / 2)',
+        buying: { ratio: 2, useTimeslots: 2, volumeLimitPence: 100000, lowerLimitPence: 10 },
+        selling: { ratio: -6, useTimeslots: 2, lowerLimit_mmBtc: testLowerAmountLimit }
+      }
+      const testBalance = clientBalance({
+        latestPrice: 1000,
+        gbp_balance: 89100,
+        xbt_balance: 2
+      })
+
+      const tradingPrice = 594000
+      trader = SimulatedTrader(testConfig, testBalance)
+      trader.nextTick([
+        { tid: 'price surge', price: tradingPrice, amount: 4 }
+      ], [2.5, 2.51])
+      trader.nextTick([
+        { tid: 100, price: tradingPrice, amount: 624 },
+        { tid: 101, price: tradingPrice, amount: 622 },
+        { tid: 102, price: tradingPrice, amount: 300 }
+      ], [2.7, 2.4])
+      trader.getBalance().should.deep.equal(clientBalance({
+        latestPrice: tradingPrice,
+        gbp_balance: 2,
+        xbt_balance: 1502
+      }))
+    })
   })
 
   describe('selling using ORDER price', () => {

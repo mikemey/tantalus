@@ -65,7 +65,7 @@ const SimulatedTrader = (traderConfig, startBalance) => {
         txId++) {
         if ((data.balance.latestPrice - txs[txId].price) * data.orderDirection >= 0) {
           tradeAmount = Math.min(txs[txId].amount, data.orderAmount)
-          tradeGbp = Math.round(tradeAmount * data.balance.latestPrice / mmBTC)
+          tradeGbp = Math.floor(tradeAmount * data.balance.latestPrice / mmBTC)
 
           data.orderAmount -= tradeAmount
           data.balance.gbp_balance -= tradeGbp * data.orderDirection
