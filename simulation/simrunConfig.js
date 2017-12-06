@@ -51,7 +51,7 @@ const executorConfig = {
   mongodb: {
     url: 'mongodb://127.0.0.1:27017/tantalus'
   },
-  batchSeconds: 3600 * 50,
+  batchSeconds: 3600 * 10,
   transactionsUpdateSeconds: 10,
   partitionWorkerCount: 7,
   rankingLimit: 3,
