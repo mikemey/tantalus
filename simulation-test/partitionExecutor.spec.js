@@ -89,6 +89,7 @@ describe('Partition executor', function () {
       const createdTradersCalled = partitionWorkerMockReceiver.getCreatedTradersCalled()
       createdTradersCalled.should.have.length(executorConfig.partitionWorkerCount)
       createdTradersCalled.forEach(call => {
+        call.executorConfig.should.deep.equal(executorConfig)
         const actualConfigs = JSON.stringify(call.traderConfigs)
         expectedTraderConfigs.findIndex(expectedConfigs =>
           actualConfigs === JSON.stringify(expectedConfigs.traderConfigs)

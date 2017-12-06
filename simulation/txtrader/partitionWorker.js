@@ -3,7 +3,6 @@ const mongo = require('../../utils/mongoConnection')
 const { timestamp } = require('../simrunUtils')
 const { TantalusLogger } = require('../../utils/tantalusLogger')
 const { roundVolume } = require('../../utils/ordersHelper')
-const { executorConfig } = require('../simrunConfig')
 
 const TransactionRepo = require('../../transactions/transactionsRepo')
 const TransactionsSource = require('./txSource')
@@ -29,10 +28,10 @@ class PartitionWorker {
     }
   }
   // eslint-disable-next-line space-before-function-paren
-  createTraders(workerConfigObject) {
+  createTraders({ traderConfigs, executorConfig }) {
     return mongo.initializeDirectConnection(executorConfig, this.logger)
       .then(() => {
-        this.txSlicer = this.createTxSlicer(this.logger, workerConfigObject, executorConfig.transactionsUpdateSeconds)
+        this.txSlicer = this.createTxSlicer(this.logger, traderConfigs, executorConfig.transactionsUpdateSeconds)
         this.txsrc = this.createTxSource(this.logger, TransactionRepo())
         return this.txsrc.reset(executorConfig.batchSeconds)
       })

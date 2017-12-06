@@ -111,6 +111,7 @@ module.exports = {
   closeMongoose,
   dropDatabase,
   closeAll,
+  defaultTestConfig,
 
   getTickers,
   insertTickers,

@@ -23,7 +23,7 @@ const PartitionExecutor = (baseLogger, workersModule = defaultWorkerModule) => {
     return destroyExistingWorkers()
       .then(() => data.actorSystem.rootActor())
       .then(rootActor => {
-        const workerConfigObjects = createWorkerConfigs(allTraderConfigs, executorConfig.partitionWorkerCount)
+        const workerConfigObjects = createWorkerConfigs(allTraderConfigs, executorConfig)
         return Promise.all(workerConfigObjects.map(createWorker(rootActor)))
       })
       .then(workers => {
@@ -32,9 +32,9 @@ const PartitionExecutor = (baseLogger, workersModule = defaultWorkerModule) => {
       })
   }
 
-  const createWorkerConfigs = (traderConfigs, configuredWorkerCount) => {
+  const createWorkerConfigs = (traderConfigs, executorConfig) => {
     const totalConfigsCount = traderConfigs.length
-    const workerCount = Math.min(totalConfigsCount, configuredWorkerCount)
+    const workerCount = Math.min(totalConfigsCount, executorConfig.partitionWorkerCount)
 
     logger.info(`distributing ${totalConfigsCount} trader configs to ${workerCount} workers`)
     const configSliceLen = totalConfigsCount / workerCount
@@ -42,7 +42,10 @@ const PartitionExecutor = (baseLogger, workersModule = defaultWorkerModule) => {
     return Array.from({ length: workerCount }, (_, ix) => {
       const startIx = Math.round(ix * configSliceLen)
       const endIx = Math.round((ix + 1) * configSliceLen)
-      return { traderConfigs: traderConfigs.slice(startIx, endIx) }
+      return {
+        executorConfig,
+        traderConfigs: traderConfigs.slice(startIx, endIx)
+      }
     })
   }
 
