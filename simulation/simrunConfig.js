@@ -22,7 +22,7 @@ const initialGeneratorRanges = {
 }
 
 const genAlgoConfig = {
-  iterations: 10,
+  iterations: 100,
   selectionCutoff: 0.7,
   crossoverRate: 0.05,
   mutationRate: 0.015,
@@ -51,7 +51,7 @@ const executorConfig = {
   mongodb: {
     url: 'mongodb://127.0.0.1:27017/tantalus'
   },
-  batchSeconds: 3600 * 10,
+  batchSeconds: 3600 * 50,
   transactionsUpdateSeconds: 10,
   partitionWorkerCount: 7,
   rankingLimit: 3,
