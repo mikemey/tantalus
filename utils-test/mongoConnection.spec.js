@@ -1,4 +1,4 @@
-const expect = require('chai').expect
+const should = require('chai').should()
 
 const mongoConnection = require('../utils/mongoConnection')
 
@@ -25,14 +25,20 @@ describe('mongo connection', () => {
     })
 
     it('throws error when NODE_ENV not set', () => {
-      expect(() => mongoConnection.initializeAll(prodConfig, console))
-        .to.throw(Error, 'Access to production database with invalid NODE_ENV: undefined')
+      return mongoConnection.initializeDirectConnection(prodConfig, console)
+        .then(() => should.fail('expected exception not thrown!'))
+        .catch(err =>
+          err.message.should.equal('Access to production database with invalid NODE_ENV: undefined')
+        )
     })
 
     it('throws error when NODE_ENV set to wrong value', () => {
       process.env.NODE_ENV = 'dev'
-      expect(() => mongoConnection.initializeAll(prodConfig, console))
-        .to.throw(Error, 'Access to production database with invalid NODE_ENV: dev')
+      return mongoConnection.initializeDirectConnection(prodConfig, console)
+        .then(() => should.fail('expected exception not thrown!'))
+        .catch(err =>
+          err.message.should.equal('Access to production database with invalid NODE_ENV: dev')
+        )
     })
   })
 })

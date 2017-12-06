@@ -47,9 +47,8 @@ const ensureAllIndices = db =>
 
 const initializeDirectConnection = (config, logger) => {
   const mongoUrl = config.mongodb.url
-  checkProductionEnvironment(logger, mongoUrl)
-
-  return MongoClient.connect(mongoUrl)
+  return checkProductionEnvironment(logger, mongoUrl)
+    .then(() => MongoClient.connect(mongoUrl))
     .then(ensureAllIndices)
     .then(db => {
       logger.info('DB connection established.')
@@ -64,15 +63,16 @@ const initializeDirectConnection = (config, logger) => {
     })
 }
 
-const checkProductionEnvironment = (logger, mongoUrl) => {
+const checkProductionEnvironment = (logger, mongoUrl) => new Promise((resolve, reject) => {
   if (mongoUrl.endsWith('tantalus')) {
     if (process.env.NODE_ENV !== PRODUCTION_ENV) {
       const msg = `Access to production database with invalid NODE_ENV: ${process.env.NODE_ENV}`
       logger.error(msg)
-      throw new MongoConnectionError(msg)
+      reject(new MongoConnectionError(msg))
     }
   }
-}
+  resolve()
+})
 
 const initializeMongooseConnection = config =>
   mongoose.connect(config.mongodb.url, { useMongoClient: true })
