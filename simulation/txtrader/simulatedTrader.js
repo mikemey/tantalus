@@ -54,6 +54,7 @@ const SimulatedTrader = (traderConfig, startBalance) => {
 
   const nextTick = (txsUpdate, ratios) => {
     resolvePreviousOrders(txsUpdate)
+    checkBalance()
     issueOrders(ratios)
   }
 
@@ -74,6 +75,13 @@ const SimulatedTrader = (traderConfig, startBalance) => {
     }
 
     if (txs.length) data.balance.latestPrice = txs[txs.length - 1].price
+  }
+
+  const checkBalance = () => {
+    if (data.balance.gbp_balance < 0 || data.balance.xbt_balance < 0) {
+      console.log(data.balance)
+      throw Error('balance under 0!')
+    }
   }
 
   const issueOrders = ratios => {
