@@ -1,5 +1,5 @@
 const createServer = require('./app')
-const config = require('./config').config
+const config = require('../utils/tantalusConfig').config
 
 const { TantalusLogger, highlightText } = require('../utils/tantalusLogger')
 const WinstonAdapter = require('./utils/winstonAdapter')
