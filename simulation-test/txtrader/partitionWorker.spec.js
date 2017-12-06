@@ -123,8 +123,8 @@ describe('Partition worker', () => {
       return partitionWorker.createTraders(workerConfigObject)
         .then(() => partitionWorker.runIteration(3))
         .then(() => partitionWorker.getAccounts().should.deep.equal([
-          { clientId: 'A', amount: 0, price: 250900, volume: 18138, fullVolume: 18138 },
-          { clientId: 'B', amount: 398, price: 250900, volume: 2, fullVolume: 9988 }
+          { clientId: 'A', amount: 0, price: 250900, volume: 18137, fullVolume: 18137 },
+          { clientId: 'B', amount: 398, price: 250900, volume: 3, fullVolume: 9988 }
         ], 'getAccounts not as expected'))
     })
 

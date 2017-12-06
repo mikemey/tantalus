@@ -2,7 +2,7 @@ const mongo = require('../../utils/mongoConnection')
 
 const { timestamp } = require('../simrunUtils')
 const { TantalusLogger } = require('../../utils/tantalusLogger')
-const { roundVolume } = require('../../utils/ordersHelper')
+const { mmBTC } = require('../../utils/ordersHelper')
 
 const TransactionRepo = require('../../transactions/transactionsRepo')
 const TransactionsSource = require('./txSource')
@@ -72,7 +72,7 @@ class PartitionWorker {
         amount: b.xbt_balance,
         price: b.latestPrice,
         volume: b.gbp_balance,
-        fullVolume: b.gbp_balance + roundVolume(b.xbt_balance, b.latestPrice)
+        fullVolume: b.gbp_balance + Math.floor(b.xbt_balance * b.latestPrice / mmBTC)
       }
     })
   }
