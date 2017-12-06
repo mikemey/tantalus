@@ -17,6 +17,8 @@ const throwError = name => {
   throw Error(`${name} not configured!`)
 }
 
+const quietLogger = { info: () => { } }
+
 const SimReporter = (baseLogger, simConfig, createTxSource = TransactionsSource) => {
   checkConfig(simConfig)
   const logger = TantalusLogger(baseLogger, 'Report')
@@ -29,7 +31,7 @@ const SimReporter = (baseLogger, simConfig, createTxSource = TransactionsSource)
     : loadStaticReportData()
 
   const loadStaticReportData = () => {
-    staticReportData = createTxSource(baseLogger, TransactionRepo())
+    staticReportData = createTxSource(quietLogger, TransactionRepo())
     return staticReportData.reset(simConfig.batchSeconds)
       .then(() => staticReportData)
   }
