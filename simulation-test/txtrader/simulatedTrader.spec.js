@@ -42,7 +42,8 @@ describe('Simulated trader', () => {
       trader.getBalance().should.deep.equal(startBalance(5000))
 
       trader.nextTick([
-        { tid: 100, price: 5000, amount: 20000 }
+        { tid: 100, price: 5000, amount: 20000 },
+        { tid: 101, price: 5000, amount: 20000 }
       ], [2.7, 2.4])
       trader.getBalance().should.deep.equal(clientBalance({
         latestPrice: 5000,
@@ -170,6 +171,29 @@ describe('Simulated trader', () => {
 
     beforeEach(() => { trader = SimulatedTrader(fullConfig, startBalance(100)) })
     let trader
+
+    it('should sell when ratios under selling ratio', () => {
+      const testBalance = clientBalance({
+        latestPrice: 2,
+        gbp_balance: 63,
+        xbt_balance: 1988
+      })
+
+      trader = SimulatedTrader(fullConfig, testBalance)
+      trader.nextTick([
+        { tid: 'setting latestPrice', price: 502200, amount: 4 }
+      ], [-4.2])
+      trader.getBalance().should.deep.equal(testBalance)
+      trader.nextTick([
+        { tid: 101, price: 502200, amount: 77000 },
+        { tid: 102, price: 502200, amount: 77000 }
+      ], [-0.3, -0.3, -0.3])
+      trader.getBalance().should.deep.equal(clientBalance({
+        latestPrice: 502200,
+        gbp_balance: 99900,
+        xbt_balance: 0
+      }))
+    })
 
     it('should re-sell when ratios multiple times under selling ratio', () => {
       trader.nextTick([
