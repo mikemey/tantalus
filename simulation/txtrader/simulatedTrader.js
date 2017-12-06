@@ -1,4 +1,5 @@
-const mmBTC = 10000
+const { mmBTC } = require('../../utils/ordersHelper')
+
 const BUY = 1
 const SELL = -1
 
