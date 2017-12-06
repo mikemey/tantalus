@@ -20,11 +20,9 @@ const TransactionSource = (logger, transactionRepo) => {
       transactionRepo.getEarliestTransaction(),
       transactionRepo.getLatestTransaction()
     ]).then(([earliestTx, latestTx]) => {
-      // data.startDate = data.nextStartDate = 1512058660 // 1512058790
       data.startDate = data.nextStartDate = earliestTx.date
       data.startPrice = earliestTx.price
 
-      // data.endDate = 1512058700
       data.endDate = latestTx.date
       data.endPrice = latestTx.price
 
