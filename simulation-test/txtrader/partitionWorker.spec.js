@@ -1,4 +1,5 @@
 const sinon = require('sinon')
+const expect = require('chai').expect
 
 const helpers = require('../../utils-test/helpers')
 
@@ -8,7 +9,7 @@ describe('Partition worker', () => {
   const testExecutorConfig = {
     mongodb: helpers.defaultTestConfig.mongodb,
     batchSeconds: 5000,
-    transactionsUpdateSeconds: 20
+    transactionsUpdateSeconds: 50
   }
 
   describe('with mocked txSource and txSlicer', () => {
@@ -82,31 +83,55 @@ describe('Partition worker', () => {
     })
   })
 
-  describe('with mocked txSource and txSlicer', () => {
-    it('should configure partition', () => {
+  describe('with real txSource and txSlicer', () => {
+    const dbTxs = [
+      { tid: 50000, date: 50, amount: 100, price: 250000 },
+      { tid: 70000, date: 70, amount: 400, price: 250500 },
+      { tid: 120000, date: 120, amount: 1340, price: 250700 },
+      { tid: 150000, date: 150, amount: 2211, price: 251000 },
+      { tid: 210000, date: 210, amount: 400, price: 251000 },
+      { tid: 220000, date: 220, amount: 32100, price: 251200 },
+      { tid: 250000, date: 250, amount: 2001, price: 251200 },
+      { tid: 270000, date: 270, amount: 15782, price: 251500 },
+      { tid: 320000, date: 320, amount: 723, price: 251500 },
+      { tid: 370000, date: 370, amount: 1000, price: 251500 },
+      { tid: 470000, date: 470, amount: 333, price: 250900 },
+      { tid: 520000, date: 510, amount: 722, price: 250900 }
+    ]
+
+    before(() => helpers.dropDatabase()
+      .then(() => helpers.insertTransactions(dbTxs))
+    )
+
+    it('should run real example', () => {
       const workerConfigObject = {
         executorConfig: testExecutorConfig,
         traderConfigs: [{
           clientId: 'A',
           timeslotSeconds: 100,
-          buying: { ratio: 2.3, useTimeslots: 2, volumeLimitPence: 818181, lowerLimitPence: 20 },
+          buying: { ratio: 2.3, useTimeslots: 3, volumeLimitPence: 18181, lowerLimitPence: 20 },
           selling: { ratio: -0.3, useTimeslots: 2, lowerLimit_mmBtc: 10 }
         }, {
           clientId: 'B',
-          timeslotSeconds: 200,
-          buying: { ratio: 3.3, useTimeslots: 2, volumeLimitPence: 1000, lowerLimitPence: 20 },
+          timeslotSeconds: 150,
+          buying: { ratio: 3.3, useTimeslots: 2, volumeLimitPence: 10000, lowerLimitPence: 20 },
           selling: { ratio: 0, useTimeslots: 2, lowerLimit_mmBtc: 10 }
         }]
       }
 
       const partitionWorker = new PartitionWorker()
       return partitionWorker.createTraders(workerConfigObject)
-        .then(() => {
-          partitionWorker.getAccounts().should.deep.equal([
-            { clientId: 'A', amount: 0, price: 0, volume: 818181, fullVolume: 818181 },
-            { clientId: 'B', amount: 0, price: 0, volume: 1000, fullVolume: 1000 }
-          ], 'getAccounts not as expected')
-        })
+        .then(() => partitionWorker.runIteration(3))
+        .then(() => partitionWorker.getAccounts().should.deep.equal([
+          { clientId: 'A', amount: 0, price: 250900, volume: 18138, fullVolume: 18138 },
+          { clientId: 'B', amount: 398, price: 250900, volume: 2, fullVolume: 9988 }
+        ], 'getAccounts not as expected'))
+    })
+
+    it('throw exception when createTraders not called', () => {
+      const partitionWorker = new PartitionWorker()
+      expect(() => partitionWorker.runIteration(2))
+        .to.throw(Error, 'PartitionWorker not initialized, call createTraders(...)')
     })
   })
 })

@@ -40,6 +40,8 @@ class PartitionWorker {
 
   // eslint-disable-next-line space-before-function-paren
   runIteration(iterationProgress) {
+    if (!this.txsrc) throw Error('PartitionWorker not initialized, call createTraders(...)')
+
     const itString = `[it-${iterationProgress}]`
     const batchCount = this.txsrc.batchCount()
     const runIterationPromise = () => {
