@@ -9,7 +9,7 @@ const commonTraderConfig = {
 }
 
 const initialGeneratorRanges = {
-  timeslotSeconds: { start: 50, end: 650, step: 50 },
+  timeslotSeconds: { start: 50, end: 650, step: 100 },
   buying: {
     ratio: { start: 2, end: 8, step: 2 },
     useTimeslots: { start: 2, end: 8, step: 2 }
@@ -53,7 +53,7 @@ const executorConfig = {
   },
   batchSeconds: 3600 * 10,
   transactionsUpdateSeconds: 10,
-  partitionWorkerCount: 7,
+  partitionWorkerCount: 5,
   rankingLimit: 3,
   startInvestment: commonTraderConfig.buying.volumeLimitPence
 }

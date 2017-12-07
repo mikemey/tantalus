@@ -15,7 +15,6 @@ const TransactionSource = (logger, transactionRepo) => {
 
   const reset = batchSeconds => {
     data.batchSeconds = batchSeconds
-    logger.info('retrieving earliest and latest date...')
     return Promise.all([
       transactionRepo.getEarliestTransaction(),
       transactionRepo.getLatestTransaction()

@@ -8,6 +8,7 @@ const TransactionRepo = require('../../transactions/transactionsRepo')
 const TransactionsSource = require('./txSource')
 const TransactionSlicer = require('./txSlicer')
 
+const { quietLogger } = require('../simrunUtils')
 const baseLogger = console
 
 class PartitionWorker {
@@ -29,10 +30,10 @@ class PartitionWorker {
   }
   // eslint-disable-next-line space-before-function-paren
   createTraders({ traderConfigs, executorConfig }) {
-    return mongo.initializeDirectConnection(executorConfig, this.logger)
+    return mongo.initializeDirectConnection(executorConfig, quietLogger)
       .then(() => {
-        this.txSlicer = this.createTxSlicer(this.logger, traderConfigs, executorConfig.transactionsUpdateSeconds)
-        this.txsrc = this.createTxSource(this.logger, TransactionRepo())
+        this.txSlicer = this.createTxSlicer(quietLogger, traderConfigs, executorConfig.transactionsUpdateSeconds)
+        this.txsrc = this.createTxSource(quietLogger, TransactionRepo())
         return this.txsrc.reset(executorConfig.batchSeconds)
       })
       .catch(this.errorHandler('Partition worker (creating traders): '))
@@ -48,10 +49,12 @@ class PartitionWorker {
       if (this.txsrc.hasNext()) {
         return this.txsrc.next()
           .then(({ batchNum, from, to, transactions }) => {
-            const num = batchNum.toString().padStart(batchCount.toString().length)
-            this.logger.info(`${itString} batch ` +
-              `[${num}/${batchCount}]: ${timestamp(from)} -> ${timestamp(to)}`
-            )
+            if ((batchNum % 10) === 1) {
+              const num = batchNum.toString().padStart(batchCount.toString().length)
+              this.logger.info(
+                `${itString} batch [${num}/${batchCount}]: ${timestamp(from)} -> ${timestamp(to)}`
+              )
+            }
             this.txSlicer.runBatch(from, to, transactions)
             return runIterationPromise()
           })
