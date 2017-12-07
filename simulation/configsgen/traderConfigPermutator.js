@@ -20,10 +20,16 @@ const PermutatorRandom = () => {
 const checkGenAlgoConfig = config => {
   if (!config.problemSpaceRanges) throwError('problemSpaceRanges')
   if (!config.iterations) throwError('iterations')
-  if (!config.selectionCutoff) throwError('selectionCutoff')
+  if (!config.minSelectionCutoff) throwError('minSelectionCutoff')
   if (!config.crossoverRate) throwError('crossoverRate')
   if (!config.mutationRate) throwError('mutationRate')
   if (!config.mutationBoundaries) throwError('mutationBoundaries')
+  if (
+    !config.problemSpaceRanges ||
+    !config.problemSpaceRanges.commonTraderConfig ||
+    !config.problemSpaceRanges.commonTraderConfig.buying ||
+    !config.problemSpaceRanges.commonTraderConfig.buying.volumeLimitPence
+  ) throwError('buying.volumeLimitPence')
 }
 
 const throwError = name => {
@@ -37,7 +43,8 @@ const TraderConfigPermutator = (baseLogger, genAlgoConfig, random = PermutatorRa
   const problemSpace = genAlgoConfig.problemSpaceRanges
   const traderConfigGenerator = TraderConfigGenerator().createGenerator(problemSpace)
 
-  const selectionCutoff = genAlgoConfig.selectionCutoff
+  const minSelectionCutoff = genAlgoConfig.minSelectionCutoff
+  const volumeLimit = genAlgoConfig.problemSpaceRanges.commonTraderConfig.buying.volumeLimitPence
   const crossoverRate = genAlgoConfig.crossoverRate
   const mutationRate = genAlgoConfig.mutationRate
   const boundaries = genAlgoConfig.mutationBoundaries
@@ -76,10 +83,19 @@ const TraderConfigPermutator = (baseLogger, genAlgoConfig, random = PermutatorRa
 
   const genes = ['ts', 'bratio', 'bslots', 'sratio', 'sslots']
 
-  const extractParentPopulation = (accounts, traderConfigs) => accounts
-    .sort((accA, accB) => accB.fullVolume - accA.fullVolume)
-    .slice(0, (accounts.length * (selectionCutoff)))
-    .map(flattenTraderConfig(traderConfigs))
+  const extractParentPopulation = (accounts, traderConfigs) => {
+    const performerCount = accounts.reduce((count, account) => {
+      if (account.fullVolume > volumeLimit) count++
+      return count
+    }, 0)
+    const maxCutoff = (1 - minSelectionCutoff) * accounts.length
+    const cutoff = Math.min(maxCutoff, performerCount)
+
+    return accounts
+      .sort((accA, accB) => accB.fullVolume - accA.fullVolume)
+      .slice(0, cutoff)
+      .map(flattenTraderConfig(traderConfigs))
+  }
 
   const flattenTraderConfig = traderConfigs => account => {
     const traderConfig = traderConfigs.find(cfg => cfg.clientId === account.clientId)

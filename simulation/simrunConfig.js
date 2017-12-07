@@ -23,7 +23,7 @@ const initialGeneratorRanges = {
 
 const genAlgoConfig = {
   iterations: 100,
-  selectionCutoff: 0.7,
+  minSelectionCutoff: 0.2,
   crossoverRate: 0.05,
   mutationRate: 0.015,
   mutationBoundaries: {

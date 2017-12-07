@@ -2,15 +2,24 @@ const chai = require('chai')
 const expect = chai.expect
 const should = chai.should
 
+const deepAssign = require('assign-deep')
+
 const TraderConfigPermutator = require('../../simulation/configsgen/traderConfigPermutator')
 
 describe('Trader config permutator', () => {
+  const testVolumeLimit = 100000
+
+  const commonTraderConfig = {
+    buying: {
+      volumeLimitPence: testVolumeLimit
+    }
+  }
+
   describe('iterations information', () => {
     it('for all configured iterations, return current iteration', () => {
-      const iterations = 10
       const genAlgoConfig = {
-        iterations,
-        selectionCutoff: 0.8,
+        iterations: 10,
+        minSelectionCutoff: 0.2,
         crossoverRate: 1,
         mutationRate: 1,
         mutationBoundaries: {},
@@ -24,7 +33,7 @@ describe('Trader config permutator', () => {
             ratio: { start: -3.5, end: -0.5, step: 1 },
             useTimeslots: { start: 4, end: 5, step: 1 }
           },
-          commonTraderConfig: {}
+          commonTraderConfig
         }
       }
 
@@ -35,16 +44,59 @@ describe('Trader config permutator', () => {
     })
 
     it('throws exception when no iterations count configured', () => {
-      const genAlgoConfig = {
-        selectionCutoff: 0.8,
+      expect(() => TraderConfigPermutator(console, {
+        minSelectionCutoff: 0.2,
         crossoverRate: 1,
         mutationRate: 1,
         mutationBoundaries: {},
-        problemSpaceRanges: {}
-      }
-
-      expect(() => TraderConfigPermutator(console, genAlgoConfig))
+        problemSpaceRanges: { commonTraderConfig }
+      }))
         .to.throw(Error, 'iterations not configured!')
+    })
+
+    it('throws exception when no min selection cutoff configured', () => {
+      expect(() => TraderConfigPermutator(console, {
+        iterations: 10,
+        crossoverRate: 1,
+        mutationRate: 1,
+        mutationBoundaries: {},
+        problemSpaceRanges: { commonTraderConfig }
+      }))
+        .to.throw(Error, 'minSelectionCutoff not configured!')
+    })
+
+    it('throws exception when no crossover rate configured', () => {
+      expect(() => TraderConfigPermutator(console, {
+        iterations: 10,
+        minSelectionCutoff: 0.2,
+        mutationRate: 1,
+        mutationBoundaries: {},
+        problemSpaceRanges: { commonTraderConfig }
+      }))
+        .to.throw(Error, 'crossoverRate not configured!')
+    })
+
+    it('throws exception when no mutation rate configured', () => {
+      expect(() => TraderConfigPermutator(console, {
+        iterations: 10,
+        minSelectionCutoff: 0.2,
+        crossoverRate: 1,
+        mutationBoundaries: {},
+        problemSpaceRanges: { commonTraderConfig }
+      }))
+        .to.throw(Error, 'mutationRate not configured!')
+    })
+
+    it('throws exception when no buying.volumeLimitPence configured', () => {
+      expect(() => TraderConfigPermutator(console, {
+        iterations: 10,
+        minSelectionCutoff: 0.2,
+        mutationRate: 1,
+        crossoverRate: 1,
+        mutationBoundaries: {},
+        problemSpaceRanges: { commonTraderConfig: {} }
+      }))
+        .to.throw(Error, 'buying.volumeLimitPence not configured!')
     })
   })
 
@@ -57,8 +109,12 @@ describe('Trader config permutator', () => {
       { clientId: 'rank 2', fullVolume: 113020 },
       { clientId: 'rank 3', fullVolume: 101000 },
       { clientId: 'rank 5', fullVolume: 93010 },
+      { clientId: 'rank 6', fullVolume: 97010 },
+      { clientId: 'rank 7', fullVolume: 98010 },
+      { clientId: 'rank 8', fullVolume: 99010 },
+      { clientId: 'rank 9', fullVolume: testVolumeLimit },
       { clientId: 'rank 1', fullVolume: 119500 },
-      { clientId: 'rank 4', fullVolume: 100000 }
+      { clientId: 'rank 4', fullVolume: 100001 }
     ]
 
     const traderConfigs = [{
@@ -85,7 +141,7 @@ describe('Trader config permutator', () => {
 
     const genAlgoConfig = {
       iterations,
-      selectionCutoff: 0.8,
+      minSelectionCutoff: 0.2,
       crossoverRate,
       mutationRate,
       mutationBoundaries: {
@@ -105,7 +161,7 @@ describe('Trader config permutator', () => {
           ratio: { start: -3.5, end: -0.5, step: 0.5 },
           useTimeslots: { start: 4, end: 5, step: 1 }
         },
-        commonTraderConfig: { all: 'shoud have this' }
+        commonTraderConfig
       }
     }
 
@@ -204,7 +260,7 @@ describe('Trader config permutator', () => {
     }]
 
     const expectedDeterministicChildren = deterministicChildren
-      .map(config => Object.assign(config, genAlgoConfig.problemSpaceRanges.commonTraderConfig))
+      .map(config => deepAssign(config, genAlgoConfig.problemSpaceRanges.commonTraderConfig))
 
     it('generate new generation', () => {
       const random = testRandom()
