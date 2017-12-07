@@ -93,7 +93,7 @@ xdescribe('exploring', () => {
     }
     const exchangeConnector = ExchangeConnector(config)
 
-    it('all accounts', () => {
+    xit('all accounts', () => {
       log('ALL ACCOUNTS')
       return exchangeConnector.getAllAccounts()
         .then(accounts => accounts
@@ -133,18 +133,21 @@ xdescribe('exploring', () => {
   }
 
   xdescribe('simulation reports', () => {
-    const mongo = require('../utils/mongoConnection')
+    const mongoConn = require('../utils/mongoConnection')
 
-    let _db
-    const simReportColl = () => _db.collection(mongo.simulationReportsCollectionName)
-    const traderReportColl = () => _db.collection(mongo.traderReportsCollectionName)
+    let mongodb
+    const simReportColl = () => mongodb.collection(mongoConn.simulationReportsCollectionName)
+    const traderReportColl = () => mongodb.collection(mongoConn.traderReportsCollectionName)
 
     const testConfig = {
-      mongodb: { url: 'mongodb://127.0.0.1:27017/tantalus' }
+      mongodb: { url: 'mongodb://127.0.0.1:27017/copy' }
     }
-    before(() => mongo.initializeDirectConnection(testConfig, console).then(db => { _db = db }))
 
-    it('analyze clientIds', () => {
+    before(() => mongoConn.initializeDirectConnection(testConfig, console)
+      .then(db => { mongodb = mongoConn.db })
+    )
+
+    xit('analyze clientIds', () => {
       const simulationId = 'sec'
 
       return traderReportColl().find({ simulationId }, { clientId: 1, _id: 0 }).toArray()
@@ -168,18 +171,7 @@ xdescribe('exploring', () => {
         })
     })
 
-    // {
-    //   "_id" : ObjectId("5a20884160973d122c8649a6"),
-    //   "clientId" : "T( 100)_B(   2 / 2)_S(   -6 / 2)",
-    //   "simulationId" : "sec",
-    //   "iteration" : 1,
-    //   "amount" : 0,
-    //   "volume" : 18977,
-    //   "fullVolume" : 18977,
-    //   "investDiff" : -123254,
-    //   "absoluteDiff" : -81023
-
-    it('export as csv', () => {
+    xit('export as csv', () => {
       const simulationId = 'sec'
 
       const getSimReports = simReportColl().find({ simulationId }).toArray()
@@ -242,6 +234,99 @@ xdescribe('exploring', () => {
         write(rowToString(headers))
         csvdata.map(rowToString).forEach(write)
       })
+    })
+
+    xit('convert clientIds from string', () => {
+      const clientIds = [
+        'T( 240)_B(  12 / 3)_S(   -2 / 5)',
+        'T( 340)_B(14.8 / 3)_S( -1.6 / 5)',
+        'T( 440)_B(  10 / 4)_S( -1.2 / 4)'
+      ]
+
+      clientIds.forEach(clientId => {
+        const timeslotSeconds = clientId.slice(2, 6)
+        const br = clientId.slice(10, 14)
+        const bs = clientId.slice(16, 18)
+        const sr = clientId.slice(22, 27)
+        const ss = clientId.slice(29, 31)
+
+        console.log(`  clientId: '${clientId}',`)
+        console.log(`  timeslotSeconds: ${timeslotSeconds},`)
+        console.log('  buying: {')
+        console.log(`    ratio: ${br},`)
+        console.log(`    useTimeslots: ${bs}`)
+        console.log('  },')
+        console.log('  selling: {')
+        console.log(`    ratio: ${sr},`)
+        console.log(`    useTimeslots: ${ss}`)
+        console.log('  }')
+        console.log('},{')
+      })
+    })
+
+    xit('client id queries', () => {
+      return traderReportColl()
+        .aggregate([
+          {
+            $group: {
+              _id: '$clientId',
+              count: { $sum: 1 },
+              diffTotal: { $sum: '$investDiff' }
+            }
+          },
+          {
+            $project: {
+              count: 1,
+              avgDiff: { $divide: ['$diffTotal', '$count'] }
+            }
+          },
+          { $sort: { avgDiff: -1 } },
+          { $limit: 20 }
+        ])
+        .toArray()
+        .then(result => {
+          result.forEach((r, ix) => {
+            console.log(`[${r._id}]: count (${r.count}) -- ${r.avgDiff}`)
+            // console.log(`----- entry ${ix} -----`)
+            // console.log(`   count ${iter}: ${r.count}`)
+            // console.log(`totalVol ${iter}: ${r.iterationVolume}`)
+            // console.log(`top10 ${iter}:`)
+            // console.log(r.top10)
+          })
+        })
+    })
+
+    xit('generation volumes', () => {
+      // const simulationId = 'improve'
+      return traderReportColl()
+        .aggregate([
+          // { $sort: { fullVolume: -1 } },
+          {
+            $group: {
+              _id: { simid: '$simulationId', it: '$iteration' },
+              count: { $sum: 1 },
+              diffTotal: { $sum: '$absoluteDiff' }
+              // accounts: {
+              //   $push: { clientId: '$clientId', fullVolume: '$fullVolume', investDiff: '$investDiff' }
+              // }
+            }
+          },
+          // { $project: { count: 1, iterationVolume: 1, top10: { $slice: ['$accounts', 10] } } },
+          { $project: { avgDiff: { $divide: ['$diffTotal', '$count'] } } },
+          { $sort: { avgDiff: -1 } },
+          { $limit: 30 }
+        ])
+        .toArray()
+        .then(result => {
+          result.forEach((r, ix) => {
+            console.log(`[${r._id.simid} - ${r._id.it}]: ${r.avgDiff}`)
+            // console.log(`----- entry ${ix} -----`)
+            // console.log(`   count ${iter}: ${r.count}`)
+            // console.log(`totalVol ${iter}: ${r.iterationVolume}`)
+            // console.log(`top10 ${iter}:`)
+            // console.log(r.top10)
+          })
+        })
     })
   })
 })
