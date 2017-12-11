@@ -2,34 +2,35 @@
 
 const maxLength = 150
 const maxWidth = 100
+
+const minHeight = 0
 const maxHeight = 50
 
 const additionalAxisLength = 30
-const spaceColor = 0xFFD993
-const lineColor = 0xFF0000
-
-const RED = {r: 255, g: 0, b: 0}
-const BLUE = {r: 0, g: 0, b: 255}
+const boundingBoxColor = 0xFFD993
 
 // ---------------------------------------------------------
-const colorMaterialMap = new Map()
+const heightColorComponents = normalizedHeight => {
+  const color = { r: 1.0, g: 1.0, b: 1.0 }
 
-const heightColor = normalizedHeight => {
-  return lineColor
-}
-const addLine = (scene, color, x1, y1, z1, x2, y2, z2) => {
-  if (!colorMaterialMap.has(color)) {
-    const material = new THREE.LineBasicMaterial({ color })
-    colorMaterialMap.set(color, material)
+  if (normalizedHeight < minHeight) normalizedHeight = minHeight
+  if (normalizedHeight > maxHeight) normalizedHeight = maxHeight
+  const dv = maxHeight - minHeight
+
+  if (normalizedHeight < (minHeight + 0.25 * dv)) {
+    color.r = 0
+    color.g = 4 * (normalizedHeight - minHeight) / dv
+  } else if (normalizedHeight < (minHeight + 0.5 * dv)) {
+    color.r = 0
+    color.b = 1 + 4 * (minHeight + 0.25 * dv - normalizedHeight) / dv
+  } else if (normalizedHeight < (minHeight + 0.75 * dv)) {
+    color.r = 4 * (normalizedHeight - minHeight - 0.5 * dv) / dv
+    color.b = 0
+  } else {
+    color.g = 1 + 4 * (minHeight + 0.75 * dv - normalizedHeight) / dv
+    color.b = 0
   }
-  const material = colorMaterialMap.get(color)
-
-  const geometry = new THREE.Geometry()
-  geometry.vertices.push(new THREE.Vector3(x1, y1, z1))
-  geometry.vertices.push(new THREE.Vector3(x2, y2, z2))
-
-  const axisLine = new THREE.Line(geometry, material)
-  scene.add(axisLine)
+  return [color.r, color.g, color.b]
 }
 
 const axisDatas = [
@@ -38,57 +39,74 @@ const axisDatas = [
   { name: 'z-axis', color: 0x0000FF, x: 0, y: 0, z: maxHeight + additionalAxisLength }
 ]
 
-const buildCoordinateSystem = scene => axisDatas.forEach(addAxisTo(scene))
-
-const addAxisTo = scene => axisData => {
-  addLine(scene, axisData.color, 0, 0, 0, axisData.x, axisData.y, axisData.z)
+const createCoordinateSystem = () => {
+  const coordSys = new THREE.Group()
+  axisDatas.map(createAxisLine).forEach(line => coordSys.add(line))
+  return coordSys
 }
 
-const drawSpace = scene => {
-  // -- bottom part
-  addLine(scene, spaceColor, maxLength, 0, 0, maxLength, maxWidth, 0)
-  addLine(scene, spaceColor, maxLength, maxWidth, 0, 0, maxWidth, 0)
-  // -- top plane
-  // addLine(scene, spaceColor, 0, 0, maxHeight, maxLength, 0, maxHeight)
-  addLine(scene, spaceColor, maxLength, 0, maxHeight, maxLength, maxWidth, maxHeight)
-  addLine(scene, spaceColor, maxLength, maxWidth, maxHeight, 0, maxWidth, maxHeight)
-  addLine(scene, spaceColor, 0, maxWidth, maxHeight, 0, 0, maxHeight)
-  // -- vertical lines
-  addLine(scene, spaceColor, maxLength, 0, 0, maxLength, 0, maxHeight)
-  addLine(scene, spaceColor, maxLength, maxWidth, 0, maxLength, maxWidth, maxHeight)
-  addLine(scene, spaceColor, 0, maxWidth, 0, 0, maxWidth, maxHeight)
+const createAxisLine = axisData => {
+  const material = new THREE.LineBasicMaterial({ color: axisData.color })
+  const geometry = new THREE.Geometry()
+  geometry.vertices.push(new THREE.Vector3(0, 0, 0))
+  geometry.vertices.push(new THREE.Vector3(axisData.x, axisData.y, axisData.z))
+  return new THREE.Line(geometry, material)
 }
 
-const drawIterations = (scene, iterationData) => {
+const boundingBox = () => {
+  const geometry = new THREE.BufferGeometry()
+  const vertices = new Float32Array([
+    maxLength, maxWidth, 0,
+    maxLength, 0, 0,
+    maxLength, 0, maxHeight,
+    maxLength, maxWidth, maxHeight,
+    maxLength, maxWidth, 0,
+    0, maxWidth, 0,
+    0, maxWidth, maxHeight,
+    maxLength, maxWidth, maxHeight,
+    0, maxWidth, maxHeight,
+    0, 0, maxHeight
+  ])
+  geometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3))
+
+  const material = new THREE.LineBasicMaterial({ color: boundingBoxColor })
+  return new THREE.Line(geometry, material)
+}
+
+const iterationLines = (iterationData) => {
+  const allLines = new THREE.Group()
+
+  const material = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors })
+
   const lengthRatio = maxLength / Math.max(...iterationData.map(it => it.investDiffs.length))
   const widthRatio = maxWidth / iterationData.length
-
   const heightRatio = maxHeight / Math.max(...iterationData
     .map(it => Math.max(...it.investDiffs))
   )
 
-  iterationData.forEach(drawIteration(scene, lengthRatio, widthRatio, heightRatio))
+  const createLine = createIterationLine(material, lengthRatio, widthRatio, heightRatio)
+  iterationData.forEach(iteration => {
+    allLines.add(createLine(iteration))
+  })
+
+  return allLines
 }
 
-const drawIteration = (scene, lengthRatio, widthRatio, heightRatio) => it => {
-  const y = it.ix * widthRatio
-  it.investDiffs
-    .map((diff, ix) => {
-      const z = diff * heightRatio
-      return {
-        x: maxLength - (ix * lengthRatio),
-        y,
-        z,
-        color: heightColor(z)
-      }
-    })
-    .reduce((prev, curr) => {
-      if (prev) addLine(scene, prev.color, prev.x, prev.y, prev.z, curr.x, curr.y, curr.z)
-      return curr
-    }, 0)
-  // .forEach(coords => {
-  //   addLine(scene, lineColor, coords.x, coords.y, 0, coords.x, y, coords.z)
-  // })
+const createIterationLine = (material, lengthRatio, widthRatio, heightRatio) => iteration => {
+  const geometry = new THREE.BufferGeometry()
+  const y = iteration.ix * widthRatio
+  const { positions, colors } = iteration.investDiffs.reduce((positionColors, diff, ix) => {
+    const x = maxLength - (ix * lengthRatio)
+    const z = diff * heightRatio
+    positionColors.positions.push(x, y, z)
+    positionColors.colors.push(...heightColorComponents(z))
+
+    return positionColors
+  }, { positions: [], colors: [] })
+
+  geometry.addAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+  geometry.addAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
+  return new THREE.Line(geometry, material)
 }
 
 const createTestData = () => {
@@ -116,44 +134,48 @@ const IterationController = () => {
   const data = {
     renderer: null,
     camera: null,
-    scene: null
+    scene: null,
+    orbitControls: null
   }
 
   const setup = () => {
-    data.renderer = new THREE.WebGLRenderer()
+    data.renderer = new THREE.WebGLRenderer({ antialias: true })
     data.renderer.setSize(window.innerWidth, window.innerHeight)
     document.body.appendChild(data.renderer.domElement)
 
     data.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000)
-    data.camera.position.set(70, -100, maxHeight * 2)
-    data.camera.rotateX(1.1)
-    data.camera.rotateY(-0.1)
-    data.camera.rotateZ(-0.14)
-    // data.camera.lookAt(new THREE.Vector3(0, 0, 0))
+    data.camera.position.set(maxLength * 0.5, -maxWidth, maxHeight * 2)
+
+    const lookAt = new THREE.Vector3(maxLength * 0.5, maxWidth * 0.5, 0)
+    data.orbitControls = new THREE.OrbitControls(data.camera, data.renderer.domElement, lookAt)
 
     data.scene = new THREE.Scene()
     data.scene.background = new THREE.Color(0xffffff)
+
+    data.mesh = new THREE.Group()
+
+    const iterationData = createTestData()
+    data.mesh.add(createCoordinateSystem())
+    data.mesh.add(boundingBox())
+    data.mesh.add(iterationLines(iterationData))
+
+    data.scene.add(data.mesh)
+    data.renderer.render(data.scene, data.camera)
   }
 
   const render = () => {
-    buildCoordinateSystem(data.scene)
-    drawSpace(data.scene)
-
-    const iterationData = createTestData()
-
-    drawIterations(data.scene, iterationData)
+    requestAnimationFrame(render)
     data.renderer.render(data.scene, data.camera)
   }
 
-  const animate = () => {
-    requestAnimationFrame(animate)
-    // do some
-    data.renderer.render(data.scene, data.camera)
-  }
+  window.addEventListener('resize', function () {
+    data.camera.aspect = window.innerWidth / window.innerHeight
+    data.camera.updateProjectionMatrix()
+    data.renderer.setSize(window.innerWidth, window.innerHeight)
+  }, false)
 
   setup()
   render()
-  // animate()
 }
 
 IterationController()
