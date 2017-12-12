@@ -22,7 +22,8 @@ angular
     'tantalus.navbar',
     'tantalus.account',
     'tantalus.ticker',
-    'tantalus.coinfloor'
+    'tantalus.coinfloor',
+    'tantalus.simreport'
   ])
   .config(['$routeProvider', appRouter])
   .filter('price', transformPrice)

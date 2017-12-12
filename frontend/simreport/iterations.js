@@ -9,7 +9,6 @@ const maxHeight = 50
 const additionalAxisLength = 30
 const boundingBoxColor = 0xFFD993
 
-// ---------------------------------------------------------
 const heightColorComponents = normalizedHeight => {
   const color = { r: 1.0, g: 1.0, b: 1.0 }
 
@@ -130,25 +129,36 @@ const createTestData = () => {
   return data
 }
 
-const IterationController = () => {
+const iterationsControllerName = 'IterationsController'
+
+const IterationsController = function ($scope, $document) {
   const data = {
     renderer: null,
     camera: null,
     scene: null,
-    orbitControls: null
+    orbitControls: null,
+    canvasDiv: angular.element('#itcontainer')
   }
 
   const setup = () => {
-    data.renderer = new THREE.WebGLRenderer({ antialias: true })
-    data.renderer.setSize(window.innerWidth, window.innerHeight)
-    document.body.appendChild(data.renderer.domElement)
+    data.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      canvas: $document.find('#itcanvas')[0]
+    })
 
     data.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000)
-    data.camera.position.set(maxLength * 0.5, -maxWidth, maxHeight * 2)
+    data.camera.position.set(maxLength * 0.6, -maxWidth * 0.8, maxHeight * 2)
+    const lookAt = new THREE.Vector3(maxLength * 0.6, maxWidth * 0.7, 0)
 
-    const lookAt = new THREE.Vector3(maxLength * 0.5, maxWidth * 0.5, 0)
     data.orbitControls = new THREE.OrbitControls(data.camera, data.renderer.domElement, lookAt)
 
+    createScene()
+    resizeRenderer()
+    data.renderer.render(data.scene, data.camera)
+    createSizeListener()
+  }
+
+  const createScene = () => {
     data.scene = new THREE.Scene()
     data.scene.background = new THREE.Color(0xffffff)
 
@@ -160,7 +170,18 @@ const IterationController = () => {
     data.mesh.add(iterationLines(iterationData))
 
     data.scene.add(data.mesh)
-    data.renderer.render(data.scene, data.camera)
+  }
+
+  const createSizeListener = () => {
+    window.addEventListener('resize', function () {
+      data.camera.aspect = window.innerWidth / window.innerHeight
+      data.camera.updateProjectionMatrix()
+      resizeRenderer()
+    }, false)
+  }
+
+  const resizeRenderer = () => {
+    data.renderer.setSize(data.canvasDiv.width(), window.innerHeight * 0.8)
   }
 
   const render = () => {
@@ -168,14 +189,14 @@ const IterationController = () => {
     data.renderer.render(data.scene, data.camera)
   }
 
-  window.addEventListener('resize', function () {
-    data.camera.aspect = window.innerWidth / window.innerHeight
-    data.camera.updateProjectionMatrix()
-    data.renderer.setSize(window.innerWidth, window.innerHeight)
-  }, false)
-
   setup()
   render()
 }
 
-IterationController()
+angular
+  .module('tantalus.simreport')
+  .component('simreportIterations', {
+    controller: iterationsControllerName,
+    templateUrl: 'simreport/iterations.html'
+  })
+  .controller(iterationsControllerName, ['$scope', '$document', IterationsController])
