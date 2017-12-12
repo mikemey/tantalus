@@ -16,6 +16,8 @@
     "pretrader": "npm install",
     "trader": "node trader",
     "simulation": "node simulation",
+    "be-test": "mocha 'backend-test/**/**.spec.js'",
+    "be-watch": "nodemon -x 'npm run be-test -s' --ignore '**.log'",
     "simulation-test": "mocha 'simulation-test/**/**.spec.js' 'transactions-test/**/**.spec.js' 'utils-test/**/**.spec.js'",
     "simulation-watch": "nodemon -x 'npm run simulation-test -s' --ignore '**.log'",
     "all-test": "mocha 'backend-test/**/**.spec.js' 'simulation-test/**/**.spec.js' 'trader-test/**/**.spec.js' 'transactions-test/**/**.spec.js' 'schedule-test/**/**.spec.js' 'utils-test/**/**.spec.js'",

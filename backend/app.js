@@ -11,6 +11,7 @@ const createTickersRouter = require('./tickers')
 const createUsersRouter = require('./users')
 const createInvestRouter = require('./invest')
 const createSimexRouter = require('./simex')
+const createSimReportRouter = require('./simreports')
 
 const TransactionsService = require('../transactions/transactionsService')
 
@@ -87,6 +88,7 @@ const createSimexEndpoints = (router, config, tantalusLogger) => {
     router.use('/invest', createInvestRouter(tantalusLogger, transactionService))
     router.use('/simex', createSimexRouter(tantalusLogger, transactionService))
   }
+  router.use('/simreports', createSimReportRouter(tantalusLogger))
 }
 
 module.exports = createServer
