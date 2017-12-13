@@ -12,6 +12,7 @@ module.exports = config => {
       'bower_components/chart.js/dist/Chart.js',
       'bower_components/angular-chart.js/dist/angular-chart.js',
       'bower_components/moment/moment.js',
+      'bower_components/three.js/build/three.js',
       '**/*.html',
       '**/*.module.js',
       '!(bower_components)/**/*!(.module|.spec).js'
