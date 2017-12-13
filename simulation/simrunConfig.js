@@ -9,28 +9,28 @@ const commonTraderConfig = {
 }
 
 const initialGeneratorRanges = {
-  timeslotSeconds: { start: 50, end: 650, step: 100 },
+  timeslotSeconds: { start: 50, end: 650, step: 150 },
   buying: {
-    ratio: { start: 2, end: 8, step: 2 },
+    ratio: { start: 2, end: 8, step: 3 },
     useTimeslots: { start: 2, end: 8, step: 2 }
   },
   selling: {
-    ratio: { start: -8, end: -2, step: 2 },
+    ratio: { start: -8, end: -2, step: 3 },
     useTimeslots: { start: 2, end: 8, step: 2 }
   },
   commonTraderConfig
 }
 
 const genAlgoConfig = {
-  iterations: 100,
+  iterations: 500,
   minSelectionCutoff: 0.2,
   crossoverRate: 0.05,
   mutationRate: 0.015,
   mutationBoundaries: {
-    ts: { start: 20, step: 20, mutationStepsMax: 5 },
-    bratio: { step: 0.4, mutationStepsMax: 3 },
+    ts: { start: 20, step: 20, mutationStepsMax: 2 },
+    bratio: { step: 0.4, mutationStepsMax: 2 },
     bslots: { start: 2, step: 1, mutationStepsMax: 2 },
-    sratio: { step: 0.4, mutationStepsMax: 3 },
+    sratio: { step: 0.4, mutationStepsMax: 2 },
     sslots: { start: 2, step: 1, mutationStepsMax: 2 }
   },
   problemSpaceRanges: {
@@ -53,7 +53,7 @@ const executorConfig = {
   },
   batchSeconds: 3600 * 10,
   transactionsUpdateSeconds: 10,
-  partitionWorkerCount: 5,
+  partitionWorkerCount: 7,
   rankingLimit: 3,
   startInvestment: commonTraderConfig.buying.volumeLimitPence
 }
