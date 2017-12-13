@@ -117,7 +117,7 @@ angular
 
       const createIterationLine = (material, lengthRatio, widthRatio, heightRatio) => itData => {
         const geometry = new THREE.BufferGeometry()
-        const y = itData.iteration * widthRatio
+        const y = maxWidth - itData.iteration * widthRatio
         const { positions, colors } = itData.investDiffs.reduce((positionColors, diff, ix) => {
           const x = maxLength - (ix * lengthRatio)
           const z = diff * heightRatio
