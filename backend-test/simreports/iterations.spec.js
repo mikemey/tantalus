@@ -4,7 +4,7 @@ const request = require('supertest')
 
 const helpers = require('../../utils-test/helpers')
 
-describe('GET /api/simreports/iterations endpoint', () => {
+describe.only('GET /api/simreports/iterations endpoint', () => {
   let app, server
 
   before(() => helpers.startTestServer((_app, _server) => {
@@ -14,7 +14,7 @@ describe('GET /api/simreports/iterations endpoint', () => {
 
   after(() => helpers.closeAll(server))
 
-  const getIterationsData = simid => request(app).get(`/api/simreports/iterations/${simid}`)
+  const getIterationsData = simid => request(app).get(`/api/simreports/${simid}/iterations`)
 
   const testSimulationId = 'test-simid'
 

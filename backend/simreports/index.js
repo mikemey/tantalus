@@ -6,7 +6,7 @@ const createSimReportRouter = (tantalusLogger) => {
   const router = express.Router()
   const simReports = SimReportRepo()
 
-  router.get('/iterations/:simulationId', (req, res) => {
+  router.get('/:simulationId/iterations', (req, res) => {
     return simReports.getIterationsReport(req.params.simulationId)
       .then((simReport) => res.status(200).json(simReport))
   })
