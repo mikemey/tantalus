@@ -4,7 +4,7 @@ const request = require('supertest')
 
 const helpers = require('../../utils-test/helpers')
 
-describe.only('GET /api/simreports/iterations endpoint', () => {
+describe('GET /api/simreports/iterations endpoint', () => {
   let app, server
 
   before(() => helpers.startTestServer((_app, _server) => {
