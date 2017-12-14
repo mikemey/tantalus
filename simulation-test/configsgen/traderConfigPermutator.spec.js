@@ -108,11 +108,11 @@ describe('Trader config permutator', () => {
     const accountsResults = [
       { clientId: 'rank 2', fullVolume: 113020 },
       { clientId: 'rank 3', fullVolume: 101000 },
-      { clientId: 'rank 5', fullVolume: 93010 },
-      { clientId: 'rank 6', fullVolume: 97010 },
+      { clientId: 'rank 9', fullVolume: 93010 },
+      { clientId: 'rank 8', fullVolume: 97010 },
       { clientId: 'rank 7', fullVolume: 98010 },
-      { clientId: 'rank 8', fullVolume: 99010 },
-      { clientId: 'rank 9', fullVolume: testVolumeLimit },
+      { clientId: 'rank 6', fullVolume: 99010 },
+      { clientId: 'rank 5', fullVolume: testVolumeLimit },
       { clientId: 'rank 1', fullVolume: 119500 },
       { clientId: 'rank 4', fullVolume: 100001 }
     ]
@@ -271,6 +271,47 @@ describe('Trader config permutator', () => {
       random.getNumberCount().should.equal(9)
       random.getTriggerCount().should.equal(14)
       random.getPlusMinusCount().should.equal(2)
+    })
+
+    it('keeps unpaired parent', () => {
+      const previousAccountResults = [
+        { clientId: 'rank 1', fullVolume: 119500 },
+        { clientId: 'rank 2', fullVolume: 113020 },
+        { clientId: 'rank 3', fullVolume: 101000 },
+        { clientId: 'rank 4', fullVolume: 99010 },
+        { clientId: 'rank 5', fullVolume: 97010 },
+        { clientId: 'rank 6', fullVolume: 93010 }
+      ]
+
+      const traderConfigs = [{
+        clientId: 'rank 1', timeslotSeconds: 700,
+        buying: { ratio: 10, useTimeslots: 5 },
+        selling: { ratio: -0.5, useTimeslots: 2 }
+      }, {
+        clientId: 'rank 2', timeslotSeconds: 400,
+        buying: { ratio: 3.5, useTimeslots: 4 },
+        selling: { ratio: -3.5, useTimeslots: 4 }
+      }, {
+        clientId: 'rank 3', timeslotSeconds: 200,
+        buying: { ratio: 7.5, useTimeslots: 2 },
+        selling: { ratio: -2.5, useTimeslots: 2 }
+      }]
+
+      const noRandomCrossoverOrMutation = {
+        number: () => 0,
+        trigger: () => false,
+        plusMinus: () => 1
+      }
+
+      const permutator = TraderConfigPermutator(console, genAlgoConfig, noRandomCrossoverOrMutation)
+      const nextGenerationConfigs = permutator.nextGeneration(previousAccountResults, traderConfigs)
+
+      nextGenerationConfigs.should.have.length(traderConfigs.length)
+      nextGenerationConfigs[2].timeslotSeconds.should.equal(traderConfigs[2].timeslotSeconds)
+      nextGenerationConfigs[2].buying.ratio.should.equal(traderConfigs[2].buying.ratio)
+      nextGenerationConfigs[2].buying.useTimeslots.should.equal(traderConfigs[2].buying.useTimeslots)
+      nextGenerationConfigs[2].selling.ratio.should.equal(traderConfigs[2].selling.ratio)
+      nextGenerationConfigs[2].selling.useTimeslots.should.equal(traderConfigs[2].selling.useTimeslots)
     })
   })
 })

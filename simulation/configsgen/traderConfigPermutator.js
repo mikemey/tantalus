@@ -1,4 +1,5 @@
 const deepAssign = require('assign-deep')
+const lodash = require('lodash')
 
 const { TantalusLogger } = require('../../utils/tantalusLogger')
 const { volumeString } = require('../../utils/ordersHelper')
@@ -155,29 +156,25 @@ const TraderConfigPermutator = (baseLogger, genAlgoConfig, random = PermutatorRa
         return results
       }, { parents: [], currentPair: [] })
 
-    switch (results.currentPair.length) {
-      case 0: break
-      case 1:
-        results.currentPair.push(results.currentPair[0])
-        results.parents.push(results.currentPair)
-        break
-      case 2:
-        results.parents.push(results.currentPair)
+    if (results.currentPair.length !== 0) {
+      results.parents.push(results.currentPair)
     }
     return results.parents
   }
 
   const breedNextGeneration = (nextgen, parents) => {
-    const children = genes.reduce((children, gene) => {
-      const p1Gene = parents[0][gene]
-      const p2Gene = parents[1][gene]
-      const newgenes = random.trigger(crossoverRate)
-        ? crossoverGene(p1Gene, p2Gene)
-        : averageGene(gene, parents[0], parents[1])
-      children[0][gene] = newgenes[0]
-      children[1][gene] = newgenes[1]
-      return children
-    }, [{}, {}])
+    const children = parents.length < 2
+      ? [lodash.pick(parents[0], genes)]
+      : genes.reduce((children, gene) => {
+        const p1Gene = parents[0][gene]
+        const p2Gene = parents[1][gene]
+        const newgenes = random.trigger(crossoverRate)
+          ? crossoverGene(p1Gene, p2Gene)
+          : averageGene(gene, parents[0], parents[1])
+        children[0][gene] = newgenes[0]
+        children[1][gene] = newgenes[1]
+        return children
+      }, [{}, {}])
 
     nextgen.push(...children)
     return nextgen
