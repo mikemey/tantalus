@@ -140,14 +140,7 @@ const TraderConfigPermutator = (baseLogger, simulatioId, genAlgoConfig, random =
   }
 
   const pairupParents = parentPopulation => {
-    const parents = []
-    while (parentPopulation.length) {
-      const pickedIx = random.number(parentPopulation.length)
-      const parent = parentPopulation.splice(pickedIx, 1)[0]
-      parents.push(parent)
-    }
-
-    const results = parents
+    const results = parentPopulation
       .reduce((results, parent, ix) => {
         results.currentPair.push(parent)
         if (results.currentPair.length >= 2) {
