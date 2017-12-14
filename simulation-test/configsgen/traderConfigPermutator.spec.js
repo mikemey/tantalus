@@ -229,11 +229,17 @@ describe('Trader config permutator', () => {
         should.fail(`unexpected call to plusMinus: call # ${triggerCallCount}`)
       }
 
+      let shuffleCallCount = 0
+      const shuffle = input => {
+        shuffleCallCount++
+        return input
+      }
       return {
-        number, trigger, plusMinus,
+        number, trigger, plusMinus, shuffle,
         getNumberCount: () => numberCallCount,
         getTriggerCount: () => triggerCallCount,
-        getPlusMinusCount: () => plusMinusCallCount
+        getPlusMinusCount: () => plusMinusCallCount,
+        getShuffleCount: () => shuffleCallCount
       }
     }
 
@@ -270,6 +276,7 @@ describe('Trader config permutator', () => {
       random.getNumberCount().should.equal(9)
       random.getTriggerCount().should.equal(14)
       random.getPlusMinusCount().should.equal(2)
+      random.getShuffleCount().should.equal(1)
       nextGenerationConfigs.should.deep.equal(expectedDeterministicChildren)
     })
 
@@ -300,7 +307,8 @@ describe('Trader config permutator', () => {
       const noRandomCrossoverOrMutation = {
         number: () => 0,
         trigger: () => false,
-        plusMinus: () => 1
+        plusMinus: () => 1,
+        shuffle: input => input
       }
 
       const permutator = TraderConfigPermutator(console, 'unpairedparents', genAlgoConfig, noRandomCrossoverOrMutation)

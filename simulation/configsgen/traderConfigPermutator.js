@@ -13,8 +13,10 @@ const PermutatorRandom = () => {
   const trigger = ratio => Math.random() > ratio
   const plusMinus = () => Math.random() > 0.5 ? 1 : -1
 
+  const shuffle = lodash.shuffle
+
   return {
-    number, trigger, plusMinus
+    number, trigger, plusMinus, shuffle
   }
 }
 
@@ -78,7 +80,7 @@ const TraderConfigPermutator = (baseLogger, simulatioId, genAlgoConfig, random =
     const nextGen = nextGenConfigs.concat(diversity)
     logger.info(`next generation configs: ${nextGen.length}`)
     data.currentIteration++
-    return nextGen
+    return random.shuffle(nextGen)
   }
 
   const genes = ['ts', 'bratio', 'bslots', 'sratio', 'sslots']
