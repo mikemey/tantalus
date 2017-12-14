@@ -27,12 +27,6 @@ const checkGenAlgoConfig = config => {
   if (!config.crossoverRate) throwError('crossoverRate')
   if (!config.mutationRate) throwError('mutationRate')
   if (!config.mutationBoundaries) throwError('mutationBoundaries')
-  if (
-    !config.problemSpaceRanges ||
-    !config.problemSpaceRanges.commonTraderConfig ||
-    !config.problemSpaceRanges.commonTraderConfig.buying ||
-    !config.problemSpaceRanges.commonTraderConfig.buying.volumeLimitPence
-  ) throwError('buying.volumeLimitPence')
 }
 
 const throwError = name => {
@@ -47,7 +41,6 @@ const TraderConfigPermutator = (baseLogger, simulatioId, genAlgoConfig, random =
   const traderConfigGenerator = TraderConfigGenerator().createGenerator(problemSpace)
 
   const minSelectionCutoff = genAlgoConfig.minSelectionCutoff
-  const volumeLimit = genAlgoConfig.problemSpaceRanges.commonTraderConfig.buying.volumeLimitPence
   const crossoverRate = genAlgoConfig.crossoverRate
   const mutationRate = genAlgoConfig.mutationRate
   const boundaries = genAlgoConfig.mutationBoundaries
@@ -64,8 +57,8 @@ const TraderConfigPermutator = (baseLogger, simulatioId, genAlgoConfig, random =
 
   const hasNext = () => data.currentIteration < iterations
 
-  const nextGeneration = (accounts, traderConfigs) => {
-    const parentPopulation = extractParentPopulation(accounts, traderConfigs)
+  const nextGeneration = (accounts, fitnessLimit, traderConfigs) => {
+    const parentPopulation = extractParentPopulation(accounts, fitnessLimit, traderConfigs)
     logTotalFitnessOf(parentPopulation)
 
     const nextGenConfigs = pairupParents(parentPopulation)
@@ -85,9 +78,9 @@ const TraderConfigPermutator = (baseLogger, simulatioId, genAlgoConfig, random =
 
   const genes = ['ts', 'bratio', 'bslots', 'sratio', 'sslots']
 
-  const extractParentPopulation = (accounts, traderConfigs) => {
+  const extractParentPopulation = (accounts, fitnessLimit, traderConfigs) => {
     const performerCount = accounts.reduce((count, account) => {
-      if (account.fullVolume > volumeLimit) count++
+      if (account.fullVolume > fitnessLimit) count++
       return count
     }, 0)
     const maxCutoff = (1 - minSelectionCutoff) * accounts.length

@@ -7,13 +7,7 @@ const deepAssign = require('assign-deep')
 const TraderConfigPermutator = require('../../simulation/configsgen/traderConfigPermutator')
 
 describe('Trader config permutator', () => {
-  const testVolumeLimit = 100000
-
-  const commonTraderConfig = {
-    buying: {
-      volumeLimitPence: testVolumeLimit
-    }
-  }
+  const testFitnessLimit = 100000
 
   describe('iterations information', () => {
     it('for all configured iterations, return current iteration', () => {
@@ -32,8 +26,7 @@ describe('Trader config permutator', () => {
           selling: {
             ratio: { start: -3.5, end: -0.5, step: 1 },
             useTimeslots: { start: 4, end: 5, step: 1 }
-          },
-          commonTraderConfig
+          }
         }
       }
 
@@ -49,7 +42,7 @@ describe('Trader config permutator', () => {
         crossoverRate: 1,
         mutationRate: 1,
         mutationBoundaries: {},
-        problemSpaceRanges: { commonTraderConfig }
+        problemSpaceRanges: {}
       }))
         .to.throw(Error, 'iterations not configured!')
     })
@@ -60,7 +53,7 @@ describe('Trader config permutator', () => {
         crossoverRate: 1,
         mutationRate: 1,
         mutationBoundaries: {},
-        problemSpaceRanges: { commonTraderConfig }
+        problemSpaceRanges: {}
       }))
         .to.throw(Error, 'minSelectionCutoff not configured!')
     })
@@ -71,7 +64,7 @@ describe('Trader config permutator', () => {
         minSelectionCutoff: 0.2,
         mutationRate: 1,
         mutationBoundaries: {},
-        problemSpaceRanges: { commonTraderConfig }
+        problemSpaceRanges: {}
       }))
         .to.throw(Error, 'crossoverRate not configured!')
     })
@@ -82,21 +75,20 @@ describe('Trader config permutator', () => {
         minSelectionCutoff: 0.2,
         crossoverRate: 1,
         mutationBoundaries: {},
-        problemSpaceRanges: { commonTraderConfig }
+        problemSpaceRanges: {}
       }))
         .to.throw(Error, 'mutationRate not configured!')
     })
 
-    it('throws exception when no buying.volumeLimitPence configured', () => {
+    it('throws exception when no problemSpaceRanges configured', () => {
       expect(() => TraderConfigPermutator(console, 'error simid', {
         iterations: 10,
         minSelectionCutoff: 0.2,
         mutationRate: 1,
         crossoverRate: 1,
-        mutationBoundaries: {},
-        problemSpaceRanges: { commonTraderConfig: {} }
+        mutationBoundaries: {}
       }))
-        .to.throw(Error, 'buying.volumeLimitPence not configured!')
+        .to.throw(Error, 'problemSpaceRanges not configured!')
     })
   })
 
@@ -112,7 +104,7 @@ describe('Trader config permutator', () => {
       { clientId: 'rank 8', fullVolume: 97010 },
       { clientId: 'rank 7', fullVolume: 98010 },
       { clientId: 'rank 6', fullVolume: 99010 },
-      { clientId: 'rank 5', fullVolume: testVolumeLimit },
+      { clientId: 'rank 5', fullVolume: testFitnessLimit },
       { clientId: 'rank 1', fullVolume: 119500 },
       { clientId: 'rank 4', fullVolume: 100001 }
     ]
@@ -160,8 +152,7 @@ describe('Trader config permutator', () => {
         selling: {
           ratio: { start: -3.5, end: -0.5, step: 0.5 },
           useTimeslots: { start: 4, end: 5, step: 1 }
-        },
-        commonTraderConfig
+        }
       }
     }
 
@@ -266,7 +257,7 @@ describe('Trader config permutator', () => {
     it('generate new generation', () => {
       const random = testRandom()
       const permutator = TraderConfigPermutator(console, 'fullExample simid', genAlgoConfig, random)
-      const nextGenerationConfigs = permutator.nextGeneration(accountsResults, traderConfigs)
+      const nextGenerationConfigs = permutator.nextGeneration(accountsResults, testFitnessLimit, traderConfigs)
 
       random.getNumberCount().should.equal(5)
       random.getTriggerCount().should.equal(14)
@@ -307,7 +298,7 @@ describe('Trader config permutator', () => {
       }
 
       const permutator = TraderConfigPermutator(console, 'unpairedparents', genAlgoConfig, noRandomCrossoverOrMutation)
-      const nextGenerationConfigs = permutator.nextGeneration(previousAccountResults, traderConfigs)
+      const nextGenerationConfigs = permutator.nextGeneration(previousAccountResults, testFitnessLimit, traderConfigs)
 
       nextGenerationConfigs.should.have.length(traderConfigs.length)
       nextGenerationConfigs[2].timeslotSeconds.should.equal(traderConfigs[2].timeslotSeconds)
