@@ -22,16 +22,18 @@ const SimReporter = (baseLogger, simConfig, createTxSource = TransactionsSource)
   const logger = TantalusLogger(baseLogger, 'Report')
   const simrepo = SimRepo()
 
-  let staticReportData
+  const data = {
+    staticReportData: null
+  }
 
-  const getStaticReportData = () => staticReportData
-    ? Promise.resolve(staticReportData)
+  const getStaticReportData = () => data.staticReportData !== null
+    ? Promise.resolve(data.staticReportData)
     : loadStaticReportData()
 
   const loadStaticReportData = () => {
-    staticReportData = createTxSource(logger, TransactionRepo())
-    return staticReportData.reset(simConfig.batchSeconds)
-      .then(() => staticReportData)
+    data.staticReportData = createTxSource(logger, TransactionRepo())
+    return data.staticReportData.reset(simConfig.batchSeconds)
+      .then(() => data.staticReportData)
   }
 
   const storeSimulationResults = (
@@ -57,8 +59,8 @@ const SimReporter = (baseLogger, simConfig, createTxSource = TransactionsSource)
   ) => {
     const startPrice = staticReportData.getStartPrice()
     const endPrice = staticReportData.getEndPrice()
-    const staticInvestment = Math.round(simConfig.startInvestment / startPrice * endPrice)
     const startInvestment = simConfig.startInvestment
+    const staticInvestment = Math.round(startInvestment / startPrice * endPrice)
     return {
       simulationId,
       iteration,
@@ -66,8 +68,8 @@ const SimReporter = (baseLogger, simConfig, createTxSource = TransactionsSource)
       endDate: endHrtime[0],
       workerCount: simConfig.partitionWorkerCount,
       traderCount,
-      staticInvestment,
       startInvestment,
+      staticInvestment,
       transactions: {
         count: staticReportData.transactionCount(),
         startDate: staticReportData.getStartDate(),
