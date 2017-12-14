@@ -169,7 +169,7 @@ const TraderConfigPermutator = (baseLogger, simulatioId, genAlgoConfig, random =
         const p2Gene = parents[1][gene]
         const newgenes = random.trigger(crossoverRate)
           ? crossoverGene(p1Gene, p2Gene)
-          : averageGene(gene, parents[0], parents[1])
+          : keepGene(p1Gene, p2Gene)
         children[0][gene] = newgenes[0]
         children[1][gene] = newgenes[1]
         return children
@@ -181,6 +181,10 @@ const TraderConfigPermutator = (baseLogger, simulatioId, genAlgoConfig, random =
 
   const crossoverGene = (p1Gene, p2Gene) => {
     return [p2Gene, p1Gene]
+  }
+
+  const keepGene = (p1Gene, p2Gene) => {
+    return [p1Gene, p2Gene]
   }
 
   const averageGene = (gene, parentA, parentB) => {

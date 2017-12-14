@@ -238,20 +238,20 @@ describe('Trader config permutator', () => {
     }
 
     const deterministicChildren = [{
-      clientId: 'T( 100)_B(   4 / 4)_S( -2.5 / 4)', timeslotSeconds: 100, // child 4/2
-      buying: { ratio: 4.0, useTimeslots: 4 },
+      clientId: 'T( 100)_B( 4.5 / 4)_S(   -1 / 3)', timeslotSeconds: 100, // child 4/2
+      buying: { ratio: 4.5, useTimeslots: 4 },
+      selling: { ratio: -1, useTimeslots: 3 }
+    }, {
+      clientId: 'T( 650)_B( 3.5 / 3)_S( -2.5 / 4)', timeslotSeconds: 650, //  child 4/2
+      buying: { ratio: 3.5, useTimeslots: 3 },
       selling: { ratio: -2.5, useTimeslots: 4 }
     }, {
-      clientId: 'T( 650)_B(   4 / 3)_S( -1.5 / 4)', timeslotSeconds: 650, //  child 4/2
-      buying: { ratio: 4.0, useTimeslots: 3 },
-      selling: { ratio: -1.5, useTimeslots: 4 }
-    }, {
-      clientId: 'T( 450)_B(   9 / 4)_S( -2.5 / 2)', timeslotSeconds: 450, //  child 1/3
-      buying: { ratio: 9, useTimeslots: 4 },
+      clientId: 'T( 700)_B(  10 / 5)_S( -2.5 / 2)', timeslotSeconds: 700, //  child 1/3
+      buying: { ratio: 10, useTimeslots: 5 },
       selling: { ratio: -2.5, useTimeslots: 2 }
     }, {
-      clientId: 'T( 450)_B(   9 / 4)_S( -0.5 / 2)', timeslotSeconds: 450, // child 1/3
-      buying: { ratio: 9, useTimeslots: 4 },
+      clientId: 'T( 200)_B( 7.5 / 2)_S( -0.5 / 2)', timeslotSeconds: 200, // child 1/3
+      buying: { ratio: 7.5, useTimeslots: 2 },
       selling: { ratio: -0.5, useTimeslots: 2 }
     }, {
       clientId: 'T( 400)_B(   3 / 5)_S( -0.5 / 4)', timeslotSeconds: 400, // random immigrant
@@ -267,10 +267,10 @@ describe('Trader config permutator', () => {
       const permutator = TraderConfigPermutator(console, 'fullExample simid', genAlgoConfig, random)
       const nextGenerationConfigs = permutator.nextGeneration(accountsResults, traderConfigs)
 
-      nextGenerationConfigs.should.deep.equal(expectedDeterministicChildren)
       random.getNumberCount().should.equal(9)
       random.getTriggerCount().should.equal(14)
       random.getPlusMinusCount().should.equal(2)
+      nextGenerationConfigs.should.deep.equal(expectedDeterministicChildren)
     })
 
     it('keeps unpaired parent', () => {

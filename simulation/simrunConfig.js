@@ -24,10 +24,10 @@ const initialGeneratorRanges = {
 const genAlgoConfig = {
   iterations: 500,
   minSelectionCutoff: 0.2,
-  crossoverRate: 0.05,
-  mutationRate: 0.015,
+  crossoverRate: 0.25,
+  mutationRate: 0.01,
   mutationBoundaries: {
-    ts: { start: 20, step: 20, mutationStepsMax: 2 },
+    ts: { start: 20, step: 20, mutationStepsMax: 4 },
     bratio: { step: 0.4, mutationStepsMax: 2 },
     bslots: { start: 2, step: 1, mutationStepsMax: 2 },
     sratio: { step: 0.4, mutationStepsMax: 2 },
@@ -53,7 +53,7 @@ const executorConfig = {
   },
   batchSeconds: 3600 * 10,
   transactionsUpdateSeconds: 10,
-  partitionWorkerCount: 7,
+  partitionWorkerCount: 6,
   rankingLimit: 3,
   startInvestment: commonTraderConfig.buying.volumeLimitPence
 }
