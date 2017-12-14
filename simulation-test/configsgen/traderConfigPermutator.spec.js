@@ -37,14 +37,14 @@ describe('Trader config permutator', () => {
         }
       }
 
-      const permutator = TraderConfigPermutator(console, genAlgoConfig)
+      const permutator = TraderConfigPermutator(console, 'it simid', genAlgoConfig)
       permutator.currentIteration().should.equal(1)
       permutator.progressString().should.equal(' 1/10')
       permutator.hasNext().should.equal(true)
     })
 
     it('throws exception when no iterations count configured', () => {
-      expect(() => TraderConfigPermutator(console, {
+      expect(() => TraderConfigPermutator(console, 'error simid', {
         minSelectionCutoff: 0.2,
         crossoverRate: 1,
         mutationRate: 1,
@@ -55,7 +55,7 @@ describe('Trader config permutator', () => {
     })
 
     it('throws exception when no min selection cutoff configured', () => {
-      expect(() => TraderConfigPermutator(console, {
+      expect(() => TraderConfigPermutator(console, 'error simid', {
         iterations: 10,
         crossoverRate: 1,
         mutationRate: 1,
@@ -66,7 +66,7 @@ describe('Trader config permutator', () => {
     })
 
     it('throws exception when no crossover rate configured', () => {
-      expect(() => TraderConfigPermutator(console, {
+      expect(() => TraderConfigPermutator(console, 'error simid', {
         iterations: 10,
         minSelectionCutoff: 0.2,
         mutationRate: 1,
@@ -77,7 +77,7 @@ describe('Trader config permutator', () => {
     })
 
     it('throws exception when no mutation rate configured', () => {
-      expect(() => TraderConfigPermutator(console, {
+      expect(() => TraderConfigPermutator(console, 'error simid', {
         iterations: 10,
         minSelectionCutoff: 0.2,
         crossoverRate: 1,
@@ -88,7 +88,7 @@ describe('Trader config permutator', () => {
     })
 
     it('throws exception when no buying.volumeLimitPence configured', () => {
-      expect(() => TraderConfigPermutator(console, {
+      expect(() => TraderConfigPermutator(console, 'error simid', {
         iterations: 10,
         minSelectionCutoff: 0.2,
         mutationRate: 1,
@@ -264,7 +264,7 @@ describe('Trader config permutator', () => {
 
     it('generate new generation', () => {
       const random = testRandom()
-      const permutator = TraderConfigPermutator(console, genAlgoConfig, random)
+      const permutator = TraderConfigPermutator(console, 'fullExample simid', genAlgoConfig, random)
       const nextGenerationConfigs = permutator.nextGeneration(accountsResults, traderConfigs)
 
       nextGenerationConfigs.should.deep.equal(expectedDeterministicChildren)
@@ -303,7 +303,7 @@ describe('Trader config permutator', () => {
         plusMinus: () => 1
       }
 
-      const permutator = TraderConfigPermutator(console, genAlgoConfig, noRandomCrossoverOrMutation)
+      const permutator = TraderConfigPermutator(console, 'unpairedparents', genAlgoConfig, noRandomCrossoverOrMutation)
       const nextGenerationConfigs = permutator.nextGeneration(previousAccountResults, traderConfigs)
 
       nextGenerationConfigs.should.have.length(traderConfigs.length)

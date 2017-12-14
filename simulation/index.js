@@ -34,7 +34,7 @@ const shutdownPartitionExecutor = () => {
 }
 
 const runSimulation = (simulationId, reporter, partitionExecutor, initialTraderConfigs) => {
-  const permutator = TraderConfigPermutator(baseLogger, genAlgoConfig)
+  const permutator = TraderConfigPermutator(baseLogger, simulationId, genAlgoConfig)
 
   const runIteration = traderConfigs => {
     const startTime = process.hrtime()

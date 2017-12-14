@@ -37,7 +37,7 @@ const throwError = name => {
   throw Error(`${name} not configured!`)
 }
 
-const TraderConfigPermutator = (baseLogger, genAlgoConfig, random = PermutatorRandom()) => {
+const TraderConfigPermutator = (baseLogger, simulatioId, genAlgoConfig, random = PermutatorRandom()) => {
   checkGenAlgoConfig(genAlgoConfig)
   const logger = TantalusLogger(baseLogger, 'CfgPermut')
 
@@ -63,8 +63,6 @@ const TraderConfigPermutator = (baseLogger, genAlgoConfig, random = PermutatorRa
   const hasNext = () => data.currentIteration < iterations
 
   const nextGeneration = (accounts, traderConfigs) => {
-    data.currentIteration++
-
     const parentPopulation = extractParentPopulation(accounts, traderConfigs)
     logTotalFitnessOf(parentPopulation)
 
@@ -79,6 +77,7 @@ const TraderConfigPermutator = (baseLogger, genAlgoConfig, random = PermutatorRa
 
     const nextGen = nextGenConfigs.concat(diversity)
     logger.info(`next generation configs: ${nextGen.length}`)
+    data.currentIteration++
     return nextGen
   }
 
@@ -120,7 +119,7 @@ const TraderConfigPermutator = (baseLogger, genAlgoConfig, random = PermutatorRa
       total += trader.fitness
       return total
     }, 0)
-    logger.info(`parents total fitness: ${volumeString(totalFitness)}`)
+    logger.info(`parents total fitness [${simulatioId}-${data.currentIteration}]: ${volumeString(totalFitness)}`)
   }
 
   const expandTraderConfigs = flatTraderConfig => {
