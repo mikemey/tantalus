@@ -1,8 +1,10 @@
 const rp = require('request-promise')
 const moment = require('moment')
 const fs = require('fs')
+const path = require('path')
 
-const config = JSON.parse(fs.readFileSync('cf.config.json', 'utf8'))
+const configFile = path.join(__dirname, 'cf.config.json')
+const config = JSON.parse(fs.readFileSync(configFile, 'utf8'))
 
 const baseUrl = action => config.baseUrl + `/${action}/`
 
@@ -62,7 +64,8 @@ const transactions = (showAll = false) => {
         const amount = amountStr(tx.xbt)
         const price = priceStr(tx.xbt_gbp)
         const volume = volumeStr(tx.gbp)
-        console.log(`[${date}] type: ${tx.type}, gbp: ${volume}, xbt: ${amount}, xbt_gbp: ${price}`
+        const fee = tx.fee
+        console.log(`[${date}] type: ${tx.type}, gbp: ${volume}, xbt: ${amount}, xbt_gbp: ${price}, fee: ${fee}`
         )
       })
     )
