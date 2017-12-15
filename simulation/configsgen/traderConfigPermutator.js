@@ -71,7 +71,6 @@ const TraderConfigPermutator = (baseLogger, simulatioId, genAlgoConfig, random =
     const diversity = diversityImmigration(traderConfigs.length - nextGenConfigs.length)
 
     const nextGen = nextGenConfigs.concat(diversity)
-    logger.info(`next generation configs: ${nextGen.length}`)
     data.currentIteration++
     return random.shuffle(nextGen)
   }
