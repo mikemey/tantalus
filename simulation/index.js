@@ -46,7 +46,7 @@ const runSimulation = (simulationId, reporter, partitionExecutor, initialTraderC
           simulationId, startTime, process.hrtime(),
           allAccounts, traderConfigs.length, permutator.currentIteration()
         ).then(simReport => permutator.hasNext()
-          ? runIteration(permutator.nextGeneration(allAccounts, simReport.staticInvestment, traderConfigs))
+          ? runIteration(permutator.nextGeneration(allAccounts, simReport.startInvestment, traderConfigs))
           : permutator.logLastParentsFitness(allAccounts, traderConfigs))
       )
       .catch(errorHandler('Run simulation: ', true))
