@@ -126,7 +126,10 @@ const TraderConfigPermutator = (baseLogger, simulatioId, genAlgoConfig, random =
       total += trader.fitness
       return total
     }, 0)
-    logger.info(`parents total fitness [${simulatioId}-${data.currentIteration}]: ${volumeString(totalFitness)}`)
+    logger.info(
+      `parents [${simulatioId}:${data.currentIteration}] ` +
+      `count: [${parentPopulation.length}], total fitness: ${volumeString(totalFitness)}`
+    )
   }
 
   const expandTraderConfigs = flatTraderConfig => {
