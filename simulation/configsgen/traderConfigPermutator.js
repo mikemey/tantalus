@@ -77,23 +77,36 @@ const TraderConfigPermutator = (baseLogger, simulatioId, genAlgoConfig, random =
 
   const genes = ['ts', 'bratio', 'bslots', 'sratio', 'sslots']
 
-  const extractParentPopulation = (accounts, fitnessLimit, traderConfigs) => {
-    const performerCount = accounts.reduce((count, account) => {
-      if (account.fullVolume > fitnessLimit) count++
-      return count
-    }, 0)
-    const maxCutoff = (1 - minSelectionCutoff) * accounts.length
-    const cutoff = Math.min(maxCutoff, performerCount)
+  const fitnessOf = account => account.fullVolume
 
-    return accounts
-      .sort((accA, accB) => accB.fullVolume - accA.fullVolume)
-      .slice(0, cutoff)
+  const extractParentPopulation = (accounts, fitnessLimit, traderConfigs) => {
+    const maxCutoff = (1 - minSelectionCutoff) * accounts.length
+
+    const performers = accounts
+      .filter(account => fitnessOf(account) > fitnessLimit)
+      .slice(0, maxCutoff)
       .map(flattenTraderConfig(traderConfigs))
+
+    const totalParentsFitness = performers
+      .reduce((totalFitness, parent) => totalFitness + parent.fitness, 0)
+
+    let cumulatedFitness = 0
+    const rouletteWheel = performers.map(parent => {
+      cumulatedFitness += parent.fitness
+      return cumulatedFitness / totalParentsFitness
+    })
+
+    return performers.reduce((pickedParents, _) => {
+      const spin = random.number(1)
+      const parentsIx = rouletteWheel.findIndex(wheelValue => wheelValue > spin)
+      pickedParents.push(performers[parentsIx])
+      return pickedParents
+    }, [])
   }
 
   const flattenTraderConfig = traderConfigs => account => {
     const traderConfig = traderConfigs.find(cfg => cfg.clientId === account.clientId)
-    const fitness = account.fullVolume
+    const fitness = fitnessOf(account)
     return {
       fitness,
       ts: traderConfig.timeslotSeconds,

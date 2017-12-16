@@ -161,17 +161,23 @@ describe('Trader config permutator', () => {
 
       const number = max => {
         numberCallCount++
+        // parent selection:
+        // roulette wheel: [ 0.26070248038733995, 0.49367850692354004, 0.7693283601025095, 1 ]
+        if (numberCallCount === 1) { max.should.equal(1); return 0.5 } // picking rank 1, index: 2
+        if (numberCallCount === 2) { max.should.equal(1); return 0 } // picking rank 2, index: 0
+        if (numberCallCount === 3) { max.should.equal(1); return 0.26070248038733995 } // picking rank 3, index: 1
+        if (numberCallCount === 4) { max.should.equal(1); return 0.99999 } // picking rank 4, index: 3
 
         // first child field mutation selection:
-        if (numberCallCount === 1) { max.should.equal(5); return 0 } // timeslotSeconds field
-        if (numberCallCount === 2) { max.should.equal(9); return 8 } // should stay within problem space minimum boundary
+        if (numberCallCount === 5) { max.should.equal(5); return 0 } // timeslotSeconds field
+        if (numberCallCount === 6) { max.should.equal(9); return 8 } // should stay within problem space minimum boundary
 
         // second child field mutation selection:
-        if (numberCallCount === 3) { max.should.equal(5); return 3 } // selling ratio field
-        if (numberCallCount === 4) { max.should.equal(3); return 2 }
+        if (numberCallCount === 7) { max.should.equal(5); return 3 } // selling ratio field
+        if (numberCallCount === 8) { max.should.equal(3); return 2 }
 
         // random immigrants selections
-        if (numberCallCount === 5) { max.should.equal(84); return 40 }
+        if (numberCallCount === 9) { max.should.equal(84); return 40 }
 
         should.fail(`unexpected call to random: input max ${max}, call # ${numberCallCount}`)
       }
@@ -259,7 +265,7 @@ describe('Trader config permutator', () => {
       const permutator = TraderConfigPermutator(console, 'fullExample simid', genAlgoConfig, random)
       const nextGenerationConfigs = permutator.nextGeneration(accountsResults, testFitnessLimit, traderConfigs)
 
-      random.getNumberCount().should.equal(5)
+      random.getNumberCount().should.equal(9)
       random.getTriggerCount().should.equal(14)
       random.getPlusMinusCount().should.equal(2)
       random.getShuffleCount().should.equal(1)
@@ -290,14 +296,28 @@ describe('Trader config permutator', () => {
         selling: { ratio: -2.5, useTimeslots: 2 }
       }]
 
-      const noRandomCrossoverOrMutation = {
-        number: () => 0,
-        trigger: () => false,
-        plusMinus: () => 1,
-        shuffle: input => input
+      // roulette wheel: [ 0.3582993523626769, 0.6971695850323819, 1 ]
+      const noRandomCrossoverOrMutation = () => {
+        let pickParentsCalled = -1
+        const nextParentPick = () => {
+          pickParentsCalled++
+          switch (pickParentsCalled) {
+            case 0: return 0.2
+            case 1: return 0.5
+            case 2: return 0.7
+            default: throw Error(`unexpected pick parents called: ${pickParentsCalled}`)
+          }
+        }
+        return {
+
+          number: maxExclusive => maxExclusive === 1 ? nextParentPick() : 0,
+          trigger: () => false,
+          plusMinus: () => 1,
+          shuffle: input => input
+        }
       }
 
-      const permutator = TraderConfigPermutator(console, 'unpairedparents', genAlgoConfig, noRandomCrossoverOrMutation)
+      const permutator = TraderConfigPermutator(console, 'unpairedparents', genAlgoConfig, noRandomCrossoverOrMutation())
       const nextGenerationConfigs = permutator.nextGeneration(previousAccountResults, testFitnessLimit, traderConfigs)
 
       nextGenerationConfigs.should.have.length(traderConfigs.length)
