@@ -5,6 +5,8 @@ const chartCtrlName = 'ChartController'
 const SUPPORTED_TICKERS = [
   'coinfloor bid',
   'coinfloor ask',
+  'gdax bid',
+  'gdax ask',
   'coindesk'
 ]
 
@@ -29,10 +31,10 @@ angular.module('tantalus.ticker')
         green: 'rgb(18, 107, 62)',
         lightgreen: 'rgb(67, 156, 111)',
         grey: 'rgb(181, 183, 187)',
-        orange: 'rgb(255, 159, 64)',
-        yellow: 'rgb(255, 205, 86)',
         blue: 'rgb(39, 101, 223)',
         lightblue: 'rgb(54, 162, 235)',
+        orange: 'rgb(255, 159, 64)',
+        yellow: 'rgb(255, 205, 86)',
         lightturq: 'rgb(1, 127, 133)',
         turq: 'rgb(30, 192, 200)'
       }
