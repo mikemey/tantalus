@@ -28,7 +28,7 @@ const createKeysRouter = logger => {
     return checkKeys(name, credentials)
       .then(() => userKeysService.addUserKeys(req.user._id, { name, credentials }))
       .then(() => res.status(204).send())
-      .catch(defaultErrorHandler(res))
+      .catch(defaultErrorHandler(res, logger))
   })
 
   return router

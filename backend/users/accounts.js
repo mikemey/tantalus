@@ -68,7 +68,7 @@ const createAccountsRouter = logger => {
       case UserExistsErrorType:
         return responseError(res, userExistsMessage)
       default:
-        return defaultErrorHandler(res)(err)
+        return defaultErrorHandler(res, logger)(err)
     }
   }
 
