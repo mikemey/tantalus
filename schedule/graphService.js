@@ -127,11 +127,11 @@ const sortOrdinalOf = dataset => {
       return 0
     case 'coinfloor ask':
       return 1
-    case 'gdax bid':
-      return 2
-    case 'gdax ask':
-      return 3
     case 'coindesk':
+      return 2
+    case 'gdax bid':
+      return 3
+    case 'gdax ask':
       return 4
     default:
       return 99

@@ -60,6 +60,14 @@ describe('Graph service', () => {
       { x: _5daysAgo, y: null }
     ]
   }, {
+    label: 'coindesk',
+    data: [
+      { x: _6daysAgo, y: 3822 },
+      { x: _5daysAgo, y: 3803 },
+      { x: _4daysAgo, y: 3814 },
+      { x: _3daysAgo, y: 3585 }
+    ]
+  }, {
     label: 'gdax bid',
     data: [
       { x: _6daysAgo, y: 3856 },
@@ -74,14 +82,6 @@ describe('Graph service', () => {
       { x: _5daysAgo, y: 3866 },
       { x: _4daysAgo, y: null },
       { x: _3daysAgo, y: 3567 }
-    ]
-  }, {
-    label: 'coindesk',
-    data: [
-      { x: _6daysAgo, y: 3822 },
-      { x: _5daysAgo, y: 3803 },
-      { x: _4daysAgo, y: 3814 },
-      { x: _3daysAgo, y: 3585 }
     ]
   }]
 
