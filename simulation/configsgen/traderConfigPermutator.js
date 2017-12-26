@@ -190,15 +190,6 @@ const TraderConfigPermutator = (baseLogger, simulatioId, genAlgoConfig, random =
     return [p1Gene, p2Gene]
   }
 
-  const averageGene = (gene, parentA, parentB) => {
-    const weightedAllele =
-      (parentA[gene] * parentA.fitness + parentB[gene] * parentB.fitness) /
-      (parentA.fitness + parentB.fitness)
-
-    const steppedWeightedAllele = snapAlleleToSteps(gene, weightedAllele)
-    return [steppedWeightedAllele, steppedWeightedAllele]
-  }
-
   const snapAlleleToSteps = (gene, allele) => {
     const step = boundaries[gene].step
     const steppedAllele = step * Math.round(allele / step)
