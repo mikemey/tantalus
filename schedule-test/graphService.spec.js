@@ -21,29 +21,29 @@ describe('Graph service', () => {
   const testData = [{
     created: _6daysAgo,
     tickers: [
-      { name: 'lakebtc', bid: 3856.08, ask: 3879.06 },
+      { name: 'gdax', bid: 3856.08, ask: 3879.06 },
       { name: 'coinfloor', bid: 2222 },
       { name: 'coindesk', ask: 3821.79 }]
   }, {
     created: _5daysAgo,
     tickers: [
-      { name: 'lakebtc', bid: 3857.84, ask: 3865.78 },
+      { name: 'gdax', bid: 3857.84, ask: 3865.78 },
       { name: 'coinfloor', bid: 2222 },
       { name: 'coindesk', ask: 3802.64 }]
   }, {
     created: _4daysAgo,
     tickers: [
-      { name: 'lakebtc', bid: 'N/A', ask: 'N/A' },
+      { name: 'gdax', bid: 'N/A', ask: 'N/A' },
       { name: 'coindesk', ask: 3814.19 }]
   }, {
     created: _3daysAgo,
     tickers: [
-      { name: 'lakebtc', bid: 3490, ask: 3567 },
+      { name: 'gdax', bid: 3490, ask: 3567 },
       { name: 'coindesk', ask: 3584.93 }]
   }, {
     created: _8daysAgo,
     tickers: [
-      { name: 'lakebtc', bid: 999999, ask: 999999 },
+      { name: 'gdax', bid: 999999, ask: 999999 },
       { name: 'coindesk', ask: 999999 }]
   }]
 
@@ -60,7 +60,7 @@ describe('Graph service', () => {
       { x: _5daysAgo, y: null }
     ]
   }, {
-    label: 'lakebtc bid',
+    label: 'gdax bid',
     data: [
       { x: _6daysAgo, y: 3856 },
       { x: _5daysAgo, y: 3858 },
@@ -68,7 +68,7 @@ describe('Graph service', () => {
       { x: _3daysAgo, y: 3490 }
     ]
   }, {
-    label: 'lakebtc ask',
+    label: 'gdax ask',
     data: [
       { x: _6daysAgo, y: 3879 },
       { x: _5daysAgo, y: 3866 },
@@ -113,7 +113,7 @@ describe('Graph service', () => {
       return {
         created,
         tickers: [
-          { name: 'lakebtc', bid: ix, ask: ix },
+          { name: 'gdax', bid: ix, ask: ix },
           { name: 'coindesk', ask: ix }]
       }
     }

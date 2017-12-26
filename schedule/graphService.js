@@ -127,9 +127,9 @@ const sortOrdinalOf = dataset => {
       return 0
     case 'coinfloor ask':
       return 1
-    case 'lakebtc bid':
+    case 'gdax bid':
       return 2
-    case 'lakebtc ask':
+    case 'gdax ask':
       return 3
     case 'coindesk':
       return 4
