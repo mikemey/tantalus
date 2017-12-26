@@ -3,7 +3,7 @@ const fmt = require('./formats')
 const ScheduleRepo = require('./scheduleRepo')
 
 const tickers = {
-  lakebtc: { url: 'https://api.LakeBTC.com/api_v2/ticker', name: 'lakebtc' },
+  gdax: { url: 'https://api.gdax.com/products/BTC-GBP/ticker', name: 'gdax' },
   coinfloor: { url: 'https://webapi.coinfloor.co.uk:8090/bist/XBT/GBP/ticker/', name: 'coinfloor' },
   coindesk: { url: 'https://api.coindesk.com/site/headerdata.json?currency=BTC', name: 'coindesk' }
 }
@@ -20,11 +20,6 @@ const tickerErrorHandler = (tickerConfig, log) => err => {
   log.error(err.message)
   return { name: tickerConfig.name, bid: NOT_AVAIL, ask: NOT_AVAIL }
 }
-
-const getLakebtcTicker = log => requests
-  .getJson(tickers.lakebtc.url)
-  .then(({ btcgbp }) => transformAskBid(tickers.lakebtc.name, btcgbp))
-  .catch(tickerErrorHandler(tickers.lakebtc, log))
 
 const getBidAskTicker = (log, tickerConfig) => requests
   .getJson(tickerConfig.url)
@@ -47,7 +42,7 @@ const LatestTickerService = log => {
   const scheduleRepo = ScheduleRepo()
 
   const storeTickers = () => Promise.all([
-    getLakebtcTicker(log),
+    getBidAskTicker(log, tickers.gdax),
     getBidAskTicker(log, tickers.coinfloor),
     getCoindeskTicker(log)
   ]).then(tickers => {

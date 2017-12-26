@@ -1,17 +1,23 @@
 /* global describe before beforeEach it */
 const nock = require('nock')
 const fs = require('fs')
+const path = require('path')
 const moment = require('moment')
 
 const helpers = require('../utils-test/helpers')
 const LatestTickerService = require('../schedule/latestTickerService')
 
-const lakebtcResponse = fs.readFileSync('backend-test/example_responses/lakebtc.json', 'utf8')
-const coinfloorResponse = fs.readFileSync('backend-test/example_responses/coinfloor.json', 'utf8')
-const coindeskResponse = fs.readFileSync('backend-test/example_responses/coindesk.json', 'utf8')
+const testExchangeResponse = filename => fs.readFileSync(
+  path.join(__dirname, `example_responses/${filename}`),
+  'utf8'
+)
+
+const gdaxResponse = testExchangeResponse('gdax.json')
+const coinfloorResponse = testExchangeResponse('coinfloor.json')
+const coindeskResponse = testExchangeResponse('coindesk.json')
 
 const tickerUrls = {
-  lakebtc: { host: 'https://api.LakeBTC.com', path: '/api_v2/ticker' },
+  gdax: { host: 'https://api.gdax.com', path: '/products/BTC-GBP/ticker' },
   coinfloor: { host: 'https://webapi.coinfloor.co.uk:8090', path: '/bist/XBT/GBP/ticker/' },
   coindesk: { host: 'https://api.coindesk.com', path: '/site/headerdata.json?currency=BTC' }
 }
@@ -29,7 +35,7 @@ describe('Latest ticker service', () => {
 
   describe('valid responses', () => {
     beforeEach(() => {
-      nockget(tickerUrls.lakebtc).reply(200, lakebtcResponse)
+      nockget(tickerUrls.gdax).reply(200, gdaxResponse)
       nockget(tickerUrls.coinfloor).reply(200, coinfloorResponse)
       nockget(tickerUrls.coindesk).reply(200, coindeskResponse)
 
@@ -37,7 +43,7 @@ describe('Latest ticker service', () => {
     })
 
     const expectedData = [
-      { name: 'lakebtc', bid: 3809.08, ask: 3815.75 },
+      { name: 'gdax', bid: 11920.04, ask: 11964.61 },
       { name: 'coinfloor', bid: 3751.00, ask: 3759.00 },
       { name: 'coindesk', ask: 3577.58 }
     ]
@@ -62,7 +68,7 @@ describe('Latest ticker service', () => {
 
     const emptyTicker = name => { return { name, bid: 'N/A', ask: 'N/A' } }
     const expectedData = [
-      emptyTicker('lakebtc'),
+      emptyTicker('gdax'),
       emptyTicker('coinfloor'),
       emptyTicker('coindesk')
     ]
