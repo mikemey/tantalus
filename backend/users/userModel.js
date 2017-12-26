@@ -25,6 +25,8 @@ Account.register = newRegister
 const UserKeysSchema = new mongoose.Schema({
   userId: mongoose.Schema.Types.ObjectId,
   keys: []
+}, {
+  usePushEach: true
 })
 
 UserKeysSchema.index({ userId: 1 })
