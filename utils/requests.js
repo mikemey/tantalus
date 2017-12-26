@@ -2,7 +2,8 @@ const rp = require('request-promise')
 const cheerio = require('cheerio')
 
 class RequestError {
-  constructor (message, cause, statusCode, body) {
+  // eslint-disable-next-line space-before-function-paren
+  constructor(message, cause, statusCode, body) {
     this.name = this.constructor.name
     this.message = message
     this.cause = cause
@@ -13,7 +14,7 @@ class RequestError {
 
 const errorHandler = (extension = '') => err => {
   const errorMessage = err.options
-    ? `${err.options.method} ${err.options.uri}`
+    ? `${err.options.method} ${err.options.uri} :: ${err.message}`
     : err.message
   const message = `Request error ${extension}: [${errorMessage}]`
   const body = err.response !== undefined ? err.response.body : '[undefined]'
@@ -32,7 +33,8 @@ const jsonOpts = (url, method = 'GET', body = null) => Object.assign(
   { uri: url },
   { method },
   body && { body },
-  { json: true }
+  { json: true },
+  { headers: { 'User-Agent': 'nope' } }
 )
 
 const pauseMs = ms => new Promise((resolve, reject) => setTimeout(resolve, ms))
