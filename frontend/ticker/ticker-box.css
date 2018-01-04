@@ -41,3 +41,31 @@
 .ticker-date {
   font-size: 0.8em;
 }
+
+div.coinmarketcap-currency-widget {
+  margin-top: 10px;
+}
+
+/* ----- asset ticker -------- */
+div.coinmarketcap-currency-widget > div > div:nth-child(1) > div {
+  padding: 3px 0 0 0 !important;
+  line-height: 1.3em !important;
+}
+
+/* ----- asset image -------- */
+div.coinmarketcap-currency-widget > div > div:nth-child(1) > div:nth-child(2) > img {
+  padding-top: 10px;
+  width: 25%;
+  height: auto;
+}
+
+/* ----- market cap + 24h volume -------- */
+div.coinmarketcap-currency-widget > div > div:nth-child(2) > div {
+  font-size:0px !important;
+  padding: 10px 0 5px 0 !important;
+}
+
+/* ----- powered by -------- */
+div.coinmarketcap-currency-widget > div > div:nth-child(3) > a {
+  display: none;
+}
