@@ -15,19 +15,29 @@
     </div>
   </div>
 </div>
+<div class="markets-box">
+  <div class="markets-date">
+    <span>{{ marketDate | date: 'dd/MM HH:mm' }}</span>
+  </div>
+  <table class="table table-condensed">
+    <tbody>
+      <tr ng-repeat="market in markets">
+        <td class="market-trading">{{ market.trading }}</td>
+        <td class="market-name">{{ market.name }}</td>
+        <td ng-if="market.trading.includes('ETH')" class="market-price">{{ market.price | price: 4 }}</td>
+        <td ng-if="market.trading.includes('XRP')" class="market-price">{{ market.price | price: 6 }}</td>
+        <td class="market-base">BTC</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 <script type="text/javascript" src="ticker/currency.js"></script>
-<div class="coinmarketcap-currency-widget"
-     data-currency="bitcoin" data-base="GBP" data-secondary="USD" data-ticker="true"
-     data-rank="false" data-marketcap="true" data-volume="true"
-     data-stats="USD" data-statsticker="false">
+<div class="coinmarketcap-currency-widget" data-currency="bitcoin" data-base="GBP" data-secondary="USD" data-ticker="true"
+  data-rank="false" data-marketcap="true" data-volume="true" data-stats="USD" data-statsticker="false">
 </div>
-<div class="coinmarketcap-currency-widget"
-     data-currency="ripple" data-base="GBP" data-secondary="BTC"
-     data-ticker="true" data-rank="false" data-marketcap="true" data-volume="true"
-     data-stats="USD" data-statsticker="false">
+<div class="coinmarketcap-currency-widget" data-currency="ripple" data-base="GBP" data-secondary="BTC" data-ticker="true"
+  data-rank="false" data-marketcap="true" data-volume="true" data-stats="USD" data-statsticker="false">
 </div>
-<div class="coinmarketcap-currency-widget"
-     data-currency="ethereum" data-base="GBP" data-secondary="BTC"
-     data-ticker="true" data-rank="false" data-marketcap="true" data-volume="true"
-     data-stats="USD" data-statsticker="false">
+<div class="coinmarketcap-currency-widget" data-currency="ethereum" data-base="GBP" data-secondary="BTC" data-ticker="true"
+  data-rank="false" data-marketcap="true" data-volume="true" data-stats="USD" data-statsticker="false">
 </div>

@@ -1,15 +1,13 @@
+/* ================== ticker box =================== */
 .ticker-box {
   text-align: center;
   margin-right: 0;
   margin-left: 0;
   background-color: #f6f6f6;
-  border-color: #ddd;
-  border-width: 1px;
-  border-radius: 2px 2px 0 0;
-  -webkit-box-shadow: 0 0 2px gold;
-  box-shadow: 0 0 2px gold;
-  border-style: solid;
+  border: 2px solid #E4E6EB;
+  border-radius: 7px;
   overflow: hidden;
+  font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
 }
 
 .ticker-name {
@@ -24,26 +22,61 @@
   font-size: 20px;
   line-height: 24px;
   padding-top: 2px;
-  letter-spacing: 1px;
-  font-family: Courier, monospace;
+  letter-spacing: 3px;
   margin-bottom: 0px;
+  background: #f6f6f6;
 }
 
 .ticker-green {
-  background: rgb(160, 255, 160);
+  color: #093;
 }
 
 .ticker-red {
-  background: rgb(206, 27, 27);
-  color: rgb(255, 255, 255);
+  color: #d14836;
 }
 
 .ticker-date {
   font-size: 0.8em;
 }
 
+/* ================== markets box =================== */
+div.markets-box {
+  margin-top: 10px;
+  border: 2px solid #E4E6EB;
+  border-radius: 7px;
+  overflow: hidden;
+  background: #f6f6f6;
+}
+
+.markets-date {
+  font-size: 0.8em;
+  text-align: center;
+}
+
+table.table-condensed {
+  margin-bottom: 0;
+}
+
+.market-trading, .market-name, .market-base {
+  padding: 5px !important;
+  text-align: left;
+  font-size: 0.8em;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+
+.market-price {
+  text-align: right;
+  font-size: 1.2em;
+  padding: 2px !important;
+  letter-spacing: 3px;
+}
+
+/* ================== coin market cap widgets =================== */
+
 div.coinmarketcap-currency-widget {
   margin-top: 10px;
+  border-radius: 7px !important;
 }
 
 /* ----- asset ticker -------- */

@@ -1,7 +1,6 @@
 /* global angular moment */
 
 const UPDATE_PERIOD = 20000
-const STALE_PERIOD = UPDATE_PERIOD * 0.8
 
 const EMPTY_TICKER = { created: null, tickers: [] }
 
@@ -12,7 +11,7 @@ angular.module('tantalus.ticker')
     $scope.latestTicker = EMPTY_TICKER
     $scope.latestTickerUpdate = moment().subtract(UPDATE_PERIOD)
 
-    const isTickerStale = () => moment().diff($scope.latestTickerUpdate) > STALE_PERIOD
+    const isTickerStale = () => moment().diff($scope.latestTickerUpdate) >= UPDATE_PERIOD
 
     const getLatestTicker = () => isTickerStale()
       ? $http.get('/api/tickers/latest')
