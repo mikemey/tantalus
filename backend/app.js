@@ -8,6 +8,7 @@ const mongoConnection = require('../utils/mongoConnection')
 const security = require('./utils/security')
 
 const createTickersRouter = require('./tickers')
+const createMarketsRouter = require('./tickers/markets')
 const createUsersRouter = require('./users')
 const createInvestRouter = require('./invest')
 const createSimexRouter = require('./simex')
@@ -68,6 +69,7 @@ const createApiRouter = (config, tantalusLogger) => {
   const router = express.Router()
   router.use('/', createUsersRouter(tantalusLogger))
   router.use('/tickers', createTickersRouter(tantalusLogger))
+  router.use('/markets', createMarketsRouter(tantalusLogger))
   router.get('/version', createVersionEndpoint(tantalusLogger))
 
   createSimexEndpoints(router, config, tantalusLogger)
