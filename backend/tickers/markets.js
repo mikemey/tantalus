@@ -7,6 +7,7 @@ const BINANCE = 'Binance'
 
 const ETH_BTC = 'ETH/BTC'
 const XRP_BTC = 'XRP/BTC'
+const LSK_BTC = 'LSK/BTC'
 
 const createMarketsRouter = logger => {
   const router = express.Router()
@@ -20,6 +21,11 @@ const createMarketsRouter = logger => {
     name: BINANCE,
     trading: XRP_BTC,
     url: 'https://api.binance.com/api/v3/ticker/price?symbol=XRPBTC',
+    price: jsonResponse => jsonResponse.price
+  }, {
+    name: BINANCE,
+    trading: LSK_BTC,
+    url: 'https://api.binance.com/api/v3/ticker/price?symbol=LSKBTC',
     price: jsonResponse => jsonResponse.price
   }]
 

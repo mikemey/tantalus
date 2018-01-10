@@ -24,6 +24,7 @@
       <tr ng-repeat="market in markets">
         <td class="market-trading">{{ market.trading }}</td>
         <td class="market-name">{{ market.name }}</td>
+        <td ng-if="market.trading.includes('LSK')" class="market-price">{{ market.price | price: 5 }}</td>
         <td ng-if="market.trading.includes('ETH')" class="market-price">{{ market.price | price: 4 }}</td>
         <td ng-if="market.trading.includes('XRP')" class="market-price">{{ market.price | price: 6 }}</td>
         <td class="market-base">BTC</td>
