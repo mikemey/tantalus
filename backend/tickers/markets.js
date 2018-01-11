@@ -10,6 +10,9 @@ const ETH_BTC = 'ETH/BTC'
 const XRP_BTC = 'XRP/BTC'
 const LSK_BTC = 'LSK/BTC'
 
+const BINANCE_PRICE_URL = 'https://api.binance.com/api/v3/ticker/price'
+
+const binancePriceUrl = symbol => `${BINANCE_PRICE_URL}?symbol=${symbol}`
 const createMarketsRouter = logger => {
   const router = express.Router()
 
@@ -17,22 +20,11 @@ const createMarketsRouter = logger => {
     ? jsonResponse.price
     : UNAVAILABLE
 
-  const singleMarketQueries = [{
-    name: BINANCE,
-    trading: ETH_BTC,
-    url: 'https://api.binance.com/api/v3/ticker/price?symbol=ETHBTC',
-    price: extractBinancePrice
-  }, {
-    name: BINANCE,
-    trading: XRP_BTC,
-    url: 'https://api.binance.com/api/v3/ticker/price?symbol=XRPBTC',
-    price: extractBinancePrice
-  }, {
-    name: BINANCE,
-    trading: LSK_BTC,
-    url: 'https://api.binance.com/api/v3/ticker/price?symbol=LSKBTC',
-    price: extractBinancePrice
-  }]
+  const singleMarketQueries = [
+    { name: BINANCE, trading: ETH_BTC, url: binancePriceUrl('ETHBTC'), price: extractBinancePrice },
+    { name: BINANCE, trading: XRP_BTC, url: binancePriceUrl('XRPBTC'), price: extractBinancePrice },
+    { name: BINANCE, trading: LSK_BTC, url: binancePriceUrl('LSKBTC'), price: extractBinancePrice }
+  ]
 
   const marketResponse = (name, trading, price) => { return { name, trading, price } }
 
@@ -83,6 +75,21 @@ const createMarketsRouter = logger => {
         const merged = [].concat.apply([], result)
         return res.json(merged)
       })
+  })
+
+  router.get('/:market', (req, res) => {
+    if (req.params.market === 'binance') {
+      return requests.getJson(BINANCE_PRICE_URL)
+        .then(response => {
+          response.forEach(symbolPrice => { symbolPrice.price = Number(symbolPrice.price) })
+          res.json(response)
+        })
+        .catch(error => {
+          logger.log(error)
+          res.json([])
+        })
+    }
+    return res.status(404).send(`market not supported: ${req.params.market}`)
   })
 
   return router

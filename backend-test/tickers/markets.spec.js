@@ -29,7 +29,7 @@ describe('GET /api/markets endpoint', () => {
   const nockMarket = market => nock(market.host).get(market.path)
   const mockMarketData = market => nockMarket(market).reply(200, market.response)
 
-  describe('valid responses', () => {
+  describe('valid single market responses', () => {
     beforeEach(() => markets.forEach(mockMarketData))
 
     it('should response with market data', () => {
@@ -109,6 +109,37 @@ describe('GET /api/markets endpoint', () => {
 
       return getMarketData().expect(200)
         .then(({ body }) => body.should.deep.equal(expectedMarketData))
+    })
+  })
+
+  describe('general market response', () => {
+    const getBinanceMarketData = () => request(app).get('/api/markets/binance')
+
+    it('should response with available data', () => {
+      mockMarketData({
+        host: 'https://api.binance.com',
+        path: '/api/v3/ticker/price',
+        response: '[{"symbol":"ETHBTC","price":"0.08642600"},{"symbol":"LTCBTC","price":"0.01696400"}]'
+      })
+
+      const expectedMarketData = [
+        { symbol: 'ETHBTC', price: 0.086426 },
+        { symbol: 'LTCBTC', price: 0.016964 }
+      ]
+      return getBinanceMarketData().expect(200)
+        .then(({ body }) => { body.should.deep.equal(expectedMarketData) })
+    })
+
+    it('should response with with empty list when server error', () => {
+      nockMarket({ host: 'https://api.binance.com', path: '/api/v3/ticker/price' }).twice().reply(522)
+
+      const expectedMarketData = []
+      return getBinanceMarketData().expect(200)
+        .then(({ body }) => { body.should.deep.equal(expectedMarketData) })
+    })
+
+    it('should response with error when unknown market requestes', () => {
+      return request(app).get('/api/markets/other').expect(404, 'market not supported: other')
     })
   })
 })
