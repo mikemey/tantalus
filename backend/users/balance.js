@@ -1,5 +1,4 @@
 const express = require('express')
-const moment = require('moment')
 
 const { clientError, defaultErrorHandler } = require('../utils/jsonResponses')
 const { Balance } = require('./userModel')
@@ -18,10 +17,7 @@ const createBalanceRouter = logger => {
   const balanceService = BalanceService()
 
   router.get(BALANCE_SLUG, (req, res) => balanceService.getBalance(req.user._id)
-    .then(balance => res.status(200).send({
-      date: moment.utc().unix(),
-      balance
-    }))
+    .then(balance => res.status(200).send({ balance }))
   )
 
   router.put(BALANCE_SLUG, (req, res) => {

@@ -1,6 +1,5 @@
 /* global describe before beforeEach it */
 const request = require('supertest')
-const moment = require('moment')
 
 const helpers = require('../../utils-test/helpers')
 
@@ -62,13 +61,9 @@ describe('/api/balance endpoint', () => {
       const newBalanceEntry = { amount: 2.3, price: 4700, asset: 'BTC' }
       return postBalanceEntry(newBalanceEntry)
         .expect(204)
-        .then(() => getBalance()
-          .expect(200)
-          .then(result => {
-            const response = result.body
-            const timestampDiff = moment.utc().unix() - response.date
-            timestampDiff.should.be.most(1)
-            response.balance.should.deep.equal([newBalanceEntry])
+        .then(() => getBalance().expect(200)
+          .then(({ body }) => {
+            body.should.deep.equal({ balance: [newBalanceEntry] })
           }))
     })
 
@@ -79,10 +74,9 @@ describe('/api/balance endpoint', () => {
       return postBalanceEntry(entry0)
         .then(() => postBalanceEntry(entry1))
         .then(() => postBalanceEntry(entry2))
-        .then(() => getBalance()
-          .expect(200)
-          .then(result => {
-            result.body.balance.should.deep.equal([entry0, entry1, entry2])
+        .then(() => getBalance().expect(200)
+          .then(({ body }) => {
+            body.should.deep.equal({ balance: [entry0, entry1, entry2] })
           }))
     })
 
@@ -96,10 +90,9 @@ describe('/api/balance endpoint', () => {
       return postBalanceEntry(entry0)
         .then(() => postBalanceEntry(entry1))
         .then(() => putBalanceEntry(entryUpdate).expect(204))
-        .then(() => getBalance()
-          .expect(200)
-          .then(result => {
-            result.body.balance.should.deep.equal(entryUpdate)
+        .then(() => getBalance().expect(200)
+          .then(({ body }) => {
+            body.should.deep.equal({ balance: entryUpdate })
           }))
     })
   })
