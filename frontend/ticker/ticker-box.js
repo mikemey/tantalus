@@ -16,7 +16,6 @@ angular.module('tantalus.ticker')
       .then(result => {
         $scope.marketDate = new Date()
         $scope.markets = result.data.sort((a, b) => b.trading.localeCompare(a.trading))
-        console.log('date: ' + $scope.marketDate)
       })
       .catch(error => console.log(error))
 
