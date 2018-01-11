@@ -7,9 +7,11 @@ const createUsersRouter = logger => {
 
   const createAccountRouter = require('./accounts')
   const createKeysRouter = require('./keys')
+  const createBalanceRouter = require('./balance')
 
   router.use(usersSlug, createAccountRouter(logger))
   router.use(usersSlug, createKeysRouter(logger))
+  router.use('/', createBalanceRouter(logger))
 
   return router
 }

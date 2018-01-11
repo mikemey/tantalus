@@ -25,9 +25,7 @@ Account.register = newRegister
 const UserKeysSchema = new mongoose.Schema({
   userId: mongoose.Schema.Types.ObjectId,
   keys: []
-}, {
-  usePushEach: true
-})
+}, { usePushEach: true })
 
 UserKeysSchema.index({ userId: 1 })
 UserKeysSchema.query.byUserId = function (userId) {
@@ -36,4 +34,17 @@ UserKeysSchema.query.byUserId = function (userId) {
 
 const UserKeys = mongoose.model('UserKeys', UserKeysSchema)
 
-module.exports = { Account, UserKeys }
+// ----------- Balance
+const BalanceSchema = new mongoose.Schema({
+  userId: mongoose.Schema.Types.ObjectId,
+  entries: []
+}, { usePushEach: true })
+
+BalanceSchema.index({ userId: 1 })
+BalanceSchema.query.byUserId = function (userId) {
+  return this.findOne({ userId })
+}
+
+const Balance = mongoose.model('Balance', BalanceSchema)
+
+module.exports = { Account, UserKeys, Balance }

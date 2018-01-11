@@ -62,6 +62,7 @@ describe('server security configuration', () => {
     it('rejects unauthorized account request', () => unauthorizedResponseGET('/api/users/account'))
     it('rejects unauthorized keys POST request', () => unauthorizedResponsePOST('/api/users/logout'))
     it('rejects unauthorized keys PUT request', () => unauthorizedResponsePUT('/api/users/keys'))
+    it('rejects unauthorized balance GET request', () => unauthorizedResponseGET('/api/balance'))
   })
 
   describe('endpoints without authorization', () => {
