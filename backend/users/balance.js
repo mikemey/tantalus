@@ -5,10 +5,15 @@ const { Balance } = require('./userModel')
 
 const BALANCE_SLUG = '/balance'
 
-const checkNewBalanceEntry = (amount, price, asset) => new Promise((resolve, reject) => {
-  if (!amount) reject(clientError('amount is missing'))
-  if (!price) reject(clientError('price is missing'))
-  if (!asset) reject(clientError('asset is missing'))
+const checkNewBalanceEntry = entry => new Promise((resolve, reject) => {
+  if (!entry.amount) reject(clientError('amount is missing'))
+  if (!entry.price) reject(clientError('price is missing'))
+  if (!entry.asset) reject(clientError('asset is missing'))
+
+  const unknownFields = Object.keys(entry).filter(field =>
+    field !== 'amount' && field !== 'price' && field !== 'asset'
+  )
+  if (unknownFields.length) reject(clientError(`invalid parameters: ${unknownFields}`))
   resolve()
 })
 
@@ -22,7 +27,7 @@ const createBalanceRouter = logger => {
 
   router.put(BALANCE_SLUG, (req, res) => {
     const newEntries = req.body
-    return Promise.all(newEntries.map(en => checkNewBalanceEntry(en.amount, en.price, en.asset)))
+    return Promise.all(newEntries.map(checkNewBalanceEntry))
       .then(() => balanceService.setBalance(req.user._id, newEntries))
       .then(() => res.status(204).send())
       .catch(defaultErrorHandler(res, logger))
@@ -33,7 +38,7 @@ const createBalanceRouter = logger => {
     const price = req.body.price
     const asset = req.body.asset
 
-    return checkNewBalanceEntry(amount, price, asset)
+    return checkNewBalanceEntry(req.body)
       .then(() => balanceService.addBalance(req.user._id, { amount, price, asset }))
       .then(() => res.status(204).send())
       .catch(defaultErrorHandler(res, logger))
@@ -57,7 +62,10 @@ const BalanceService = () => {
 
   const getBalanceEntries = userId => Balance
     .find().byUserId(userId)
-    .then(userBalance => userBalance.entries)
+    .then(userBalance => userBalance
+      ? userBalance.entries
+      : []
+    )
 
   return {
     addBalance: updateBalance(true),

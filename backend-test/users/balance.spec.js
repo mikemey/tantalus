@@ -50,6 +50,12 @@ describe('/api/balance endpoint', () => {
     it('400 when asset is missing', () => putBalanceEntry([{ amount: 10.0, price: 4700 }])
       .expect(400, { error: 'asset is missing' })
     )
+
+    it('400 when additional key', () => putBalanceEntry([{
+      amount: 10.0, price: 4700, asset: 'BTC', other: 'hello', one: 'world'
+    }])
+      .expect(400, { error: 'invalid parameters: other,one' })
+    )
   })
 
   describe('valid data responses', () => {
