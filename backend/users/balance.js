@@ -16,8 +16,8 @@ const createBalanceRouter = logger => {
   const router = express.Router()
   const balanceService = BalanceService()
 
-  router.get(BALANCE_SLUG, (req, res) => balanceService.getBalance(req.user._id)
-    .then(balance => res.status(200).send({ balance }))
+  router.get(BALANCE_SLUG, (req, res) => balanceService.getBalanceEntries(req.user._id)
+    .then(entries => res.status(200).send({ entries }))
   )
 
   router.put(BALANCE_SLUG, (req, res) => {
@@ -55,14 +55,14 @@ const BalanceService = () => {
       return balance.save()
     })
 
-  const getBalance = userId => Balance
+  const getBalanceEntries = userId => Balance
     .find().byUserId(userId)
     .then(userBalance => userBalance.entries)
 
   return {
     addBalance: updateBalance(true),
     setBalance: updateBalance(false),
-    getBalance
+    getBalanceEntries
   }
 }
 

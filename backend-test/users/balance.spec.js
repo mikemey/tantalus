@@ -63,7 +63,7 @@ describe('/api/balance endpoint', () => {
         .expect(204)
         .then(() => getBalance().expect(200)
           .then(({ body }) => {
-            body.should.deep.equal({ balance: [newBalanceEntry] })
+            body.should.deep.equal({ entries: [newBalanceEntry] })
           }))
     })
 
@@ -76,7 +76,7 @@ describe('/api/balance endpoint', () => {
         .then(() => postBalanceEntry(entry2))
         .then(() => getBalance().expect(200)
           .then(({ body }) => {
-            body.should.deep.equal({ balance: [entry0, entry1, entry2] })
+            body.should.deep.equal({ entries: [entry0, entry1, entry2] })
           }))
     })
 
@@ -92,7 +92,7 @@ describe('/api/balance endpoint', () => {
         .then(() => putBalanceEntry(entryUpdate).expect(204))
         .then(() => getBalance().expect(200)
           .then(({ body }) => {
-            body.should.deep.equal({ balance: entryUpdate })
+            body.should.deep.equal({ entries: entryUpdate })
           }))
     })
   })
