@@ -1,0 +1,49 @@
+.balance-table > thead > tr > th {
+  font-size: 0.9em;
+  padding: 3px 5px;
+  text-align: center;
+}
+
+.balance-table > tbody > tr > td {
+  font-size: 0.9em;
+  padding: 3px 5px;
+  text-align: right;
+}
+
+.xs-text {
+  font-size: 0.8em;
+  font-weight: normal;
+}
+
+.balance-table td.left {
+  text-align: left;
+}
+
+.balance-table td.center {
+  text-align: center;
+}
+
+.balance-table td.edit-cell {
+  width: 1%;
+  padding: 1px;
+  border:none;
+}
+
+.balance-table button.edit-btn {
+  font-size: 8px;
+}
+
+.balance-table > tbody > tr.summaryLine > td {
+  font-weight: bold;
+  font-size: 0.95em;
+  letter-spacing: 1px;
+  background-color: #dff0d8;
+}
+
+.positive-num {
+  color: rgb(10, 170, 10);
+}
+
+.negative-num {
+  color: rgb(230, 18, 18);
+}

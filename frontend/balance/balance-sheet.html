@@ -1,85 +1,95 @@
 <div>
-  <table class="table table-condensed table-bordered">
+  <table class="table balance-table table-bordered table-hover">
     <thead>
       <tr>
-        <th>Asset</th>
-        <th>Amount</th>
-        <th>inv BTC</th>
-        <th>inv GBP</th>
-        <th>Buy price</th>
-        <th class="text-nowrap">
-          Price
-          <br/> {{ model.pricesDate | date: 'dd/MM HH:mm' }}
+        <th>asset</th>
+        <th>amount</th>
+        <th colspan="2">investment</th>
+        <th colspan="2" class="text-nowrap">
+          <span>price</span>
+          <span class="xs-text">{{ model.pricesDate | date: 'dd/MM HH:mm' }}</span>
         </th>
-        <th>%</th>
-        <th>diff BTC</th>
-        <th>diff GBP</th>
-        <th>vol BTC</th>
-        <th>vol GBP</th>
+        <th colspan="3">change</th>
+        <th colspan="2">volume</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
       <tr ng-if="model.balanceEntries.length === 0">
-        <td colspan="12">No entries</td>
+        <td colspan="12" class="center">No entries</td>
       </tr>
       <tr ng-repeat="entry in model.balanceEntries">
-        <td>{{ entry.asset }}</td>
-        <td>{{ entry.amount }}</td>
-        <td>{{ entry.btcInvest }}</td>
-        <td>{{ entry.gbpInvest }}</td>
-        <td>{{ entry.price }}</td>
-        <td>{{ entry.currentPrice }}</td>
-        <td>{{ entry.changePercentage }}</td>
-        <td>{{ entry.btcDiff }}</td>
-        <td>{{ entry.gbpDiff }}</td>
-        <td>{{ entry.btcValue }}</td>
-        <td>{{ entry.gbpValue }}</td>
-        <td>
-          <button ng-click="setEditEntryIndex($index)" class="btn btn-default">Edit</button>
+        <td class="center">{{ entry.asset }}</td>
+        <td class="left">{{ entry.amount }}</td>
+        <td>{{ (entry.btcInvest | number: 4) + (entry.btcInvest ? '&nbsp;Ƀ': '') }}</td>
+        <td>{{ (entry.gbpInvest | number: 0) + (entry.gbpInvest ? '&nbsp;£': '') }}</td>
+        <td class="left">{{ entry.price | number: entry.priceDigits }}</td>
+        <td class="left">{{ entry.currentPrice | number: entry.priceDigits }}</td>
+        <td ng-class="entry.changePercentage >= 0 ? 'positive-num' : 'negative-num'">
+          {{ (entry.changePercentage | number: 1) + (entry.changePercentage ? '&nbsp;%': '') }}
+        </td>
+        <td ng-class="entry.changePercentage >= 0 ? 'positive-num' : 'negative-num'">
+          {{ (entry.btcDiff | number: 4) + (entry.btcDiff ? '&nbsp;Ƀ': '') }}
+        </td>
+        <td ng-class="entry.changePercentage >= 0 ? 'positive-num' : 'negative-num'">
+          {{ (entry.gbpDiff | number: 0) + (entry.gbpDiff ? '&nbsp;£': '') }}
+        </td>
+        <td>{{ (entry.btcValue | number: 4) + (entry.btcValue ? '&nbsp;Ƀ': '') }}</td>
+        <td>{{ (entry.gbpValue | number: 0) + (entry.gbpValue ? '&nbsp;£': '') }}</td>
+        <td class="edit-cell">
+          <button ng-click="setEditEntryIndex($index)" class="btn btn-default btn-xs edit-btn">
+            . . .
+          </button>
         </td>
       </tr>
-      <tr ng-if="model.sums">
+      <tr class="summaryLine" ng-if="model.sums">
         <td colspan="2"></td>
-        <td>{{ model.sums.btcInvest }}</td>
-        <td>{{ model.sums.gbpInvest }}</td>
+        <td>{{ model.sums.btcInvest | number: 4 }}&nbsp;Ƀ</td>
+        <td>{{ model.sums.gbpInvest | number: 0 }}&nbsp;£</td>
         <td colspan="3"></td>
-        <td>{{ model.sums.btcDiff }}</td>
-        <td>{{ model.sums.gbpDiff }}</td>
-        <td>{{ model.sums.btcValue }}</td>
-        <td>{{ model.sums.gbpValue }}</td>
+        <td>{{ model.sums.btcDiff | number: 4 }}&nbsp;Ƀ</td>
+        <td>{{ model.sums.gbpDiff | number: 0 }}&nbsp;£</td>
+        <td>{{ model.sums.btcValue | number: 4 }}&nbsp;Ƀ</td>
+        <td>{{ model.sums.gbpValue | number: 0 }}&nbsp;£</td>
         <td></td>
       </tr>
     </tbody>
   </table>
 
+  <div ng-if="model.errorMessage" class="alert alert-danger" role="alert">
+    {{ model.errorMessage }}
+  </div>
+
   <form name="assetForm">
     <div class="row">
-      <div class="form-group col-xs-3">
+      <div class="form-group col-lg-3 col-sm-2">
         <label for="asset">Asset</label>
         <select id="asset" class="form-control" ng-model="inputs.asset" required="required">
           <option ng-repeat="price in model.prices">{{ price.symbol }}</option>
         </select>
       </div>
-      <div class="form-group col-xs-3">
+      <div class="form-group col-sm-3">
         <label for="amount">Amount</label>
-        <input id="amount" type="number" step="any" ng-model="inputs.amount" class="form-control" placeholder="amount" required="required">
+        <input id="amount" type="number" step="any" ng-model="inputs.amount" class="form-control input-sm" placeholder="amount" required="required">
       </div>
-      <div class="form-group col-xs-3">
+      <div class="form-group  col-lg-4 col-sm-3">
         <label for="price">Price</label>
-        <input id="price" type="number" step="any" ng-model="inputs.price" class="form-control" placeholder="price" required="required">
+        <input id="price" type="number" step="any" ng-model="inputs.price" class="form-control input-sm" placeholder="price" required="required">
       </div>
-      <div class="col-xs-3">
-        <button ng-if="model.editEntryIndex === ADD_MODE" ng-click="addAsset()" ng-disabled="assetForm.$invalid" type="submit" class="btn btn-default">
-          Add...
-        </button>
-        <button ng-if="model.editEntryIndex !== ADD_MODE" ng-click="updateAssets()" ng-disabled="assetForm.$invalid" type="submit"
-          class="btn btn-default">
-          Update...
-        </button>
-        <button ng-if="model.editEntryIndex !== ADD_MODE" ng-click="resetAssetInputs()" type="submit" class="btn btn-danger">
-          Cancel
-        </button>
+      <div ng-if="model.editEntryIndex === ADD_MODE" class="form-group col-lg-1 col-lg-offset-1 col-sm-offset-2  col-sm-2">
+        <label>&nbsp;</label>
+        <input ng-if="model.editEntryIndex === ADD_MODE" ng-click="   addAsset()" type="button" ng-disabled="assetForm.$invalid"
+          class="btn btn-success form-control input-sm" value=" Add..." />
+      </div>
+      <div ng-if="model.editEntryIndex !== ADD_MODE" class="form-group col-lg-1 col-sm-2">
+        <label>&nbsp;</label>
+        <input ng-if="model.editEntryIndex !== ADD_MODE" ng-click="  updateAssets()" type="button" ng-disabled="assetForm.$invalid"
+          class="btn btn-success form-control input-sm" value="Update" />
+      </div>
+      <div ng-if="model.editEntryIndex !== ADD_MODE" class="form-group col-lg-1 col-sm-2">
+        <label>&nbsp;</label>
+        <input ng-if="model.editEntryIndex !== ADD_MODE" ng-click="resetAssetInputs()                            " type="button"
+          class="btn btn-default form-control input-sm" value="Cancel" />
       </div>
     </div>
   </form>
