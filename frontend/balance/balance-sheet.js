@@ -141,7 +141,7 @@ angular
         $scope.inputs = EMPTY_INPUTS
       }
 
-      $interval(updatePrices, 60000)
+      $interval(updatePrices, 20000)
       return Promise.all([loadBalance(), updatePrices()])
     }])
   .service('balanceService', ['$http', 'tickerService', function ($http, tickerService) {
@@ -158,13 +158,7 @@ angular
 
     const updateBalance = newBalance => $http.put(BALANCE_ENDPOINT, newBalance)
 
-    const getLatestBitcoinPrice = () => tickerService.getLatestTicker()
-      .then(latestTicker => {
-        const coinfloorTicker = latestTicker.tickers.find(ticker => ticker.name === 'coinfloor')
-        return coinfloorTicker && !isNaN(parseFloat(coinfloorTicker.bid))
-          ? coinfloorTicker.bid
-          : 0
-      })
+    const getLatestBitcoinPrice = () => tickerService.getLatestBitcoinPrice()
 
     return {
       getMarketPrices,

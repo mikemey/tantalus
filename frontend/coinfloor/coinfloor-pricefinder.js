@@ -43,11 +43,10 @@ angular
         }).filter(result => result.diff <= $scope.inputs.distance)
       })
 
-      $scope.updateTargetRate = () => tickerService.getLatestTicker()
-        .then(latestTicker => {
-          const coinfloorTicker = latestTicker.tickers.find(ticker => ticker.name === 'coinfloor')
-          if (coinfloorTicker && !isNaN(parseFloat(coinfloorTicker.bid))) {
-            $scope.inputs.targetRate = coinfloorTicker.bid
+      $scope.updateTargetRate = () => tickerService.getLatestBitcoinPrice()
+        .then(btcPrice => {
+          if (btcPrice) {
+            $scope.inputs.targetRate = btcPrice
             $scope.updatePrices()
           }
         })

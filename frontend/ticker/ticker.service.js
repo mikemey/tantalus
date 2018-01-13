@@ -25,6 +25,14 @@ angular.module('tantalus.ticker')
         .then(() => $scope.latestTicker)
       : Promise.resolve($scope.latestTicker)
 
+    const getLatestBitcoinPrice = () => getLatestTicker()
+      .then(latestTicker => {
+        const coinfloorTicker = latestTicker.tickers.find(ticker => ticker.name === 'coinfloor')
+        return coinfloorTicker && !isNaN(parseFloat(coinfloorTicker.bid))
+          ? coinfloorTicker.bid
+          : 0
+      })
+
     const startUpdate = () => {
       $scope.stop = $interval(getLatestTicker, UPDATE_PERIOD)
     }
@@ -58,6 +66,7 @@ angular.module('tantalus.ticker')
     $scope.$on('$destroy', stopUpdate)
     return {
       getLatestTicker,
+      getLatestBitcoinPrice,
       watchTicker,
       getGraphData
     }
