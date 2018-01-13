@@ -1,7 +1,8 @@
 /* global angular */
 
 angular.module('tantalus.account', [
-  'ngRoute'
+  'ngRoute',
+  'tantalus.ticker'
 ]).config(['$routeProvider', $routeProvider => $routeProvider
   .when('/account', {
     templateUrl: 'account/account.html',
