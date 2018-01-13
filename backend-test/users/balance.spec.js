@@ -27,6 +27,10 @@ describe('/api/balance endpoint', () => {
       .then(() => helpers.insertAccounts([testUser]))
     )
 
+    it('400 when PUT has no data', () => putBalanceEntry({})
+      .expect(400, { error: 'no data provided' })
+    )
+
     it('400 when no amount', () => postBalanceEntry({ amount: 0.0, price: 4700, asset: 'BTC' })
       .expect(400, { error: 'amount is missing' })
     )

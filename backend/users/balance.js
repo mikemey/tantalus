@@ -1,6 +1,6 @@
 const express = require('express')
 
-const { clientError, defaultErrorHandler } = require('../utils/jsonResponses')
+const { responseError, clientError, defaultErrorHandler } = require('../utils/jsonResponses')
 const { Balance } = require('./userModel')
 
 const BALANCE_SLUG = '/balance'
@@ -27,6 +27,8 @@ const createBalanceRouter = logger => {
 
   router.put(BALANCE_SLUG, (req, res) => {
     const newEntries = req.body
+    if (!newEntries.map) return responseError(res, 'no data provided')
+
     return Promise.all(newEntries.map(checkNewBalanceEntry))
       .then(() => balanceService.setBalance(req.user._id, newEntries))
       .then(() => res.status(204).send())
