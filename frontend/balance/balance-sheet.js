@@ -5,7 +5,10 @@ angular
   .module('tantalus.account')
   .component('balanceSheet', {
     controller: balanceSheetControllerName,
-    templateUrl: 'balance/balance-sheet.html'
+    templateUrl: 'balance/balance-sheet.html',
+    bindings: {
+      editable: '='
+    }
   })
   .controller(balanceSheetControllerName, ['$scope', '$interval', 'balanceService',
     function ($scope, $interval, balanceService) {
