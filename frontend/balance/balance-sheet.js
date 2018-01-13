@@ -1,13 +1,13 @@
 
-const balanceControllerName = 'BalanceController'
+const balanceSheetControllerName = 'BalanceSheetController'
 
 angular
   .module('tantalus.account')
-  .component('balance', {
-    controller: balanceControllerName,
-    templateUrl: 'account/balance.html'
+  .component('balanceSheet', {
+    controller: balanceSheetControllerName,
+    templateUrl: 'balance/balance-sheet.html'
   })
-  .controller(balanceControllerName, ['$scope', 'balanceService', function ($scope, balanceService) {
+  .controller(balanceSheetControllerName, ['$scope', 'balanceService', function ($scope, balanceService) {
     const BTCGPB_ASSET = 'BTCGBP'
 
     const EMPTY_INPUTS = { asset: '', amount: 0, price: 0 }
