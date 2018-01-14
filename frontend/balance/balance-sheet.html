@@ -2,13 +2,13 @@
   <table class="table balance-table table-bordered table-hover">
     <thead>
       <tr>
-        <th>asset</th>
         <th>amount</th>
         <th colspan="2">investment</th>
         <th colspan="2" class="text-nowrap">
           <span>price</span>
           <span class="xs-text">{{ model.pricesDate | date: 'dd/MM HH:mm' }}</span>
         </th>
+        <th>asset</th>
         <th colspan="3">change</th>
         <th colspan="2">volume</th>
         <th ng-if="$ctrl.editable"></th>
@@ -19,12 +19,12 @@
         <td colspan="12" class="center">No entries</td>
       </tr>
       <tr ng-repeat="entry in model.balanceEntries">
-        <td class="center">{{ entry.asset }}</td>
         <td class="left">{{ entry.amount }}</td>
         <td>{{ (entry.btcInvest | number: 4) + (entry.btcInvest ? '&nbsp;Ƀ': '') }}</td>
         <td>{{ (entry.gbpInvest | number: 0) + (entry.gbpInvest ? '&nbsp;£': '') }}</td>
         <td class="left">{{ entry.price | number: entry.priceDigits }}</td>
         <td class="left">{{ entry.currentPrice | number: entry.priceDigits }}</td>
+        <td class="center">{{ entry.asset }}</td>
         <td ng-class="entry.changePercentage >= 0 ? 'positive-num' : 'negative-num'">
           {{ (entry.changePercentage | number: 1) + (entry.changePercentage ? '&nbsp;%': '') }}
         </td>
@@ -43,10 +43,10 @@
         </td>
       </tr>
       <tr class="summaryLine" ng-if="model.sums">
-        <td colspan="2"></td>
+        <td></td>
         <td>{{ model.sums.btcInvest | number: 4 }}&nbsp;Ƀ</td>
         <td>{{ model.sums.gbpInvest | number: 0 }}&nbsp;£</td>
-        <td colspan="3"></td>
+        <td colspan="4"></td>
         <td>{{ model.sums.btcDiff | number: 4 }}&nbsp;Ƀ</td>
         <td>{{ model.sums.gbpDiff | number: 0 }}&nbsp;£</td>
         <td>{{ model.sums.btcValue | number: 4 }}&nbsp;Ƀ</td>
