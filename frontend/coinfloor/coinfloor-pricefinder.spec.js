@@ -35,14 +35,10 @@ describe('coinfloor pricefinder component', () => {
     { rate: '3615', buy: '0.7058', cost: '2551.467', diff: '0.343' }
   ]
 
-  const mockTicker = (bid = 1) => {
-    return { tickers: [{ name: 'coinfloor', bid }] }
-  }
-
-  const controllerScope = bid => {
+  const controllerScope = (bid = 1) => {
     const $scope = $rootScope.$new()
     const tickerService = {
-      getLatestTicker: () => Promise.resolve(mockTicker(bid))
+      getLatestBitcoinPrice: () => Promise.resolve(bid)
     }
     const ctrl = $controller('PriceFinderController', { $scope, tickerService })
     return { $scope, ctrl }
