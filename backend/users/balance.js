@@ -5,14 +5,16 @@ const { Balance } = require('./userModel')
 
 const BALANCE_SLUG = '/balance'
 
+const ALLOWED_BALANCE_ENTRY_FIELDS = ['amount', 'price', 'asset', 'link']
+
 const checkNewBalanceEntry = entry => new Promise((resolve, reject) => {
   if (!entry.amount) reject(clientError('amount is missing'))
   if (!entry.price) reject(clientError('price is missing'))
   if (!entry.asset) reject(clientError('asset is missing'))
 
-  const unknownFields = Object.keys(entry).filter(field =>
-    field !== 'amount' && field !== 'price' && field !== 'asset'
-  )
+  const unknownFields = Object.keys(entry)
+    .filter(field => !ALLOWED_BALANCE_ENTRY_FIELDS.includes(field))
+
   if (unknownFields.length) reject(clientError(`invalid parameters: ${unknownFields}`))
   resolve()
 })
@@ -36,12 +38,8 @@ const createBalanceRouter = logger => {
   })
 
   router.post(BALANCE_SLUG, (req, res) => {
-    const amount = req.body.amount
-    const price = req.body.price
-    const asset = req.body.asset
-
     return checkNewBalanceEntry(req.body)
-      .then(() => balanceService.addBalance(req.user._id, { amount, price, asset }))
+      .then(() => balanceService.addBalance(req.user._id, req.body))
       .then(() => res.status(204).send())
       .catch(defaultErrorHandler(res, logger))
   })

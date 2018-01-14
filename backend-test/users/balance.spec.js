@@ -81,12 +81,23 @@ describe('/api/balance endpoint', () => {
       const entry0 = { amount: 12.3, price: 0.03322, asset: 'ETH' }
       const entry1 = { amount: 1.3, price: 3000, asset: 'BTC' }
       const entry2 = { amount: 1.3, price: 0.04, asset: 'ETH' }
-      return postBalanceEntry(entry0)
-        .then(() => postBalanceEntry(entry1))
-        .then(() => postBalanceEntry(entry2))
+      return postBalanceEntry(entry0).expect(204)
+        .then(() => postBalanceEntry(entry1).expect(204))
+        .then(() => postBalanceEntry(entry2).expect(204))
         .then(() => getBalance().expect(200)
           .then(({ body }) => {
             body.should.deep.equal({ entries: [entry0, entry1, entry2] })
+          }))
+    })
+
+    it('stores optional link location and returns it', () => {
+      const entry0 = { amount: 12.3, price: 0.03322, asset: 'ETH', link: 'bla-di-blah' }
+      const entry1 = { amount: 1.3, price: 3000, asset: 'BTC' }
+      return postBalanceEntry(entry0).expect(204)
+        .then(() => postBalanceEntry(entry1).expect(204))
+        .then(() => getBalance().expect(200)
+          .then(({ body }) => {
+            body.should.deep.equal({ entries: [entry0, entry1] })
           }))
     })
 
@@ -97,8 +108,8 @@ describe('/api/balance endpoint', () => {
         { amount: 1.3, price: 0.04, asset: 'ETH' },
         { amount: 1.0, price: 2000, asset: 'BTC' }
       ]
-      return postBalanceEntry(entry0)
-        .then(() => postBalanceEntry(entry1))
+      return postBalanceEntry(entry0).expect(204)
+        .then(() => postBalanceEntry(entry1).expect(204))
         .then(() => putBalanceEntry(entryUpdate).expect(204))
         .then(() => getBalance().expect(200)
           .then(({ body }) => {
