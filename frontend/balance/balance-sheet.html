@@ -20,8 +20,8 @@
       </tr>
       <tr ng-repeat="entry in model.balanceEntries">
         <td class="left">{{ entry.amount }}</td>
-        <td>{{ (entry.btcInvest | number: 4) + (entry.btcInvest ? '&nbsp;Ƀ': '') }}</td>
-        <td>{{ (entry.gbpInvest | number: 0) + (entry.gbpInvest ? '&nbsp;£': '') }}</td>
+        <td>{{ (entry.investmentBtc | number: 4) + (entry.investmentBtc ? '&nbsp;Ƀ': '') }}</td>
+        <td>{{ (entry.investmentGbp | number: 0) + (entry.investmentGbp ? '&nbsp;£': '') }}</td>
         <td class="left">{{ entry.price | number: entry.priceDigits }}</td>
         <td class="left">{{ entry.currentPrice | number: entry.priceDigits }}</td>
         <td class="center">{{ entry.asset }}</td>
@@ -29,13 +29,13 @@
           {{ (entry.changePercentage | number: 1) + (entry.changePercentage ? '&nbsp;%': '') }}
         </td>
         <td ng-class="entry.changePercentage >= 0 ? 'positive-num' : 'negative-num'">
-          {{ (entry.btcDiff | number: 4) + (entry.btcDiff ? '&nbsp;Ƀ': '') }}
+          {{ (entry.changeBtc | number: 4) + (entry.changeBtc ? '&nbsp;Ƀ': '') }}
         </td>
         <td ng-class="entry.changePercentage >= 0 ? 'positive-num' : 'negative-num'">
-          {{ (entry.gbpDiff | number: 0) + (entry.gbpDiff ? '&nbsp;£': '') }}
+          {{ (entry.changeGbp | number: 0) + (entry.changeGbp ? '&nbsp;£': '') }}
         </td>
-        <td>{{ (entry.btcValue | number: 4) + (entry.btcValue ? '&nbsp;Ƀ': '') }}</td>
-        <td>{{ (entry.gbpValue | number: 0) + (entry.gbpValue ? '&nbsp;£': '') }}</td>
+        <td>{{ (entry.volumeBtc | number: 4) + (entry.volumeBtc ? '&nbsp;Ƀ': '') }}</td>
+        <td>{{ (entry.volumeGbp | number: 0) + (entry.volumeGbp ? '&nbsp;£': '') }}</td>
         <td ng-if="$ctrl.editable" class="edit-cell">
           <button ng-click="setEditEntryIndex($index)" class="btn btn-default btn-xs edit-btn">
             . . .
@@ -44,13 +44,13 @@
       </tr>
       <tr class="summaryLine" ng-if="model.sums">
         <td></td>
-        <td>{{ model.sums.btcInvest | number: 4 }}&nbsp;Ƀ</td>
-        <td>{{ model.sums.gbpInvest | number: 0 }}&nbsp;£</td>
+        <td>{{ model.sums.investmentBtc | number: 4 }}&nbsp;Ƀ</td>
+        <td>{{ model.sums.investmentGbp | number: 0 }}&nbsp;£</td>
         <td colspan="4"></td>
-        <td>{{ model.sums.btcDiff | number: 4 }}&nbsp;Ƀ</td>
-        <td>{{ model.sums.gbpDiff | number: 0 }}&nbsp;£</td>
-        <td>{{ model.sums.btcValue | number: 4 }}&nbsp;Ƀ</td>
-        <td>{{ model.sums.gbpValue | number: 0 }}&nbsp;£</td>
+        <td>{{ model.sums.changeBtc | number: 4 }}&nbsp;Ƀ</td>
+        <td>{{ model.sums.changeGbp | number: 0 }}&nbsp;£</td>
+        <td>{{ model.sums.volumeBtc | number: 4 }}&nbsp;Ƀ</td>
+        <td>{{ model.sums.volumeGbp | number: 0 }}&nbsp;£</td>
         <td ng-if="$ctrl.editable"></td>
       </tr>
     </tbody>

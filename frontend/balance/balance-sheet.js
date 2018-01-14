@@ -51,9 +51,9 @@ angular
 
         const isBtcAsset = balanceEntry.asset === BTCGPB_ASSET
         if (isBtcAsset) {
-          balanceEntry.gbpInvest = buyingPrice * amount
+          balanceEntry.investmentGbp = buyingPrice * amount
         } else {
-          balanceEntry.btcInvest = buyingPrice * amount
+          balanceEntry.investmentBtc = buyingPrice * amount
         }
 
         const currentSymbol = getPriceSymbol(balanceEntry.asset)
@@ -63,17 +63,17 @@ angular
           balanceEntry.changePercentage = (currentPrice - buyingPrice) / buyingPrice * 100
 
           if (isBtcAsset) {
-            balanceEntry.btcValue = amount
+            balanceEntry.volumeBtc = amount
           } else {
-            balanceEntry.btcValue = currentPrice * amount
-            balanceEntry.btcDiff = balanceEntry.btcValue - balanceEntry.btcInvest
+            balanceEntry.volumeBtc = currentPrice * amount
+            balanceEntry.changeBtc = balanceEntry.volumeBtc - balanceEntry.investmentBtc
           }
           if (currentBtcSymbol !== undefined) {
             const currentBtcPrice = currentBtcSymbol.price
-            balanceEntry.gbpValue = currentBtcPrice * balanceEntry.btcValue
-            balanceEntry.gbpDiff = isBtcAsset
-              ? balanceEntry.gbpValue - balanceEntry.gbpInvest
-              : currentBtcPrice * balanceEntry.btcDiff
+            balanceEntry.volumeGbp = currentBtcPrice * balanceEntry.volumeBtc
+            balanceEntry.changeGbp = isBtcAsset
+              ? balanceEntry.volumeGbp - balanceEntry.investmentGbp
+              : currentBtcPrice * balanceEntry.changeBtc
           }
         }
       }
@@ -86,14 +86,14 @@ angular
       }
 
       const summarizeBalance = () => $scope.model.balanceEntries.reduce((sums, entry) => {
-        if (entry.btcInvest) sums.btcInvest += entry.btcInvest
-        if (entry.gbpInvest) sums.gbpInvest += entry.gbpInvest
-        if (entry.btcDiff) sums.btcDiff += entry.btcDiff
-        if (entry.gbpDiff) sums.gbpDiff += entry.gbpDiff
-        if (entry.btcValue) sums.btcValue += entry.btcValue
-        if (entry.gbpValue) sums.gbpValue += entry.gbpValue
+        if (entry.investmentBtc) sums.investmentBtc += entry.investmentBtc
+        if (entry.investmentGbp) sums.investmentGbp += entry.investmentGbp
+        if (entry.changeBtc) sums.changeBtc += entry.changeBtc
+        if (entry.changeGbp) sums.changeGbp += entry.changeGbp
+        if (entry.volumeBtc) sums.volumeBtc += entry.volumeBtc
+        if (entry.volumeGbp) sums.volumeGbp += entry.volumeGbp
         return sums
-      }, { btcInvest: 0, gbpInvest: 0, btcDiff: 0, gbpDiff: 0, btcValue: 0, gbpValue: 0 })
+      }, { investmentBtc: 0, investmentGbp: 0, changeBtc: 0, changeGbp: 0, volumeBtc: 0, volumeGbp: 0 })
 
       const loadBalance = () => balanceService.getBalance()
         .then(balance => {
