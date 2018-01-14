@@ -13,6 +13,8 @@ angular
   .controller(balanceSheetControllerName, ['$scope', '$interval', 'balanceService',
     function ($scope, $interval, balanceService) {
       const BTCGPB_ASSET = 'BTCGBP'
+      const BINANCE_TRADING_FEE = 0.001
+      const COINFLOOR_TRADING_FEE = 0.003
 
       const EMPTY_INPUTS = { asset: '', amount: null, price: null }
 
@@ -58,7 +60,9 @@ angular
 
         const currentSymbol = getPriceSymbol(balanceEntry.asset)
         if (currentSymbol !== undefined) {
-          const currentPrice = currentSymbol.price
+          const currentPrice = isBtcAsset
+            ? currentSymbol.price - (currentSymbol.price * COINFLOOR_TRADING_FEE)
+            : currentSymbol.price - (currentSymbol.price * BINANCE_TRADING_FEE)
           balanceEntry.currentPrice = currentPrice
           balanceEntry.changePercentage = (currentPrice - buyingPrice) / buyingPrice * 100
 
