@@ -16,7 +16,7 @@ angular
       const BINANCE_TRADING_FEE = 0.001
       const COINFLOOR_TRADING_FEE = 0.003
 
-      const EMPTY_INPUTS = { asset: '', amount: null, price: null }
+      const EMPTY_INPUTS = { asset: '', amount: null, price: null, link: null }
 
       $scope.ADD_MODE = -1
       $scope.inputs = EMPTY_INPUTS
@@ -118,10 +118,12 @@ angular
 
       $scope.addAsset = () => {
         resetErrorMessage()
+        console.log('storing link: ' + $scope.inputs.link)
         return balanceService.addBalanceEntry({
           amount: $scope.inputs.amount,
           price: $scope.inputs.price,
-          asset: $scope.inputs.asset
+          asset: $scope.inputs.asset,
+          link: $scope.inputs.link
         }).then(loadBalance)
           .catch(errorHandler)
       }
@@ -133,7 +135,12 @@ angular
 
       $scope.updateAssets = () => {
         const balances = $scope.model.balanceEntries.map(entry => {
-          return (({ asset, amount, price }) => ({ asset, amount, price }))(entry)
+          return (({
+            asset,
+            amount,
+            price,
+            link
+          }) => ({ asset, amount, price, link }))(entry)
         })
 
         resetErrorMessage()

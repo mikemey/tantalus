@@ -10,6 +10,12 @@
   text-align: right;
 }
 
+.balance-table a.asset-link {
+  display:inline-block;
+  transform:scale(1.08,1);
+  color: rgb(50, 50, 240);
+}
+
 .xs-text {
   font-size: 0.8em;
   font-weight: normal;
@@ -45,4 +51,9 @@
 
 .negative-num {
   color: rgb(230, 18, 18);
+}
+
+select.asset-selector {
+  height: 30px;
+  font-size: 12px;
 }
