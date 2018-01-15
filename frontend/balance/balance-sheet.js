@@ -43,6 +43,8 @@ angular
         $scope.model.balanceEntries.forEach(recalculateBalanceEntry(currentBtcSymbol))
         if ($scope.model.balanceEntries.length > 1) {
           $scope.model.sums = summarizeBalance()
+        } else {
+          $scope.model.sums = null
         }
       }
 
@@ -118,7 +120,6 @@ angular
 
       $scope.addAsset = () => {
         resetErrorMessage()
-        console.log('storing link: ' + $scope.inputs.link)
         return balanceService.addBalanceEntry({
           amount: $scope.inputs.amount,
           price: $scope.inputs.price,
@@ -133,7 +134,7 @@ angular
         $scope.inputs = $scope.model.balanceEntries[entryIndex]
       }
 
-      $scope.updateAssets = () => {
+      $scope.storeBalanceEntries = () => {
         const balances = $scope.model.balanceEntries.map(entry => {
           return (({
             asset,
@@ -153,6 +154,12 @@ angular
       $scope.resetAssetInputs = () => {
         $scope.model.editEntryIndex = $scope.ADD_MODE
         $scope.inputs = EMPTY_INPUTS
+        resetErrorMessage()
+      }
+
+      $scope.deleteEditAsset = () => {
+        $scope.model.balanceEntries.splice($scope.model.editEntryIndex, 1)
+        return $scope.storeBalanceEntries()
       }
 
       $interval(updatePrices, 20000)

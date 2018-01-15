@@ -57,3 +57,8 @@ select.asset-selector {
   height: 30px;
   font-size: 12px;
 }
+
+form[name=assetForm] label {    
+  font-size: 12px;
+  margin-bottom: 2px;
+}
