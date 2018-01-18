@@ -49,6 +49,11 @@
   color: rgb(10, 170, 10);
 }
 
+.very-positive-num {
+  color: rgb(255, 255, 255);
+  background-color: rgb(10, 170, 10);
+}
+
 .negative-num {
   color: rgb(230, 18, 18);
 }
