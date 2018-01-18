@@ -98,6 +98,8 @@ angular
         if (entry.changeGbp) sums.changeGbp += entry.changeGbp
         if (entry.volumeBtc) sums.volumeBtc += entry.volumeBtc
         if (entry.volumeGbp) sums.volumeGbp += entry.volumeGbp
+
+        if (sums.changeBtc) sums.changePercentage = sums.changeBtc / sums.investmentBtc * 100
         return sums
       }, { investmentBtc: 0, investmentGbp: 0, changeBtc: 0, changeGbp: 0, volumeBtc: 0, volumeGbp: 0 })
 

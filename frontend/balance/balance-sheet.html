@@ -51,9 +51,16 @@
         <td></td>
         <td>{{ model.sums.investmentBtc | number: 4 }}&nbsp;Ƀ</td>
         <td>{{ model.sums.investmentGbp | number: 0 }}&nbsp;£</td>
-        <td colspan="4"></td>
-        <td>{{ model.sums.changeBtc | number: 4 }}&nbsp;Ƀ</td>
-        <td>{{ model.sums.changeGbp | number: 0 }}&nbsp;£</td>
+        <td colspan="3"></td>
+        <td ng-class="model.sums.changePercentage >= 0 ? 'positive-num' : 'negative-num'">
+          {{ model.sums.changePercentage | number: 1 }}&nbsp;%
+        </td>
+        <td ng-class="model.sums.changeBtc >= 0 ? 'positive-num' : 'negative-num'">
+          {{ model.sums.changeBtc | number: 4 }}&nbsp;Ƀ
+        </td>
+        <td ng-class="model.sums.changeGbp >= 0 ? 'positive-num' : 'negative-num'">
+          {{ model.sums.changeGbp | number: 0 }}&nbsp;£
+        </td>
         <td>{{ model.sums.volumeBtc | number: 4 }}&nbsp;Ƀ</td>
         <td>{{ model.sums.volumeGbp | number: 0 }}&nbsp;£</td>
         <td ng-if="$ctrl.editable"></td>
