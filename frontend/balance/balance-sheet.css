@@ -5,8 +5,10 @@
 }
 
 .balance-table > tbody > tr > td {
-  font-size: 0.9em;
-  padding: 3px 5px;
+  font-family: Verdana, sans-serif;
+  font-size: 16px;
+  letter-spacing: 1px;
+  padding: 1px 8px;
   text-align: right;
 }
 
@@ -47,15 +49,18 @@
 
 .positive-num {
   color: rgb(10, 170, 10);
+  font-weight: bold;
 }
 
 .very-positive-num {
   color: rgb(255, 255, 255);
   background-color: rgb(10, 170, 10);
+  font-weight: bold;
 }
 
 .negative-num {
   color: rgb(230, 18, 18);
+  font-weight: bold;
 }
 
 select.asset-selector {
