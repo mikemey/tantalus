@@ -42,25 +42,20 @@
 
 .balance-table > tbody > tr.summaryLine > td {
   font-weight: bold;
-  font-size: 0.95em;
-  letter-spacing: 1px;
   background-color: #dff0d8;
 }
 
 .positive-num {
   color: rgb(10, 170, 10);
-  font-weight: bold;
 }
 
 .very-positive-num {
   color: rgb(255, 255, 255);
   background-color: rgb(10, 170, 10);
-  font-weight: bold;
 }
 
 .negative-num {
   color: rgb(230, 18, 18);
-  font-weight: bold;
 }
 
 select.asset-selector {
