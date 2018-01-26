@@ -20,7 +20,9 @@
       </tr>
       <tr ng-repeat="entry in model.balanceEntries">
         <td class="left">{{ entry.amount }}</td>
-        <td>{{ (entry.investmentBtc | number: 4) + (entry.investmentBtc ? '&nbsp;Ƀ': '') }}</td>
+        <td style="background: linear-gradient(to right, #dff0d8 {{entry.investmentBtcPct}}%, #ffffff {{entry.investmentBtcPct}}%);">
+          {{ (entry.investmentBtc | number: 4) + (entry.investmentBtc ? '&nbsp;Ƀ': '') }}
+        </td>
         <td>{{ (entry.investmentGbp | number: 0) + (entry.investmentGbp ? '&nbsp;£': '') }}</td>
         <td class="left">{{ entry.price | number: entry.priceDigits }}</td>
         <td class="left">{{ entry.currentPrice | number: entry.priceDigits }}</td>

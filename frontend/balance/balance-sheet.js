@@ -43,6 +43,7 @@ angular
         $scope.model.balanceEntries.forEach(recalculateBalanceEntry(currentBtcSymbol))
         if ($scope.model.balanceEntries.length > 1) {
           $scope.model.sums = summarizeBalance()
+          recalculateInvestmentPercentage()
         } else {
           $scope.model.sums = null
         }
@@ -102,6 +103,10 @@ angular
         if (sums.changeBtc) sums.changePercentage = sums.changeBtc / sums.investmentBtc * 100
         return sums
       }, { investmentBtc: 0, investmentGbp: 0, changeBtc: 0, changeGbp: 0, volumeBtc: 0, volumeGbp: 0 })
+
+      const recalculateInvestmentPercentage = () => $scope.model.balanceEntries.forEach(entry => {
+        entry.investmentBtcPct = entry.investmentBtc / $scope.model.sums.investmentBtc * 100
+      })
 
       const loadBalance = () => balanceService.getBalance()
         .then(balance => {
