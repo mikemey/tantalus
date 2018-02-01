@@ -39,7 +39,8 @@ angular
 
       const recalculateBalanceData = () => {
         const currentBtcSymbol = getPriceSymbol(BTCGPB_ASSET)
-        $scope.model.balanceEntries.forEach(recalculateBalanceEntry(currentBtcSymbol))
+        $scope.model.balanceEntries.forEach(calculateBalanceEntry(currentBtcSymbol))
+        $scope.model.balanceEntries.forEach(colorizeBalanceEntry)
         if ($scope.model.balanceEntries.length > 1) {
           $scope.model.sums = summarizeBalance()
           recalculateInvestmentPercentage()
@@ -48,7 +49,7 @@ angular
         }
       }
 
-      const recalculateBalanceEntry = currentBtcSymbol => balanceEntry => {
+      const calculateBalanceEntry = currentBtcSymbol => balanceEntry => {
         const amount = balanceEntry.amount
         const buyingPrice = balanceEntry.price
         balanceEntry.priceDigits = getPriceDigits(buyingPrice)
@@ -89,6 +90,17 @@ angular
         return pstr.includes('.')
           ? pstr.split('.')[1].length - pstr.indexOf('.') + 1
           : 0
+      }
+
+      const colorizeBalanceEntry = balanceEntry => {
+        balanceEntry.changePercentageColor = getColorForPercentage(balanceEntry.changePercentage)
+      }
+
+      const getColorForPercentage = percentage => {
+        const alpha = Math.min(1.0, Math.abs(percentage) / 50)
+        return percentage > 0
+          ? `rgba(0, 255, 0, ${alpha})`
+          : `rgba(255, 0, 0, ${alpha})`
       }
 
       const summarizeBalance = () => $scope.model.balanceEntries.reduce((sums, entry) => {
