@@ -13,7 +13,6 @@ angular
   .controller(balanceSheetControllerName, ['$scope', '$interval', 'balanceService',
     function ($scope, $interval, balanceService) {
       const BTCGPB_ASSET = 'BTCGBP'
-      const BINANCE_TRADING_FEE = 0.001
       const COINFLOOR_TRADING_FEE = 0.003
 
       const EMPTY_INPUTS = { asset: '', amount: null, price: null, link: null }
