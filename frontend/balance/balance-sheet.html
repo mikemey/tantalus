@@ -32,7 +32,7 @@
           </a>
         </td>
         <td ng-if="!entry.link" class="center">{{ entry.asset }}</td>
-        <td style="background: {{entry.changePercentageColor}};">
+        <td class="percentage-cell" style="background: {{entry.changePercentageColor}};">
           {{ (entry.changePercentage | number: 1) + (entry.changePercentage ? '&nbsp;%': '') }}
         </td>
         <td ng-class="entry.changePercentage >= 0 ? 'positive-num' : 'negative-num'">

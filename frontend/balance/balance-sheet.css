@@ -6,10 +6,15 @@
 
 .balance-table > tbody > tr > td {
   font-family: Verdana, sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   letter-spacing: 1px;
   padding: 1px 8px;
   text-align: right;
+}
+
+.balance-table td.percentage-cell {
+  border-top: none;
+  border-bottom: none;
 }
 
 .balance-table a.asset-link {
