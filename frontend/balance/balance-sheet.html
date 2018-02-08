@@ -93,7 +93,7 @@
       <div class="form-group col-sm-4">
         <label for="asset">Asset</label>
         <select id="asset" class="form-control asset-selector" ng-model="inputs.asset" required="required">
-          <option ng-repeat="price in model.prices">{{ price.symbol }}</option>
+          <option ng-repeat="asset in model.availableAssets">{{ asset }}</option>
         </select>
       </div>
       <div class="form-group col-sm-5">

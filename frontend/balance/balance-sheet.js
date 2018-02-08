@@ -20,6 +20,7 @@ angular
       $scope.ADD_MODE = -1
       $scope.inputs = EMPTY_INPUTS
       $scope.model = {
+        availableAssets: null,
         balanceEntries: [],
         prices: [],
         pricesDate: null,
@@ -125,16 +126,19 @@ angular
           recalculateBalanceData()
         })
 
-      const updatePrices = () => Promise.all([
-        balanceService.getMarketPrices(),
-        balanceService.getLatestBitcoinPrice()
-      ]).then(([prices, btcPrice]) => {
-        $scope.model.pricesDate = new Date()
-        prices.unshift({ symbol: BTCGPB_ASSET, price: btcPrice })
-        $scope.model.prices = prices
-        recalculateBalanceData()
-        $scope.$apply()
-      }).catch(errorHandler)
+      const updatePrices = () => {
+        const userAssets = $scope.model.balanceEntries.map(entry => entry.asset)
+        return Promise.all([
+          balanceService.getMarketPrices(userAssets),
+          balanceService.getLatestBitcoinPrice()
+        ]).then(([prices, btcPrice]) => {
+          $scope.model.pricesDate = new Date()
+          prices.unshift({ symbol: BTCGPB_ASSET, price: btcPrice })
+          $scope.model.prices = prices
+          recalculateBalanceData()
+          $scope.$apply()
+        }).catch(errorHandler)
+      }
 
       $scope.addAsset = () => {
         resetErrorMessage()
@@ -180,15 +184,31 @@ angular
         return $scope.storeBalanceEntries()
       }
 
+      const setAvailableAssets = () => {
+        return balanceService.getAvailableSymbols()
+          .then(response => { $scope.model.availableAssets = response.symbols })
+          .catch(errorHandler)
+      }
+
       $interval(updatePrices, 20000)
-      return Promise.all([loadBalance(), updatePrices()])
+      return Promise.all([loadBalance(), setAvailableAssets()])
+        .then(updatePrices)
     }])
   .service('balanceService', ['$http', 'tickerService', function ($http, tickerService) {
     const BALANCE_ENDPOINT = '/api/balance'
-    const BINANCE_MARKET_ENDPOINT = '/api/markets/binance'
+    const BINANCE_MARKET = '/api/markets/binance'
+    const BINANCE_SYMBOLS_ENDPOINT = `${BINANCE_MARKET}/symbols`
+    const binancePricesEndpoint = query => `${BINANCE_MARKET}?symbols=${query}`
 
-    const getMarketPrices = () => $http.get(BINANCE_MARKET_ENDPOINT)
+    const getAvailableSymbols = () => $http.get(BINANCE_SYMBOLS_ENDPOINT)
       .then(response => response.data)
+
+    const getMarketPrices = symbols => {
+      if (!symbols.length) return Promise.resolve([])
+      const query = symbols.join(',')
+      return $http.get(binancePricesEndpoint(query))
+        .then(response => response.data)
+    }
 
     const getBalance = () => $http.get(BALANCE_ENDPOINT)
       .then(response => response.data)
@@ -200,6 +220,7 @@ angular
     const getLatestBitcoinPrice = () => tickerService.getLatestBitcoinPrice()
 
     return {
+      getAvailableSymbols,
       getMarketPrices,
       getBalance,
       addBalanceEntry,
