@@ -31,15 +31,30 @@ describe('GET /api/markets endpoint', () => {
       { symbol: 'LTCBTC', price: 0.016964 },
       { symbol: 'LSKBTC', price: 0.0020804 }
     ]
-    return getBinanceMarketData().expect(200)
-      .then(({ body }) => { body.should.deep.equal(expectedMarketData) })
+    return getBinanceMarketData().expect(200, expectedMarketData)
   })
 
   it('should response with error when symbol query is missing', () => {
     return request(app).get('/api/markets/binance').expect(404, 'no symbol specified')
   })
 
-  it('should response with error when unknown market requestes', () => {
+  it('should response with error when unknown market requests', () => {
     return request(app).get('/api/markets/other').expect(404, 'market not supported: other')
+  })
+
+  it('should response with available symbols', () => {
+    const exchangeInfo = {
+      host: 'https://api.binance.com',
+      path: '/api/v1/exchangeInfo',
+      response: '{"symbols":[{"symbol":"ETHBTC"},{"symbol":"LTCBTC"}]}'
+    }
+    mockMarketData(exchangeInfo)
+    return request(app).get('/api/markets/binance/symbols').expect(200, {
+      symbols: ['ETHBTC', 'LTCBTC']
+    })
+  })
+
+  it('should response with error when unknown market symbol requests', () => {
+    return request(app).get('/api/markets/other/symbols').expect(404, 'market not supported: other')
   })
 })
