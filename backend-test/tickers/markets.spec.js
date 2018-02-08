@@ -35,6 +35,10 @@ describe('GET /api/markets endpoint', () => {
       .then(({ body }) => { body.should.deep.equal(expectedMarketData) })
   })
 
+  it('should response with error when symbol query is missing', () => {
+    return request(app).get('/api/markets/binance').expect(404, 'no symbol specified')
+  })
+
   it('should response with error when unknown market requestes', () => {
     return request(app).get('/api/markets/other').expect(404, 'market not supported: other')
   })

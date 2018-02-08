@@ -13,6 +13,7 @@ const createMarketsRouter = logger => {
 
   router.get('/:market', (req, res) => {
     if (req.params.market === 'binance') {
+      if (!req.query.symbols) return res.status(404).send('no symbol specified')
       return queryBinance(req.query.symbols)
         .then(responses => {
           responses.forEach(symbolPrice => { symbolPrice.price = Number(symbolPrice.price) })
