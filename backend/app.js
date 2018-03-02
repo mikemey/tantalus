@@ -1,6 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
+const moment = require('moment')
 
 const pjson = require('../package.json')
 
@@ -77,7 +78,8 @@ const createApiRouter = (config, tantalusLogger) => {
 }
 
 const createVersionEndpoint = tantalusLogger => {
-  const version = `v${pjson.version}`
+  const now = moment.utc().toISOString()
+  const version = `v${pjson.version} (${now})`
   tantalusLogger.info(`server version: ${version}`)
   return (req, res) => res.status(200).send(version)
 }

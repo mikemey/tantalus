@@ -25,10 +25,15 @@ describe('Start page', () => {
     .then($ => $('title').text().should.equal('Tantalus'))
   )
 
-  it('response with version number', () => {
+  it('response with same version number and start time multiple times', () => {
     const expectedVersion = 'v' + require('../package.json').version
     return request(app).get('/api/version')
-      .expect(200, expectedVersion)
-  }
-  )
+      .expect(200)
+      .then(response => {
+        const version = response.text
+        version.should.startWith(expectedVersion)
+        return request(app).get('/api/version')
+          .expect(200, version)
+      })
+  })
 })
