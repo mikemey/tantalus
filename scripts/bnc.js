@@ -44,7 +44,8 @@ const internalPrices = () => pricesPromise()
 const balance = () => {
   Promise.all([internalBalance(), internalPrices()])
     .then(([balances, prices]) => {
-      const relevantBalances = balances
+      console.log() // newline before output
+      const btcTotal = balances
         .map(balance => {
           balance.btcValue = balance.symbol === BTC_SYMBOL
             ? balance.total
@@ -52,16 +53,12 @@ const balance = () => {
           return balance
         })
         .filter(balance => balance.btcValue >= config.btcThreshold)
-        .sort((a, b) => b.total - a.total)
+        .sort((a, b) => b.btcValue - a.btcValue)
+        .reduce((sum, balance) => {
+          console.log(` ${balance.symbol.padEnd(7)} ${btcStr(balance.btcValue)}  [total: ${balance.total}]`)
+          return sum + balance.btcValue
+        }, 0)
 
-      const btcTotal = relevantBalances.reduce((sum, balance) => {
-        return sum + balance.btcValue
-      }, 0)
-
-      console.log() // newline before output
-      relevantBalances.forEach(b => {
-        console.log(` ${b.symbol.padEnd(7)} ${btcStr(b.btcValue)}  [total: ${b.total}]`)
-      })
       console.log(`total:   ${btcStr(btcTotal)}`)
     })
     .catch(err => console.log(err))
