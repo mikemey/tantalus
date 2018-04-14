@@ -55,7 +55,7 @@ const balance = () => {
         .filter(balance => balance.btcValue >= config.btcThreshold)
         .sort((a, b) => b.btcValue - a.btcValue)
         .reduce((sum, balance) => {
-          console.log(` ${balance.symbol.padEnd(7)} ${btcStr(balance.btcValue)}  [total: ${balance.total}]`)
+          console.log(` ${balance.symbol.padEnd(7)} ${btcStr(balance.btcValue)}  [${balance.total}]`)
           return sum + balance.btcValue
         }, 0)
 
