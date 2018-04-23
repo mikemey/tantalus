@@ -53,7 +53,12 @@
         <td></td>
         <td>{{ model.sums.investmentBtc | number: 4 }}&nbsp;Ƀ</td>
         <td>{{ model.sums.investmentGbp | number: 0 }}&nbsp;£</td>
-        <td colspan="3"></td>
+        <td colspan="2"></td>
+        <td class="dominance-link">
+          <a href="https://coinmarketcap.com/charts/#dominance-percentage" class="asset-link" target="_blank">
+            BTCdom
+          </a>
+        </td>
         <td ng-class="model.sums.changePercentage >= 0 ? 'positive-num' : 'negative-num'">
           {{ model.sums.changePercentage | number: 1 }}&nbsp;%
         </td>

@@ -23,6 +23,11 @@
   color: rgb(50, 50, 240);
 }
 
+td.dominance-link {
+  text-align: center !important;
+  font-weight: normal !important;
+}
+
 .xs-text {
   font-size: 0.8em;
   font-weight: normal;
