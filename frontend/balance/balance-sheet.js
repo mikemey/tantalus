@@ -94,14 +94,16 @@ angular
       }
 
       const colorizeBalanceEntry = balanceEntry => {
-        balanceEntry.changePercentageColor = getColorForPercentage(balanceEntry.changePercentage)
+        balanceEntry.changePercentageStyle = getStyleForPercentage(balanceEntry.changePercentage)
       }
 
-      const getColorForPercentage = percentage => {
+      const percentageCellStyle = (red, green) => alpha => `background-color: rgba(${red}, ${green}, 0, ${alpha});`
+      const greenCellStyle = percentageCellStyle(0, 255)
+      const redCellStyle = percentageCellStyle(255, 0)
+
+      const getStyleForPercentage = percentage => {
         const alpha = Math.min(1.0, Math.abs(percentage) / 50)
-        return percentage > 0
-          ? `rgba(0, 255, 0, ${alpha})`
-          : `rgba(255, 0, 0, ${alpha})`
+        return percentage > 0 ? greenCellStyle(alpha) : redCellStyle(alpha)
       }
 
       const summarizeBalance = () => $scope.model.balanceEntries.reduce((sums, entry) => {
