@@ -15,7 +15,9 @@ const binanceClient = Binance({
 
 const toBtc = v => `Ƀ ${v.toFixed(4)}`
 const toNum = str => Number(str)
-const toDatetime = timeMs => moment(timeMs).format('YYYY-MM-DD HH:mm:ss')
+const toDatetime = time => moment(time).format('YYYY-MM-DD HH:mm:ss')
+const printNewline = () => console.log()
+const requestLog = message => `[${toDatetime(moment())}] ${message}`
 
 const internalBalance = () => binanceClient.accountInfo()
   .then(({ balances }) => balances
@@ -38,7 +40,7 @@ const internalPrices = () => binanceClient.prices()
 const balance = () => {
   Promise.all([internalBalance(), internalPrices()])
     .then(([balances, prices]) => {
-      console.log() // newline before output
+      printNewline()
       const btcTotal = balances
         .map(balance => {
           balance.btcValue = balance.asset === BTC_SYMBOL
@@ -56,29 +58,31 @@ const balance = () => {
       console.log(`total:   ${toBtc(btcTotal)}`)
     })
     .catch(err => console.log(err))
-  return 'requesting balance...'
+  return requestLog('requesting balance...')
 }
 
 const openOrders = () => {
   binanceClient.openOrders()
     .then(orders => {
-      console.log() // newline before output
+      printNewline()
       orders.forEach(order => {
         const leftQty = order.origQty - order.executedQty
         console.log(`[${toDatetime(order.time)}] ${order.side} ${order.symbol}: qty: ${leftQty}, price: ${order.price}`)
       })
     })
-  return 'requesting open orders...'
+  return requestLog('requesting open orders...')
 }
 
 const transactions = symbol => {
+  if (!symbol) return 'parameter "symbol" required!'
+
   symbol = symbol.toUpperCase()
   if (!symbol.endsWith(BTC_SYMBOL)) {
     symbol = symbol + BTC_SYMBOL
   }
   binanceClient.myTrades({ symbol })
     .then(result => {
-      console.log() // newline before output
+      printNewline()
       result
         .sort((a, b) => a.time - b.time)
         .forEach(trade => {
@@ -87,7 +91,7 @@ const transactions = symbol => {
           console.log(`[${toDatetime(trade.time)}]: ${side} btc: ${inBtc}, price: ${toNum(trade.price)}, qty: ${toNum(trade.qty)}, fee: ${toNum(trade.commission)} ${trade.commissionAsset}`)
         })
     })
-  return 'requesting user transactions...'
+  return requestLog('requesting user transactions...')
 }
 
 module.exports = {
