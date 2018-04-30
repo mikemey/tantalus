@@ -13,13 +13,17 @@ const binanceClient = Binance({
   apiSecret: config.APISECRET
 })
 
+const requestOptions = (options = {}) => {
+  return Object.assign({ useServerTime: true }, options)
+}
+
 const toBtc = v => `Ƀ ${v.toFixed(4)}`
 const toNum = str => Number(str)
 const toDatetime = time => moment(time).format('YYYY-MM-DD HH:mm:ss')
 const printNewline = () => console.log()
 const requestLog = message => `[${toDatetime(moment())}] ${message}`
 
-const internalBalance = () => binanceClient.accountInfo()
+const internalBalance = () => binanceClient.accountInfo(requestOptions())
   .then(({ balances }) => balances
     .map(({ asset, free, locked }) => {
       const total = toNum(free) + toNum(locked)
@@ -28,7 +32,7 @@ const internalBalance = () => binanceClient.accountInfo()
     .filter(balance => balance.total > 0)
   )
 
-const internalPrices = () => binanceClient.prices()
+const internalPrices = () => binanceClient.prices(requestOptions())
   .then(prices => {
     Object.keys(prices)
       .forEach(tradingPair => {
@@ -62,7 +66,7 @@ const balance = () => {
 }
 
 const openOrders = () => {
-  binanceClient.openOrders()
+  binanceClient.openOrders(requestOptions())
     .then(orders => {
       printNewline()
       orders.forEach(order => {
@@ -80,7 +84,7 @@ const transactions = symbol => {
   if (!symbol.endsWith(BTC_SYMBOL)) {
     symbol = symbol + BTC_SYMBOL
   }
-  binanceClient.myTrades({ symbol })
+  binanceClient.myTrades(requestOptions({ symbol }))
     .then(result => {
       printNewline()
       result
