@@ -129,7 +129,9 @@ angular
         })
 
       const updatePrices = () => {
-        const userAssets = $scope.model.balanceEntries.map(entry => entry.asset)
+        const userAssets = $scope.model.balanceEntries
+          .filter(entry => entry.asset !== BTCGPB_ASSET)
+          .map(entry => entry.asset)
         return Promise.all([
           balanceService.getMarketPrices(userAssets),
           balanceService.getLatestBitcoinPrice()
@@ -188,7 +190,10 @@ angular
 
       const setAvailableAssets = () => {
         return balanceService.getAvailableSymbols()
-          .then(response => { $scope.model.availableAssets = response.symbols })
+          .then(response => {
+            response.symbols.unshift({ symbol: BTCGPB_ASSET })
+            $scope.model.availableAssets = response.symbols
+          })
           .catch(errorHandler)
       }
 
