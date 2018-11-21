@@ -2,8 +2,7 @@ const rp = require('request-promise')
 const cheerio = require('cheerio')
 
 class RequestError {
-  // eslint-disable-next-line space-before-function-paren
-  constructor(message, cause, statusCode, body) {
+  constructor (message, cause, statusCode, body) {
     this.name = this.constructor.name
     this.message = message
     this.cause = cause
