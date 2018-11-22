@@ -58,7 +58,9 @@ const sumupTickers = since => allChartTickers => {
       dataPoints.push([])
       nextTimestamp = nextTimestamp.add(sliceDuration)
     }
-    dataPoints[dataPoints.length - 1].push(currentTicker)
+    if (dataPoints.length !== 0) {
+      dataPoints[dataPoints.length - 1].push(currentTicker)
+    }
     return dataPoints
   }, [])
 
