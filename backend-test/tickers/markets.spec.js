@@ -3,22 +3,19 @@ const request = require('supertest')
 const nock = require('nock')
 
 const helpers = require('../../utils-test/helpers')
+const priceResponse = require('./priceData.json')
 
 describe('GET /api/markets endpoint', () => {
   let app, server
 
-  const markets = [
-    { host: 'https://api.binance.com', path: '/api/v3/ticker/price?symbol=ETHBTC', response: '{"symbol":"ETHBTC","price":"0.08642600"}' },
-    { host: 'https://api.binance.com', path: '/api/v3/ticker/price?symbol=LTCBTC', response: '{"symbol":"LTCBTC","price":"0.01696400"}' },
-    { host: 'https://api.binance.com', path: '/api/v3/ticker/price?symbol=LSKBTC', response: '{"symbol":"LSKBTC","price":"0.0020804"}' }
-  ]
-  const mockMarketData = market => nock(market.host).get(market.path).reply(200, market.response)
+  const priceUrlHost = 'https://api.binance.com'
+  const priceUrlPath = '/api/v3/ticker/price'
 
   before(() => helpers.startTestServer((_app, _server) => {
     app = _app
     server = _server
   }))
-  beforeEach(() => markets.forEach(mockMarketData))
+  beforeEach(() => nock(priceUrlHost).get(priceUrlPath).reply(200, priceResponse))
 
   after(() => helpers.closeAll(server))
   afterEach(() => nock.cleanAll())
@@ -43,12 +40,9 @@ describe('GET /api/markets endpoint', () => {
   })
 
   it('should response with available symbols', () => {
-    const exchangeInfo = {
-      host: 'https://api.binance.com',
-      path: '/api/v1/exchangeInfo',
-      response: '{"symbols":[{"symbol":"ETHBTC"},{"symbol":"LTCBTC"}]}'
-    }
-    mockMarketData(exchangeInfo)
+    const infoPath = '/api/v1/exchangeInfo'
+    const response = '{"symbols":[{"symbol":"ETHBTC"},{"symbol":"LTCBTC"}]}'
+    nock(priceUrlHost).get(infoPath).reply(200, response)
     return request(app).get('/api/markets/binance/symbols').expect(200, {
       symbols: ['ETHBTC', 'LTCBTC']
     })
