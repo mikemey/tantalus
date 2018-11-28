@@ -4,14 +4,14 @@
   "description": "frontend for tantalus",
   "license": "MIT",
   "dependencies": {
-    "angular": "^1.6.6",
-    "angular-cookies": "^1.6.6",
-    "angular-mocks": "^1.6.6",
-    "angular-route": "^1.6.6",
+    "angular": "^1.7.5",
+    "angular-cookies": "^1.7.5",
+    "angular-mocks": "^1.7.5",
+    "angular-route": "^1.7.5",
     "bootstrap": "^3.3.7",
-    "jquery": "^3.2.1",
-    "moment": "^2.18.1",
-    "chart.js": "^2.6.0",
+    "jquery": "^3.3.1",
+    "moment": "^2.22.2",
+    "chart.js": "^2.7.3",
     "angular-chart.js": "^1.1.1",
     "three.js": "0.93.0"
   }
