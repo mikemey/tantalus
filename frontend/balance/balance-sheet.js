@@ -119,9 +119,18 @@ angular
         return sums
       }, { investmentBtc: 0, investmentGbp: 0, changeBtc: 0, changeGbp: 0, volumeBtc: 0, volumeGbp: 0 })
 
-      const recalculateInvestmentPercentage = () => $scope.model.balanceEntries.forEach(entry => {
-        entry.investmentBtcPct = entry.investmentBtc / $scope.model.sums.investmentBtc * 100
-      })
+      const recalculateInvestmentPercentage = () => {
+        const btcAltcoinSum = $scope.model.balanceEntries.reduce((sum, current) => {
+          return current.investmentBtc
+            ? sum + current.investmentBtc
+            : sum + current.amount
+        }, 0)
+        $scope.model.balanceEntries.forEach(entry => {
+          entry.investmentBtcPct = entry.investmentBtc
+            ? entry.investmentBtc / btcAltcoinSum * 100
+            : entry.amount / btcAltcoinSum * 100
+        })
+      }
 
       const loadBalance = () => balanceService.getBalance()
         .then(balance => { $scope.model.balanceEntries = balance.entries })
