@@ -2,7 +2,7 @@
 
 const chartCtrlName = 'ChartController'
 
-const SUPPORTED_TICKERS = [
+const TICKERS = [
   'coinfloor bid',
   'coinfloor ask',
   'gdax bid',
@@ -19,6 +19,10 @@ const FORCE_TIME = {
   '1y': 'month'
 }
 
+const QUERY_PERIOD = 'period'
+const QUERY_FILL = 'fill'
+const QUERY_HIDE = 'h_'
+
 angular.module('tantalus.ticker')
   .component('tickerChart', {
     controller: chartCtrlName,
@@ -30,9 +34,9 @@ angular.module('tantalus.ticker')
       const chartColors = {
         green: 'rgb(18, 107, 62)',
         lightgreen: 'rgb(67, 156, 111)',
-        grey: 'rgb(181, 183, 187)',
         blue: 'rgb(39, 101, 223)',
         lightblue: 'rgb(54, 162, 235)',
+        grey: 'rgb(181, 183, 187)',
         orange: 'rgb(255, 159, 64)',
         yellow: 'rgb(255, 205, 86)',
         lightturq: 'rgb(1, 127, 133)',
@@ -88,59 +92,28 @@ angular.module('tantalus.ticker')
         }
       })
 
-      const lineOptions = (borderColor, backgroundColor, hidden) => {
-        return {
-          borderColor, lineTension: 0, spanGaps: false, backgroundColor, fill: false, hidden
-        }
+      const loadGraphData = () => {
+        const initialPeriod = getPeriodQuery() || '1d'
+        return $scope.updateTicker(initialPeriod)
       }
 
-      const updatePeriodQuery = period => $location.search('period', period)
-      const getPeriodQuery = period => $location.search()['period']
-      const updateFillQuery = fill => $location.search('fill', fill)
-      const getFillQuery = () => $location.search()['fill']
+      const getPeriodQuery = () => $location.search()[QUERY_PERIOD]
+      const updatePeriodQuery = period => $location.search(QUERY_PERIOD, period)
 
-      const lineParamName = lineLabel => 'hide_' + lineLabel.replace(/\s/, '_')
+      const updateFillQuery = fill => $location.search(QUERY_FILL, fill)
+      const getFillQuery = () => $location.search()[QUERY_FILL]
+
       const updateHiddenLineQuery = (lineLabel, hidden) => $location.search(lineParamName(lineLabel), hidden)
       const getHiddenLineQuery = lineLabel => $location.search()[lineParamName(lineLabel)]
+      const lineParamName = lineLabel => QUERY_HIDE + lineLabel.replace(/\s/, '_')
 
       $scope.model = {
         tickerChart,
         data: tickerChart.data,
-        xAxesTime: tickerChart.options.scales.xAxes[0].time,
+        setTimeUnit: timeUnit => { tickerChart.options.scales.xAxes[0].time.unit = timeUnit },
         chartFill: getFillQuery() === true,
         activeButtons: []
       }
-
-      const updateActiveButton = period => {
-        $scope.model.activeButtons = $('.toggle-group').toArray()
-          .map(el => el.getAttribute('ng-click').includes(period))
-      }
-
-      const updateDatasetFillings = () => $scope.model.data.datasets.forEach((dataset, ix) => {
-        dataset.fill = $scope.model.chartFill && (ix % 2 > 0) ? (ix - 1) : false
-      })
-
-      $scope.toggleFilling = () => {
-        $scope.model.chartFill = !$scope.model.chartFill
-        updateFillQuery($scope.model.chartFill)
-        updateDatasetFillings()
-        $scope.model.tickerChart.update(0)
-      }
-
-      const updateChartTime = period => {
-        $scope.model.xAxesTime.unit = FORCE_TIME[period]
-      }
-
-      const enhanceGraphData = datasets => datasets
-        .filter(dataset => SUPPORTED_TICKERS.includes(dataset.label))
-        .map((dataset, ix) => {
-          const colorName = colorNames[ix % colorNames.length]
-          const borderColor = chartColors[colorName]
-          const backgroundColor = colorHelper(chartColors[colorName]).alpha(0.5).rgbString()
-          const hidden = getHiddenLineQuery(dataset.label)
-
-          return Object.assign(dataset, lineOptions(borderColor, backgroundColor, hidden))
-        })
 
       $scope.updateTicker = period => tickerService.getGraphData(period)
         .then(graphData => {
@@ -154,9 +127,42 @@ angular.module('tantalus.ticker')
           }
         })
 
-      const loadGraphData = () => {
-        const initialPeriod = getPeriodQuery() || '1d'
-        return $scope.updateTicker(initialPeriod)
+      $scope.toggleFilling = () => {
+        $scope.model.chartFill = !$scope.model.chartFill
+        updateFillQuery($scope.model.chartFill)
+        updateDatasetFillings()
+        $scope.model.tickerChart.update(0)
+      }
+
+      const enhanceGraphData = datasets => datasets
+        .filter(dataset => TICKERS.includes(dataset.label))
+        .sort((datasetA, datasetB) => TICKERS.indexOf(datasetA.label) - TICKERS.indexOf(datasetB.label))
+        .map((dataset, ix) => {
+          const colorName = colorNames[ix % colorNames.length]
+          const borderColor = chartColors[colorName]
+          const backgroundColor = colorHelper(chartColors[colorName]).alpha(0.5).rgbString()
+          const hidden = getHiddenLineQuery(dataset.label)
+
+          return Object.assign(dataset, lineOptions(borderColor, backgroundColor, hidden))
+        })
+
+      const lineOptions = (borderColor, backgroundColor, hidden) => {
+        return {
+          borderColor, lineTension: 0, spanGaps: false, backgroundColor, fill: false, hidden
+        }
+      }
+
+      const updateDatasetFillings = () => $scope.model.data.datasets.forEach((dataset, ix) => {
+        dataset.fill = $scope.model.chartFill && (ix % 2 > 0) ? (ix - 1) : false
+      })
+
+      const updateActiveButton = period => {
+        $scope.model.activeButtons = $('.toggle-group').toArray()
+          .map(el => el.getAttribute('ng-click').includes(period))
+      }
+
+      const updateChartTime = period => {
+        $scope.model.setTimeUnit(FORCE_TIME[period])
       }
 
       $scope.stop = $interval(loadGraphData, 20000)
