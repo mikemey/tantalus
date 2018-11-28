@@ -1,4 +1,3 @@
-/* global describe before beforeEach it */
 require('chai').should()
 const request = require('supertest')
 

@@ -1,4 +1,3 @@
-/* global describe before beforeEach it */
 const helpers = require('../../utils-test/helpers')
 const { setupCSRFAgent } = require('../agents')
 

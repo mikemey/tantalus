@@ -1,4 +1,6 @@
-/* global describe before beforeEach it */
+/* eslint object-property-newline: ["off"] */
+const should = require('chai').should()
+
 const express = require('express')
 const bodyParser = require('body-parser')
 const moment = require('moment')
@@ -173,7 +175,7 @@ describe('SimEx router', () => {
       const price = 505
       return postBuyOrder(amount, price)
         .then(exchangeOrder => {
-          exchangeOrder.id.should.be.ok
+          should.exist(exchangeOrder.id)
           const orderDate = moment.unix(exchangeOrder.datetime)
           moment.utc().diff(orderDate, 'seconds').should.be.most(1)
           // type - buy or sell (0 - buy; 1 - sell)
@@ -189,7 +191,7 @@ describe('SimEx router', () => {
       return makeBitcoinAvailable(125)
         .then(() => postSellOrder(amount, price))
         .then(exchangeOrder => {
-          exchangeOrder.id.should.be.ok
+          should.exist(exchangeOrder.id)
           const orderDate = moment.unix(exchangeOrder.datetime)
           moment.utc().diff(orderDate, 'seconds').should.equal(0)
           // type - buy or sell (0 - buy; 1 - sell)

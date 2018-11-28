@@ -1,3 +1,4 @@
+/* eslint object-property-newline: ["off"] */
 const chai = require('chai')
 const expect = chai.expect
 const should = chai.should
@@ -191,7 +192,7 @@ describe('Trader config permutator', () => {
         if (triggerCallCount === 2) { ratio.should.equal(crossoverRate); return false } // buy ratio
         if (triggerCallCount === 3) { ratio.should.equal(crossoverRate); return true } // buy timeslots
         if (triggerCallCount === 4) { ratio.should.equal(crossoverRate); return false } // sell ratio
-        if (triggerCallCount === 5) { ratio.should.equal(crossoverRate); return false }  // sell timeslots
+        if (triggerCallCount === 5) { ratio.should.equal(crossoverRate); return false } // sell timeslots
 
         //  crossover || recombination children of second parent pair
         if (triggerCallCount === 6) { ratio.should.equal(crossoverRate); return false }
@@ -214,9 +215,9 @@ describe('Trader config permutator', () => {
         plusMinusCallCount++
 
         // first child field mutation:
-        if (plusMinusCallCount === 1) return -1  // timeslotSeconds +/- selection
+        if (plusMinusCallCount === 1) return -1 // timeslotSeconds +/- selection
         // second child field mutation:
-        if (plusMinusCallCount === 2) return 1  // selling ratio +/- selection
+        if (plusMinusCallCount === 2) return 1 // selling ratio +/- selection
 
         should.fail(`unexpected call to plusMinus: call # ${triggerCallCount}`)
       }
@@ -329,4 +330,3 @@ describe('Trader config permutator', () => {
     })
   })
 })
-

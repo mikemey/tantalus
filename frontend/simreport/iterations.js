@@ -1,4 +1,4 @@
-/* global THREE requestAnimationFrame */
+/* global angular THREE requestAnimationFrame */
 const iterationsControllerName = 'IterationsController'
 
 angular

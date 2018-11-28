@@ -1,4 +1,4 @@
-/* global describe before beforeEach it */
+/* eslint object-property-newline: ["off"] */
 const moment = require('moment')
 const expect = require('chai').expect
 

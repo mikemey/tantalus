@@ -1,7 +1,7 @@
 const {
   isBuyOrder,
   isSellOrder
- } = require('../utils/ordersHelper')
+} = require('../utils/ordersHelper')
 
 const OpenOrdersWatch = (orderLogger, config, exchangeConnector) => {
   const localOpenOrders = new Map()

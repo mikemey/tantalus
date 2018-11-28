@@ -1,4 +1,3 @@
-/* global describe before beforeEach it */
 const nock = require('nock')
 const chai = require('chai')
 const should = chai.should()

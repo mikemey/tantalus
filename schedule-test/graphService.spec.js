@@ -1,4 +1,3 @@
-/* global describe before beforeEach it */
 const moment = require('moment')
 
 const helpers = require('../utils-test/helpers')

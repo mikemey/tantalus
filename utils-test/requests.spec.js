@@ -1,4 +1,3 @@
-/* global describe before beforeEach it */
 const nock = require('nock')
 
 const requests = require('../utils/requests')

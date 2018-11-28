@@ -4,7 +4,7 @@ const {
   BUY_ORDER_TYPE, SELL_ORDER_TYPE, isBuyOrder, isSellOrder,
   roundVolume, amountString, volumeString,
   OrderLogger
- } = require('../../utils/ordersHelper')
+} = require('../../utils/ordersHelper')
 
 const { TantalusLogger } = require('../../utils/tantalusLogger')
 

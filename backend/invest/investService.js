@@ -103,7 +103,7 @@ const InvestService = (tantalusLogger, transactionsService) => {
       latestPrice,
       priceGroups,
       priceChanges
-     }) =>
+    }) =>
       ({
         cutoffTimestamp,
         transactionsList,

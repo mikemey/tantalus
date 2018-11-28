@@ -3,7 +3,7 @@ const {
   highlightText,
   redText,
   greenText
- } = require('./tantalusLogger')
+} = require('./tantalusLogger')
 
 const mmBTC = 10000
 

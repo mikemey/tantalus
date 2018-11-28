@@ -1,4 +1,3 @@
-/* global describe before beforeEach it */
 const sinon = require('sinon')
 const expect = require('chai').expect
 

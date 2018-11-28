@@ -1,4 +1,4 @@
-
+/* global angular */
 const balanceSheetControllerName = 'BalanceSheetController'
 
 angular

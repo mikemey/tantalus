@@ -2,7 +2,7 @@ const {
   amountString,
   volumeString,
   OrderLogger
- } = require('../utils/ordersHelper')
+} = require('../utils/ordersHelper')
 
 const { TantalusLogger } = require('../utils/tantalusLogger')
 

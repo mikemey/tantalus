@@ -41,7 +41,7 @@ THREE.OrbitControls = function (object, domElement, lookAt = new THREE.Vector3()
   this.rotateSpeed = 1.0
   // Set to false to disable panning
   this.enablePan = true
-  this.keyPanSpeed = 10.0    // pixels moved per arrow key push
+  this.keyPanSpeed = 10.0 // pixels moved per arrow key push
 
   // Set to true to automatically rotate around the target
   // If auto-rotate is enabled, you must call controls.update() in your animation loop
@@ -531,12 +531,12 @@ THREE.OrbitControls = function (object, domElement, lookAt = new THREE.Vector3()
   const onTouchStart = (event) => {
     if (scope.enabled === false) return
     switch (event.touches.length) {
-      case 1:    // one-fingered touch: rotate
+      case 1: // one-fingered touch: rotate
         if (scope.enableRotate === false) return
         handleTouchStartRotate(event)
         state = STATE.TOUCH_ROTATE
         break
-      case 2:    // two-fingered touch: dolly
+      case 2: // two-fingered touch: dolly
         if (scope.enableZoom === false) return
         handleTouchStartDolly(event)
         state = STATE.TOUCH_DOLLY

@@ -1,4 +1,3 @@
-/* global describe before beforeEach it */
 const request = require('supertest')
 const cheerio = require('cheerio')
 

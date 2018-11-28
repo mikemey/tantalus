@@ -1,5 +1,4 @@
-/* global describe before beforeEach it */
-const nock = require('nock')
+/* global describe before beforeEach it */const nock = require('nock')
 const fs = require('fs')
 const path = require('path')
 const moment = require('moment')
