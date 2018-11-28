@@ -12,25 +12,23 @@ const { quietLogger } = require('../simrunUtils')
 const baseLogger = console
 
 class PartitionWorker {
-  // eslint-disable-next-line space-before-function-paren
-  constructor(createTxSource = TransactionsSource, createTxSlicer = TransactionSlicer) {
+  constructor (createTxSource = TransactionsSource, createTxSlicer = TransactionSlicer) {
     this.logger = TantalusLogger(baseLogger, `worker-${process.pid}`)
 
     this.createTxSource = createTxSource
     this.createTxSlicer = createTxSlicer
   }
 
-  // eslint-disable-next-line space-before-function-paren
-  errorHandler(prefix) {
+  errorHandler (prefix) {
     return err => {
       this.logger.error(prefix + err.message)
       this.logger.log(err)
       if (err.cause !== undefined) this.errorHandler('<=== CAUSED BY: ')(err.cause)
     }
   }
-  // eslint-disable-next-line space-before-function-paren
-  createTraders({ traderConfigs, executorConfig }) {
-    return mongo.initializeDirectConnection(executorConfig, quietLogger)
+
+  createTraders ({ traderConfigs, executorConfig }) {
+    return mongo.connect(executorConfig, quietLogger)
       .then(() => {
         this.txSlicer = this.createTxSlicer(quietLogger, traderConfigs, executorConfig.transactionsUpdateSeconds)
         this.txsrc = this.createTxSource(quietLogger, TransactionRepo())
@@ -39,8 +37,7 @@ class PartitionWorker {
       .catch(this.errorHandler('Partition worker (creating traders): '))
   }
 
-  // eslint-disable-next-line space-before-function-paren
-  runIteration(iterationProgress) {
+  runIteration (iterationProgress) {
     if (!this.txsrc) throw Error('PartitionWorker not initialized, call createTraders(...)')
 
     const itString = `[it-${iterationProgress}]`
@@ -67,8 +64,7 @@ class PartitionWorker {
     return runIterationPromise().catch(this.errorHandler('Partition worker (running iteration): '))
   }
 
-  // eslint-disable-next-line space-before-function-paren
-  getAccounts() {
+  getAccounts () {
     return this.txSlicer.getBalances().map(b => {
       return {
         clientId: b.clientId,
