@@ -25,18 +25,11 @@ describe('Authorization factory', () => {
   const expectGetAccountRequest = () => $httpBackend.expectGET('/api/users/account')
     .respond(200, accountData)
 
+  const expectGetAccountLoginPage = () => $httpBackend.expectGET('account/login.html')
+    .respond(200, '<html>some</html>')
+
   const expectLogoutRequest = () => $httpBackend
     .expectPOST('/api/users/logout').respond(204)
-
-  const loginLogoutCycle = () => {
-    expectLoginRequest()
-    authorization.login(username, password)
-    $httpBackend.flush()
-
-    expectLogoutRequest()
-    authorization.logout()
-    $httpBackend.flush()
-  }
 
   it('returns empty account data when not logged in', () => {
     expect(authorization.getAccount()).to.equal(null)
@@ -60,8 +53,13 @@ describe('Authorization factory', () => {
   it('should forward logout and reset account data', () => {
     expectGetAccountRequest()
     authorization.reloadAccount()
+    $httpBackend.flush()
 
-    loginLogoutCycle()
+    expectLogoutRequest()
+    expectGetAccountLoginPage()
+    authorization.logout()
+    $httpBackend.flush()
+
     expect(authorization.getAccount()).to.equal(null)
   })
 
