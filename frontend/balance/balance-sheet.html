@@ -2,15 +2,15 @@
   <table class="table balance-table table-bordered table-hover">
     <thead>
       <tr>
-        <th>amount</th>
-        <th colspan="2">investment</th>
-        <th colspan="2" class="text-nowrap">
+        <th ng-hide="model.collapseTable">amount</th>
+        <th ng-hide="model.collapseTable" colspan="2">investment</th>
+        <th colspan="{{ model.collapseTable ? 1 : 2 }}" class="text-nowrap">
           <span>price</span>
           <span class="xs-text">{{ model.pricesDate | date: 'dd/MM HH:mm' }}</span>
         </th>
         <th>asset</th>
-        <th colspan="3">change</th>
-        <th colspan="2">volume</th>
+        <th colspan="{{ model.collapseTable ? 1 : 3 }}">change</th>
+        <th colspan="{{ model.collapseTable ? 1 : 2 }}">volume</th>
         <th ng-if="$ctrl.editable"></th>
       </tr>
     </thead>
@@ -19,12 +19,14 @@
         <td colspan="12" class="center">No entries</td>
       </tr>
       <tr ng-repeat="entry in model.balanceEntries" ng-class="model.editEntryIndex === $index ? 'edit-row' : ''">
-        <td class="left">{{ entry.amount }}</td>
-        <td style="background: linear-gradient(to right, #dff0d8 {{entry.investmentBtcPct}}%, #ffffff {{entry.investmentBtcPct}}%);">
+        <td ng-hide="model.collapseTable" class="left">{{ entry.amount }}</td>
+        <td ng-hide="model.collapseTable" style="background: linear-gradient(to right, #dff0d8 {{entry.investmentBtcPct}}%, #ffffff {{entry.investmentBtcPct}}%);">
           {{ (entry.investmentBtc | number: 4) + (entry.investmentBtc ? '&nbsp;Ƀ': '') }}
         </td>
-        <td>{{ (entry.investmentGbp | number: 0) + (entry.investmentGbp ? '&nbsp;£': '') }}</td>
-        <td class="left">{{ entry.price | number: entry.priceDigits }}</td>
+        <td ng-hide="model.collapseTable">
+          {{ (entry.investmentGbp | number: 0) + (entry.investmentGbp ? '&nbsp;£': '') }}
+        </td>
+        <td ng-hide="model.collapseTable" class="left">{{ entry.price | number: entry.priceDigits }}</td>
         <td class="left">{{ entry.currentPrice | number: entry.priceDigits }}</td>
         <td ng-if="entry.link" class="center">
           <a href="{{ entry.link }}" class="asset-link" target="_blank">
@@ -35,14 +37,14 @@
         <td class="percentage-cell" style="{{entry.changePercentageStyle}}">
           {{ (entry.changePercentage | number: 1) + (entry.changePercentage ? '&nbsp;%': '') }}
         </td>
-        <td ng-class="entry.changePercentage >= 0 ? 'positive-num' : 'negative-num'">
+        <td ng-hide="model.collapseTable" ng-class="entry.changePercentage >= 0 ? 'positive-num' : 'negative-num'">
           {{ (entry.changeBtc | number: 4) + (entry.changeBtc ? '&nbsp;Ƀ': '') }}
         </td>
-        <td ng-class="entry.changePercentage >= 0 ? 'positive-num' : 'negative-num'">
+        <td ng-hide="model.collapseTable" ng-class="entry.changePercentage >= 0 ? 'positive-num' : 'negative-num'">
           {{ (entry.changeGbp | number: 0) + (entry.changeGbp ? '&nbsp;£': '') }}
         </td>
         <td>{{ (entry.volumeBtc | number: 4) + (entry.volumeBtc ? '&nbsp;Ƀ': '') }}</td>
-        <td>{{ (entry.volumeGbp | number: 0) + (entry.volumeGbp ? '&nbsp;£': '') }}</td>
+        <td ng-hide="model.collapseTable">{{ (entry.volumeGbp | number: 0) + (entry.volumeGbp ? '&nbsp;£': '') }}</td>
         <td ng-if="$ctrl.editable" class="edit-cell">
           <button ng-click="setEditEntryIndex($index)" class="btn btn-default btn-xs edit-btn">
             . . .
@@ -50,10 +52,10 @@
         </td>
       </tr>
       <tr class="summaryLine" ng-if="model.sums">
-        <td></td>
-        <td>{{ model.sums.investmentBtc | number: 4 }}&nbsp;Ƀ</td>
-        <td>{{ model.sums.investmentGbp | number: 0 }}&nbsp;£</td>
-        <td colspan="2"></td>
+        <td ng-hide="model.collapseTable"></td>
+        <td ng-hide="model.collapseTable">{{ model.sums.investmentBtc | number: 4 }}&nbsp;Ƀ</td>
+        <td ng-hide="model.collapseTable">{{ model.sums.investmentGbp | number: 0 }}&nbsp;£</td>
+        <td colspan="{{ model.collapseTable ? 1 : 2 }}"></td>
         <td class="dominance-link">
           <a href="https://coinmarketcap.com/charts/#dominance-percentage" class="asset-link" target="_blank">
             BTCdom
@@ -62,18 +64,23 @@
         <td ng-class="model.sums.changePercentage >= 0 ? 'positive-num' : 'negative-num'">
           {{ model.sums.changePercentage | number: 1 }}&nbsp;%
         </td>
-        <td ng-class="model.sums.changeBtc >= 0 ? 'positive-num' : 'negative-num'">
+        <td ng-hide="model.collapseTable" ng-class="model.sums.changeBtc >= 0 ? 'positive-num' : 'negative-num'">
           {{ model.sums.changeBtc | number: 4 }}&nbsp;Ƀ
         </td>
-        <td ng-class="model.sums.changeGbp >= 0 ? 'positive-num' : 'negative-num'">
+        <td ng-hide="model.collapseTable" ng-class="model.sums.changeGbp >= 0 ? 'positive-num' : 'negative-num'">
           {{ model.sums.changeGbp | number: 0 }}&nbsp;£
         </td>
         <td>{{ model.sums.volumeBtc | number: 4 }}&nbsp;Ƀ</td>
-        <td>{{ model.sums.volumeGbp | number: 0 }}&nbsp;£</td>
+        <td ng-hide="model.collapseTable">{{ model.sums.volumeGbp | number: 0 }}&nbsp;£</td>
         <td ng-if="$ctrl.editable"></td>
       </tr>
     </tbody>
   </table>
+  <div class="collapseToggle" ng-show="model.collapseTable || model.collapseOverwrite">
+    <button ng-click="toggleTableCollapse()" class="btn btn-success btn-block">
+      {{ model.collapseOverwrite ? 'collapse' : 'expand' }}&nbsp;table...
+    </button>
+  </div>
 
   <div ng-if="model.errorMessage" class="alert alert-danger" role="alert">
     {{ model.errorMessage }}

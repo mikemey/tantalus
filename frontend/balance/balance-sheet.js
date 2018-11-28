@@ -10,11 +10,12 @@ angular
       editable: '='
     }
   })
-  .controller(balanceSheetControllerName, ['$scope', '$interval', 'balanceService',
-    function ($scope, $interval, balanceService) {
+  .controller(balanceSheetControllerName, ['$scope', '$interval', '$window', 'balanceService',
+    function ($scope, $interval, $window, balanceService) {
       const BTC_SYMBOL = 'BTC'
       const BTCGPB_ASSET = `${BTC_SYMBOL}GBP`
       const COINFLOOR_TRADING_FEE = 0.003
+      const COLLAPSE_WIDTH = 1000
 
       const EMPTY_INPUTS = { asset: '', amount: null, invest: null, price: null, link: null }
 
@@ -30,8 +31,28 @@ angular
         assetPrices: [],
         sums: null,
         editEntryIndex: $scope.ADD_MODE,
-        errorMessage: ''
+        errorMessage: '',
+        collapseTable: false,
+        collapseOverwrite: false
       }
+
+      const window = angular.element($window)
+      const updateTableCollapse = () => {
+        $scope.model.collapseTable = $scope.model.collapseOverwrite
+          ? false
+          : window.width() < COLLAPSE_WIDTH
+      }
+
+      $scope.toggleTableCollapse = () => {
+        $scope.model.collapseOverwrite = !$scope.model.collapseOverwrite
+        updateTableCollapse()
+      }
+
+      window.bind('resize', () => {
+        updateTableCollapse()
+        $scope.$apply()
+      })
+      updateTableCollapse()
 
       const getPriceSymbol = asset => $scope.model.assetPrices.find(symbolPrice => symbolPrice.symbol === asset)
 

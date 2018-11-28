@@ -1,3 +1,7 @@
+.balance-table {
+  margin-bottom: 10px;
+}
+
 .balance-table > thead > tr > th {
   font-size: 0.9em;
   padding: 3px 5px;
@@ -18,8 +22,8 @@
 }
 
 .balance-table a.asset-link {
-  display:inline-block;
-  transform:scale(1.08,1);
+  display: inline-block;
+  transform: scale(1.08, 1);
   color: rgb(50, 50, 240);
 }
 
@@ -71,12 +75,16 @@ td.dominance-link {
   color: rgb(230, 18, 18);
 }
 
+.collapseToggle {
+  margin-bottom: 10px;
+}
+
 select.asset-selector {
   height: 30px;
   font-size: 12px;
 }
 
-form[name=assetForm] label {    
+form[name=assetForm] label {
   font-size: 12px;
   margin-bottom: 2px;
 }
