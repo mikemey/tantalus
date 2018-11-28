@@ -199,7 +199,8 @@ angular
           .catch(errorHandler)
       }
 
-      $interval(updatePrices, 20000)
+      $scope.stop = $interval(updatePrices, 20000)
+      $scope.$on('$destroy', () => $interval.cancel($scope.stop))
       return loadBalance()
     }])
   .service('balanceService', ['$http', 'tickerService', function ($http, tickerService) {
