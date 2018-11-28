@@ -12,7 +12,8 @@ angular
   })
   .controller(balanceSheetControllerName, ['$scope', '$interval', 'balanceService',
     function ($scope, $interval, balanceService) {
-      const BTCGPB_ASSET = 'BTCGBP'
+      const BTC_SYMBOL = 'BTC'
+      const BTCGPB_ASSET = `${BTC_SYMBOL}GBP`
       const COINFLOOR_TRADING_FEE = 0.003
 
       const EMPTY_INPUTS = { asset: '', amount: null, price: null, link: null }
@@ -22,14 +23,14 @@ angular
       $scope.model = {
         availableAssets: null,
         balanceEntries: [],
-        prices: [],
         pricesDate: null,
+        assetPrices: [],
         sums: null,
         editEntryIndex: $scope.ADD_MODE,
         errorMessage: ''
       }
 
-      const getPriceSymbol = asset => $scope.model.prices.find(symbolPrice => symbolPrice.symbol === asset)
+      const getPriceSymbol = asset => $scope.model.assetPrices.find(symbolPrice => symbolPrice.symbol === asset)
 
       const errorHandler = error => {
         console.log('error:')
@@ -123,10 +124,8 @@ angular
       })
 
       const loadBalance = () => balanceService.getBalance()
-        .then(balance => {
-          $scope.model.balanceEntries = balance.entries
-          recalculateBalanceData()
-        })
+        .then(balance => { $scope.model.balanceEntries = balance.entries })
+        .then(updatePrices)
 
       const updatePrices = () => {
         const userAssets = $scope.model.balanceEntries
@@ -135,10 +134,10 @@ angular
         return Promise.all([
           balanceService.getMarketPrices(userAssets),
           balanceService.getLatestBitcoinPrice()
-        ]).then(([prices, btcPrice]) => {
+        ]).then(([assetPrices, btcPrice]) => {
           $scope.model.pricesDate = new Date()
-          prices.unshift({ symbol: BTCGPB_ASSET, price: btcPrice })
-          $scope.model.prices = prices
+          assetPrices.unshift({ symbol: BTCGPB_ASSET, price: btcPrice })
+          $scope.model.assetPrices = assetPrices
           recalculateBalanceData()
           $scope.$apply()
         }).catch(errorHandler)
@@ -169,7 +168,6 @@ angular
             link
           }) => ({ asset, amount, price, link }))(entry)
         })
-
         resetErrorMessage()
         return balanceService.updateBalance(balances)
           .then($scope.resetAssetInputs)
@@ -188,20 +186,21 @@ angular
         return $scope.storeBalanceEntries()
       }
 
-      $scope.loadAvailableAssets = () => {
+      $scope.loadAvailableSymbols = () => {
         if ($scope.model.availableAssets) {
           return Promise.resolve()
         }
         return balanceService.getAvailableSymbols()
           .then(response => {
-            response.symbols.unshift(BTCGPB_ASSET)
-            $scope.model.availableAssets = response.symbols
+            const btcPrices = response.symbols.filter(symbol => symbol.endsWith(BTC_SYMBOL))
+            btcPrices.unshift(BTCGPB_ASSET)
+            $scope.model.availableAssets = btcPrices
           })
           .catch(errorHandler)
       }
 
       $interval(updatePrices, 20000)
-      return loadBalance().then(updatePrices)
+      return loadBalance()
     }])
   .service('balanceService', ['$http', 'tickerService', function ($http, tickerService) {
     const BALANCE_ENDPOINT = '/api/balance'
