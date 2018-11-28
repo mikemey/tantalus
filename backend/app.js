@@ -44,7 +44,7 @@ const requestLogger = () => {
   return morgan(format, { skip })
 }
 
-const createServer = (config, tantalusLogger) => mongoConnection.initializeAll(config, tantalusLogger)
+const createServer = (config, tantalusLogger) => mongoConnection.connect(config, tantalusLogger)
   .then(() => new Promise((resolve, reject) => {
     const app = express()
 

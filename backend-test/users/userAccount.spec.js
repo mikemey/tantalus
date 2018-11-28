@@ -1,12 +1,11 @@
-/* global describe before beforeEach it */
 const helpers = require('../../utils-test/helpers')
 const { Account } = require('../../backend/users/userModel')
 
 describe('Account DAO', function () {
   this.timeout(5000)
 
-  before(helpers.connectMongoose)
-  after(helpers.closeMongoose)
+  before(helpers.mongodb)
+  after(helpers.closeMongodb)
 
   beforeEach(helpers.dropDatabase)
 

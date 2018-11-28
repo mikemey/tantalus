@@ -1,5 +1,4 @@
 const { MongoClient } = require('mongodb')
-
 const mongoose = require('mongoose')
 mongoose.Promise = Promise
 
@@ -12,8 +11,7 @@ const traderReportsCollectionName = 'traderreports'
 const PRODUCTION_ENV = 'PROD'
 
 class MongoConnectionError extends Error {
-  // eslint-disable-next-line space-before-function-paren
-  constructor(message) {
+  constructor (message) {
     super(message)
     this.name = this.constructor.name
     Error.captureStackTrace(this, this.constructor)
@@ -36,6 +34,56 @@ const ALL_INDEX_SPECS = [{
   options: { name: 'ix_tid' }
 }]
 
+const connect = (config, logger) => {
+  if (module.exports.db) return Promise.resolve()
+
+  const url = config.mongodb.url
+  const dbName = config.mongodb.dbName
+  logger.info('connection to DB...')
+  return initializeDirectConnection(url, dbName)
+    .then(() => initializeMongooseConnection(url, dbName))
+    .then(() => {
+      logger.info('DB connections established.')
+    })
+    .catch(error => {
+      cleanupInstances()
+      logger.error(`No connection to DB: ${url}`, error)
+      return close().then(() => { throw error })
+    })
+}
+
+const close = () => closeDirectConnection().then(closeMongoose)
+
+const data = {
+  mongoClient: null
+}
+
+const cleanupInstances = () => {
+  data.mongoClient = null
+  module.exports.db = null
+}
+
+const initializeDirectConnection = (url, dbName) => {
+  return checkProductionEnvironment(dbName)
+    .then(() => MongoClient.connect(url, { useNewUrlParser: true }))
+    .then(client => {
+      data.mongoClient = client
+      return client.db(dbName)
+    })
+    .then(ensureAllIndices)
+    .then(db => { module.exports.db = db })
+}
+
+const checkProductionEnvironment = dbName => new Promise((resolve, reject) => {
+  if (dbName === 'tantalus') {
+    if (process.env.NODE_ENV !== PRODUCTION_ENV) {
+      const msg = `Access to production database with invalid NODE_ENV: ${process.env.NODE_ENV}`
+      reject(new MongoConnectionError(msg))
+    }
+  }
+  resolve()
+})
+
 const ensureAllIndices = db =>
   Promise.all(ALL_INDEX_SPECS
     .map(indexSpec => {
@@ -45,44 +93,22 @@ const ensureAllIndices = db =>
     })
   ).then(() => db)
 
-const initializeDirectConnection = (config, logger) => {
-  const mongoUrl = config.mongodb.url
-  return checkProductionEnvironment(logger, mongoUrl)
-    .then(() => MongoClient.connect(mongoUrl))
-    .then(ensureAllIndices)
-    .then(db => {
-      logger.info('DB connection established.')
-      module.exports.db = db
-      module.exports.error = null
-    })
-    .catch(error => {
-      logger.error(`No connection to DB: ${mongoUrl}`, error)
-      module.exports.db = null
-      module.exports.error = error
-      throw error
-    })
+const closeDirectConnection = () =>
+  (data.mongoClient
+    ? data.mongoClient.close()
+    : Promise.resolve()
+  ).then(cleanupInstances)
+
+const initializeMongooseConnection = (url, dbName) => {
+  const mongooseUrl = `${url}/${dbName}`
+  return mongoose.connect(mongooseUrl, { useCreateIndex: true, useNewUrlParser: true })
 }
 
-const checkProductionEnvironment = (logger, mongoUrl) => new Promise((resolve, reject) => {
-  if (mongoUrl.endsWith('tantalus')) {
-    if (process.env.NODE_ENV !== PRODUCTION_ENV) {
-      const msg = `Access to production database with invalid NODE_ENV: ${process.env.NODE_ENV}`
-      logger.error(msg)
-      reject(new MongoConnectionError(msg))
-    }
-  }
-  resolve()
-})
-
-const initializeMongooseConnection = config =>
-  mongoose.connect(config.mongodb.url, { useMongoClient: true })
-
-const initializeAll = (config, logger) => initializeDirectConnection(config, logger)
-  .then(() => initializeMongooseConnection(config))
+const closeMongoose = () => mongoose.connection.close()
 
 module.exports = {
-  initializeDirectConnection,
-  initializeAll,
+  connect,
+  close,
   ensureAllIndices,
   mongoose,
   tickersCollectionName,

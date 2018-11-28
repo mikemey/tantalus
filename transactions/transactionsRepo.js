@@ -12,12 +12,12 @@ const TransactionRepo = () => {
     .then(docs => docs.length ? docs[0] : {})
 
   const getLatestTransaction = () => singleDocument(transactionsCollection()
-    .find({}, { _id: false })
+    .find({}, { projection: { _id: false } })
     .sort({ tid: -1 })
   )
 
   const getEarliestTransaction = () => singleDocument(transactionsCollection()
-    .find({}, { _id: false })
+    .find({}, { projection: { _id: false } })
     .sort({ tid: 1 })
   )
 
@@ -28,7 +28,7 @@ const TransactionRepo = () => {
     })
 
   const readTransactions = (from, to) => transactionsCollection()
-    .find({ date: { $gte: from, $lte: to } }, { _id: false })
+    .find({ date: { $gte: from, $lte: to } }, { projection: { _id: false } })
     .sort({ tid: 1 })
     .toArray()
 

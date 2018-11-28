@@ -49,7 +49,8 @@ const genAlgoConfig = {
 
 const executorConfig = {
   mongodb: {
-    url: 'mongodb://127.0.0.1:27017/tantalus'
+    url: 'mongodb://127.0.0.1:27017',
+    dbName: 'tantalus'
   },
   batchSeconds: 3600 * 10,
   transactionsUpdateSeconds: 10,

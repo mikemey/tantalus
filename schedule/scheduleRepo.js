@@ -11,7 +11,7 @@ const ScheduleRepo = () => {
     })
 
   const getTickersSorted = since => tickersCollection()
-    .find({ created: { $gte: since } }, { _id: false, created: true, tickers: true })
+    .find({ created: { $gte: since } }, { projection: { _id: false, created: true, tickers: true } })
     .sort({ created: 1 })
     .toArray()
 

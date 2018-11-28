@@ -8,7 +8,9 @@ const TickerRepo = () => {
     .sort({ created: -1 }).limit(1).toArray()
     .then(docs => docs[0])
 
-  const getGraphData = period => graphCollection().find({ period }, { graphData: 1 }).limit(1).next()
+  const getGraphData = period => graphCollection()
+    .find({ period }, { projection: { graphData: 1 } })
+    .limit(1).next()
     .then(graphPeriod => graphPeriod.graphData)
 
   return {

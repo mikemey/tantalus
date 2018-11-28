@@ -19,7 +19,7 @@ const initialGeneratedConfigs = () => {
 }
 
 const createSimReporter = () => mongo
-  .initializeDirectConnection(executorConfig, simLogger)
+  .connect(executorConfig, simLogger)
   .then(() => SimReporter(baseLogger, executorConfig))
 
 let partitionExecutor

@@ -17,7 +17,7 @@ const shutdown = () => {
 process.on('SIGTERM', shutdown)
 process.on('SIGINT', shutdown)
 
-mongoConnection.initializeDirectConnection(config, mainLogger)
+mongoConnection.connect(config, mainLogger)
   .then(() => {
     mainLogger.info('setting up scheduler...')
     const latestTickerService = LatestTickerService(mainLogger)

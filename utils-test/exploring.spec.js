@@ -1,4 +1,3 @@
-/* global describe before beforeEach it */
 const moment = require('moment')
 
 const requests = require('../utils/requests')
@@ -66,7 +65,7 @@ xdescribe('exploring', () => {
       // -------------------
       db.tickers.find(
         { created: { $gte: new ISODate('2017-08-02T05:26:00Z') } },
-        { _id: false, created: true, tickers: true }
+        { projection: { _id: false, created: true, tickers: true } }
       ).sort({ created: -1 })
       // -------------------
       db.tickers.aggregate([{
@@ -140,17 +139,20 @@ xdescribe('exploring', () => {
     const traderReportColl = () => mongodb.collection(mongoConn.traderReportsCollectionName)
 
     const testConfig = {
-      mongodb: { url: 'mongodb://127.0.0.1:27017/copy' }
+      mongodb: {
+        url: 'mongodb://127.0.0.1:27017',
+        dbName: 'copy'
+      }
     }
 
-    before(() => mongoConn.initializeDirectConnection(testConfig, console)
-      .then(db => { mongodb = mongoConn.db })
+    before(() => mongoConn.connect(testConfig, console)
+      .then(() => { mongodb = mongoConn.db })
     )
 
     xit('analyze clientIds', () => {
       const simulationId = 'sec'
 
-      return traderReportColl().find({ simulationId }, { clientId: 1, _id: 0 }).toArray()
+      return traderReportColl().find({ simulationId }, { projection: { clientId: 1, _id: 0 } }).toArray()
         .then(reports => {
           const batchLengths = reports.map(report => report.clientId.slice(2, 6))
 

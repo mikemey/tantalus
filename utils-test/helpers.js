@@ -5,7 +5,8 @@ const { TantalusLogger } = require('../utils/tantalusLogger')
 const accountCollectionName = 'accounts'
 const defaultTestConfig = {
   mongodb: {
-    url: 'mongodb://127.0.0.1:27017/tantalus-test'
+    url: 'mongodb://127.0.0.1:27017',
+    dbName: 'tantalus-test'
   },
   secret: 'test-secret'
 }
@@ -13,9 +14,6 @@ const defaultTestConfig = {
 const defaultTestUser = {
   username: 'default-test-user'
 }
-
-const connectMongoose = () => mongo.mongoose.connect(defaultTestConfig.mongodb.url, { useMongoClient: true })
-const closeMongoose = () => mongo.mongoose.connection.close()
 
 const createQuietLogger = () => {
   return {
@@ -43,33 +41,23 @@ const startTestServer = (callback, disableSecurity = true, testUser = defaultTes
     })
 }
 
-let db
-const mongodb = () => {
-  if (!db) {
-    return mongo.initializeDirectConnection(defaultTestConfig, createQuietLogger())
-      .then(() => {
-        db = mongo.db
-        return db
-      })
-  }
-  return Promise.resolve(db)
-}
+const mongodb = () => mongo
+  .connect(defaultTestConfig, createQuietLogger())
+  .then(() => mongo.db)
+
+const closeMongodb = () => mongo.close()
 
 const closeAll = server => {
-  const dbClosedPromise = () => db
-    ? db.close().then(() => { db = null })
-    : Promise.resolve()
-
   const serverClosedPromise = () => server
-    ? new Promise((resolve, reject) => server.close(resolve))
+    ? new Promise((resolve) => { server.close(resolve) })
     : Promise.resolve()
 
-  return serverClosedPromise().then(dbClosedPromise)
+  return serverClosedPromise().then(closeMongodb)
 }
 
 const dropDatabase = () => mongodb()
   .then(db => db.dropDatabase())
-  .then(() => mongo.ensureAllIndices(db))
+  .then(() => mongo.ensureAllIndices(mongo.db))
 
 const dbCollection = collectionName => mongodb().then(db => db.collection(collectionName))
 
@@ -108,8 +96,7 @@ const copyObjectWithoutField = deleteField => obj => {
 module.exports = {
   startTestServer,
   mongodb,
-  connectMongoose,
-  closeMongoose,
+  closeMongodb,
   dropDatabase,
   closeAll,
   defaultTestConfig,
