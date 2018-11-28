@@ -18,7 +18,7 @@
       <tr ng-if="model.balanceEntries.length === 0">
         <td colspan="12" class="center">No entries</td>
       </tr>
-      <tr ng-repeat="entry in model.balanceEntries">
+      <tr ng-repeat="entry in model.balanceEntries" ng-class="model.editEntryIndex === $index ? 'edit-row' : ''">
         <td class="left">{{ entry.amount }}</td>
         <td style="background: linear-gradient(to right, #dff0d8 {{entry.investmentBtcPct}}%, #ffffff {{entry.investmentBtcPct}}%);">
           {{ (entry.investmentBtc | number: 4) + (entry.investmentBtc ? '&nbsp;Ƀ': '') }}
@@ -83,21 +83,23 @@
     <div class="row">
       <div class="form-group col-sm-4">
         <label for="amount">Amount</label>
-        <input id="amount" type="number" step="any" ng-model="inputs.amount" ng-change="inputs.price = _invest / inputs.amount" class="form-control input-sm"
+        <input id="amount" type="number" step="any" ng-model="inputs.amount" ng-change="refreshPriceInput()" class="form-control input-sm"
           placeholder="amount" required="required">
       </div>
       <div class="form-group  col-sm-4">
         <label for="investment">Investment</label>
-        <input id="investment" type="number" step="any" ng-model="_invest" ng-change="inputs.price = _invest / inputs.amount" class="form-control input-sm"
+        <input id="investment" type="number" step="any" ng-model="inputs.invest" ng-change="refreshPriceInput()" class="form-control input-sm"
           placeholder="investment">
       </div>
       <div class="form-group  col-sm-4">
         <label for="price">Price</label>
-        <input id="price" type="number" step="any" ng-model="inputs.price" class="form-control input-sm" placeholder="price" required="required">
+        <input id="price" type="number" step="any" ng-model="inputs.price" ng-change="refreshInvestInput()" class="form-control input-sm"
+          placeholder="price" required="required">
       </div>
       <div class="form-group col-sm-4">
         <label for="asset">Asset</label>
-        <select id="asset" class="form-control asset-selector" ng-model="inputs.asset" ng-init="loadAvailableSymbols()" required="required">
+        <select id="asset" class="form-control asset-selector" ng-model="inputs.asset" ng-init="loadAvailableSymbols()"
+          required="required">
           <option ng-repeat="asset in model.availableAssets">{{ asset }}</option>
         </select>
       </div>
@@ -105,27 +107,22 @@
         <label for="link">Link</label>
         <input id="link" type="url" ng-model="inputs.link" class="form-control input-sm" placeholder="URL link">
       </div>
-      <div ng-if="model.editEntryIndex === ADD_MODE" class="form-group col-sm-1">
+      <div class="form-group col-sm-1">
         <label>&nbsp;</label>
-        <button ng-if="model.editEntryIndex === ADD_MODE" ng-click="addAsset()" ng-disabled="assetForm.$invalid" class="btn btn-success form-control input-sm">
+        <button ng-click="storeBalanceEntries()" ng-disabled="assetForm.$invalid" class="btn btn-success form-control input-sm">
           <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
         </button>
       </div>
-      <div ng-if="model.editEntryIndex !== ADD_MODE" class="form-group col-sm-1">
+      <div class="form-group col-sm-1">
         <label>&nbsp;</label>
-        <button ng-if="model.editEntryIndex !== ADD_MODE" ng-click="storeBalanceEntries()" ng-disabled="assetForm.$invalid" class="btn btn-success form-control input-sm">
-          <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
-        </button>
-      </div>
-      <div ng-if="model.editEntryIndex !== ADD_MODE" class="form-group col-sm-1">
-        <label>&nbsp;</label>
-        <button ng-if="model.editEntryIndex !== ADD_MODE" ng-click="deleteEditAsset()" ng-disabled="assetForm.$invalid" class="btn btn-danger form-control input-sm">
+        <button ng-disabled="assetForm.$invalid && model.editEntryIndex === ADD_MODE" ng-click="deleteEditAsset()"
+          class="btn btn-danger form-control input-sm">
           <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
         </button>
       </div>
-      <div ng-if="model.editEntryIndex !== ADD_MODE" class="form-group col-sm-1">
+      <div class="form-group col-sm-1">
         <label>&nbsp;</label>
-        <button ng-if="model.editEntryIndex !== ADD_MODE" ng-click="resetAssetInputs()" class="btn btn-default form-control input-sm">
+        <button ng-disabled="model.editEntryIndex === ADD_MODE" ng-click="resetAssetInputs()" class="btn btn-default form-control input-sm">
           <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
         </button>
       </div>

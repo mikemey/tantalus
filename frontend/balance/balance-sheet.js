@@ -16,10 +16,13 @@ angular
       const BTCGPB_ASSET = `${BTC_SYMBOL}GBP`
       const COINFLOOR_TRADING_FEE = 0.003
 
-      const EMPTY_INPUTS = { asset: '', amount: null, price: null, link: null }
+      const EMPTY_INPUTS = { asset: '', amount: null, invest: null, price: null, link: null }
 
       $scope.ADD_MODE = -1
       $scope.inputs = EMPTY_INPUTS
+      $scope.refreshInvestInput = () => { $scope.inputs.invest = $scope.inputs.price * $scope.inputs.amount }
+      $scope.refreshPriceInput = () => { $scope.inputs.price = $scope.inputs.invest / $scope.inputs.amount }
+
       $scope.model = {
         availableAssets: null,
         balanceEntries: [],
@@ -152,37 +155,34 @@ angular
         }).catch(errorHandler)
       }
 
-      $scope.addAsset = () => {
-        resetErrorMessage()
-        return balanceService.addBalanceEntry({
-          amount: $scope.inputs.amount,
-          price: $scope.inputs.price,
-          asset: $scope.inputs.asset,
-          link: $scope.inputs.link
-        }).then(loadBalance)
-          .catch(errorHandler)
-      }
-
       $scope.setEditEntryIndex = entryIndex => {
         $scope.model.editEntryIndex = entryIndex
         $scope.inputs = $scope.model.balanceEntries[entryIndex]
+        $scope.refreshInvestInput()
       }
 
       $scope.storeBalanceEntries = () => {
-        const balances = $scope.model.balanceEntries.map(entry => {
-          return (({
-            asset,
-            amount,
-            price,
-            link
-          }) => ({ asset, amount, price, link }))(entry)
-        })
         resetErrorMessage()
-        return balanceService.updateBalance(balances)
+        const storePromise = $scope.model.editEntryIndex === $scope.ADD_MODE
+          ? addEntry
+          : updateEntries
+        return storePromise()
           .then($scope.resetAssetInputs)
           .then(loadBalance)
           .catch(errorHandler)
       }
+
+      const addEntry = () => balanceService.addBalanceEntry({
+        amount: $scope.inputs.amount,
+        price: $scope.inputs.price,
+        asset: $scope.inputs.asset,
+        link: $scope.inputs.link
+      })
+
+      const cleanBalanceEntry = ({ asset, amount, price, link }) => ({ asset, amount, price, link })
+      const updateEntries = () => balanceService.updateBalance(
+        $scope.model.balanceEntries.map(cleanBalanceEntry)
+      )
 
       $scope.resetAssetInputs = () => {
         $scope.model.editEntryIndex = $scope.ADD_MODE

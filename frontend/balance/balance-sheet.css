@@ -33,6 +33,14 @@ td.dominance-link {
   font-weight: normal;
 }
 
+.balance-table tr.edit-row {
+  background-color: #ff990080;
+}
+
+.balance-table tr.edit-row:hover {
+  background-color: #ff99004d;
+}
+
 .balance-table td.left {
   text-align: left;
 }
