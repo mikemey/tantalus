@@ -50,6 +50,10 @@ const LatestTickerService = log => {
     const created = new Date()
     return { created, tickers }
   }).then(scheduleRepo.storeLatestTickers)
+    .catch(err => {
+      log.info('error occurred')
+      log.error(err)
+    })
 
   return {
     storeTickers
