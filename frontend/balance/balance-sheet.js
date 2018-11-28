@@ -188,18 +188,20 @@ angular
         return $scope.storeBalanceEntries()
       }
 
-      const setAvailableAssets = () => {
+      $scope.loadAvailableAssets = () => {
+        if ($scope.model.availableAssets) {
+          return Promise.resolve()
+        }
         return balanceService.getAvailableSymbols()
           .then(response => {
-            response.symbols.unshift({ symbol: BTCGPB_ASSET })
+            response.symbols.unshift(BTCGPB_ASSET)
             $scope.model.availableAssets = response.symbols
           })
           .catch(errorHandler)
       }
 
       $interval(updatePrices, 20000)
-      return Promise.all([loadBalance(), setAvailableAssets()])
-        .then(updatePrices)
+      return loadBalance().then(updatePrices)
     }])
   .service('balanceService', ['$http', 'tickerService', function ($http, tickerService) {
     const BALANCE_ENDPOINT = '/api/balance'
