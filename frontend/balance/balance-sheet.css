@@ -75,8 +75,27 @@ td.dominance-link {
   color: rgb(230, 18, 18);
 }
 
-.collapseToggle {
-  margin-bottom: 10px;
+.balance-table  > tbody > tr.collapseToggle > td {
+  padding: 0px;
+  border-color: #7fa86d;
+}
+
+tr.collapseToggle button {
+  font-size: 12px;
+  color: darkblue;
+  border: none;
+  border-radius: 0px;
+  background-color: #9ccc88;
+}
+
+tr.collapseToggle button:hover {
+  color: darkblue;
+  background-color: #9ccc88;
+}
+
+tr.collapseToggle button:hover:active {
+  color: darkblue;
+  background-color: #6da954;
 }
 
 select.asset-selector {
