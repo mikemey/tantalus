@@ -5,8 +5,8 @@
         <th ng-hide="model.collapseTable">amount</th>
         <th ng-hide="model.collapseTable" colspan="2">investment</th>
         <th colspan="{{ model.collapseTable ? 1 : 2 }}" class="text-nowrap">
-          <span>price</span>
-          <span class="xs-text">{{ model.pricesDate | date: 'dd/MM HH:mm' }}</span>
+          <span>price  &nbsp;</span>
+          <span ng-hide="model.collapseTable" class="xs-text">{{ model.pricesDate | date: 'dd/MM HH:mm' }}</span>
         </th>
         <th>asset</th>
         <th colspan="{{ model.collapseTable ? 1 : 3 }}">change</th>
