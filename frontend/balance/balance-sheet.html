@@ -76,9 +76,9 @@
       </tr>
     </tbody>
   </table>
-  <div class="collapseToggle" ng-show="model.collapseTable || model.collapseOverwrite">
+  <div class="collapseToggle" ng-show="model.showCollapseToggle">
     <button ng-click="toggleTableCollapse()" class="btn btn-success btn-block">
-      {{ model.collapseOverwrite ? 'collapse' : 'expand' }}&nbsp;table...
+      {{ model.expandOverwrite ? 'collapse' : 'expand' }}&nbsp;table...
     </button>
   </div>
 

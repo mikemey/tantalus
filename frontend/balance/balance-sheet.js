@@ -33,18 +33,18 @@ angular
         editEntryIndex: $scope.ADD_MODE,
         errorMessage: '',
         collapseTable: false,
-        collapseOverwrite: false
+        expandOverwrite: false,
+        showCollapseToggle: false
       }
 
       const window = angular.element($window)
       const updateTableCollapse = () => {
-        $scope.model.collapseTable = $scope.model.collapseOverwrite
-          ? false
-          : window.width() < COLLAPSE_WIDTH
+        $scope.model.showCollapseToggle = window.width() < COLLAPSE_WIDTH
+        $scope.model.collapseTable = $scope.model.showCollapseToggle && !$scope.model.expandOverwrite
       }
 
       $scope.toggleTableCollapse = () => {
-        $scope.model.collapseOverwrite = !$scope.model.collapseOverwrite
+        $scope.model.expandOverwrite = !$scope.model.expandOverwrite
         updateTableCollapse()
       }
 
