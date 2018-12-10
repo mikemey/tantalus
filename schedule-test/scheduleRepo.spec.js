@@ -51,6 +51,43 @@ describe('Schedule repository', () => {
         expectGraphAverage(graphsSorted[3], prices.gdax.ask)
         expectGraphAverage(graphsSorted[4], prices.gdax.bid)
       })
+    // graphData looks sth like this, order of data objects isn't deterministic, just as example:
+    // [{
+    //   label: 'coindesk ask',
+    //   data: [
+    //     { x: 2018 - 12 - 07T07: 38: 17.950Z, y: 3688 },
+    //     { x: 2018 - 12 - 09T01: 38: 17.950Z, y: 3646 },
+    //     { x: 2018 - 12 - 10T19: 38: 17.950Z, y: 3604 },
+    //     { x: 2018 - 12 - 05T13: 38: 17.950Z, y: 3721 }]
+    // }, {
+    //   label: 'coinfloor ask',
+    //   data: [
+    //     { x: 2018 - 12 - 10T19: 38: 17.950Z, y: 3583 },
+    //     { x: 2018 - 12 - 09T01: 38: 17.950Z, y: 3625 },
+    //     { x: 2018 - 12 - 07T07: 38: 17.950Z, y: 3667 },
+    //     { x: 2018 - 12 - 05T13: 38: 17.950Z, y: 3700 }]
+    // }, {
+    //   label: 'coinfloor bid',
+    //   data: [
+    //     { x: 2018 - 12 - 10T19: 38: 17.950Z, y: 3565 },
+    //     { x: 2018 - 12 - 05T13: 38: 17.950Z, y: 3682 },
+    //     { x: 2018 - 12 - 09T01: 38: 17.950Z, y: 3607 },
+    //     { x: 2018 - 12 - 07T07: 38: 17.950Z, y: 3649 }]
+    // }, {
+    //   label: 'gdax ask',
+    //   data: [
+    //     { x: 2018 - 12 - 05T13: 38: 17.950Z, y: 3592 },
+    //     { x: 2018 - 12 - 10T19: 38: 17.950Z, y: 3475 },
+    //     { x: 2018 - 12 - 09T01: 38: 17.950Z, y: 3517 },
+    //     { x: 2018 - 12 - 07T07: 38: 17.950Z, y: 3559 }]
+    // }, {
+    //     label: 'gdax bid',
+    //     data: [
+    //       { x: 2018 - 12 - 07T07: 38: 17.950Z, y: 3780 },
+    //       { x: 2018 - 12 - 05T13: 38: 17.950Z, y: 3813 },
+    //       { x: 2018 - 12 - 10T19: 38: 17.950Z, y: 3696 },
+    //       { x: 2018 - 12 - 09T01: 38: 17.950Z, y: 3738 }]
+    //   }]
   })
 
   const expectGraphAverage = (graph, startPrice) => {

@@ -8,6 +8,7 @@ describe('Graph service', () => {
   const graphService = GraphService(console)
 
   beforeEach(helpers.dropDatabase)
+  after(helpers.closeMongodb)
 
   const datePast = daysPast => moment.utc().subtract(daysPast, 'd').toDate()
 

@@ -131,7 +131,7 @@ xdescribe('exploring', () => {
     return msg => fs.appendFileSync(filename, `${msg}\n`)
   }
 
-  describe('simulation reports', () => {
+  xdescribe('simulation reports', () => {
     const mongoConn = require('../utils/mongoConnection')
 
     let mongodb
@@ -140,10 +140,10 @@ xdescribe('exploring', () => {
     const tickerColl = () => mongodb.collection(mongoConn.tickersCollectionName)
 
     const testConfig = {
-      mongodb: {
-        url: 'mongodb://127.0.0.1:27017',
-        dbName: 'tantalus'
-      }
+      // mongodb: {
+      //   url: 'mongodb://127.0.0.1:27017',
+      //   dbName: 'tantalus-test'
+      // }
     }
 
     before(() => mongoConn.connect(testConfig, console)

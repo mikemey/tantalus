@@ -27,6 +27,19 @@ const ScheduleRepo = () => {
         else throw new Error('insert graph data failed: ' + response.message)
       })
 
+  // Alternative approach with creating graphData with a mongo-query.
+  // Takes longer than node implementation. Also needs:
+  //   const convertNameAndDateFields = graphData => {
+  //   graphData.forEach(graph => {
+  //     graph.data.forEach(coord => {
+  //       coord.x = moment.utc(coord.x).toDate()
+  //     })
+  //     if (graph.label.includes('coindesk')) {
+  //       graph.label = 'coindesk'
+  //     }
+  //   })
+  //   return graphData
+  // }
   const getGraphdata = (period, dataPoints) => {
     const since = cutoffDate(period)
 
@@ -101,7 +114,7 @@ const ScheduleRepo = () => {
           }
         },
         { $project: { _id: 0, label: '$_id', data: '$data' } }
-      ])
+      ], { allowDiskUse: true })
       .toArray()
   }
 
