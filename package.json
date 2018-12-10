@@ -69,6 +69,7 @@
     ]
   },
   "devDependencies": {
+    "bower": "^1.8.4",
     "chai": "^4.2.0",
     "chai-string": "^1.5.0",
     "eslint": "^5.9.0",

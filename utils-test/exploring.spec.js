@@ -131,23 +131,25 @@ xdescribe('exploring', () => {
     return msg => fs.appendFileSync(filename, `${msg}\n`)
   }
 
-  xdescribe('simulation reports', () => {
+  describe('simulation reports', () => {
     const mongoConn = require('../utils/mongoConnection')
 
     let mongodb
     const simReportColl = () => mongodb.collection(mongoConn.simulationReportsCollectionName)
     const traderReportColl = () => mongodb.collection(mongoConn.traderReportsCollectionName)
+    const tickerColl = () => mongodb.collection(mongoConn.tickersCollectionName)
 
     const testConfig = {
       mongodb: {
         url: 'mongodb://127.0.0.1:27017',
-        dbName: 'copy'
+        dbName: 'tantalus'
       }
     }
 
     before(() => mongoConn.connect(testConfig, console)
       .then(() => { mongodb = mongoConn.db })
     )
+    after(mongoConn.close)
 
     xit('analyze clientIds', () => {
       const simulationId = 'sec'
@@ -298,31 +300,82 @@ xdescribe('exploring', () => {
         })
     })
 
-    xit('generation volumes', () => {
-      // const simulationId = 'improve'
-      return traderReportColl()
+    // const createGroupAgg = () {
+    // const since = cutoffDate(period)
+    // since.toDate()
+    //   // $cond: [{ $lt: ['$created', fifteenDays] }, '16-30', createGroupAgg
+    // }
+
+    const getGraphs = (since, pieces) => {
+      // const today = new Date()
+      // const oneDayMillis = (1000 * 60 * 60 * 24)
+      // const oneDay = new Date(today.valueOf() - oneDayMillis)
+      // const thirtyDays = new Date(today.valueOf() - (30 * oneDayMillis))
+      // const fifteenDays = new Date(today.valueOf() - (15 * oneDayMillis))
+      // const sevenDays = new Date(today.valueOf() - (7 * oneDayMillis))
+
+      return tickerColl()
         .aggregate([
-          // { $sort: { fullVolume: -1 } },
           {
-            $group: {
-              _id: { simid: '$simulationId', it: '$iteration' },
-              count: { $sum: 1 },
-              diffTotal: { $sum: '$absoluteDiff' }
-              // accounts: {
-              //   $push: { clientId: '$clientId', fullVolume: '$fullVolume', investDiff: '$investDiff' }
-              // }
+            $match: {
+              created: {
+                $gte: since
+              }
             }
           },
-          // { $project: { count: 1, iterationVolume: 1, top10: { $slice: ['$accounts', 10] } } },
-          { $project: { avgDiff: { $divide: ['$diffTotal', '$count'] } } },
-          { $sort: { avgDiff: -1 } },
-          { $limit: 30 }
+          { $unwind: '$tickers' },
+          { $limit: 10 }
+          // {
+          //   $group: {
+          //     _id: {
+          //       $cond: [{ $lt: ['$created', fifteenDays] }, '16-30', {
+          //         $cond: [{ $lt: ['$created', sevenDays] }, '08-15', '01-07']
+          //       }]
+          //     },
+          //     count: { $sum: 1 }
+          //     // totalValue: { $sum: '$value' }
+          //   }
+          // }
         ])
+    }
+
+    it('generation volumes', () => {
+      // const simulationId = 'improve'
+      // { $sort: { fullVolume: -1 } },
+      // { $convert: { input: '$created', to: 'date' } },
+      // { $project: { avgDiff: { $divide: ['$diffTotal', '$count'] } } },
+
+      // {
+      //   $group: {
+      //     _id: { simid: '$simulationId', it: '$iteration' },
+      //     count: { $sum: 1 },
+      //     diffTotal: { $sum: '$absoluteDiff' }
+      //     // accounts: {
+      //     //   $push: { clientId: '$clientId', fullVolume: '$fullVolume', investDiff: '$investDiff' }
+      //     // }
+      //   }
+      // },
+      // // { $project: { count: 1, iterationVolume: 1, top10: { $slice: ['$accounts', 10] } } },
+      // { $project: { avgDiff: { $divide: ['$diffTotal', '$count'] } } },
+      // { $sort: { avgDiff: -1 } },
+      // , { $limit: 10 }
+
+      const today = new Date()
+      const oneDayMillis = (1000 * 60 * 60 * 24)
+      const oneDay = new Date(today.valueOf() - oneDayMillis)
+      // const thirtyDays = new Date(today.valueOf() - (30 * oneDayMillis))
+      // const fifteenDays = new Date(today.valueOf() - (15 * oneDayMillis))
+      // const sevenDays = new Date(today.valueOf() - (7 * oneDayMillis))
+
+      console.log('requesting result')
+      return getGraphs(oneDay, 3)
         .toArray()
         .then(result => {
+          console.log('result returned')
+          console.log(`result-length: ${result.length}`)
           result.forEach((r, ix) => {
-            console.log(`[${r._id.simid} - ${r._id.it}]: ${r.avgDiff}`)
-            // console.log(`----- entry ${ix} -----`)
+            console.log(`----- entry ${ix} -----`)
+            console.log(r)
             // console.log(`   count ${iter}: ${r.count}`)
             // console.log(`totalVol ${iter}: ${r.iterationVolume}`)
             // console.log(`top10 ${iter}:`)

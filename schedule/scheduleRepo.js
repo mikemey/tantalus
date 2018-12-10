@@ -1,4 +1,7 @@
+const moment = require('moment')
+
 const mongo = require('../utils/mongoConnection')
+const { cutoffDate } = require('../backend/tickers/graphPeriods')
 
 const ScheduleRepo = () => {
   const tickersCollection = () => mongo.db.collection(mongo.tickersCollectionName)
@@ -24,10 +27,89 @@ const ScheduleRepo = () => {
         else throw new Error('insert graph data failed: ' + response.message)
       })
 
+  const getGraphdata = (period, dataPoints) => {
+    const since = cutoffDate(period)
+
+    const duration = moment.duration(moment.utc().diff(since)).asMilliseconds()
+    const sliceDuration = duration / dataPoints
+
+    const now = new Date()
+    const groupByConditions = Array.from({ length: dataPoints }).reduce((cumulated, _, ix) => {
+      const sliceDate = cumulated.sliceDate - sliceDuration
+      const currentDate = new Date(sliceDate)
+      return {
+        sliceDate,
+        result: {
+          $cond: [
+            { $lt: ['$created', currentDate] },
+            currentDate,
+            cumulated.result
+          ]
+        }
+      }
+    }, { result: now, sliceDate: now.valueOf() }).result
+
+    const bidTradeQuery = { trade: 'bid', created: '$created', price: '$tickers.bid' }
+    const askTradeQuery = { trade: 'ask', created: '$created', price: '$tickers.ask' }
+    const tradeTickersQuery = {
+      $cond: [
+        { $gt: ['$tickers.bid', 0] },
+        [bidTradeQuery, askTradeQuery],
+        [askTradeQuery]
+      ]
+    }
+
+    return tickersCollection()
+      .aggregate([
+        { $match: { created: { $gte: since.toDate() } } },
+        { $unwind: '$tickers' },
+        {
+          $group: {
+            _id: '$tickers.name',
+            coords: {
+              $push: { tickers: tradeTickersQuery }
+            }
+          }
+        },
+        { $unwind: '$coords' },
+        { $project: { tickers: '$coords.tickers' } },
+        { $unwind: '$tickers' },
+        {
+          $project: {
+            label: { $concat: ['$_id', ' ', '$tickers.trade'] },
+            created: '$tickers.created',
+            price: '$tickers.price'
+          }
+        },
+        {
+          $group: {
+            _id: {
+              label: '$label',
+              sliceDate: groupByConditions
+            },
+            slicePrice: { $avg: '$price' }
+          }
+        },
+        {
+          $group: {
+            _id: '$_id.label',
+            data: {
+              $push: {
+                x: '$_id.sliceDate', y: { $floor: '$slicePrice' }
+              }
+            }
+          }
+        },
+        { $project: { _id: 0, label: '$_id', data: '$data' } }
+      ])
+      .toArray()
+  }
+
   return {
     storeLatestTickers,
     getTickersSorted,
-    storeGraphData
+    storeGraphData,
+    getGraphdata
   }
 }
 
