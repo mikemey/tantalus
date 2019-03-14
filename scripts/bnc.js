@@ -20,8 +20,9 @@ const requestOptions = (options = {}) => {
 const toBtc = v => `Ƀ ${v.toFixed(4)}`
 const toNum = str => Number(str)
 const toDatetime = time => moment(time).format('YYYY-MM-DD HH:mm:ss')
+const currentTime = () => `${toDatetime(moment())}`
+const requestLog = message => `[${currentTime()}] ${message}`
 const printNewline = () => console.log()
-const requestLog = message => `[${toDatetime(moment())}] ${message}`
 
 const internalBalance = () => binanceClient.accountInfo(requestOptions())
   .then(({ balances }) => balances
@@ -60,6 +61,7 @@ const balance = () => {
         }, 0)
 
       console.log(`total:   ${toBtc(btcTotal)}`)
+      console.log(`===== ${currentTime()} =====`)
     })
     .catch(err => console.log(err))
   return requestLog('requesting balance...')
