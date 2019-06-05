@@ -7,6 +7,7 @@ const graphsCollectionName = 'graphs'
 const transactionCollectionName = 'transactions'
 const simulationReportsCollectionName = 'simulationreports'
 const traderReportsCollectionName = 'traderreports'
+const metadataCollectionName = 'metadata'
 
 const PRODUCTION_ENV = 'PROD'
 
@@ -115,5 +116,6 @@ module.exports = {
   graphsCollectionName,
   transactionCollectionName,
   simulationReportsCollectionName,
-  traderReportsCollectionName
+  traderReportsCollectionName,
+  metadataCollectionName
 }

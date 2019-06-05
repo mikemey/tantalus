@@ -3,9 +3,12 @@ const moment = require('moment')
 const mongo = require('../utils/mongoConnection')
 const { cutoffDate } = require('../backend/tickers/graphPeriods')
 
+const SCHEDULE_METADATA = 'schedule'
+
 const ScheduleRepo = () => {
   const tickersCollection = () => mongo.db.collection(mongo.tickersCollectionName)
   const graphsCollection = () => mongo.db.collection(mongo.graphsCollectionName)
+  const metadataCollection = () => mongo.db.collection(mongo.metadataCollectionName)
 
   const storeLatestTickers = tickersData => tickersCollection().insertOne(tickersData)
     .then(result => {
@@ -27,19 +30,6 @@ const ScheduleRepo = () => {
         else throw new Error('insert graph data failed: ' + response.message)
       })
 
-  // Alternative approach with creating graphData with a mongo-query.
-  // Takes longer than node implementation. Also needs:
-  //   const convertNameAndDateFields = graphData => {
-  //   graphData.forEach(graph => {
-  //     graph.data.forEach(coord => {
-  //       coord.x = moment.utc(coord.x).toDate()
-  //     })
-  //     if (graph.label.includes('coindesk')) {
-  //       graph.label = 'coindesk'
-  //     }
-  //   })
-  //   return graphData
-  // }
   const getGraphdata = (period, dataPoints) => {
     const since = cutoffDate(period)
 
@@ -118,11 +108,19 @@ const ScheduleRepo = () => {
       .toArray()
   }
 
+  const storeMetadata = metadata =>
+    metadataCollection().updateOne({ type: SCHEDULE_METADATA }, { $set: metadata }, upsertOptions)
+      .then(response => {
+        if (response.result.ok) return metadata
+        else throw new Error('insert metadata failed: ' + response.message)
+      })
+
   return {
     storeLatestTickers,
     getTickersSorted,
     storeGraphData,
-    getGraphdata
+    getGraphdata,
+    storeMetadata
   }
 }
 
