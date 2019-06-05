@@ -41,16 +41,15 @@ const countData = tickers => tickers.filter(
 const createMetadata = metadataService => tickerData =>
   metadataService.setTickerCount(countData(tickerData.tickers))
 
-const LatestTickerService = (log, metadataService, creationDate) => {
+const LatestTickerService = (log, metadataService) => {
   const scheduleRepo = ScheduleRepo()
 
-  const storeTickers = () => Promise.all([
+  const storeTickers = created => Promise.all([
     getBidAskTicker(log, tickers.gdax),
     getBidAskTicker(log, tickers.coinfloor),
     getCoindeskTicker(log)
   ]).then(tickers => {
     log.info('updated ticker: ' + countData(tickers))
-    const created = creationDate
     return { created, tickers }
   }).then(scheduleRepo.storeLatestTickers)
     .then(createMetadata(metadataService))

@@ -31,7 +31,7 @@ describe('Latest ticker service', () => {
   }
 
   const metadataMock = createMetadataMock()
-  const latestTickerService = LatestTickerService(console, metadataMock, creationDate)
+  const latestTickerService = LatestTickerService(console, metadataMock)
 
   const nockget = tickerUrl => nock(tickerUrl.host).get(tickerUrl.path)
 
@@ -52,7 +52,7 @@ describe('Latest ticker service', () => {
       { name: 'coindesk', ask: 3577.58 }
     ]
 
-    it('stores all tickers', () => latestTickerService.storeTickers()
+    it('stores all tickers', () => latestTickerService.storeTickers(creationDate)
       .then(helpers.getTickers)
       .then(docs => {
         docs.length.should.equal(1)
@@ -61,7 +61,7 @@ describe('Latest ticker service', () => {
         doc.tickers.should.deep.equal(expectedData)
       }))
 
-    it('sends metadata to service', () => latestTickerService.storeTickers()
+    it('sends metadata to service', () => latestTickerService.storeTickers(creationDate)
       .then(() => metadataMock.received.count.should.equal(expectedData.length))
     )
   })
@@ -81,7 +81,7 @@ describe('Latest ticker service', () => {
       emptyTicker('coindesk')
     ]
 
-    it('stores unset tickers', () => latestTickerService.storeTickers()
+    it('stores unset tickers', () => latestTickerService.storeTickers(creationDate)
       .then(helpers.getTickers)
       .then(docs => {
         docs.length.should.equal(1)
