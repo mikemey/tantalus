@@ -1,9 +1,9 @@
 const ScheduleRepo = require('./scheduleRepo')
 
-const MetadataService = creationDate => {
+const MetadataService = () => {
   const scheduleRepo = ScheduleRepo()
   const metadataStore = {
-    created: creationDate,
+    created: null,
     ticker: { count: null },
     graphs: { count: null }
   }
@@ -16,7 +16,10 @@ const MetadataService = creationDate => {
     metadataStore.graphs.count = tickerCount
   }
 
-  const writeData = () => scheduleRepo.storeMetadata(metadataStore)
+  const writeData = creationDate => {
+    metadataStore.created = creationDate
+    return scheduleRepo.storeMetadata(metadataStore)
+  }
 
   return {
     setTickerCount,
