@@ -22,7 +22,17 @@ const tickerUrls = {
 }
 
 describe('Latest ticker service', () => {
-  const latestTickerService = LatestTickerService(console)
+  const createMetadataMock = () => {
+    let received = { date: null, count: null }
+    const setTickerCount = (date, count) => {
+      received.date = date
+      received.count = count
+    }
+    return { received, setTickerCount }
+  }
+
+  const metadataMock = createMetadataMock()
+  const latestTickerService = LatestTickerService(console, metadataMock)
 
   const nockget = tickerUrl => nock(tickerUrl.host).get(tickerUrl.path)
 
@@ -55,6 +65,14 @@ describe('Latest ticker service', () => {
         expectValidDate(doc.created)
         doc.tickers.should.deep.equal(expectedData)
       }))
+
+    it('sends metadata to service', () => latestTickerService.storeTickers()
+      .then(() => {
+        const today = new Date()
+        metadataMock.received.date.getDate().should.equal(today.getDate())
+        metadataMock.received.count.should.equal(expectedData.length)
+      })
+    )
   })
 
   describe('invalid responses', () => {

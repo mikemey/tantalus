@@ -38,7 +38,11 @@ const countData = tickers => tickers.filter(
   ticker => ticker.bid !== NOT_AVAIL || ticker.ask !== NOT_AVAIL
 ).length
 
-const LatestTickerService = log => {
+const createMetadata = metadataService => tickerData => {
+  metadataService.setTickerCount(tickerData.created, countData(tickerData.tickers))
+}
+
+const LatestTickerService = (log, metadataService) => {
   const scheduleRepo = ScheduleRepo()
 
   const storeTickers = () => Promise.all([
@@ -50,6 +54,7 @@ const LatestTickerService = log => {
     const created = new Date()
     return { created, tickers }
   }).then(scheduleRepo.storeLatestTickers)
+    .then(createMetadata(metadataService))
     .catch(err => {
       log.info('error occurred')
       log.error(err)
