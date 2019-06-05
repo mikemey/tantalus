@@ -1,7 +1,6 @@
 /* global describe before beforeEach it */const nock = require('nock')
 const fs = require('fs')
 const path = require('path')
-const moment = require('moment')
 
 const helpers = require('../utils-test/helpers')
 const LatestTickerService = require('../schedule/latestTickerService')
@@ -22,23 +21,19 @@ const tickerUrls = {
 }
 
 describe('Latest ticker service', () => {
+  const creationDate = new Date()
   const createMetadataMock = () => {
-    let received = { date: null, count: null }
-    const setTickerCount = (date, count) => {
-      received.date = date
+    let received = { count: null }
+    const setTickerCount = count => {
       received.count = count
     }
     return { received, setTickerCount }
   }
 
   const metadataMock = createMetadataMock()
-  const latestTickerService = LatestTickerService(console, metadataMock)
+  const latestTickerService = LatestTickerService(console, metadataMock, creationDate)
 
   const nockget = tickerUrl => nock(tickerUrl.host).get(tickerUrl.path)
-
-  const expectValidDate = date => {
-    moment.utc(date).isValid().should.equal(true)
-  }
 
   afterEach(() => nock.cleanAll())
 
@@ -62,16 +57,12 @@ describe('Latest ticker service', () => {
       .then(docs => {
         docs.length.should.equal(1)
         const doc = docs[0]
-        expectValidDate(doc.created)
+        doc.created.getTime().should.equal(creationDate.getTime())
         doc.tickers.should.deep.equal(expectedData)
       }))
 
     it('sends metadata to service', () => latestTickerService.storeTickers()
-      .then(() => {
-        const today = new Date()
-        metadataMock.received.date.getDate().should.equal(today.getDate())
-        metadataMock.received.count.should.equal(expectedData.length)
-      })
+      .then(() => metadataMock.received.count.should.equal(expectedData.length))
     )
   })
 
@@ -95,7 +86,7 @@ describe('Latest ticker service', () => {
       .then(docs => {
         docs.length.should.equal(1)
         const doc = docs[0]
-        expectValidDate(doc.created)
+        doc.created.getTime().should.equal(creationDate.getTime())
         doc.tickers.should.deep.equal(expectedData)
       }))
   })

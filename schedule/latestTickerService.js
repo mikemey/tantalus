@@ -38,11 +38,10 @@ const countData = tickers => tickers.filter(
   ticker => ticker.bid !== NOT_AVAIL || ticker.ask !== NOT_AVAIL
 ).length
 
-const createMetadata = metadataService => tickerData => {
-  metadataService.setTickerCount(tickerData.created, countData(tickerData.tickers))
-}
+const createMetadata = metadataService => tickerData =>
+  metadataService.setTickerCount(countData(tickerData.tickers))
 
-const LatestTickerService = (log, metadataService) => {
+const LatestTickerService = (log, metadataService, creationDate) => {
   const scheduleRepo = ScheduleRepo()
 
   const storeTickers = () => Promise.all([
@@ -51,7 +50,7 @@ const LatestTickerService = (log, metadataService) => {
     getCoindeskTicker(log)
   ]).then(tickers => {
     log.info('updated ticker: ' + countData(tickers))
-    const created = new Date()
+    const created = creationDate
     return { created, tickers }
   }).then(scheduleRepo.storeLatestTickers)
     .then(createMetadata(metadataService))
