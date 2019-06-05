@@ -6,7 +6,7 @@ const { supportedPeriods, cutoffDate } = require('../backend/tickers/graphPeriod
 const NOT_AVAIL = 'N/A'
 const LIMIT_RESULTS = 100
 
-const GraphService = log => {
+const GraphService = (log, metadataService) => {
   const scheduleRepo = ScheduleRepo()
 
   const createGraphDatasets = () => Promise.all(supportedPeriods.map(period => {
@@ -17,7 +17,10 @@ const GraphService = log => {
       .then(createGraphData)
       .then(sortGraphDataWithProviders)
       .then(graphData => scheduleRepo.storeGraphData(period, graphData))
-  })).then(storedPeriods => log.info('stored graph periods: ' + storedPeriods.length))
+  })).then(storedPeriods => {
+    metadataService.setGraphsCount(storedPeriods.length)
+    log.info('stored graph periods: ' + storedPeriods.length)
+  })
 
   return {
     createGraphDatasets,

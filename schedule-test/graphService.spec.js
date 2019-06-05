@@ -2,10 +2,19 @@ const moment = require('moment')
 
 const helpers = require('../utils-test/helpers')
 const GraphService = require('../schedule/graphService')
-const { _1w, _1y } = require('../backend/tickers/graphPeriods')
+const { supportedPeriods, _1w, _1y } = require('../backend/tickers/graphPeriods')
 
 describe('Graph service', () => {
-  const graphService = GraphService(console)
+  const createMetadataMock = () => {
+    let received = { count: null }
+    const setGraphsCount = count => {
+      received.count = count
+    }
+    return { received, setGraphsCount }
+  }
+
+  const metadataMock = createMetadataMock()
+  const graphService = GraphService(console, metadataMock)
 
   beforeEach(helpers.dropDatabase)
   after(helpers.closeMongodb)
@@ -145,5 +154,11 @@ describe('Graph service', () => {
           })
         })
       })
+  })
+
+  it('should send metadata to service', () => {
+    return helpers.insertTickers(testData)
+      .then(() => graphService.createGraphDatasets())
+      .then(() => metadataMock.received.count.should.equal(supportedPeriods.length))
   })
 })
