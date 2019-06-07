@@ -84,6 +84,7 @@ const getTraderReports = () => getData(mongo.traderReportsCollectionName)
 const insertTraderReports = traderReports => insertData(mongo.traderReportsCollectionName, traderReports)
 
 const getMetadata = () => getData(mongo.metadataCollectionName)
+const insertMetadata = metadata => insertData(mongo.metadataCollectionName, metadata)
 
 const copyWithoutIDField = (obj, defaultId = '_id') => obj.map
   ? obj.map(copyObjectWithoutField(defaultId))
@@ -118,5 +119,6 @@ module.exports = {
   getTraderReports,
   insertTraderReports,
 
-  getMetadata
+  getMetadata,
+  insertMetadata
 }

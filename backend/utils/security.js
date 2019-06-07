@@ -21,7 +21,7 @@ const init = (app, config, logger) => {
 
   setupSession(app, config)
   setupCrossRequestsProtection(app, config, logger)
-  setupUserAuthentication(app, config)
+  setupUserAuthentication(app)
 }
 
 const setupSession = (app, config) => {
@@ -66,7 +66,7 @@ const csrfErrorHandler = logger => (err, req, res, next) => {
   return res.status(403).json({ error: message })
 }
 
-const setupUserAuthentication = (app, config) => {
+const setupUserAuthentication = app => {
   app.use(passport.initialize())
   app.use(passport.session())
 
@@ -89,6 +89,7 @@ const setupTestUser = (app, config) => {
 
 const unprotectedRoutes = [
   '/api/version',
+  '/api/metadata/schedule',
   '/api/users/register',
   '/api/users/login'
 ]

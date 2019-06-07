@@ -83,5 +83,7 @@ describe('server security configuration', () => {
       .send({ amount: 10, price: 10 })
       .expect(200)
     )
+
+    it('allows GET schedule metadata', () => request(app).get('/api/metadata/schedule').expect(200))
   })
 })

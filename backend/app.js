@@ -14,6 +14,7 @@ const createUsersRouter = require('./users')
 const createInvestRouter = require('./invest')
 const createSimexRouter = require('./simex')
 const createSimReportRouter = require('./simreports')
+const createMetadataRouter = require('./metadata')
 
 const TransactionsService = require('../transactions/transactionsService')
 
@@ -72,6 +73,7 @@ const createApiRouter = (config, tantalusLogger) => {
   router.use('/tickers', createTickersRouter(tantalusLogger))
   router.use('/markets', createMarketsRouter(tantalusLogger))
   router.get('/version', createVersionEndpoint(tantalusLogger))
+  router.use('/metadata', createMetadataRouter())
 
   createSimexEndpoints(router, config, tantalusLogger)
   return router
@@ -81,7 +83,7 @@ const createVersionEndpoint = tantalusLogger => {
   const now = moment.utc().toISOString()
   const version = `v${pjson.version} (${now})`
   tantalusLogger.info(`server version: ${version}`)
-  return (req, res) => res.status(200).send(version)
+  return (_, res) => res.status(200).send(version)
 }
 
 const createSimexEndpoints = (router, config, tantalusLogger) => {
