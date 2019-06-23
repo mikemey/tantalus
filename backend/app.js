@@ -24,7 +24,9 @@ const suppressRequestLog = [
   '/api/tickers/graph',
   '/api/tickers/latest',
   '/api/simex/[^/]*/account',
-  '/api/simex/[^/]*/open_orders'
+  '/api/simex/[^/]*/open_orders',
+  '/api/version',
+  '/api/metadata/schedule'
 ]
 
 const methodsWithBody = ['POST', 'PUT']
