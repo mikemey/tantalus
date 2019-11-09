@@ -1,34 +1,30 @@
-<div class="navbar navbar-default">
-  <div class="navbar-header">
-    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
-      aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-    <a class="navbar-brand" href="#">Tantalus</a>
-  </div>
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-2">
+  <a class="navbar-brand" href="#">Tantalus</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent">
+    <span class="navbar-toggler-icon"></span>
+  </button>
 
-  <div ng-switch="!!model.account" class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-    <ul ng-switch-when="true" class="nav navbar-nav">
-      <li ng-class="{ active: isActive('/dashboard')}"><a href="#!/dashboard">Dashboard</a></li>
-      <li ng-class="{ active: isActive('/coinfloor')}"><a href="#!/coinfloor">Coinfloor</a></li>
-      <li ng-class="{ active: isActive('/simreport')}"><a href="#!/simreport">Simulation</a></li>
-      <li ng-class="{ active: isActive('/balance')}"><a href="#!/balance">Balance</a></li>
+  <div ng-switch="!!model.account" class="collapse navbar-collapse" id="navbarContent">
+    <ul ng-switch-when="true" class="navbar-nav mr-auto">
+      <li class="nav-item" ng-class="{ active: isActive('/dashboard')}"><a class="nav-link" href="#!/dashboard">Dashboard</a></li>
+      <li class="nav-item" ng-class="{ active: isActive('/coinfloor')}"><a class="nav-link" href="#!/coinfloor">Coinfloor</a></li>
+      <li class="nav-item" ng-class="{ active: isActive('/simreport')}"><a class="nav-link" href="#!/simreport">Simulation</a></li>
+      <li class="nav-item" ng-class="{ active: isActive('/balance')}"><a class="nav-link" href="#!/balance">Balance</a></li>
     </ul>
-    <ul ng-switch-when="true" class="nav navbar-nav navbar-right">
-      <li class="dropdown" ng-class="{ active: isActive('/account')}">
-        <a href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ model.account.username }} <span class="caret"></span></a>
-        <ul class="dropdown-menu">
-          <li><a href="#!/account">Account</a></li>
-          <li role="separator" class="divider"></li>
-          <li><a href ng-click="logout()">Logout</a></li>
-        </ul>
+    <ul ng-switch-when="true" class="navbar-nav">
+      <li class="nav-item dropdown" ng-class="{ active: isActive('/account')}">
+        <a href="" class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown">
+          {{ model.account.username }}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="#!/account">Account</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href ng-click="logout()">Logout</a>
+        </div>
       </li>
     </ul>
-    <ul ng-switch-default class="nav navbar-nav navbar-right">
-      <li ng-class="{ active: isActive('/account')}"><a href="#!/account/login">Login</a></li>
+    <ul ng-switch-default class="navbar-nav mr-auto">
+      <li class="nav-item" ng-class="{ active: isActive('/account')}"><a class="nav-link" href="#!/account/login">Login</a></li>
     </ul>
   </div>
-</div>
+</nav>
