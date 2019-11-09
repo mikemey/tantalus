@@ -1,33 +1,31 @@
-<h4>Login</h4>
-
-<div class="row">
-  <div class="col-md-offset-3 col-md-3">
+<div class="offset-md-3 col-md-5">
+  <h4>Register</h4>
+  <form>
+    <div class="form-row">
+      <div class="form-group col-md-5 mb-0">
+        <label class="mt-2" for="username">Name</label>
+      </div>
+      <div class="form-group col-md-7">
+        <input type="text" class="form-control" id="username" ng-model="model.data.username" placeholder="Name">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-5 mb-0">
+        <label class="mt-2" for="password">Password</label>
+      </div>
+      <div class="form-group col-md-7">
+        <input type="password" class="form-control" id="password" ng-model="model.data.password" placeholder="Password">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-5 mb-0">
+        <label class="mt-2" for="confirmation">Password confirmation</label>
+      </div>
+      <div class="form-group col-md-7">
+        <input type="password" class="form-control" id="confirmation" ng-model="model.data.confirmation" placeholder="Password confirmation">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-success my-4 offset-md-5 col-md-auto" ng-click="register()">Register</button>
     <div ng-show="model.error" class="alert alert-danger" role="alert">{{ model.error }}</div>
-
-    <form class="form-horizontal">
-      <div class="form-group">
-        <label class="col-sm-5 control-label">Username: </label>
-        <div class="col-sm-7">
-          <input type="text" class="form-control" id="username" ng-model="model.data.username" placeholder="Username">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-5 control-label">Password: </label>
-        <div class="col-sm-7">
-          <input type="password" class="form-control" id="password" ng-model="model.data.password" placeholder="Password">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-5 control-label">Password confirmation: </label>
-        <div class="col-sm-7">
-          <input type="password" class="form-control" id="confirmation" ng-model="model.data.confirmation" placeholder="Password confirmation">
-        </div>
-      </div>
-      <div class="form-group">
-        <div class="col-sm-offset-5 col-sm-7">
-          <button type="submit" ng-click="register()" class="btn btn-success">Register</button>
-        </div>
-      </div>
-    </form>
-  </div>
+  </form>
 </div>
