@@ -1,5 +1,5 @@
-<div>
-  <table class="table balance-table table-bordered table-hover">
+<div class="table-responsive">
+  <table class="table table-sm balance-table table-bordered table-hover">
     <thead>
       <tr>
         <th ng-hide="model.collapseTable">amount</th>
@@ -28,12 +28,12 @@
         </td>
         <td ng-hide="model.collapseTable" class="left">{{ entry.price | number: entry.priceDigits }}</td>
         <td class="left">{{ entry.currentPrice | number: entry.priceDigits }}</td>
-        <td ng-if="entry.link" class="center">
+        <td ng-if="entry.link" class="left">
           <a href="{{ entry.link }}" class="asset-link" target="_blank">
             {{ entry.asset }}
           </a>
         </td>
-        <td ng-if="!entry.link" class="center">{{ entry.asset }}</td>
+        <td ng-if="!entry.link" class="left">{{ entry.asset }}</td>
         <td class="percentage-cell" style="{{entry.changePercentageStyle}}">
           {{ (entry.changePercentage | number: 1) + (entry.changePercentage ? '&nbsp;%': '') }}
         </td>
@@ -46,8 +46,8 @@
         <td>{{ (entry.volumeBtc | number: 4) + (entry.volumeBtc ? '&nbsp;Ƀ': '') }}</td>
         <td ng-hide="model.collapseTable">{{ (entry.volumeGbp | number: 0) + (entry.volumeGbp ? '&nbsp;£': '') }}</td>
         <td ng-if="$ctrl.editable" class="edit-cell">
-          <button ng-click="setEditEntryIndex($index)" class="btn btn-default btn-xs edit-btn">
-            . . .
+          <button ng-click="setEditEntryIndex($index)" type="button" class="btn btn-light btn-sm edit-btn">
+            ...
           </button>
         </td>
       </tr>
@@ -83,58 +83,58 @@
       </tr>
     </tbody>
   </table>
-
-  <div ng-if="model.errorMessage" class="alert alert-danger" role="alert">
-    {{ model.errorMessage }}
-  </div>
-
-  <form ng-if="$ctrl.editable" name="assetForm">
-    <div class="row">
-      <div class="form-group col-sm-4">
-        <label for="amount">Amount</label>
-        <input id="amount" type="number" step="any" ng-model="inputs.amount" ng-change="refreshPriceInput()" class="form-control input-sm"
-          placeholder="amount" required="required">
-      </div>
-      <div class="form-group  col-sm-4">
-        <label for="investment">Investment</label>
-        <input id="investment" type="number" step="any" ng-model="inputs.invest" ng-change="refreshPriceInput()" class="form-control input-sm"
-          placeholder="investment">
-      </div>
-      <div class="form-group  col-sm-4">
-        <label for="price">Price</label>
-        <input id="price" type="number" step="any" ng-model="inputs.price" ng-change="refreshInvestInput()" class="form-control input-sm"
-          placeholder="price" required="required">
-      </div>
-      <div class="form-group col-sm-4">
-        <label for="asset">Asset</label>
-        <select id="asset" class="form-control asset-selector" ng-model="inputs.asset" ng-init="loadAvailableSymbols()"
-          required="required">
-          <option ng-repeat="asset in model.availableAssets">{{ asset }}</option>
-        </select>
-      </div>
-      <div class="form-group col-sm-5">
-        <label for="link">Link</label>
-        <input id="link" type="url" ng-model="inputs.link" class="form-control input-sm" placeholder="URL link">
-      </div>
-      <div class="form-group col-sm-1">
-        <label>&nbsp;</label>
-        <button ng-click="storeBalanceEntries()" ng-disabled="assetForm.$invalid" class="btn btn-success form-control input-sm">
-          <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
-        </button>
-      </div>
-      <div class="form-group col-sm-1">
-        <label>&nbsp;</label>
-        <button ng-disabled="assetForm.$invalid && model.editEntryIndex === ADD_MODE" ng-click="deleteEditAsset()"
-          class="btn btn-danger form-control input-sm">
-          <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-        </button>
-      </div>
-      <div class="form-group col-sm-1">
-        <label>&nbsp;</label>
-        <button ng-disabled="model.editEntryIndex === ADD_MODE" ng-click="resetAssetInputs()" class="btn btn-default form-control input-sm">
-          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-        </button>
-      </div>
-    </div>
-  </form>
 </div>
+
+<div ng-if="model.errorMessage" class="alert alert-danger" role="alert">
+  {{ model.errorMessage }}
+</div>
+
+<form ng-if="$ctrl.editable" name="assetForm">
+  <div class="row">
+    <div class="form-group col-sm-4">
+      <label for="amount">Amount</label>
+      <input id="amount" type="number" step="any" ng-model="inputs.amount" ng-change="refreshPriceInput()" class="form-control input-sm"
+        placeholder="amount" required="required">
+    </div>
+    <div class="form-group  col-sm-4">
+      <label for="investment">Investment</label>
+      <input id="investment" type="number" step="any" ng-model="inputs.invest" ng-change="refreshPriceInput()" class="form-control input-sm"
+        placeholder="investment">
+    </div>
+    <div class="form-group  col-sm-4">
+      <label for="price">Price</label>
+      <input id="price" type="number" step="any" ng-model="inputs.price" ng-change="refreshInvestInput()" class="form-control input-sm"
+        placeholder="price" required="required">
+    </div>
+    <div class="form-group col-sm-4">
+      <label for="asset">Asset</label>
+      <select id="asset" class="form-control asset-selector" ng-model="inputs.asset" ng-init="loadAvailableSymbols()"
+        required="required">
+        <option ng-repeat="asset in model.availableAssets">{{ asset }}</option>
+      </select>
+    </div>
+    <div class="form-group col-sm-5">
+      <label for="link">Link</label>
+      <input id="link" type="url" ng-model="inputs.link" class="form-control input-sm" placeholder="URL link">
+    </div>
+    <div class="form-group col-sm-1">
+      <label>&nbsp;</label>
+      <button ng-click="storeBalanceEntries()" ng-disabled="assetForm.$invalid" class="btn btn-success form-control input-sm">
+        <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+      </button>
+    </div>
+    <div class="form-group col-sm-1">
+      <label>&nbsp;</label>
+      <button ng-disabled="assetForm.$invalid && model.editEntryIndex === ADD_MODE" ng-click="deleteEditAsset()"
+        class="btn btn-danger form-control input-sm">
+        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+      </button>
+    </div>
+    <div class="form-group col-sm-1">
+      <label>&nbsp;</label>
+      <button ng-disabled="model.editEntryIndex === ADD_MODE" ng-click="resetAssetInputs()" class="btn btn-default form-control input-sm">
+        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+</form>
