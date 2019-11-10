@@ -1,23 +1,21 @@
 <div class="offset-md-3 col-md-5">
   <h4>Login</h4>
   <form>
-    <div class="form-row">
-      <div class="form-group col-md-5 mb-0">
-        <label class="mt-2" for="username">Name</label>
-      </div>
-      <div class="form-group col-md-7">
+    <div class="form-group row">
+      <label class="col-md-4 col-form-label" for="username">Name</label>
+      <div class="col-md-8">
         <input type="text" class="form-control" id="username" ng-model="model.data.username" placeholder="Name">
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-group col-md-5 mb-0">
-        <label class="mt-2" for="password">Password</label>
-      </div>
-      <div class="form-group col-md-7">
+    <div class="form-group row">
+      <label class="col-md-4 col-form-label" for="password">Password</label>
+      <div class="col-md-8">
         <input type="password" class="form-control" id="password" ng-model="model.data.password" placeholder="Password">
       </div>
     </div>
-    <button type="submit" class="btn btn-success btn-lg my-4 offset-md-5 col-md-auto" ng-click="login()">Login</button>
-    <div ng-show="model.error" class="alert alert-danger" role="alert">{{ model.error }}</div>
+    <div class="form-group row">
+      <button type="submit" class="btn btn-success btn-lg my-3 offset-md-4 col-md-8" ng-click="login()">Login</button>
+      <div ng-show="model.error" class="alert alert-danger w-100" role="alert">{{ model.error }}</div>
+    </div>
   </form>
 </div>
