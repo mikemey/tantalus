@@ -94,12 +94,7 @@ tr.collapseToggle button:hover:active {
   background-color: #6da954;
 }
 
-select.asset-selector {
-  height: 30px;
-  font-size: 12px;
-}
-
 form[name=assetForm] label {
-  font-size: 12px;
+  font-size: 80%;
   margin-bottom: 2px;
 }
