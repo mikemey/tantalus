@@ -56,6 +56,7 @@ const createServer = (config, tantalusLogger) => mongoConnection.connect(config,
 
     security.init(app, config, tantalusLogger)
     app.use('/tantalus', express.static('frontend/'))
+    app.use('/tantalus/assets', express.static('frontend-assets/'))
     app.use('/api', createApiRouter(config, tantalusLogger))
 
     const server = app.listen(config.port, config.interface, () => {
