@@ -10,10 +10,11 @@
   <div>
     <canvas id="transactionChart"></canvas>
   </div>
-  
-  <table class="table table-condensed">
-    <caption>Time cutoff: {{ model.dateLimit | unixDate: 'HH:mm:ss' }}</caption>
-    <thead>
+
+  <div class="table-responsive">
+    <table class="table table-sm table-bordered">
+      <caption>Time cutoff: {{ model.dateLimit | unixDate: 'HH:mm:ss' }}</caption>
+      <thead>
       <tr>
         <th>tid</th>
         <th>date</th>
@@ -21,8 +22,8 @@
         <th>amount</th>
         <th>weighted</th>
       </tr>
-    </thead>
-    <tbody>
+      </thead>
+      <tbody>
       <tr ng-repeat="tx in model.latestTransactions" ng-class=" $first ? 'info' : '' ">
         <td>{{ tx.tid }}</td>
         <td>{{ tx.date | unixDate: 'HH:mm:ss' }}</td>
@@ -30,6 +31,7 @@
         <td>{{ tx.amount }}</td>
         <td>{{ tx.weightedAmount | price: 4 }}</td>
       </tr>
-    </tbody>
-  </table>
+      </tbody>
+    </table>
+  </div>
 </div>
