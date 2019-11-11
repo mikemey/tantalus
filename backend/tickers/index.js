@@ -13,7 +13,7 @@ const createTickersRouter = logger => {
   )
 
   router.get('/graph', (req, res) => {
-    const period = req.query['period']
+    const period = req.query.period
     if (!supportedPeriods.includes(period)) {
       const msg = `Unsupported period: '${period}'`
       logger.error(msg)

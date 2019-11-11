@@ -60,13 +60,14 @@ const SurgeDetector = (orderLogger, config, exchangeConnector) => {
     switch (bucket.length) {
       case 0: return NaN
       case 1: return bucket[0].price
-      default:
+      default: {
         const sums = bucket.reduce((sums, currentTx) => {
           sums.totalAmount += currentTx.amount
           sums.totalVolume += transactionVolume(currentTx)
           return sums
         }, { totalAmount: 0, totalVolume: 0 })
         return priceFrom(sums.totalVolume, sums.totalAmount)
+      }
     }
   }
 

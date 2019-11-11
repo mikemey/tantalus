@@ -122,17 +122,17 @@ THREE.OrbitControls = function (object, domElement, lookAt = new THREE.Vector3()
   }
 
   const createUpdateFunc = () => {
-    let offset = new THREE.Vector3()
+    const offset = new THREE.Vector3()
 
     // so camera.up is the orbit axis
-    let quat = new THREE.Quaternion().setFromUnitVectors(object.up, new THREE.Vector3(0, 1, 0))
-    let quatInverse = quat.clone().inverse()
+    const quat = new THREE.Quaternion().setFromUnitVectors(object.up, new THREE.Vector3(0, 1, 0))
+    const quatInverse = quat.clone().inverse()
 
-    let lastPosition = new THREE.Vector3()
-    let lastQuaternion = new THREE.Quaternion()
+    const lastPosition = new THREE.Vector3()
+    const lastQuaternion = new THREE.Quaternion()
 
     return () => {
-      let position = scope.object.position
+      const position = scope.object.position
       offset.copy(position).sub(scope.target)
 
       // rotate offset to "y-axis-is-up" space

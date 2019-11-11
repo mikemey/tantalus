@@ -6,7 +6,7 @@ const { supportedPeriods, _1w, _1y } = require('../backend/tickers/graphPeriods'
 
 describe('Graph service', () => {
   const createMetadataMock = () => {
-    let received = { count: null }
+    const received = { count: null }
     const setGraphsCount = count => {
       received.count = count
     }

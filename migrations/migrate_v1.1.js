@@ -27,5 +27,5 @@ db.tickers.find().forEach(rec => {
         return { name: 'xxx' }
     }
   })
-  db.tickers.update({ '_id': rec._id }, { $set: { tickers: newticker } })
+  db.tickers.update({ _id: rec._id }, { $set: { tickers: newticker } })
 })

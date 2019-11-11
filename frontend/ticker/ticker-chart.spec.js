@@ -64,7 +64,7 @@ describe('ticker chart component', () => {
     const $scope = $rootScope.$new()
 
     const controller = $controller('ChartController', { $scope })
-    $scope['chartController'] = controller
+    $scope.chartController = controller
     $compile('<tickerChart></tickerChart>')($scope)
     return $scope
   }

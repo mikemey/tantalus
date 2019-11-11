@@ -1,4 +1,5 @@
-/* global describe before beforeEach it */const nock = require('nock')
+/* global describe beforeEach it */
+const nock = require('nock')
 const fs = require('fs')
 const path = require('path')
 
@@ -23,7 +24,7 @@ const tickerUrls = {
 describe('Latest ticker service', () => {
   const creationDate = new Date()
   const createMetadataMock = () => {
-    let received = { count: null }
+    const received = { count: null }
     const setTickerCount = count => {
       received.count = count
     }

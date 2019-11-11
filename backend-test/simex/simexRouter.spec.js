@@ -19,7 +19,7 @@ describe('SimEx router', () => {
   let app, transactionServiceMock
 
   const createTransactionServiceMock = () => {
-    let listener = []
+    const listener = []
 
     const setTransactions = newTransactions => listener
       .forEach(listener => listener(newTransactions))
