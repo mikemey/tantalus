@@ -1,17 +1,17 @@
 {
   "name": "tantalus",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "frontend for tantalus",
   "license": "MIT",
   "dependencies": {
-    "angular": "^1.7.5",
-    "angular-cookies": "^1.7.5",
-    "angular-mocks": "^1.7.5",
-    "angular-route": "^1.7.5",
-    "bootstrap": "^3.3.7",
-    "jquery": "^3.3.1",
-    "moment": "^2.22.2",
-    "chart.js": "^2.7.3",
+    "angular": "^1.7.8",
+    "angular-cookies": "^1.7.8",
+    "angular-mocks": "^1.7.8",
+    "angular-route": "^1.7.8",
+    "bootstrap": "^4.3.1",
+    "jquery": "^3.4.1",
+    "moment": "^2.24.0",
+    "chart.js": "^2.9.2",
     "angular-chart.js": "^1.1.1",
     "three.js": "0.93.0"
   }
