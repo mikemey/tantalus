@@ -25,6 +25,6 @@ describe('account details component', () => {
   it('shows user data', () => {
     const component = createAccountDetailsComponent()
 
-    component.find('p').text().should.equal(accountData.username)
+    component.find('input').val().should.equal(accountData.username)
   })
 })
