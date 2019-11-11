@@ -1,10 +1,10 @@
-<div>
-    <div class="input-group">
-      <span class="input-group-addon" id="simulationId-addon">Simulation ID</span>
-      <input  ng-model="simid" input-enter="updateSimulationId(simid)" type="text" class="form-control" id="simulationId" aria-describedby="simulationId-addon"
-        placeholder="provide simulation ID...">
-    </div>
-  <div id="itcontainer">
-    <canvas id="itcanvas"></canvas>
+<div class="form-group row">
+  <label for="simulationId" class="col-md-2 col-form-label">Simulation ID</label>
+  <div class="col-md-10">
+    <input ng-model="simid" input-enter="updateSimulationId(simid)" type="text" class="form-control" id="simulationId"
+           placeholder="provide simulation ID...">
   </div>
+</div>
+<div id="itcontainer">
+  <canvas id="itcanvas"></canvas>
 </div>
