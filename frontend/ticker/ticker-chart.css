@@ -6,26 +6,3 @@
   opacity: 1;
   box-shadow: inset 0 2px 3px rgba(140, 140, 140, 0.5)
 }
-
-.period-selected[disabled] {
-  cursor: default;
-}
-
-.fill-toggled:hover {
-  color: #222;
-  background-color: #c1c1c1;
-  border-color: #797979;
-}
-
-.fill-toggled:hover:active {
-  color: #111;
-  background-color: #afafaf;
-  border-color: #666;
-  box-shadow: inset 0 2px 3px rgba(120, 120, 120, 0.5)
-}
-
-.fill-untoggled:focus:not(:hover) {
-  color: #333;
-  background-color: #fff;
-  border-color: #ccc;
-}
