@@ -77,15 +77,15 @@ angular.module('tantalus.ticker')
                 },
                 isoWeekday: true,
                 tooltipFormat: 'll HH:mm'
+              },
+              ticks: {
+                fontSize: 10
               }
             }],
             yAxes: [{
-              scaleLabel: { display: true, labelString: 'GBP/Ƀ' },
               position: 'right',
               ticks: {
-                fontSize: 16,
-                fontFamily: 'Courier, monospace',
-                fontColor: '#000'
+                fontSize: 10
               }
             }]
           }
