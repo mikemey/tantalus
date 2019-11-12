@@ -24,6 +24,17 @@ describe('Register controller', () => {
   const expectRegisterRequest = () => $httpBackend
     .expectPOST('/api/users/register', testUser)
 
+  const componentsAfterRegister = ($location = {}) => {
+    const $scope = $rootScope.$new()
+    const components = { $scope, $location }
+    $controller('RegisterController', components)
+
+    $scope.model.data = { username, password, confirmation }
+    $scope.register()
+    $httpBackend.flush()
+    return components
+  }
+
   it('posts registration and forward to account', () => {
     expectRegisterRequest().respond(204)
 
@@ -34,42 +45,18 @@ describe('Register controller', () => {
         currentPath: () => currentPath
       }
     }
-
-    const $scope = $rootScope.$new()
-    const $location = locationRecorder()
-    $controller('RegisterController', { $scope, $location })
-
-    $scope.model.data = { username, password, confirmation }
-    $scope.register()
-    $httpBackend.flush()
-
-    $location.currentPath().should.equal('/account')
+    componentsAfterRegister(locationRecorder())
+      .$location.currentPath().should.equal('/account')
   })
 
   it('shows error from registration response', () => {
     const errorMsg = 'Username missing'
     expectRegisterRequest().respond(400, { error: errorMsg })
-
-    const $scope = $rootScope.$new()
-    $controller('RegisterController', { $scope })
-
-    $scope.model.data = { username, password, confirmation }
-    $scope.register()
-    $httpBackend.flush()
-
-    $scope.model.error.should.equal(errorMsg)
+    componentsAfterRegister().$scope.model.error.should.equal(errorMsg)
   })
 
   it('shows generic error when server error', () => {
     expectRegisterRequest().respond(400, 'something wrong')
-
-    const $scope = $rootScope.$new()
-    $controller('RegisterController', { $scope })
-
-    $scope.model.data = { username, password, confirmation }
-    $scope.register()
-    $httpBackend.flush()
-
-    $scope.model.error.should.equal('server error')
+    componentsAfterRegister().$scope.model.error.should.equal('server error')
   })
 })

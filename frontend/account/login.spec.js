@@ -34,13 +34,13 @@ describe('Login controller', () => {
 
   const componentsAfterLogin = ($location = LocationRecorder()) => {
     const $scope = $rootScope.$new()
-    const params = { $scope, $location }
-    $controller('LoginController', params)
+    const components = { $scope, $location }
+    $controller('LoginController', components)
 
     $scope.model.data = { username, password }
     $scope.login()
     $httpBackend.flush()
-    return { $scope, $location }
+    return components
   }
 
   it('posts login and forwards to dashboard (no redirect param)', () => {
