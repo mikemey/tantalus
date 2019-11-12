@@ -25,6 +25,10 @@ angular.module('tantalus.account', [
 
   const resetAccount = () => {
     account = null
+    const redirectUrl = $location.search().r
+      ? $location.search().r
+      : encodeURIComponent($location.url())
+    $location.search({ r: redirectUrl })
     $location.path('/account/login')
   }
 

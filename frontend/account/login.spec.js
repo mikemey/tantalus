@@ -22,53 +22,47 @@ describe('Login controller', () => {
 
   const expectLoginPost = () => $httpBackend.expectPOST('/api/users/login', testUser)
 
-  it('posts login and forwards to dashboard', () => {
-    const locationRecorder = () => {
-      let currentPath = null
-      return {
-        path: newPath => { currentPath = newPath },
-        currentPath: () => currentPath
-      }
+  const LocationRecorder = (searchParams = {}) => {
+    let currentUrl = null
+    const currentSearch = searchParams
+    return {
+      url: newUrl => { currentUrl = newUrl },
+      search: () => currentSearch,
+      currentUrl: () => currentUrl
     }
+  }
 
+  const componentsAfterLogin = ($location = LocationRecorder()) => {
     const $scope = $rootScope.$new()
-    const $location = locationRecorder()
-    $controller('LoginController', { $scope, $location })
+    const params = { $scope, $location }
+    $controller('LoginController', params)
 
     $scope.model.data = { username, password }
-
-    expectLoginPost().respond(204)
-
     $scope.login()
     $httpBackend.flush()
+    return { $scope, $location }
+  }
 
-    $location.currentPath().should.equal('/dashboard')
+  it('posts login and forwards to dashboard (no redirect param)', () => {
+    expectLoginPost().respond(204)
+    componentsAfterLogin().$location.currentUrl().should.equal('/dashboard')
+  })
+
+  it('posts login and forwards to redirect url', () => {
+    expectLoginPost().respond(204)
+    const redirectUrl = '/dashboard?period=3mo'
+    componentsAfterLogin(LocationRecorder({ r: encodeURIComponent(redirectUrl) }))
+      .$location.currentUrl().should.equal(redirectUrl)
   })
 
   it('shows error during login', () => {
     const errorMsg = 'login failed'
     expectLoginPost().respond(401, { error: errorMsg })
-
-    const $scope = $rootScope.$new()
-    $controller('LoginController', { $scope })
-
-    $scope.model.data = { username, password }
-    $scope.login()
-    $httpBackend.flush()
-
-    $scope.model.error.should.equal(errorMsg)
+    componentsAfterLogin().$scope.model.error.should.equal(errorMsg)
   })
 
   it('shows generic error when server error', () => {
     expectLoginPost().respond(400, 'something wrong')
-
-    const $scope = $rootScope.$new()
-    $controller('LoginController', { $scope })
-
-    $scope.model.data = { username, password }
-    $scope.login()
-    $httpBackend.flush()
-
-    $scope.model.error.should.equal('server error')
+    componentsAfterLogin().$scope.model.error.should.equal('server error')
   })
 })

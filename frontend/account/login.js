@@ -16,8 +16,14 @@ angular.module('tantalus.account')
 
       $scope.login = () => {
         const { username, password } = $scope.model.data
+        const successRedirect = () => {
+          const targetUrl = $location.search().r
+            ? decodeURIComponent($location.search().r)
+            : '/dashboard'
+          $location.url(targetUrl)
+        }
         authorization.login(username, password)
-          .then(() => $location.path('/dashboard'))
+          .then(successRedirect)
           .catch(err => {
             if (err.data && err.data.error) $scope.model.error = err.data.error
             else $scope.model.error = 'server error'
