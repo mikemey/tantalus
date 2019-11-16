@@ -4,8 +4,11 @@
   </div>
   <div ng-repeat="ticker in model.tickers">
     <div class="row ticker-name">
-      <div class="col">
-        {{ ticker.name | uppercase }}
+      <div ng-switch="!!ticker.linkto" class="col">
+        <a ng-switch-when="true" href="{{ ticker.linkto }}" target="_blank">
+          {{ ticker.name | uppercase }}
+        </a>
+        <span ng-switch-default>{{ ticker.name | uppercase }}</span>
       </div>
     </div>
     <div class="row ticker-price">
