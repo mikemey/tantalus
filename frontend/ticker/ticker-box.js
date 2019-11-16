@@ -15,7 +15,7 @@ angular.module('tantalus.ticker')
 
     const setTicker = latestTicker => {
       const titleTicker = latestTicker.tickers.find(ticker => ticker.name === 'coinfloor')
-      if (titleTicker) setTitle(`${defaultTitle} [£ ${titleTicker.bid} / £ ${titleTicker.ask}]`)
+      if (titleTicker) setTitle(`[£ ${titleTicker.bid} /£ ${titleTicker.ask}] ${defaultTitle}`)
       $scope.model = latestTicker
     }
 
