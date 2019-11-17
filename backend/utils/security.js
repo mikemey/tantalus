@@ -39,7 +39,8 @@ const setupCrossRequestsProtection = (app, config, logger) => {
   app.use(cors())
 
   const csrfMiddlewares = [csrfProtection, csrfTokenGeneration]
-  app.all(/^\/(?!api\/simex).*/, ...csrfMiddlewares)
+  const csrfProtectedRoutes = config.simex ? /^\/(?!api\/simex).*/ : /.*/
+  app.all(csrfProtectedRoutes, ...csrfMiddlewares)
   app.use(csrfErrorHandler(logger))
 }
 
