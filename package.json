@@ -3,7 +3,7 @@
   "version": "4.1.1",
   "description": "tantalus",
   "engines": {
-    "node": "8"
+    "node": ">=8"
   },
   "main": "backend/index.js",
   "scripts": {
