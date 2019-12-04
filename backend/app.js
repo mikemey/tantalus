@@ -30,15 +30,16 @@ const suppressRequestLog = [
 ]
 
 const methodsWithBody = ['POST', 'PUT']
+const skipBodyLog = ['/login', '/register']
 
 const requestLogger = () => {
   morgan.token('clientIP', req => req.headers['x-forwarded-for'] || req.connection.remoteAddress)
-  morgan.token('errorBody', req => methodsWithBody.includes(req.method)
+  morgan.token('body', req => methodsWithBody.includes(req.method) && !skipBodyLog.find(slug => req.path.endsWith(slug))
     ? `\n${JSON.stringify(req.body, null, ' ')}`
     : ''
   )
 
-  const format = ':date[iso] [:clientIP] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent :errorBody'
+  const format = ':date[iso] [:clientIP] :method :url [:status] [:res[content-length] bytes] - :response-time[0]ms :user-agent :body'
   const skip = (req, res) =>
     process.env.TESTING !== undefined ||
     suppressRequestLog.some(excludePath => req.originalUrl.match(excludePath)) ||
