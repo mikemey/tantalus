@@ -7,8 +7,8 @@
   <div ng-switch="!!model.account" class="collapse navbar-collapse" id="navbarContent">
     <ul ng-switch-when="true" class="navbar-nav mr-auto">
       <li class="nav-item" ng-class="{ active: isActive('/dashboard')}"><a class="nav-link" href="#!/dashboard">Dashboard</a></li>
-      <li class="nav-item" ng-class="{ active: isActive('/coinfloor')}"><a class="nav-link" href="#!/coinfloor">Coinfloor</a></li>
-      <li class="nav-item" ng-class="{ active: isActive('/simreport')}"><a class="nav-link" href="#!/simreport">Simulation</a></li>
+<!--      <li class="nav-item" ng-class="{ active: isActive('/coinfloor')}"><a class="nav-link" href="#!/coinfloor">Coinfloor</a></li>-->
+<!--      <li class="nav-item" ng-class="{ active: isActive('/simreport')}"><a class="nav-link" href="#!/simreport">Simulation</a></li>-->
       <li class="nav-item" ng-class="{ active: isActive('/balance')}"><a class="nav-link" href="#!/balance">Balance</a></li>
     </ul>
     <ul ng-switch-when="true" class="navbar-nav">
@@ -25,6 +25,7 @@
     </ul>
     <ul ng-switch-default class="navbar-nav mr-auto">
       <li class="nav-item" ng-class="{ active: isActive('/account')}"><a class="nav-link" href="#!/account/login">Login</a></li>
+      <li class="nav-item" ng-class="{ active: isActive('/register')}"><a class="nav-link" href="#!/account/register">Register</a></li>
     </ul>
   </div>
 </nav>
