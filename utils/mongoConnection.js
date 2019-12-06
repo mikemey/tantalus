@@ -66,7 +66,7 @@ const cleanupInstances = () => {
 
 const initializeDirectConnection = (url, dbName) => {
   return checkProductionEnvironment(dbName)
-    .then(() => MongoClient.connect(url, { useNewUrlParser: true }))
+    .then(() => MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }))
     .then(client => {
       data.mongoClient = client
       return client.db(dbName)
