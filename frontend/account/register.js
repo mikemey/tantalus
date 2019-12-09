@@ -14,7 +14,7 @@ angular.module('tantalus.account')
     }
 
     $scope.register = () => $http.post('/api/users/register', $scope.model.data)
-      .then(() => $location.path('/account'))
+      .then(() => $location.path('/dashboard'))
       .catch(err => {
         if (err.data && err.data.error) $scope.model.error = err.data.error
         else $scope.model.error = 'server error'

@@ -46,7 +46,7 @@ describe('Register controller', () => {
       }
     }
     componentsAfterRegister(locationRecorder())
-      .$location.currentPath().should.equal('/account')
+      .$location.currentPath().should.equal('/dashboard')
   })
 
   it('shows error from registration response', () => {
