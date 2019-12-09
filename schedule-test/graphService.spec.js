@@ -21,6 +21,8 @@ describe('Graph service', () => {
 
   const datePast = daysPast => moment.utc().subtract(daysPast, 'd').toDate()
 
+  const durationBetween = (start, end) => moment.duration(moment.utc(start).diff(moment.utc(end)))
+
   const _8daysAgo = datePast(8)
   const _6daysAgo = datePast(6)
   const _5daysAgo = datePast(5)
@@ -63,12 +65,6 @@ describe('Graph service', () => {
       { x: _6daysAgo, y: 2222 }
     ]
   }, {
-  //   label: 'coinfloor ask',
-  //   data: [
-  //     { x: _6daysAgo, y: null },
-  //     { x: _5daysAgo, y: null }
-  //   ]
-  // }, {
     label: 'coindesk',
     data: [
       { x: _3daysAgo, y: 3585 },
@@ -80,7 +76,6 @@ describe('Graph service', () => {
     label: 'gdax bid',
     data: [
       { x: _3daysAgo, y: 3490 },
-      // { x: _4daysAgo, y: null },
       { x: _5daysAgo, y: 3858 },
       { x: _6daysAgo, y: 3856 }
     ]
@@ -88,13 +83,13 @@ describe('Graph service', () => {
     label: 'gdax ask',
     data: [
       { x: _3daysAgo, y: 3567 },
-      // { x: _4daysAgo, y: null },
       { x: _5daysAgo, y: 3866 },
       { x: _6daysAgo, y: 3879 }
     ]
   }]
 
-  it.only('should store sorted graph data', () => {
+  it('should store sorted graph data', () => {
+    const graphBucketDuration = 100 // minutes per bucket
     return helpers.insertTickers(testData)
       .then(() => graphService.createGraphDatasets())
       .then(() => helpers.getGraphData(_1w))
@@ -102,7 +97,22 @@ describe('Graph service', () => {
         docs.length.should.equal(1)
         const doc = docs[0]
         doc.period.should.equal(_1w)
-        doc.graphData.should.deep.equal(expectedGraphData)
+
+        let graphIx = 0
+        doc.graphData.should.have.length(expectedGraphData.length)
+        doc.graphData.forEach(graph => {
+          const expectedGraph = expectedGraphData[graphIx++]
+          graph.label.should.equal(expectedGraph.label)
+
+          graph.data.should.have.length(expectedGraph.data.length)
+          let graphCoordIx = 0
+          graph.data.forEach(coord => {
+            const expectedCoord = expectedGraph.data[graphCoordIx++]
+            const bucketStartDiff = durationBetween(coord.x, expectedCoord.x)
+            bucketStartDiff.asMinutes().should.be.lessThan(graphBucketDuration)
+            coord.y.should.equal(expectedCoord.y)
+          })
+        })
       })
   })
 
@@ -116,22 +126,23 @@ describe('Graph service', () => {
 
   it(`should store the average of at most ${graphService.LIMIT_RESULTS} data points`, () => {
     const length = 500
-    const cutoffIx = length - 365
+    const tickersPerBucket = 3.65
+    const averageIncreasePerBucket = 3.65
+    const hoursPerBucket = 87.6
 
-    const createTicker = (created, ix) => {
+    const createTicker = (created, value) => {
       return {
         created,
         tickers: [
-          { name: 'gdax', bid: ix, ask: ix },
-          { name: 'coindesk', ask: ix }]
+          { name: 'gdax', bid: value, ask: value },
+          { name: 'coindesk', ask: value }]
       }
     }
 
-    const testData = Array.from({ length }, (_, ix) => createTicker(datePast(length - 1 - ix), (ix + 1)))
+    const testData = Array.from({ length }, (_, ix) => createTicker(datePast(ix), (ix + 1)))
 
-    const sliceLen = (length - cutoffIx) / graphService.LIMIT_RESULTS
-    const oldestDateExpected = moment.utc(testData[cutoffIx + 1].created).toJSON()
-    const newestDateExpected = moment.utc(testData[length - Math.floor(sliceLen / 2) - 1].created).toJSON()
+    const oldestDateExpected = testData[Math.floor(365 - tickersPerBucket)].created
+    const newestDateExpected = testData[0].created
 
     return helpers.insertTickers(testData)
       .then(() => graphService.createGraphDatasets())
@@ -144,13 +155,16 @@ describe('Graph service', () => {
           const chartData = chart.data
           chartData.should.have.length(graphService.LIMIT_RESULTS)
 
-          chartData[0].x.toJSON().should.equal(oldestDateExpected)
-          chartData[chartData.length - 1].x.toJSON().should.equal(newestDateExpected)
+          const oldestSlotDiff = durationBetween(chartData[chartData.length - 1].x, oldestDateExpected)
+          oldestSlotDiff.asHours().should.be.lessThan(hoursPerBucket / 2)
 
-          let currentAverage = (cutoffIx + 2)
-          chartData.forEach((datapoint, ix) => {
-            datapoint.y.should.be.closeTo(currentAverage, 1.0)
-            currentAverage = currentAverage + sliceLen
+          const newestSlotDiff = durationBetween(chartData[0].x, newestDateExpected)
+          newestSlotDiff.asHours().should.be.lessThan(hoursPerBucket / 2)
+
+          let currentAverage = averageIncreasePerBucket
+          chartData.forEach(datapoint => {
+            datapoint.y.should.be.closeTo(currentAverage, 1.01)
+            currentAverage = currentAverage + averageIncreasePerBucket
           })
         })
       })
