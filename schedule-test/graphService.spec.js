@@ -59,42 +59,42 @@ describe('Graph service', () => {
   const expectedGraphData = [{
     label: 'coinfloor bid',
     data: [
-      { x: _6daysAgo, y: 2222 },
-      { x: _5daysAgo, y: 2222 }
+      { x: _5daysAgo, y: 2222 },
+      { x: _6daysAgo, y: 2222 }
     ]
   }, {
-    label: 'coinfloor ask',
-    data: [
-      { x: _6daysAgo, y: null },
-      { x: _5daysAgo, y: null }
-    ]
-  }, {
+  //   label: 'coinfloor ask',
+  //   data: [
+  //     { x: _6daysAgo, y: null },
+  //     { x: _5daysAgo, y: null }
+  //   ]
+  // }, {
     label: 'coindesk',
     data: [
-      { x: _6daysAgo, y: 3822 },
-      { x: _5daysAgo, y: 3803 },
+      { x: _3daysAgo, y: 3585 },
       { x: _4daysAgo, y: 3814 },
-      { x: _3daysAgo, y: 3585 }
+      { x: _5daysAgo, y: 3803 },
+      { x: _6daysAgo, y: 3822 }
     ]
   }, {
     label: 'gdax bid',
     data: [
-      { x: _6daysAgo, y: 3856 },
+      { x: _3daysAgo, y: 3490 },
+      // { x: _4daysAgo, y: null },
       { x: _5daysAgo, y: 3858 },
-      { x: _4daysAgo, y: null },
-      { x: _3daysAgo, y: 3490 }
+      { x: _6daysAgo, y: 3856 }
     ]
   }, {
     label: 'gdax ask',
     data: [
-      { x: _6daysAgo, y: 3879 },
+      { x: _3daysAgo, y: 3567 },
+      // { x: _4daysAgo, y: null },
       { x: _5daysAgo, y: 3866 },
-      { x: _4daysAgo, y: null },
-      { x: _3daysAgo, y: 3567 }
+      { x: _6daysAgo, y: 3879 }
     ]
   }]
 
-  it('should store sorted graph data', () => {
+  it.only('should store sorted graph data', () => {
     return helpers.insertTickers(testData)
       .then(() => graphService.createGraphDatasets())
       .then(() => helpers.getGraphData(_1w))

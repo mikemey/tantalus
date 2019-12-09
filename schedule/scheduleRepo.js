@@ -21,6 +21,10 @@ const ScheduleRepo = () => {
     .sort({ created: 1 })
     .toArray()
 
+  const getTickersSortedCursor = since => tickersCollection()
+    .find({ created: { $gte: since } }, { projection: { _id: false, created: true, tickers: true } })
+    .sort({ created: -1 })
+
   const upsertOptions = { upsert: true }
 
   const storeGraphData = (period, graphData) =>
@@ -120,7 +124,8 @@ const ScheduleRepo = () => {
     getTickersSorted,
     storeGraphData,
     getGraphdata,
-    storeMetadata
+    storeMetadata,
+    getTickersSortedCursor
   }
 }
 
