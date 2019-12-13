@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" ng-app="tantalus">
+<html lang="en" data-ng-app="tantalus">
 
 <head>
   <meta charset="utf-8">
@@ -16,45 +16,45 @@
   <link rel="stylesheet" href="simreport/iterations.css">
   <link rel="stylesheet" href="balance/balance-sheet.css">
 
-  <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
-  <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
-  <script type="text/javascript" src="bower_components/angular-cookies/angular-cookies.min.js"></script>
-  <script type="text/javascript" src="bower_components/angular-route/angular-route.min.js"></script>
-  <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-  <script type="text/javascript" src="bower_components/moment/min/moment.min.js"></script>
-  <script type="text/javascript" src="bower_components/chart.js/dist/Chart.min.js"></script>
-  <script type="text/javascript" src="bower_components/angular-chart.js/dist/angular-chart.min.js"></script>
-  <script type="text/javascript" src="bower_components/three.js/three.min.js"></script>
+  <script src="bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="bower_components/angular/angular.min.js"></script>
+  <script src="bower_components/angular-cookies/angular-cookies.min.js"></script>
+  <script src="bower_components/angular-route/angular-route.min.js"></script>
+  <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="bower_components/moment/min/moment.min.js"></script>
+  <script src="bower_components/chart.js/dist/Chart.min.js"></script>
+  <script src="bower_components/angular-chart.js/dist/angular-chart.min.js"></script>
+  <script src="bower_components/three.js/three.min.js"></script>
 
-  <script type="text/javascript" src="app.module.js"></script>
+  <script src="app.module.js"></script>
 
-  <script type="text/javascript" src="navbar/navbar.module.js"></script>
-  <script type="text/javascript" src="account/account.module.js"></script>
-  <script type="text/javascript" src="account/account-details.js"></script>
-  <script type="text/javascript" src="account/register.js"></script>
-  <script type="text/javascript" src="account/login.js"></script>
+  <script src="navbar/navbar.module.js"></script>
+  <script src="account/account.module.js"></script>
+  <script src="account/account-details.js"></script>
+  <script src="account/register.js"></script>
+  <script src="account/login.js"></script>
 
-  <script type="text/javascript" src="ticker/ticker.module.js"></script>
-  <script type="text/javascript" src="ticker/ticker.service.js"></script>
-  <script type="text/javascript" src="ticker/ticker-box.js"></script>
-  <script type="text/javascript" src="ticker/ticker-chart.js"></script>
+  <script src="ticker/ticker.module.js"></script>
+  <script src="ticker/ticker.service.js"></script>
+  <script src="ticker/ticker-box.js"></script>
+  <script src="ticker/ticker-chart.js"></script>
 
-  <script type="text/javascript" src="coinfloor/coinfloor.module.js"></script>
-  <script type="text/javascript" src="coinfloor/coinfloor-invest.js"></script>
+  <script src="coinfloor/coinfloor.module.js"></script>
+  <script src="coinfloor/coinfloor-invest.js"></script>
 
-  <script type="text/javascript" src="simreport/simreport.module.js"></script>
-  <script type="text/javascript" src="simreport/assets/OrbitControls.js"></script>
-  <script type="text/javascript" src="simreport/simreport.service.js"></script>
-  <script type="text/javascript" src="simreport/iterations.js"></script>
+  <script src="simreport/simreport.module.js"></script>
+  <script src="simreport/assets/OrbitControls.js"></script>
+  <script src="simreport/simreport.service.js"></script>
+  <script src="simreport/iterations.js"></script>
 
-  <script type="text/javascript" src="balance/balance.module.js"></script>
-  <script type="text/javascript" src="balance/balance-sheet.js"></script>
+  <script src="balance/balance.module.js"></script>
+  <script src="balance/balance-sheet.js"></script>
 </head>
 
 <body>
 <navbar></navbar>
 <div class="container-fluid">
-  <div ng-view>
+  <div data-ng-view>
     <h4>Loading page...</h4>
   </div>
 </div>
