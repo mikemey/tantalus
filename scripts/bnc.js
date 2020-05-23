@@ -7,6 +7,7 @@ const configFile = path.join(__dirname, 'bnc.config.json')
 const config = JSON.parse(fs.readFileSync(configFile, 'utf8'))
 
 const BTC_SYMBOL = 'BTC'
+const SAVINGS_NAME_PATTERN = /^LD/
 
 const binanceClient = Binance({
   apiKey: config.APIKEY,
@@ -18,7 +19,6 @@ const requestOptions = (options = {}) => {
 }
 
 const toBtc = v => `Ƀ ${v.toFixed(4)}`
-const toNum = str => Number(str)
 const toDatetime = time => moment(time).format('YYYY-MM-DD HH:mm:ss')
 const currentTime = () => `${toDatetime(moment())}`
 const requestLog = message => `[${currentTime()}] ${message}`
@@ -27,8 +27,10 @@ const printNewline = () => console.log()
 const internalBalance = () => binanceClient.accountInfo(requestOptions())
   .then(({ balances }) => balances
     .map(({ asset, free, locked }) => {
-      const total = toNum(free) + toNum(locked)
-      return { asset, total }
+      const total = Number(free) + Number(locked)
+      const isSavings = asset.match(SAVINGS_NAME_PATTERN)
+      asset = asset.replace(SAVINGS_NAME_PATTERN, '')
+      return { asset, total, isSavings }
     })
     .filter(balance => balance.total > 0)
   )
@@ -37,7 +39,7 @@ const internalPrices = () => binanceClient.prices(requestOptions())
   .then(prices => {
     Object.keys(prices)
       .forEach(tradingPair => {
-        prices[tradingPair] = toNum(prices[tradingPair])
+        prices[tradingPair] = Number(prices[tradingPair])
       })
     return prices
   })
@@ -56,11 +58,12 @@ const balance = () => {
         .filter(balance => balance.btcValue >= config.btcThreshold)
         .sort((a, b) => b.btcValue - a.btcValue)
         .reduce((sum, balance) => {
-          console.log(` ${balance.asset.padEnd(7)} ${toBtc(balance.btcValue)}  [${balance.total}]`)
+          const assetName = balance.asset + (balance.isSavings ? ' (S)' : '')
+          console.log(` ${assetName.padEnd(8)} ${toBtc(balance.btcValue)}  [${balance.total}]`)
           return sum + balance.btcValue
         }, 0)
 
-      console.log(`total:   ${toBtc(btcTotal)}`)
+      console.log(' total'.padEnd(9), toBtc(btcTotal))
       console.log(`===== ${currentTime()} =====`)
     })
     .catch(err => console.log(err))
@@ -94,7 +97,7 @@ const transactions = symbol => {
         .forEach(trade => {
           const side = trade.isBuyer ? ' buy' : 'sell'
           const inBtc = toBtc(trade.price * trade.qty)
-          console.log(`[${toDatetime(trade.time)}]: ${side} btc: ${inBtc}, price: ${toNum(trade.price)}, qty: ${toNum(trade.qty)}, fee: ${toNum(trade.commission)} ${trade.commissionAsset}`)
+          console.log(`[${toDatetime(trade.time)}]: ${side} btc: ${inBtc}, price: ${Number(trade.price)}, qty: ${Number(trade.qty)}, fee: ${Number(trade.commission)} ${trade.commissionAsset}`)
         })
     })
   return requestLog('requesting user transactions...')
