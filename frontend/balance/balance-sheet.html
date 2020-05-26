@@ -98,7 +98,7 @@
                placeholder="amount" required="required">
       </div>
       <div class="form-group  col-md-4">
-        <label for="investment">Investment</label>
+        <label for="investment">Investment ({{ inputs.asset === 'BTCGBP' ? '£' : 'BTC' }})</label>
         <input id="investment" type="number" step="any" ng-model="inputs.invest" ng-change="refreshPriceInput()" class="form-control"
                placeholder="investment">
       </div>
