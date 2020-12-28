@@ -207,7 +207,8 @@ const TraderConfigPermutator = (baseLogger, simulatioId, genAlgoConfig, random =
 
       const alleleMutationStepsMax = boundaries[mutateGene].mutationStepsMax + 1
       const alleleMutationMin = boundaries[mutateGene].start !== undefined
-        ? boundaries[mutateGene].start : Number.MIN_SAFE_INTEGER
+        ? boundaries[mutateGene].start
+        : Number.MIN_SAFE_INTEGER
 
       const mutation = snapAlleleToSteps(mutateGene,
         chromosome[mutateGene] +

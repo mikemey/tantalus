@@ -15,14 +15,14 @@ angular.module('tantalus.ticker')
 
     const getLatestTicker = () => isTickerStale()
       ? $http.get('/api/tickers/latest')
-        .then(response => {
-          $scope.latestTickerUpdate = moment()
-          $scope.latestTicker = response.data
-        })
-        .catch(error => {
-          console.log('error fetching latest ticker [%s] %s', error.status, error.statusText)
-        })
-        .then(() => $scope.latestTicker)
+          .then(response => {
+            $scope.latestTickerUpdate = moment()
+            $scope.latestTicker = response.data
+          })
+          .catch(error => {
+            console.log('error fetching latest ticker [%s] %s', error.status, error.statusText)
+          })
+          .then(() => $scope.latestTicker)
       : Promise.resolve($scope.latestTicker)
 
     const getLatestBitcoinPrice = () => getLatestTicker()

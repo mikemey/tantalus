@@ -84,7 +84,7 @@ const OpenOrdersWatch = (orderLogger, config, exchangeConnector) => {
     clearLocalOpenOrders()
   }
 
-  const syncedCancelUnresolvedOrder = exchangeOrders => exchangeOrders.map(exchangeOrder => {
+  const syncedCancelUnresolvedOrder = exchangeOrders => exchangeOrders.forEach(exchangeOrder => {
     const cancelSuccess = exchangeConnector.cancelOrder(exchangeOrder.id)
     if (cancelSuccess) {
       const localOrder = localOpenOrders.get(exchangeOrder.id)

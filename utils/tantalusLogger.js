@@ -42,15 +42,15 @@ const TantalusLogger = (baseLogger, category, categoryColorFunc) => {
 
   const statics = category
     ? {
-      categoryTemplate: categoryColorFunc
-        ? ` [${categoryColorFunc(category)}]`
-        : ` [${randomColorText(category)}]`,
-      timeStampFormat: 'YYYY-MM-DD HH:mm:ss'
-    }
+        categoryTemplate: categoryColorFunc
+          ? ` [${categoryColorFunc(category)}]`
+          : ` [${randomColorText(category)}]`,
+        timeStampFormat: 'YYYY-MM-DD HH:mm:ss'
+      }
     : {
-      categoryTemplate: '',
-      timeStampFormat: '[[]YYYY-MM-DD HH:mm:ss[]]'
-    }
+        categoryTemplate: '',
+        timeStampFormat: '[[]YYYY-MM-DD HH:mm:ss[]]'
+      }
 
   const data = {
     lastAlive: moment.utc(0)

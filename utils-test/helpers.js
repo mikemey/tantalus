@@ -25,11 +25,7 @@ const createQuietLogger = () => {
 
 const startTestServer = (callback, disableSecurity = true, testUser = defaultTestUser, configOverride) => {
   const testConfig = disableSecurity
-    ? Object.assign({
-      disableSecurity: true,
-      testUser
-    }, defaultTestConfig
-    )
+    ? Object.assign({ disableSecurity: true, testUser }, defaultTestConfig)
     : defaultTestConfig
 
   Object.assign(testConfig, configOverride)

@@ -64,6 +64,9 @@
   "standard": {
     "env": [
       "mocha"
+    ],
+    "ignore": [
+      "/frontend/simreport/assets/"
     ]
   },
   "devDependencies": {

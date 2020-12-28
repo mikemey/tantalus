@@ -53,10 +53,10 @@ const OrderIssuer = (orderLogger, config, openOrdersWatch, exchangeConnector) =>
   const issueOrders = ([trends]) =>
     trends.latestPrice && (trends.isPriceSurging || trends.isUnderSellRatio)
       ? exchangeConnector.getAccount()
-        .then(account => Promise.all([
-          issueBuyOrder(trends, account),
-          issueSellOrder(trends, account)
-        ]))
+          .then(account => Promise.all([
+            issueBuyOrder(trends, account),
+            issueSellOrder(trends, account)
+          ]))
       : Promise.resolve()
 
   // ========= synced functions:
