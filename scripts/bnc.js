@@ -15,7 +15,7 @@ const binanceClient = Binance({
 })
 
 const requestOptions = (options = {}) => {
-  return Object.assign({ useServerTime: true }, options)
+  return Object.assign({}, options)
 }
 
 const toBtc = v => `Ƀ ${v.toFixed(4)}`
