@@ -43,7 +43,7 @@ const countData = tickers => tickers.filter(
   ticker => ticker.bid !== NOT_AVAIL || ticker.ask !== NOT_AVAIL
 ).length
 
-const LatestEurTickerService = (log) => {
+const LatestEurTickerService = log => {
   const scheduleRepo = ScheduleRepo()
 
   const storeTickers = created => Promise
