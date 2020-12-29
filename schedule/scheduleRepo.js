@@ -7,10 +7,13 @@ const SCHEDULE_METADATA = 'schedule'
 
 const ScheduleRepo = () => {
   const tickersCollection = () => mongo.db.collection(mongo.tickersCollectionName)
+  const eurTickersCollection = () => mongo.db.collection(mongo.eurTickersCollectionName)
   const graphsCollection = () => mongo.db.collection(mongo.graphsCollectionName)
   const metadataCollection = () => mongo.db.collection(mongo.metadataCollectionName)
 
-  const storeLatestTickers = tickersData => tickersCollection().insertOne(tickersData)
+  const storeLatestTickers = tickersData => storeTickersIn(tickersCollection(), tickersData)
+  const storeLatestEurTickers = tickersData => storeTickersIn(eurTickersCollection(), tickersData)
+  const storeTickersIn = (coll, tickersData) => coll.insertOne(tickersData)
     .then(result => {
       if (result.insertedCount === 1) return tickersData
       else throw new Error('insert ticker failed: ' + result.message)
@@ -121,6 +124,7 @@ const ScheduleRepo = () => {
 
   return {
     storeLatestTickers,
+    storeLatestEurTickers,
     getTickersSorted,
     storeGraphData,
     getGraphdata,

@@ -64,6 +64,7 @@ const insertData = (collectionName, data) => dbCollection(collectionName)
   .then(collection => collection.insertMany(data))
 
 const getTickers = () => getData(mongo.tickersCollectionName)
+const getEurTickers = () => getData(mongo.eurTickersCollectionName)
 const insertTickers = tickers => insertData(mongo.tickersCollectionName, tickers)
 
 const getGraphData = period => getData(mongo.graphsCollectionName, { period })
@@ -101,6 +102,7 @@ module.exports = {
   defaultTestConfig,
 
   getTickers,
+  getEurTickers,
   insertTickers,
   getAccounts,
   insertAccounts,
