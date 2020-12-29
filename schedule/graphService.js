@@ -54,9 +54,7 @@ const flatPrice = (tick, key, attachQualifier) => ({
   value: chartValueFrom(tick[key])
 })
 
-const chartValueFrom = tickVal => !tickVal || tickVal === NOT_AVAIL
-  ? null
-  : tickVal
+const chartValueFrom = tickVal => tickVal && tickVal !== NOT_AVAIL ? tickVal : null
 
 const PeriodCollector = period => {
   const periodCutoff = cutoffDate(period)
