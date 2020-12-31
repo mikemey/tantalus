@@ -7,8 +7,8 @@ const fmt = require('../schedule/formats')
 const serverMoment = serverTime => moment.unix(serverTime / 1000)
 
 const outFile = 'binance_tickers.raw.json'
-let latestTradeId = 1
-let currentMoment = serverMoment(1578038470040)
+let latestTradeId = 3709288
+let nextTickerMoment = serverMoment(1606970473487)
 // const lastMoment = serverMoment(1578638470040)
 const lastMoment = serverMoment(1609265732129)
 let processTrades = true
@@ -27,14 +27,14 @@ const convertToDbTicker = tick => ({
 })
 
 const pickTickFilter = tick => {
-  if (tick.m.isAfter(currentMoment) && tick.m.isBefore(lastMoment)) {
-    currentMoment = tick.m.clone().add(20, 'hours')
+  if (tick.m.isAfter(nextTickerMoment) && tick.m.isBefore(lastMoment)) {
+    nextTickerMoment = tick.m.clone().add(8, 'hours')
     return true
   }
   return false
 }
 
-const scheduleRead = () => setTimeout(readTrades, 5000)
+const scheduleRead = () => setTimeout(readTrades, 100)
 const readTrades = async () => {
   const dailyTicks = await getTradesFromId(latestTradeId)
     .then(ticks => {
@@ -43,7 +43,7 @@ const readTrades = async () => {
       processTrades = lastTick.m.isBefore(lastMoment)
       return ticks.filter(pickTickFilter).map(convertToDbTicker)
     })
-  console.log('days in packet:', dailyTicks.length, '\tlatest trade-id:', latestTradeId)
+  console.log('relevant ticks in batch:', dailyTicks.length, '\tlatest trade-id:', latestTradeId)
   dailyTicks.forEach(tick => fs.appendFileSync(outFile, JSON.stringify(tick) + '\n'))
 
   if (processTrades) {
@@ -53,5 +53,6 @@ const readTrades = async () => {
 
 scheduleRead()
 
-// console.log('wanted: 2020-12-29T18:16:00.004Z')
-// console.log('   got:', serverMoment(1609265732129).toISOString())
+// console.log(moment('2020-12-03T04:41:13.487Z').unix())
+// console.log('wanted: 2020-12-03T04:41:13.487Z')
+// console.log('   got:', serverMoment(1606970473487).toISOString())
