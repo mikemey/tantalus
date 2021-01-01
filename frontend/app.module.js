@@ -22,7 +22,6 @@ angular
     'tantalus.navbar',
     'tantalus.account',
     'tantalus.ticker',
-    'tantalus.coinfloor',
     'tantalus.simreport',
     'tantalus.balance'
   ])
