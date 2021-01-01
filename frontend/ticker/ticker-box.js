@@ -3,10 +3,11 @@
 const ticker = 'TickerController'
 const defaultTitle = 'Tantalus'
 
-const CF_NAME = 'coinfloor'
+const BNC_NAME = 'binance'
 const tickerLinks = [
-  { name: CF_NAME, linkto: 'https://coinfloor.co.uk/exchange' },
-  { name: 'gdax', linkto: 'https://pro.coinbase.com/trade/BTC-GBP' }
+  { name: BNC_NAME, linkto: 'https://www.binance.com/en/trade/BTC_EUR' },
+  { name: 'gdax', linkto: 'https://pro.coinbase.com/trade/BTC-EUR' },
+  { name: 'coindesk', linkto: 'https://www.coindesk.com/price/bitcoin' }
 ]
 
 angular.module('tantalus.ticker')
@@ -20,8 +21,8 @@ angular.module('tantalus.ticker')
     const setTitle = title => { $document[0].title = title }
 
     const setTicker = latestTickerData => {
-      const titleTicker = latestTickerData.tickers.find(ticker => ticker.name === CF_NAME)
-      if (titleTicker) setTitle(`[£ ${titleTicker.bid} /£ ${titleTicker.ask}] ${defaultTitle}`)
+      const titleTicker = latestTickerData.tickers.find(ticker => ticker.name === BNC_NAME)
+      if (titleTicker) setTitle(`[€ ${titleTicker.bid} /€ ${titleTicker.ask}] ${defaultTitle}`)
 
       $scope.model = updateTickerLinks(latestTickerData)
     }

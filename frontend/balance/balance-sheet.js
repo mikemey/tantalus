@@ -13,7 +13,7 @@ angular
   .controller(balanceSheetControllerName, ['$scope', '$interval', '$window', 'balanceService',
     function ($scope, $interval, $window, balanceService) {
       const BTC_SYMBOL = 'BTC'
-      const BTCGPB_ASSET = `${BTC_SYMBOL}GBP`
+      const BTCEUR_ASSET = `${BTC_SYMBOL}EUR`
       const COLLAPSE_WIDTH = 1000
 
       const EMPTY_INPUTS = { asset: '', amount: null, invest: null, price: null, link: null }
@@ -47,7 +47,7 @@ angular
         updateTableCollapse()
       }
 
-      window.bind('resize', () => {
+      window.on('resize', () => {
         updateTableCollapse()
         $scope.$apply()
       })
@@ -63,7 +63,7 @@ angular
       const resetErrorMessage = () => { $scope.model.errorMessage = '' }
 
       const recalculateBalanceData = () => {
-        const currentBtcSymbol = getPriceSymbol(BTCGPB_ASSET)
+        const currentBtcSymbol = getPriceSymbol(BTCEUR_ASSET)
         $scope.model.balanceEntries.forEach(calculateBalanceEntry(currentBtcSymbol))
         $scope.model.balanceEntries.forEach(colorizeBalanceEntry)
         if ($scope.model.balanceEntries.length > 1) {
@@ -79,9 +79,9 @@ angular
         const buyingPrice = balanceEntry.price
         balanceEntry.priceDigits = getPriceDigits(buyingPrice)
 
-        const isBtcAsset = balanceEntry.asset === BTCGPB_ASSET
+        const isBtcAsset = balanceEntry.asset === BTCEUR_ASSET
         if (isBtcAsset) {
-          balanceEntry.investmentGbp = buyingPrice * amount
+          balanceEntry.investmentEur = buyingPrice * amount
         } else {
           balanceEntry.investmentBtc = buyingPrice * amount
         }
@@ -100,9 +100,9 @@ angular
           }
           if (currentBtcSymbol !== undefined) {
             const currentBtcPrice = currentBtcSymbol.price
-            balanceEntry.volumeGbp = currentBtcPrice * balanceEntry.volumeBtc
-            balanceEntry.changeGbp = isBtcAsset
-              ? balanceEntry.volumeGbp - balanceEntry.investmentGbp
+            balanceEntry.volumeEur = currentBtcPrice * balanceEntry.volumeBtc
+            balanceEntry.changeEur = isBtcAsset
+              ? balanceEntry.volumeEur - balanceEntry.investmentEur
               : currentBtcPrice * balanceEntry.changeBtc
           }
         }
@@ -130,15 +130,15 @@ angular
 
       const summarizeBalance = () => $scope.model.balanceEntries.reduce((sums, entry) => {
         if (entry.investmentBtc) sums.investmentBtc += entry.investmentBtc
-        if (entry.investmentGbp) sums.investmentGbp += entry.investmentGbp
+        if (entry.investmentEur) sums.investmentEur += entry.investmentEur
         if (entry.changeBtc) sums.changeBtc += entry.changeBtc
-        if (entry.changeGbp) sums.changeGbp += entry.changeGbp
+        if (entry.changeEur) sums.changeEur += entry.changeEur
         if (entry.volumeBtc) sums.volumeBtc += entry.volumeBtc
-        if (entry.volumeGbp) sums.volumeGbp += entry.volumeGbp
+        if (entry.volumeEur) sums.volumeEur += entry.volumeEur
 
         if (sums.changeBtc) sums.changePercentage = sums.changeBtc / sums.investmentBtc * 100
         return sums
-      }, { investmentBtc: 0, investmentGbp: 0, changeBtc: 0, changeGbp: 0, volumeBtc: 0, volumeGbp: 0 })
+      }, { investmentBtc: 0, investmentEur: 0, changeBtc: 0, changeEur: 0, volumeBtc: 0, volumeEur: 0 })
 
       const recalculateInvestmentPercentage = () => {
         const btcAltcoinSum = $scope.model.balanceEntries.reduce((sum, current) => {
@@ -159,14 +159,14 @@ angular
 
       const updatePrices = () => {
         const userAssets = $scope.model.balanceEntries
-          .filter(entry => entry.asset !== BTCGPB_ASSET)
+          .filter(entry => entry.asset !== BTCEUR_ASSET)
           .map(entry => entry.asset)
         return Promise.all([
           balanceService.getMarketPrices(userAssets),
           balanceService.getLatestBitcoinPrice()
         ]).then(([assetPrices, btcPrice]) => {
           $scope.model.pricesDate = new Date()
-          assetPrices.unshift({ symbol: BTCGPB_ASSET, price: btcPrice })
+          assetPrices.unshift({ symbol: BTCEUR_ASSET, price: btcPrice })
           $scope.model.assetPrices = assetPrices
           recalculateBalanceData()
           $scope.$apply()
@@ -220,7 +220,7 @@ angular
         return balanceService.getAvailableSymbols()
           .then(response => {
             const btcPrices = response.symbols.filter(symbol => symbol.endsWith(BTC_SYMBOL))
-            btcPrices.unshift(BTCGPB_ASSET)
+            btcPrices.unshift(BTCEUR_ASSET)
             $scope.model.availableAssets = btcPrices
           })
           .catch(errorHandler)

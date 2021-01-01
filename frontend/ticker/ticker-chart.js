@@ -3,8 +3,8 @@
 const chartCtrlName = 'ChartController'
 
 const TICKERS = [
-  'coinfloor bid',
-  'coinfloor ask',
+  'binance bid',
+  'binance ask',
   'gdax bid',
   'gdax ask',
   'coindesk'

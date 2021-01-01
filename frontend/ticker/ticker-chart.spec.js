@@ -19,7 +19,7 @@ describe('ticker chart component', () => {
   })
 
   const backendData = [{
-    label: 'coinfloor ask',
+    label: 'binance ask',
     data: [
       { x: '2017-08-02T00:26:00.256Z', y: 3454.12 }
     ]
@@ -44,7 +44,7 @@ describe('ticker chart component', () => {
 
   const expectedDatasets = [
     datasetOptions({
-      label: 'coinfloor ask',
+      label: 'binance ask',
       backgroundColor: 'rgba(18, 107, 62, 0.5)',
       borderColor: 'rgb(18, 107, 62)',
       data: [{ x: '2017-08-02T00:26:00.256Z', y: 3454.12 }]

@@ -27,9 +27,9 @@ angular.module('tantalus.ticker')
 
     const getLatestBitcoinPrice = () => getLatestTicker()
       .then(latestTicker => {
-        const coinfloorTicker = latestTicker.tickers.find(ticker => ticker.name === 'coinfloor')
-        return coinfloorTicker && !isNaN(parseFloat(coinfloorTicker.bid))
-          ? coinfloorTicker.bid
+        const binanceTicker = latestTicker.tickers.find(ticker => ticker.name === 'binance')
+        return binanceTicker && !isNaN(parseFloat(binanceTicker.bid))
+          ? binanceTicker.bid
           : 0
       })
 
