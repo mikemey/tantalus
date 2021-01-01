@@ -16,7 +16,7 @@ describe('Schedule repository', () => {
 
   const prices = {
     coindesk: { ask: 3583.71 },
-    coinfloor: { bid: 3544.99, ask: 3562.5 },
+    binance: { bid: 3544.99, ask: 3562.5 },
     gdax: { bid: 3675.69, ask: 3454.54 }
   }
   const testData = () => {
@@ -24,7 +24,7 @@ describe('Schedule repository', () => {
       const created = datePast(ix)
       const tickers = [
         { name: 'gdax', bid: prices.gdax.bid + ix, ask: prices.gdax.ask + ix },
-        { name: 'coinfloor', bid: prices.coinfloor.bid + ix, ask: prices.coinfloor.ask + ix },
+        { name: 'binance', bid: prices.binance.bid + ix, ask: prices.binance.ask + ix },
         { name: 'coindesk', ask: prices.coindesk.ask + ix }
       ]
       return { created, tickers }
@@ -42,37 +42,37 @@ describe('Schedule repository', () => {
           return 0
         })
         graphsSorted.map(graph => graph.label).should.deep.equal([
-          'coindesk ask', 'coinfloor ask', 'coinfloor bid', 'gdax ask', 'gdax bid'
+          'binance ask', 'binance bid', 'coindesk ask', 'gdax ask', 'gdax bid'
         ])
 
-        expectGraphAverage(graphsSorted[0], prices.coindesk.ask)
-        expectGraphAverage(graphsSorted[1], prices.coinfloor.ask)
-        expectGraphAverage(graphsSorted[2], prices.coinfloor.bid)
+        expectGraphAverage(graphsSorted[0], prices.binance.ask)
+        expectGraphAverage(graphsSorted[1], prices.binance.bid)
+        expectGraphAverage(graphsSorted[2], prices.coindesk.ask)
         expectGraphAverage(graphsSorted[3], prices.gdax.ask)
         expectGraphAverage(graphsSorted[4], prices.gdax.bid)
       })
     // graphData looks sth like this, order of data objects isn't deterministic, just as example:
     // [{
-    //   label: 'coindesk ask',
-    //   data: [
-    //     { x: 2018 - 12 - 07T07: 38: 17.950Z, y: 3688 },
-    //     { x: 2018 - 12 - 09T01: 38: 17.950Z, y: 3646 },
-    //     { x: 2018 - 12 - 10T19: 38: 17.950Z, y: 3604 },
-    //     { x: 2018 - 12 - 05T13: 38: 17.950Z, y: 3721 }]
-    // }, {
-    //   label: 'coinfloor ask',
+    //   label: 'binance ask',
     //   data: [
     //     { x: 2018 - 12 - 10T19: 38: 17.950Z, y: 3583 },
     //     { x: 2018 - 12 - 09T01: 38: 17.950Z, y: 3625 },
     //     { x: 2018 - 12 - 07T07: 38: 17.950Z, y: 3667 },
     //     { x: 2018 - 12 - 05T13: 38: 17.950Z, y: 3700 }]
     // }, {
-    //   label: 'coinfloor bid',
+    //   label: 'binance bid',
     //   data: [
     //     { x: 2018 - 12 - 10T19: 38: 17.950Z, y: 3565 },
     //     { x: 2018 - 12 - 05T13: 38: 17.950Z, y: 3682 },
     //     { x: 2018 - 12 - 09T01: 38: 17.950Z, y: 3607 },
     //     { x: 2018 - 12 - 07T07: 38: 17.950Z, y: 3649 }]
+    // }, {
+    //   label: 'coindesk ask',
+    //   data: [
+    //     { x: 2018 - 12 - 07T07: 38: 17.950Z, y: 3688 },
+    //     { x: 2018 - 12 - 09T01: 38: 17.950Z, y: 3646 },
+    //     { x: 2018 - 12 - 10T19: 38: 17.950Z, y: 3604 },
+    //     { x: 2018 - 12 - 05T13: 38: 17.950Z, y: 3721 }]
     // }, {
     //   label: 'gdax ask',
     //   data: [
