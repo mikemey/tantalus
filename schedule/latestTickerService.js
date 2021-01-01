@@ -53,7 +53,7 @@ const LatestTickerService = (log, metadataService) => {
       log.info('updated ticker: ' + countData(tickers))
       return { created, tickers }
     })
-    .then(scheduleRepo.storeLatestEurTickers)
+    .then(scheduleRepo.storeLatestTickers)
     .then(setMetadata)
     .catch(err => {
       log.info('error occurred (eur)')

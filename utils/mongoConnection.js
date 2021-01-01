@@ -2,8 +2,7 @@ const { MongoClient } = require('mongodb')
 const mongoose = require('mongoose')
 mongoose.Promise = Promise
 
-const tickersCollectionName = 'tickers'
-const eurTickersCollectionName = 'etckrs'
+const tickersCollectionName = 'etckrs'
 const graphsCollectionName = 'graphs'
 const transactionCollectionName = 'transactions'
 const simulationReportsCollectionName = 'simulationreports'
@@ -24,10 +23,6 @@ const defaultIndexOptions = { background: true, unique: true }
 
 const ALL_INDEX_SPECS = [{
   collection: tickersCollectionName,
-  fields: { created: 1 },
-  options: { name: 'ix_created' }
-}, {
-  collection: eurTickersCollectionName,
   fields: { created: 1 },
   options: { name: 'ix_created' }
 }, {
@@ -118,7 +113,6 @@ module.exports = {
   ensureAllIndices,
   mongoose,
   tickersCollectionName,
-  eurTickersCollectionName,
   graphsCollectionName,
   transactionCollectionName,
   simulationReportsCollectionName,

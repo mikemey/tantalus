@@ -54,7 +54,7 @@ describe('Latest EUR ticker service ', () => {
     ]
 
     it('stores all tickers', () => tickerService.storeTickers(creationDate)
-      .then(helpers.getEurTickers)
+      .then(helpers.getTickers)
       .then(docs => {
         docs.length.should.equal(1)
         const doc = docs[0]
@@ -83,7 +83,7 @@ describe('Latest EUR ticker service ', () => {
     ]
 
     it('stores unset tickers', () => tickerService.storeTickers(creationDate)
-      .then(helpers.getEurTickers)
+      .then(helpers.getTickers)
       .then(docs => {
         docs.length.should.equal(1)
         const doc = docs[0]

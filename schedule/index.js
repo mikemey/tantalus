@@ -4,7 +4,7 @@ const mongoConnection = require('../utils/mongoConnection')
 const config = require('../utils/tantalusConfig').config
 const { TantalusLogger } = require('../utils/tantalusLogger')
 
-const LatestEurTickerService = require('./latestTickerService')
+const LatestTickerService = require('./latestTickerService')
 const GraphService = require('./graphService')
 const MetadataService = require('./metadataService')
 
