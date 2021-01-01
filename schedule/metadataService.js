@@ -8,6 +8,12 @@ const MetadataService = () => {
     graphs: { count: null }
   }
 
+  const reset = () => {
+    metadataStore.created = null
+    metadataStore.ticker.count = null
+    metadataStore.graphs.count = null
+  }
+
   const setTickerCount = tickerCount => {
     metadataStore.ticker.count = tickerCount
   }
@@ -24,7 +30,8 @@ const MetadataService = () => {
   return {
     setTickerCount,
     setGraphsCount,
-    writeData
+    writeData,
+    reset
   }
 }
 

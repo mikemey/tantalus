@@ -4,7 +4,6 @@ const mongoConnection = require('../utils/mongoConnection')
 const config = require('../utils/tantalusConfig').config
 const { TantalusLogger } = require('../utils/tantalusLogger')
 
-const LatestTickerService = require('./latestTickerService')
 const LatestEurTickerService = require('./latestEurTickerService')
 const GraphService = require('./graphService')
 const MetadataService = require('./metadataService')
@@ -23,18 +22,15 @@ mongoConnection.connect(config, mainLogger)
   .then(() => {
     mainLogger.info('setting up scheduler...')
     const metadataService = MetadataService()
-    const latestTickerService = LatestTickerService(mainLogger, metadataService)
-    const eurTickerService = LatestEurTickerService(mainLogger, metadataService)
+    const latestTickerService = LatestEurTickerService(mainLogger, metadataService)
     const graphService = GraphService(mainLogger, metadataService)
 
     schedule.scheduleJob('*/1 * * * *', () => {
       const creationDate = new Date()
-      return Promise.all([
-        latestTickerService.storeTickers(creationDate)
-          .then(graphService.createGraphDatasets)
-          .then(() => metadataService.writeData(creationDate)),
-        eurTickerService.storeTickers(creationDate)
-      ])
+      metadataService.reset()
+      return latestTickerService.storeTickers(creationDate)
+        .then(graphService.createGraphDatasets)
+        .then(() => metadataService.writeData(creationDate))
     })
 
     mainLogger.info('ready')

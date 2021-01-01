@@ -29,7 +29,7 @@ const createMetadataMock = () => {
   return { received, setTickerCount }
 }
 
-describe.only('Latest EUR ticker service ', () => {
+describe('Latest EUR ticker service ', () => {
   const creationDate = new Date()
   const metadataMock = createMetadataMock()
   const eurTickerService = LatestEurTickerService(console, metadataMock)
