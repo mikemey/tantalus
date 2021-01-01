@@ -24,7 +24,7 @@ mongoConnection.connect(config, mainLogger)
     mainLogger.info('setting up scheduler...')
     const metadataService = MetadataService()
     const latestTickerService = LatestTickerService(mainLogger, metadataService)
-    const eurTickerService = LatestEurTickerService(mainLogger)
+    const eurTickerService = LatestEurTickerService(mainLogger, metadataService)
     const graphService = GraphService(mainLogger, metadataService)
 
     schedule.scheduleJob('*/1 * * * *', () => {

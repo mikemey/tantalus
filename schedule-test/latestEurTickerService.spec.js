@@ -21,9 +21,18 @@ const tickerUrls = {
   coindesk: { host: 'https://api.coindesk.com', path: '/v1/bpi/currentprice.json' }
 }
 
-describe('Latest EUR ticker service ', () => {
+const createMetadataMock = () => {
+  const received = { count: 0 }
+  const setTickerCount = count => {
+    received.count = count
+  }
+  return { received, setTickerCount }
+}
+
+describe.only('Latest EUR ticker service ', () => {
   const creationDate = new Date()
-  const eurTickerService = LatestEurTickerService(console)
+  const metadataMock = createMetadataMock()
+  const eurTickerService = LatestEurTickerService(console, metadataMock)
 
   const nockget = tickerUrl => nock(tickerUrl.host).get(tickerUrl.path)
 
@@ -52,6 +61,10 @@ describe('Latest EUR ticker service ', () => {
         doc.created.getTime().should.equal(creationDate.getTime())
         doc.tickers.should.deep.equal(expectedData)
       }))
+
+    it('sends metadata to service', () => eurTickerService.storeTickers(creationDate)
+      .then(() => metadataMock.received.count.should.equal(expectedData.length))
+    )
   })
 
   describe('invalid responses', () => {

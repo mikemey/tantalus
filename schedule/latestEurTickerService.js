@@ -29,7 +29,7 @@ const tickers = [{
 
 const NOT_AVAIL = 'N/A'
 
-const getTicker = (tickerConfig, log) => requests
+const getTicker = log => tickerConfig => requests
   .getJson(tickerConfig.url)
   .then(tickerConfig.transform)
   .catch(tickerErrorHandler(tickerConfig, log))
@@ -43,15 +43,18 @@ const countData = tickers => tickers.filter(
   ticker => ticker.bid !== NOT_AVAIL || ticker.ask !== NOT_AVAIL
 ).length
 
-const LatestEurTickerService = log => {
+const LatestEurTickerService = (log, metadataService) => {
   const scheduleRepo = ScheduleRepo()
+  const setMetadata = tickerData => metadataService.setTickerCount(countData(tickerData.tickers))
 
   const storeTickers = created => Promise
-    .all(tickers.map(tickerConfig => getTicker(tickerConfig, log)))
+    .all(tickers.map(getTicker(log)))
     .then(tickers => {
-      log.info('updated ticker (eur): ' + countData(tickers))
+      log.info('updated ticker: ' + countData(tickers))
       return { created, tickers }
-    }).then(scheduleRepo.storeLatestEurTickers)
+    })
+    .then(scheduleRepo.storeLatestEurTickers)
+    .then(setMetadata)
     .catch(err => {
       log.info('error occurred (eur)')
       log.error(err)
