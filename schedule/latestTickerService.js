@@ -43,7 +43,7 @@ const countData = tickers => tickers.filter(
   ticker => ticker.bid !== NOT_AVAIL || ticker.ask !== NOT_AVAIL
 ).length
 
-const LatestEurTickerService = (log, metadataService) => {
+const LatestTickerService = (log, metadataService) => {
   const scheduleRepo = ScheduleRepo()
   const setMetadata = tickerData => metadataService.setTickerCount(countData(tickerData.tickers))
 
@@ -65,4 +65,4 @@ const LatestEurTickerService = (log, metadataService) => {
   }
 }
 
-module.exports = LatestEurTickerService
+module.exports = LatestTickerService

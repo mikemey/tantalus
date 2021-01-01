@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 
 const helpers = require('../utils-test/helpers')
-const LatestEurTickerService = require('../schedule/latestEurTickerService')
+const LatestTickerService = require('../schedule/latestTickerService')
 
 const testExchangeResponse = filename => fs.readFileSync(
   path.join(__dirname, `example_responses/${filename}`),
@@ -32,7 +32,7 @@ const createMetadataMock = () => {
 describe('Latest EUR ticker service ', () => {
   const creationDate = new Date()
   const metadataMock = createMetadataMock()
-  const eurTickerService = LatestEurTickerService(console, metadataMock)
+  const tickerService = LatestTickerService(console, metadataMock)
 
   const nockget = tickerUrl => nock(tickerUrl.host).get(tickerUrl.path)
 
@@ -53,7 +53,7 @@ describe('Latest EUR ticker service ', () => {
       { name: 'coindesk', ask: 21654.16 }
     ]
 
-    it('stores all tickers', () => eurTickerService.storeTickers(creationDate)
+    it('stores all tickers', () => tickerService.storeTickers(creationDate)
       .then(helpers.getEurTickers)
       .then(docs => {
         docs.length.should.equal(1)
@@ -62,7 +62,7 @@ describe('Latest EUR ticker service ', () => {
         doc.tickers.should.deep.equal(expectedData)
       }))
 
-    it('sends metadata to service', () => eurTickerService.storeTickers(creationDate)
+    it('sends metadata to service', () => tickerService.storeTickers(creationDate)
       .then(() => metadataMock.received.count.should.equal(expectedData.length))
     )
   })
@@ -82,7 +82,7 @@ describe('Latest EUR ticker service ', () => {
       emptyTicker('coindesk')
     ]
 
-    it('stores unset tickers', () => eurTickerService.storeTickers(creationDate)
+    it('stores unset tickers', () => tickerService.storeTickers(creationDate)
       .then(helpers.getEurTickers)
       .then(docs => {
         docs.length.should.equal(1)

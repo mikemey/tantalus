@@ -4,7 +4,7 @@ const mongoConnection = require('../utils/mongoConnection')
 const config = require('../utils/tantalusConfig').config
 const { TantalusLogger } = require('../utils/tantalusLogger')
 
-const LatestEurTickerService = require('./latestEurTickerService')
+const LatestEurTickerService = require('./latestTickerService')
 const GraphService = require('./graphService')
 const MetadataService = require('./metadataService')
 
@@ -22,7 +22,7 @@ mongoConnection.connect(config, mainLogger)
   .then(() => {
     mainLogger.info('setting up scheduler...')
     const metadataService = MetadataService()
-    const latestTickerService = LatestEurTickerService(mainLogger, metadataService)
+    const latestTickerService = LatestTickerService(mainLogger, metadataService)
     const graphService = GraphService(mainLogger, metadataService)
 
     schedule.scheduleJob('*/1 * * * *', () => {
