@@ -33,13 +33,13 @@ describe('Graph service', () => {
     created: _6daysAgo,
     tickers: [
       { name: 'gdax', bid: 3856.08, ask: 3879.06 },
-      { name: 'coinfloor', bid: 2222 },
+      { name: 'binance', bid: 2222 },
       { name: 'coindesk', ask: 3821.79 }]
   }, {
     created: _5daysAgo,
     tickers: [
       { name: 'gdax', bid: 3857.84, ask: 3865.78 },
-      { name: 'coinfloor', bid: 2222 },
+      { name: 'binance', bid: 2222 },
       { name: 'coindesk', ask: 3802.64 }]
   }, {
     created: _4daysAgo,
@@ -59,7 +59,7 @@ describe('Graph service', () => {
   }]
 
   const expectedGraphData = [{
-    label: 'coinfloor bid',
+    label: 'binance bid',
     data: [
       { x: _5daysAgo, y: 2222 },
       { x: _6daysAgo, y: 2222 }

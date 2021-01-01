@@ -119,9 +119,9 @@ const sortGraphDataWithProviders = graphData => graphData.sort((a, b) => sortOrd
 
 const sortOrdinalOf = dataset => {
   switch (dataset.label) {
-    case 'coinfloor bid':
+    case 'binance bid':
       return 0
-    case 'coinfloor ask':
+    case 'binance ask':
       return 1
     case 'coindesk':
       return 2
