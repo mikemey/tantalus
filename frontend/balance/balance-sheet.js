@@ -14,7 +14,6 @@ angular
     function ($scope, $interval, $window, balanceService) {
       const BTC_SYMBOL = 'BTC'
       const BTCGPB_ASSET = `${BTC_SYMBOL}GBP`
-      const COINFLOOR_TRADING_FEE = 0.003
       const COLLAPSE_WIDTH = 1000
 
       const EMPTY_INPUTS = { asset: '', amount: null, invest: null, price: null, link: null }
@@ -89,9 +88,7 @@ angular
 
         const currentSymbol = getPriceSymbol(balanceEntry.asset)
         if (currentSymbol !== undefined) {
-          const currentPrice = isBtcAsset
-            ? currentSymbol.price - (currentSymbol.price * COINFLOOR_TRADING_FEE)
-            : currentSymbol.price
+          const currentPrice = currentSymbol.price
           balanceEntry.currentPrice = currentPrice
           balanceEntry.changePercentage = (currentPrice - buyingPrice) / buyingPrice * 100
 
