@@ -1,6 +1,6 @@
 {
   "name": "tantalus",
-  "version": "4.1.4",
+  "version": "5.0.0",
   "description": "tantalus",
   "engines": {
     "node": ">=8"
