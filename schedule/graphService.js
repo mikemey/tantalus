@@ -22,7 +22,7 @@ const GraphService = (log, metadataService) => {
     return Promise
       .all(periodCollectors.map(collector => {
         const graphData = collector.getPeriodGraphs()
-        return scheduleRepo.storeGraphData(collector.period, graphData)
+        return scheduleRepo.updateGraphData(collector.period, graphData)
       }))
       .then(storedPeriods => {
         metadataService.setGraphsCount(storedPeriods.length)

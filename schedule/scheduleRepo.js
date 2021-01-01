@@ -27,7 +27,7 @@ const ScheduleRepo = () => {
 
   const upsertOptions = { upsert: true }
 
-  const storeGraphData = (period, graphData) =>
+  const updateGraphData = (period, graphData) =>
     graphsCollection().updateOne({ period }, { $set: { period, graphData } }, upsertOptions)
       .then(response => {
         if (response.result.ok) return graphData
@@ -122,7 +122,7 @@ const ScheduleRepo = () => {
   return {
     storeLatestTickers,
     getTickersSorted,
-    storeGraphData,
+    updateGraphData,
     getGraphdata,
     storeMetadata,
     getTickersSortedCursor
