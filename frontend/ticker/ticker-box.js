@@ -22,7 +22,10 @@ angular.module('tantalus.ticker')
 
     const setTicker = latestTickerData => {
       const titleTicker = latestTickerData.tickers.find(ticker => ticker.name === BNC_NAME)
-      if (titleTicker) setTitle(`[€ ${titleTicker.bid} /€ ${titleTicker.ask}] ${defaultTitle}`)
+      if (titleTicker) {
+        const titlePrice = titleTicker.bid.toLocaleString(undefined, { maximumFractionDigits: 0 })
+        setTitle(`[€ ${titlePrice}] ${defaultTitle}`)
+      }
 
       $scope.model = updateTickerLinks(latestTickerData)
     }
