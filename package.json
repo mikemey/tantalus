@@ -9,7 +9,7 @@
   "scripts": {
     "postinstall": "bower install",
     "lint": "standard",
-    "prestart": "npm install",
+    "prestart": "npm ci --only=prod",
     "start": "node backend/index.js",
     "preschedule": "npm install",
     "schedule": "node schedule",
