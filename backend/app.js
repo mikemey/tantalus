@@ -1,5 +1,4 @@
 const express = require('express')
-const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const moment = require('moment')
 
@@ -52,7 +51,7 @@ const createServer = (config, tantalusLogger) => mongoConnection.connect(config,
   .then(() => new Promise((resolve, reject) => {
     const app = express()
 
-    app.use(bodyParser.json())
+    app.use(express.json())
     app.use(requestLogger())
 
     security.init(app, config, tantalusLogger)

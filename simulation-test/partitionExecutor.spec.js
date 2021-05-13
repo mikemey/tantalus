@@ -1,5 +1,4 @@
 const express = require('express')
-const bodyParser = require('body-parser')
 
 const PartitionExecutor = require('../simulation/partitionExecutor')
 
@@ -22,7 +21,7 @@ const PartitionWorkerMockReceiver = () => {
 
   const startServer = () => new Promise((resolve, reject) => {
     const app = express()
-    app.use(bodyParser.json())
+    app.use(express.json())
     app.post('/createTradersCalled', createTradersCalled)
     app.post('/runIterationCalled', runIterationCalled)
     data.server = app.listen(12345, resolve)

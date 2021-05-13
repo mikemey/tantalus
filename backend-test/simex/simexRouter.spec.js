@@ -2,7 +2,6 @@
 const should = require('chai').should()
 
 const express = require('express')
-const bodyParser = require('body-parser')
 const moment = require('moment')
 
 const request = require('supertest')
@@ -32,7 +31,7 @@ describe('SimEx router', () => {
 
   beforeEach(() => {
     app = express()
-    app.use(bodyParser.json())
+    app.use(express.json())
 
     const testLogger = TantalusLogger(console, 'SIMEX test')
     transactionServiceMock = createTransactionServiceMock()
