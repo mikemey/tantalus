@@ -16,7 +16,7 @@ const binanceResponse = testExchangeResponse('binance_eur.json')
 const coindeskResponse = testExchangeResponse('coindesk_eur.json')
 
 const tickerUrls = {
-  gdax: { host: 'https://api.gdax.com', path: '/products/BTC-EUR/ticker' },
+  gdax: { host: 'https://api.pro.coinbase.com', path: '/products/BTC-EUR/ticker' },
   binance: { host: 'https://api.binance.com', path: '/api/v3/ticker/bookTicker?symbol=BTCEUR' },
   coindesk: { host: 'https://api.coindesk.com', path: '/v1/bpi/currentprice.json' }
 }

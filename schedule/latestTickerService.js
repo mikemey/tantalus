@@ -3,7 +3,7 @@ const fmt = require('./formats')
 const ScheduleRepo = require('./scheduleRepo')
 
 const tickers = [{
-  url: 'https://api.gdax.com/products/BTC-EUR/ticker',
+  url: 'https://api.pro.coinbase.com/products/BTC-EUR/ticker',
   name: 'gdax',
   transform: json => {
     const bid = fmt.rate(json.bid)
