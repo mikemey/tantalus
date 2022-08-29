@@ -3,15 +3,17 @@ const path = require('path')
 const moment = require('moment')
 const Binance = require('binance-api-node').default
 
-const configFile = path.join(__dirname, 'bnc.config.json')
-const config = JSON.parse(fs.readFileSync(configFile, 'utf8'))
+const configuration = () => {
+  const file = path.join(__dirname, 'bnc.config.json')
+  return JSON.parse(fs.readFileSync(file, 'utf8'))
+}
 
 const BTC_SYMBOL = 'BTC'
 const SAVINGS_NAME_PATTERN = /^LD/
 
 const binanceClient = Binance({
-  apiKey: config.APIKEY,
-  apiSecret: config.APISECRET
+  apiKey: configuration().APIKEY,
+  apiSecret: configuration().APISECRET
 })
 
 const requestOptions = (options = {}) => {
@@ -55,7 +57,7 @@ const balance = () => {
             : balance.total * prices[`${balance.asset}${BTC_SYMBOL}`]
           return balance
         })
-        .filter(balance => balance.btcValue >= config.btcThreshold)
+        .filter(balance => balance.btcValue >= configuration().btcThreshold)
         .sort((a, b) => b.btcValue - a.btcValue)
         .reduce((sum, balance) => {
           const assetName = balance.asset + (balance.isSavings ? ' (S)' : '')
