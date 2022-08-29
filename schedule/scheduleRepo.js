@@ -12,8 +12,8 @@ const ScheduleRepo = () => {
 
   const storeLatestTickers = tickersData => tickersCollection().insertOne(tickersData)
     .then(result => {
-      if (result.insertedCount === 1) return tickersData
-      else throw new Error('insert ticker failed: ' + result.message)
+      if (result.acknowledged) return tickersData
+      else throw new Error('insert ticker failed: ' + result)
     })
 
   const getTickersSorted = since => tickersCollection()
@@ -29,9 +29,9 @@ const ScheduleRepo = () => {
 
   const updateGraphData = (period, graphData) =>
     graphsCollection().updateOne({ period }, { $set: { period, graphData } }, upsertOptions)
-      .then(response => {
-        if (response.result.ok) return graphData
-        else throw new Error('insert graph data failed: ' + response.message)
+      .then(result => {
+        if (result.acknowledged) return graphData
+        else throw new Error('insert graph data failed: ' + result)
       })
 
   const getGraphdata = (period, dataPoints) => {
@@ -114,9 +114,9 @@ const ScheduleRepo = () => {
 
   const storeMetadata = metadata =>
     metadataCollection().updateOne({ type: SCHEDULE_METADATA }, { $set: metadata }, upsertOptions)
-      .then(response => {
-        if (response.result.ok) return metadata
-        else throw new Error('insert metadata failed: ' + response.message)
+      .then(result => {
+        if (result.acknowledged) return metadata
+        else throw new Error('insert metadata failed: ' + result)
       })
 
   return {

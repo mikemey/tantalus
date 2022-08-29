@@ -58,7 +58,7 @@ const createAccountsRouter = logger => {
   })
 
   router.post('/logout', (req, res) => {
-    req.logout()
+    req.logout(() => {})
     return res.status(204).send()
   })
 

@@ -6,7 +6,7 @@ const SimRepo = () => {
 
   const storeSimulationReport = simReport => simulationReportsCollection().insertOne(simReport)
     .then(result => {
-      if (result.insertedCount !== 1) throw Error('insert simulation failed: ' + result.message)
+      if (!result.insertedId) throw Error('insert simulation failed: ' + result)
     })
 
   const storeTraderReports = traderReports => traderReportsCollection().insertMany(traderReports)

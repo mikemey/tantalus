@@ -102,7 +102,7 @@ const closeDirectConnection = () =>
 
 const initializeMongooseConnection = (url, dbName) => {
   const mongooseUrl = `${url}/${dbName}`
-  return mongoose.connect(mongooseUrl, { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true })
+  return mongoose.connect(mongooseUrl)
 }
 
 const closeMongoose = () => mongoose.connection.close()

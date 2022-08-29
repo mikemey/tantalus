@@ -3,7 +3,7 @@ const csrf = require('csurf')
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
 
-const MongoStore = require('connect-mongo')(session)
+const MongoStore = require('connect-mongo')
 const mongoose = require('../../utils/mongoConnection').mongoose
 
 const { Account } = require('../users/userModel')
@@ -31,7 +31,7 @@ const setupSession = (app, config) => {
     secret: config.secret,
     resave: false,
     saveUninitialized: false,
-    store: new MongoStore({ mongooseConnection: mongoose.connection })
+    store: MongoStore.create({ client: mongoose.connection.getClient() })
   }))
 }
 
