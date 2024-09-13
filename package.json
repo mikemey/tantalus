@@ -13,6 +13,7 @@
     "start": "node backend/index.js",
     "preschedule": "npm install",
     "schedule": "node schedule",
+    "schedule-test": "mocha 'schedule-test/**/**.spec.js'",
     "pretrader": "npm install",
     "trader": "node trader",
     "simulation": "node simulation",

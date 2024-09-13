@@ -3,11 +3,11 @@ const fmt = require('./formats')
 const ScheduleRepo = require('./scheduleRepo')
 
 const tickers = [{
-  url: 'https://api.pro.coinbase.com/products/BTC-EUR/ticker',
+  url: 'https://api.coinbase.com/api/v3/brokerage/market/products/BTC-EUR/ticker?limit=1',
   name: 'gdax',
   transform: json => {
-    const bid = fmt.rate(json.bid)
-    const ask = fmt.rate(json.ask)
+    const bid = fmt.rate(json.best_bid)
+    const ask = fmt.rate(json.best_ask)
     return { name: 'gdax', bid, ask }
   }
 }, {

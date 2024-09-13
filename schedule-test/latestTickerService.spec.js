@@ -16,7 +16,7 @@ const binanceResponse = testExchangeResponse('binance_eur.json')
 const coindeskResponse = testExchangeResponse('coindesk_eur.json')
 
 const tickerUrls = {
-  gdax: { host: 'https://api.pro.coinbase.com', path: '/products/BTC-EUR/ticker' },
+  gdax: { host: 'https://api.coinbase.com', path: '/api/v3/brokerage/market/products/BTC-EUR/ticker?limit=1' },
   binance: { host: 'https://api.binance.com', path: '/api/v3/ticker/bookTicker?symbol=BTCEUR' },
   coindesk: { host: 'https://api.coindesk.com', path: '/v1/bpi/currentprice.json' }
 }
@@ -48,7 +48,7 @@ describe('Latest EUR ticker service ', () => {
     })
 
     const expectedData = [
-      { name: 'gdax', bid: 21529.21, ask: 21547.84 },
+      { name: 'gdax', bid: 52278.14, ask: 52298.32 },
       { name: 'binance', bid: 21494.76, ask: 21497.02 },
       { name: 'coindesk', ask: 21654.16 }
     ]
